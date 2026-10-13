@@ -65,37 +65,73 @@ footer{text-align:center;font-size:9px;color:#52718f;letter-spacing:.16em;margin
 <script>
 const $=id=>document.getElementById(id);
 let voiceEnabled=false, listening=false, recognition=null;
+  let processing = false;
 function updateClock(){ $('clock').textContent=new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit'}).format(new Date());}
 updateClock(); setInterval(updateClock,15000);
 function addMessage(text,who='jarvis'){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight;}
 function speak(text){if(!voiceEnabled||!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1;window.speechSynthesis.speak(u);}
 function reply(text){addMessage(text);speak(text);}
 
+
 async function askJarvisAI(message) {
-  const response = await fetch(
-    "https://green-haze-deb5.leonardo-souza-correa14.workers.dev",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ message })
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(
+      "https://green-haze-deb5.leonardo-souza-correa14.workers.dev",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message }),
+        signal: controller.signal
+      }
+    );
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("Resposta inválida do servidor.");
     }
-  );
 
-  const data = await response.json();
+    if (!response.ok) {
+      throw new Error(
+        data?.error || `Erro do servidor (${response.status}).`
+      );
+    }
 
-  if (!response.ok) {
-    throw new Error(data.error || "Falha ao consultar a IA.");
+    if (
+      typeof data?.response !== "string" ||
+      !data.response.trim()
+    ) {
+      throw new Error("A IA retornou uma resposta vazia.");
+    }
+
+    return data.response.trim();
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("A consulta demorou demais. Tente novamente.");
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error("Falha de rede. Verifique sua conexão.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return data.response;
 }
 
 async function handleCommand(raw) {
-  const t = raw.trim();
-  const s = t.toLowerCase();
-  if (!t) return;
+const t = raw.trim();
+const s = t.toLowerCase();
+
+if (!t || processing) return;
 
   addMessage(t, "user");
 
@@ -115,19 +151,36 @@ async function handleCommand(raw) {
     return;
   }
 
-  $("mode").textContent = "PROCESSANDO";
-  $("core").classList.add("active");
+processing = true;
+$("mode").textContent = "PROCESSANDO";
+$("core").classList.add("active");
 
-  try {
-    const answer = await askJarvisAI(t);
-    reply(answer);
-  } catch (error) {
-    reply(
-      "Não consegui conectar à inteligência artificial. " +
-      "Verifique sua internet e tente novamente. " +
-      "Se o problema continuar, o serviço pode estar indisponível."
-    );
-  } finally {
+const input = $("message");
+const sendButton = document.querySelector(
+  '#form button[type="submit"]'
+);
+
+input.disabled = true;
+sendButton.disabled = true;
+
+try {
+  const answer = await askJarvisAI(t);
+  reply(answer);
+} catch (error) {
+  console.error("Erro do JARVIS:", error);
+  reply(
+    "Não consegui concluir a solicitação. " +
+    (error.message || "Tente novamente em instantes.")
+  );
+} finally {
+  processing = false;
+  input.disabled = false;
+  sendButton.disabled = false;
+  $("mode").textContent = "STANDBY";
+  $("core").classList.remove("active");
+  input.focus();
+} 
+  {
     $("mode").textContent = "STANDBY";
     $("core").classList.remove("active");
   }
