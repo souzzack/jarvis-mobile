@@ -65,6 +65,7 @@ footer{text-align:center;font-size:9px;color:#52718f;letter-spacing:.16em;margin
 <script>
 const $=id=>document.getElementById(id);
 let voiceEnabled=false, listening=false, recognition=null;
+  let conversationHistory = [];
   let processing = false;
 function updateClock(){ $('clock').textContent=new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit'}).format(new Date());}
 updateClock(); setInterval(updateClock,15000);
@@ -85,7 +86,10 @@ async function askJarvisAI(message) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({
+  message,
+  history: conversationHistory.slice(-10)
+}),
         signal: controller.signal
       }
     );
@@ -165,7 +169,15 @@ sendButton.disabled = true;
 
 try {
   const answer = await askJarvisAI(t);
-  reply(answer);
+
+conversationHistory.push(
+  { role: "user", content: t },
+  { role: "assistant", content: answer }
+);
+
+conversationHistory = conversationHistory.slice(-10);
+
+reply(answer);
 } catch (error) {
   console.error("Erro do JARVIS:", error);
   reply(
