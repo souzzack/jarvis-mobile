@@ -298,23 +298,14 @@ recognition.onresult = (event) => {
 };
 
 
+
 recognition.onerror = (event) => {
-  const messages = {
-    "not-allowed": "Permissão do microfone negada. Confira as permissões do navegador.",
-    "service-not-allowed": "O navegador não permitiu usar o reconhecimento de voz.",
-    "no-speech": "Não detectei nenhuma fala. Tente falar novamente.",
-    "audio-capture": "Não consegui acessar o microfone do aparelho.",
-    "network": "O reconhecimento de voz falhou por um problema de rede."
-  };
+  console.error("JARVIS - erro de voz:", event.error, event);
 
   $("note").textContent =
-    messages[event.error] ||
-    "O reconhecimento de voz falhou. Tente novamente ou use o ditado do teclado.";
+    "Erro no reconhecimento: " +
+    (event.error || "erro não identificado");
 
-  console.warn("Erro no reconhecimento de voz:", event.error);
-};
-
-recognition.onend = () => {
   listening = false;
   $("mic").textContent = "🎙 FALAR";
 
@@ -323,6 +314,24 @@ recognition.onend = () => {
     $("core").classList.remove("active");
   }
 };
+
+recognition.onend = () => {
+  console.log("JARVIS - sessão de reconhecimento encerrada.");
+
+  listening = false;
+  $("mic").textContent = "🎙 FALAR";
+
+  if (!processing) {
+    $("mode").textContent = "STANDBY";
+    $("core").classList.remove("active");
+  }
+
+  if ($("note").textContent === "Pode falar. Estou ouvindo.") {
+    $("note").textContent =
+      "A escuta terminou sem transcrição. Tente novamente.";
+  }
+};
+
 
 try {
   recognition.start();
