@@ -65,7 +65,45 @@ footer{text-align:center;font-size:9px;color:#52718f;letter-spacing:.16em;margin
 <script>
 const $=id=>document.getElementById(id);
 let voiceEnabled=false, listening=false, recognition=null;
-  let conversationHistory = [];
+  
+let conversationHistory = [];
+
+const MEMORY_KEY = "jarvis_mobile_memory_v1";
+
+function loadJarvisMemory() {
+  try {
+    const saved = localStorage.getItem(MEMORY_KEY);
+    const parsed = saved ? JSON.parse(saved) : [];
+
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter(
+        item =>
+          item &&
+          typeof item.content === "string" &&
+          item.content.length <= 500
+      )
+      .slice(0, 30);
+  } catch (error) {
+    console.error("Erro ao carregar memória:", error);
+    return [];
+  }
+}
+
+function saveJarvisMemory(memory) {
+  try {
+    localStorage.setItem(
+      MEMORY_KEY,
+      JSON.stringify(memory.slice(0, 30))
+    );
+    return true;
+  } catch (error) {
+    console.error("Erro ao salvar memória:", error);
+    return false;
+  }
+}
+
   let processing = false;
 function updateClock(){ $('clock').textContent=new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit'}).format(new Date());}
 updateClock(); setInterval(updateClock,15000);
@@ -119,9 +157,10 @@ async function askJarvisAI(message) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
+       body: JSON.stringify({
   message,
-  history: conversationHistory.slice(-10)
+  history: conversationHistory.slice(-10),
+  memory: loadJarvisMemory()
 }),
         signal: controller.signal
       }
