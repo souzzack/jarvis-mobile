@@ -268,18 +268,35 @@ recognition.onstart = () => {
   $("note").textContent = "Pode falar. Estou ouvindo.";
 };
 
-recognition.onresult = (event) => {
-  const transcript = event.results?.[0]?.[0]?.transcript;
 
-  if (!transcript || !transcript.trim()) {
-    $("note").textContent = "Não consegui reconhecer a fala. Tente novamente.";
+recognition.onresult = (event) => {
+  console.log("JARVIS: evento de voz recebido", event);
+
+  const result = event.results?.[event.resultIndex];
+
+  if (!result || !result[0]) {
+    $("note").textContent =
+      "O Safari recebeu um evento, mas não retornou uma transcrição.";
     return;
   }
 
+  const transcript = result[0].transcript?.trim();
+
+  console.log("JARVIS: transcrição:", transcript);
+
+  if (!transcript) {
+    $("note").textContent =
+      "Não consegui reconhecer a fala. Tente falar mais perto do microfone.";
+    return;
+  }
+
+  $("note").textContent = "Entendi: " + transcript;
   $("message").value = transcript;
+
   handleCommand(transcript);
   $("message").value = "";
 };
+
 
 recognition.onerror = (event) => {
   const messages = {
