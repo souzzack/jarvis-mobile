@@ -70,20 +70,88 @@ updateClock(); setInterval(updateClock,15000);
 function addMessage(text,who='jarvis'){const d=document.createElement('div');d.className='msg '+who;d.textContent=text;$('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight;}
 function speak(text){if(!voiceEnabled||!('speechSynthesis' in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1;window.speechSynthesis.speak(u);}
 function reply(text){addMessage(text);speak(text);}
-function handleCommand(raw){
- const t=raw.trim(), s=t.toLowerCase();
- if(!t)return;
- addMessage(t,'user');
- let answer;
- if(/^(oi|olá|ola|bom dia|boa tarde|boa noite)\b/.test(s)) answer='Olá! Estou operacional. Ainda sou um protótipo: nesta versão, meus comandos são locais e limitados. A integração com IA vem na próxima etapa.';
- else if(s.includes('hora')) answer='Agora são '+new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit'}).format(new Date())+'.';
- else if(s.includes('data')||s.includes('dia de hoje')) answer='Hoje é '+new Intl.DateTimeFormat('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date())+'.';
- else if(s.includes('claude')){answer='Vou abrir o Claude Free em uma nova aba. A conversa não é transferida automaticamente.';reply(answer);window.open('https://claude.ai/','_blank','noopener');return;}
- else if(s.includes('comando')||s.includes('ajuda')) answer='Comandos disponíveis: “que horas são?”, “qual é a data de hoje?”, “abrir Claude” e “ajuda”. Esta versão ainda não está conectada a um modelo de IA.';
- else if(s.includes('quem é você')||s.includes('quem e voce')) answer='Sou seu protótipo JARVIS Mobile, com interface futurista e comandos básicos. Ainda não sou uma IA completa.';
- else answer='Recebi seu pedido: “'+t+'”. Ainda não conectei um modelo de IA, então não vou inventar uma resposta. Na próxima etapa, vamos integrar um modelo gratuito compatível.';
- $('mode').textContent='RESPONDENDO';$('core').classList.add('active');reply(answer);setTimeout(()=>{$('mode').textContent='STANDBY';$('core').classList.remove('active');},1200);
+
+async function askJarvisAI(message) {
+  const response = await fetch(
+    "https://api.llmfaucet.dev/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer free"
+      },
+      body: JSON.stringify({
+        model: "auto",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Você é JARVIS, um assistente pessoal prestativo. " +
+              "Responda em português brasileiro, com clareza e objetividade. " +
+              "Não afirme que executou ações no dispositivo sem confirmação."
+          },
+          { role: "user", content: message }
+        ]
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("O serviço de IA respondeu com erro.");
+  }
+
+  const data = await response.json();
+  const answer = data.choices?.[0]?.message?.content;
+
+  if (!answer) {
+    throw new Error("A IA não retornou uma resposta.");
+  }
+
+  return answer;
 }
+ 
+
+async function handleCommand(raw) {
+  const t = raw.trim();
+  const s = t.toLowerCase();
+  if (!t) return;
+
+  addMessage(t, "user");
+
+  // Mantém comandos locais simples
+  if (s.includes("hora")) {
+    reply("Agora são " +
+      new Intl.DateTimeFormat("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(new Date()) + ".");
+    return;
+  }
+
+  if (s.includes("claude")) {
+    reply("Abrindo o Claude Free. A conversa não será transferida automaticamente.");
+    window.open("https://claude.ai/", "_blank", "noopener");
+    return;
+  }
+
+  $("mode").textContent = "PROCESSANDO";
+  $("core").classList.add("active");
+
+  try {
+    const answer = await askJarvisAI(t);
+    reply(answer);
+  } catch (error) {
+    reply(
+      "Não consegui conectar à inteligência artificial. " +
+      "Verifique sua internet e tente novamente. " +
+      "Se o problema continuar, o serviço pode estar indisponível."
+    );
+  } finally {
+    $("mode").textContent = "STANDBY";
+    $("core").classList.remove("active");
+  }
+}
+
 $('form').addEventListener('submit',e=>{e.preventDefault();const v=$('message').value;$('message').value='';handleCommand(v);});
 $('speak').addEventListener('click',()=>{voiceEnabled=!voiceEnabled;$('speak').textContent=voiceEnabled?'🔊 VOZ: ATIVADA':'🔊 VOZ: ATIVAR';if(voiceEnabled)speak('Voz ativada.');});
 $('claude').addEventListener('click',()=>window.open('https://claude.ai/','_blank','noopener'));
