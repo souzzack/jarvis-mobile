@@ -173,6 +173,44 @@ function saveJarvisMemory(memory) {
   }
 }
 
+function identifyJarvisMemoryTopic(content) {
+  const text = content
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+  const topics = [
+    {
+      topic: "nome_projeto",
+      patterns: [
+        /\b(meu projeto|nome do meu projeto|projeto se chama|projeto agora se chama)\b/,
+        /\b(nome do app|meu aplicativo se chama|meu app se chama)\b/
+      ]
+    },
+    {
+      topic: "preferencia_respostas",
+      patterns: [
+        /\b(prefiro respostas|gosto de respostas|respostas mais curtas|respostas mais detalhadas)\b/
+      ]
+    },
+    {
+      topic: "objetivo_programacao",
+      patterns: [
+        /\b(aprender programacao|estudar programacao|aprender a programar)\b/
+      ]
+    }
+  ];
+
+  for (const item of topics) {
+    if (item.patterns.some(pattern => pattern.test(text))) {
+      return item.topic;
+    }
+  }
+
+  return null;
+}
+
   
 function categorizeJarvisMemory(content) {
   const text = content
