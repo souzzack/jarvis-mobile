@@ -211,6 +211,100 @@ if (!t || processing) return;
 
   addMessage(t, "user");
 
+  // Comandos locais de memória
+  const normalizeMemoryText = text =>
+    text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+  const savedMemory = loadJarvisMemory();
+
+  // Salvar uma memória explicitamente solicitada
+  const rememberMatch = t.match(
+    /^(?:jarvis[,\s]+)?(?:lembre-se de que|lembre-se que|lembre que|memorize que|guarde que)\s+(.+)$/i
+  );
+
+  if (rememberMatch) {
+    const content = rememberMatch[1].trim();
+
+    if (!content || content.length > 500) {
+      reply("Essa memória precisa ter entre 1 e 500 caracteres.");
+      return;
+    }
+
+    const duplicate = savedMemory.some(
+      item => normalizeMemoryText(item.content) === normalizeMemoryText(content)
+    );
+
+    if (duplicate) {
+      reply("Já tenho essa informação salva na memória.");
+      return;
+    }
+
+    const updatedMemory = [
+      { content, createdAt: new Date().toISOString() },
+      ...savedMemory
+    ].slice(0, 30);
+
+    if (saveJarvisMemory(updatedMemory)) {
+      reply("Anotado! Vou guardar essa informação neste navegador.");
+    } else {
+      reply("Não consegui salvar a memória. Verifique o armazenamento do navegador.");
+    }
+    return;
+  }
+
+  // Consultar as memórias salvas
+  if (
+    /^(?:jarvis[,\s]+)?(?:o que voce lembra|o que voce lembra sobre|mostre suas memorias|liste suas memorias|quais sao suas memorias)\??$/i.test(
+      normalizeMemoryText(t)
+    )
+  ) {
+    if (savedMemory.length === 0) {
+      reply("Ainda não tenho memórias salvas. Você pode dizer: 'JARVIS, lembre-se de que meu projeto se chama JARVIS Mobile'.");
+    } else {
+      reply(
+        "Estas são as informações que tenho salvas:\n" +
+        savedMemory.map((item, index) => `${index + 1}. ${item.content}`).join("\n")
+      );
+    }
+    return;
+  }
+
+  // Apagar todas as memórias
+  if (
+    /^(?:jarvis[,\s]+)?(?:apague toda a sua memoria|apague todas as memorias|limpe sua memoria|limpe todas as memorias|esqueca tudo)$/i.test(
+      normalizeMemoryText(t)
+    )
+  ) {
+    if (saveJarvisMemory([])) {
+      reply("Pronto. Todas as memórias salvas foram apagadas deste navegador.");
+    } else {
+      reply("Não consegui apagar as memórias. Tente novamente.");
+    }
+    return;
+  }
+
+  // Apagar uma memória usando uma palavra ou trecho dela
+  const forgetMatch = t.match(
+    /^(?:jarvis[,\s]+)?(?:esqueca|apague a memoria sobre|remova a memoria sobre)\s+(.+)$/i
+  );
+
+  if (forgetMatch) {
+    const query = normalizeMemoryText(forgetMatch[1].trim());
+
+    const updatedMemory = savedMemory.filter(
+      item => !normalizeMemoryText(item.content).includes(query)
+    );
+
+    if (updatedMemory.length === savedMemory.length) {
+      reply("Não encontrei uma memória com esse trecho. Tente usar uma palavra que esteja na informação salva.");
+    } else if (saveJarvisMemory(updatedMemory)) {
+      reply("Pronto. Apaguei a memória correspondente.");
+    } else {
+      reply("Não consegui atualizar a memória. Tente novamente.");
+    }
+    return;
+  }
+
   // Mantém comandos locais simples
   if (s.includes("hora")) {
     reply("Agora são " +
