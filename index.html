@@ -376,35 +376,30 @@ if (!t || processing) return;
     /^(?:jarvis[,\s]+)?(?:lembre-se de que|lembre-se que|lembre que|memorize que|guarde que)\s+(.+)$/i
   );
 
-  if (rememberMatch) {
-    const content = rememberMatch[1].trim();
+  
+if (rememberMatch) {
+  const content = rememberMatch[1].trim();
 
-    if (!content || content.length > 500) {
-      reply("Essa memória precisa ter entre 1 e 500 caracteres.");
-      return;
-    }
-
-    const duplicate = savedMemory.some(
-      item => normalizeMemoryText(item.content) === normalizeMemoryText(content)
-    );
-
-    if (duplicate) {
-      reply("Já tenho essa informação salva na memória.");
-      return;
-    }
-
-    const updatedMemory = [
-      { content, createdAt: new Date().toISOString() },
-      ...savedMemory
-    ].slice(0, 30);
-
-    if (saveJarvisMemory(updatedMemory)) {
-      reply("Anotado! Vou guardar essa informação neste navegador.");
-    } else {
-      reply("Não consegui salvar a memória. Verifique o armazenamento do navegador.");
-    }
+  if (!content || content.length > 500) {
+    reply("Essa memória precisa ter entre 1 e 500 caracteres.");
     return;
   }
+
+  const result = rememberJarvisFact(content);
+
+  if (!result.success) {
+    reply(result.message);
+    return;
+  }
+
+  reply(
+    result.updated
+      ? "Informação atualizada na minha memória."
+      : "Anotado! Salvei essa informação na minha memória."
+  );
+
+  return;
+}
 
   // Consultar as memórias salvas
   if (
