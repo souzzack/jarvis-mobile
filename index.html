@@ -439,10 +439,26 @@ if (rememberMatch) {
     if (savedMemory.length === 0) {
       reply("Ainda não tenho memórias salvas. Você pode dizer: 'JARVIS, lembre-se de que meu projeto se chama JARVIS Mobile'.");
     } else {
-      reply(
-        "Estas são as informações que tenho salvas:\n" +
-        savedMemory.map((item, index) => `${index + 1}. ${item.content}`).join("\n")
-      );
+      
+reply(
+  "Estas são as informações que tenho salvas:\n" +
+  savedMemory
+    .map((item, index) => {
+      const labels = {
+        projeto: "Projeto",
+        preferencia: "Preferência",
+        objetivo: "Objetivo",
+        pessoal: "Pessoal",
+        geral: "Geral"
+      };
+
+      const category = labels[item.category] || "Geral";
+
+      return `${index + 1}. [${category}] ${item.content}`;
+    })
+    .join("\n")
+);
+
     }
     return;
   }
