@@ -173,6 +173,91 @@ function saveJarvisMemory(memory) {
   }
 }
 
+function rememberJarvisFact(content, category = "geral") {
+  const text = content.trim();
+
+  if (!text || text.length > 500) {
+    return {
+      success: false,
+      message: "A informação precisa ter entre 1 e 500 caracteres."
+    };
+  }
+
+  const validCategories = [
+    "preferencia",
+    "projeto",
+    "objetivo",
+    "pessoal",
+    "geral"
+  ];
+
+  const selectedCategory = validCategories.includes(category)
+    ? category
+    : "geral";
+
+  const memory = loadJarvisMemory();
+  const normalize = value =>
+    value.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const normalizedText = normalize(text);
+
+  const existingIndex = memory.findIndex(
+    item => normalize(item.content) === normalizedText
+  );
+
+  const now = new Date().toISOString();
+
+  if (existingIndex !== -1) {
+    memory[existingIndex] = {
+      ...memory[existingIndex],
+      category: selectedCategory,
+      content: text,
+      updatedAt: now
+    };
+
+    if (!saveJarvisMemory(memory)) {
+      return {
+        success: false,
+        message: "Não consegui atualizar a memória."
+      };
+    }
+
+    return {
+      success: true,
+      updated: true,
+      message: "Informação atualizada na memória."
+    };
+  }
+
+  memory.unshift({
+    id: "mem-" + Date.now() + "-" +
+      Math.random().toString(36).slice(2, 7),
+    category: selectedCategory,
+    content: text,
+    createdAt: now,
+    updatedAt: now
+  });
+
+  if (!saveJarvisMemory(memory)) {
+    return {
+      success: false,
+      message: "Não consegui salvar a memória."
+    };
+  }
+
+  return {
+    success: true,
+    updated: false,
+    message: "Nova informação salva na memória."
+  };
+}
+
+  
   let processing = false;
 function updateClock(){ $('clock').textContent=new Intl.DateTimeFormat('pt-BR',{hour:'2-digit',minute:'2-digit'}).format(new Date());}
 updateClock(); setInterval(updateClock,15000);
