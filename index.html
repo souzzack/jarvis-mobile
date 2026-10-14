@@ -70,6 +70,7 @@ let conversationHistory = [];
 
 const MEMORY_KEY = "jarvis_mobile_memory_v1";
 
+
 function loadJarvisMemory() {
   try {
     const saved = localStorage.getItem(MEMORY_KEY);
@@ -82,9 +83,35 @@ function loadJarvisMemory() {
         item =>
           item &&
           typeof item.content === "string" &&
+          item.content.trim().length > 0 &&
           item.content.length <= 500
       )
-      .slice(0, 30);
+      .slice(0, 30)
+      .map(item => ({
+        id: item.id || (
+          "mem-" +
+          item.content
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, "-")
+            .slice(0, 40)
+        ),
+        category: [
+          "preferencia",
+          "projeto",
+          "objetivo",
+          "pessoal",
+          "geral"
+        ].includes(item.category)
+          ? item.category
+          : "geral",
+        content: item.content.trim(),
+        createdAt: item.createdAt || new Date().toISOString(),
+        updatedAt:
+          item.updatedAt ||
+          item.createdAt ||
+          new Date().toISOString()
+      }));
   } catch (error) {
     console.error("Erro ao carregar memória:", error);
     return [];
