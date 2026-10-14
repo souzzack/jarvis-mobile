@@ -217,9 +217,12 @@ function rememberJarvisFact(content, category = "geral") {
     "geral"
   ];
 
-  const selectedCategory = validCategories.includes(category)
+  
+const selectedCategory = validCategories.includes(category) &&
+  category !== "geral"
     ? category
-    : "geral";
+    : categorizeJarvisMemory(text);
+
 
   const memory = loadJarvisMemory();
   const normalize = value =>
