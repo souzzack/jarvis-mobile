@@ -237,6 +237,7 @@ function categorizeJarvisMemory(content) {
   return "geral";
 }
 
+
 function rememberJarvisFact(content, category = "geral") {
   const text = content.trim();
 
@@ -255,14 +256,13 @@ function rememberJarvisFact(content, category = "geral") {
     "geral"
   ];
 
-  
-const selectedCategory = validCategories.includes(category) &&
-  category !== "geral"
-    ? category
-    : categorizeJarvisMemory(text);
-
+  const selectedCategory =
+    validCategories.includes(category) && category !== "geral"
+      ? category
+      : categorizeJarvisMemory(text);
 
   const memory = loadJarvisMemory();
+
   const normalize = value =>
     value.normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
@@ -272,16 +272,26 @@ const selectedCategory = validCategories.includes(category) &&
       .trim();
 
   const normalizedText = normalize(text);
+  const topic = identifyJarvisMemoryTopic(text);
 
-  const existingIndex = memory.findIndex(
+  let existingIndex = memory.findIndex(
     item => normalize(item.content) === normalizedText
   );
+
+  // Se o assunto for reconhecido, procura uma memória do mesmo assunto.
+  if (existingIndex === -1 && topic) {
+    existingIndex = memory.findIndex(
+      item => identifyJarvisMemoryTopic(item.content) === topic
+    );
+  }
 
   const now = new Date().toISOString();
 
   if (existingIndex !== -1) {
+    const previous = memory[existingIndex];
+
     memory[existingIndex] = {
-      ...memory[existingIndex],
+      ...previous,
       category: selectedCategory,
       content: text,
       updatedAt: now
