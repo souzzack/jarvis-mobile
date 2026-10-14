@@ -173,6 +173,7 @@ function saveJarvisMemory(memory) {
   }
 }
 
+
 function identifyJarvisMemoryTopic(content) {
   const text = content
     .normalize("NFD")
@@ -191,13 +192,13 @@ function identifyJarvisMemoryTopic(content) {
     {
       topic: "preferencia_respostas",
       patterns: [
-        /\b(prefiro respostas|gosto de respostas|respostas mais curtas|respostas mais detalhadas)\b/
+        /\b(prefiro respostas|gosto de respostas|respostas mais curtas|respostas mais detalhadas|quero respostas|agora prefiro respostas|minha preferencia de resposta)\b/
       ]
     },
     {
       topic: "objetivo_programacao",
       patterns: [
-        /\b(aprender programacao|estudar programacao|aprender a programar)\b/
+        /\b(aprender programacao|estudar programacao|aprender a programar|quero aprender programacao|meu objetivo agora e aprender programacao)\b/
       ]
     }
   ];
@@ -210,33 +211,6 @@ function identifyJarvisMemoryTopic(content) {
 
   return null;
 }
-
-  
-function categorizeJarvisMemory(content) {
-  const text = content
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-
-  if (/\b(projeto|aplicativo|app|site|sistema|bot|jarvis)\b/.test(text)) {
-    return "projeto";
-  }
-
-  if (/\b(prefiro|gosto|nao gosto|minha preferencia|meu estilo)\b/.test(text)) {
-    return "preferencia";
-  }
-
-  if (/\b(quero|pretendo|objetivo|meta|planejo|meu sonho)\b/.test(text)) {
-    return "objetivo";
-  }
-
-  if (/\b(moro|meu nome|minha cidade|meu endereco|minha familia)\b/.test(text)) {
-    return "pessoal";
-  }
-
-  return "geral";
-}
-
 
 function rememberJarvisFact(content, category = "geral") {
   const text = content.trim();
