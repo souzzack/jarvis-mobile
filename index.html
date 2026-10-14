@@ -118,12 +118,54 @@ function loadJarvisMemory() {
   }
 }
 
+
 function saveJarvisMemory(memory) {
   try {
+    if (!Array.isArray(memory)) return false;
+
+    const validCategories = [
+      "preferencia",
+      "projeto",
+      "objetivo",
+      "pessoal",
+      "geral"
+    ];
+
+    const cleanedMemory = memory
+      .filter(
+        item =>
+          item &&
+          typeof item.content === "string" &&
+          item.content.trim().length > 0 &&
+          item.content.length <= 500
+      )
+      .slice(0, 30)
+      .map(item => {
+        const now = new Date().toISOString();
+
+        return {
+          id: item.id || (
+            "mem-" +
+            item.content
+              .toLowerCase()
+              .trim()
+              .replace(/\s+/g, "-")
+              .slice(0, 40)
+          ),
+          category: validCategories.includes(item.category)
+            ? item.category
+            : "geral",
+          content: item.content.trim(),
+          createdAt: item.createdAt || now,
+          updatedAt: item.updatedAt || item.createdAt || now
+        };
+      });
+
     localStorage.setItem(
       MEMORY_KEY,
-      JSON.stringify(memory.slice(0, 30))
+      JSON.stringify(cleanedMemory)
     );
+
     return true;
   } catch (error) {
     console.error("Erro ao salvar memória:", error);
