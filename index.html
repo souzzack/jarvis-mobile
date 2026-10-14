@@ -236,6 +236,31 @@ function identifyJarvisMemoryTopic(content) {
   return null;
 }
 
+function categorizeJarvisMemory(content) {
+  const text = String(content || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (/\b(projeto|aplicativo|app|site|sistema|bot|jarvis)\b/.test(text)) {
+    return "projeto";
+  }
+
+  if (/\b(prefiro|gosto|nao gosto|minha preferencia|meu estilo|respostas)\b/.test(text)) {
+    return "preferencia";
+  }
+
+  if (/\b(quero|pretendo|objetivo|meta|planejo|meu sonho|aprender)\b/.test(text)) {
+    return "objetivo";
+  }
+
+  if (/\b(moro|meu nome|minha cidade|minha familia)\b/.test(text)) {
+    return "pessoal";
+  }
+
+  return "geral";
+}
+  
 function rememberJarvisFact(content, category = "geral") {
   const text = content.trim();
 
