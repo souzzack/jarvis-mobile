@@ -4,3 +4,6 @@ animacoes/**/build/
 *.mp4
 *.mov
 .DS_Store
+personagem/video/frames/
+*.wav
+personagem/**/whisper/
