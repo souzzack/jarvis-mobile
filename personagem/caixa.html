@@ -1,0 +1,48 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 900; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 600; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-600-normal.woff2') format('woff2'); }
+  html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000}
+</style></head><body><canvas id="c" width="2160" height="3840" style="width:1080px;height:1920px"></canvas>
+<script type="module">
+// Arte do story "caixa de perguntas": convite para os seguidores contarem histórias que viram episódios.
+const W = 1080, H = 1920, ctx = document.getElementById('c').getContext('2d'), cor = '#f2c14e';
+ctx.scale(2, 2); ctx.imageSmoothingQuality = 'high'; // desenha em resolução dobrada
+for (const f of ['900 100px Montserrat', '800 40px Montserrat', '600 40px Montserrat']) await document.fonts.load(f);
+const davi = new Image(); davi.src = 'video/frames/davi_carta.png'; await davi.decode();
+const hex = (h, a) => { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+let seed = 21; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+// fundo: azul-noite com brilho dourado atrás do Davi
+let g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0b0f26'); g.addColorStop(0.5, '#141a3c'); g.addColorStop(1, '#090b1c'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+const halo = ctx.createRadialGradient(W / 2, 960, 40, W / 2, 960, 640); halo.addColorStop(0, hex(cor, 0.55)); halo.addColorStop(0.4, hex(cor, 0.18)); halo.addColorStop(1, hex(cor, 0)); ctx.fillStyle = halo; ctx.fillRect(0, 0, W, H);
+// raios de luz e partículas
+ctx.globalCompositeOperation = 'screen';
+const ox = W * 0.2, oy = -150;
+for (let i = 0; i < 7; i++) { const a = 0.45 + i * 0.12, w = 0.03 + rnd() * 0.045, len = H * 1.2; const rg = ctx.createLinearGradient(ox, oy, ox + Math.cos(a) * len, oy + Math.sin(a) * len); rg.addColorStop(0, hex(cor, 0.22)); rg.addColorStop(1, hex(cor, 0)); ctx.fillStyle = rg; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ox + Math.cos(a - w) * len, oy + Math.sin(a - w) * len); ctx.lineTo(ox + Math.cos(a + w) * len, oy + Math.sin(a + w) * len); ctx.fill(); }
+for (let i = 0; i < 70; i++) { const x = rnd() * W, y = rnd() * H, r = 2 + rnd() * rnd() * 18, a = 0.1 + rnd() * 0.45; const bg = ctx.createRadialGradient(x, y, 0, x, y, r); bg.addColorStop(0, `rgba(255,244,214,${a})`); bg.addColorStop(1, hex(cor, 0)); ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); }
+ctx.globalCompositeOperation = 'source-over';
+// chão de luz e o Davi com a carta
+const fl = ctx.createRadialGradient(W / 2, 1265, 10, W / 2, 1265, 330); fl.addColorStop(0, 'rgba(255,214,150,0.5)'); fl.addColorStop(1, 'rgba(255,214,150,0)'); ctx.save(); ctx.translate(0, 1265); ctx.scale(1, 0.16); ctx.translate(0, -1265); ctx.fillStyle = fl; ctx.fillRect(0, 1000, W, 600); ctx.restore();
+const sc = 0.62, dw = W * sc, dh = H * sc; ctx.drawImage(davi, (W - dw) / 2, 1290 - 0.765 * dh, dw, dh);
+// moldura
+ctx.strokeStyle = hex(cor, 0.5); ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(36, 36, W - 72, H - 72, 34); ctx.stroke();
+ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+// marca
+ctx.save(); ctx.shadowColor = hex(cor, 0.9); ctx.shadowBlur = 20; ctx.fillStyle = cor; ctx.beginPath(); ctx.roundRect(W / 2 - 160, 222, 34, 38, 5); ctx.fill(); ctx.restore();
+ctx.fillStyle = '#0a0a14'; ctx.fillRect(W / 2 - 144.5, 222, 3, 38); ctx.fillRect(W / 2 - 160, 239.5, 34, 3);
+ctx.font = '800 34px Montserrat'; ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.fillText('DAVI', W / 2 - 110, 243); let x = W / 2 - 110 + ctx.measureText('DAVI ').width; ctx.fillStyle = cor; ctx.fillText('&', x, 243); x += ctx.measureText('& ').width; ctx.fillStyle = '#fff'; ctx.fillText('DEUS', x, 243); ctx.textAlign = 'center';
+// título
+const title = (t, y, size, fill, glow) => { ctx.font = `900 ${size}px Montserrat`; ctx.lineJoin = 'round'; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8; ctx.strokeStyle = '#06050c'; ctx.lineWidth = size * 0.2; ctx.strokeText(t, W / 2, y); ctx.restore(); ctx.save(); ctx.shadowColor = glow; ctx.shadowBlur = 26; ctx.fillStyle = fill; ctx.fillText(t, W / 2, y); ctx.restore(); };
+title('CONTA A SUA', 360, 104, '#ffffff', 'rgba(255,255,255,0.25)');
+const tg = ctx.createLinearGradient(0, 410, 0, 530); tg.addColorStop(0, '#fff6dc'); tg.addColorStop(0.5, cor); tg.addColorStop(1, '#e0a030');
+title('HISTÓRIA', 478, 150, tg, hex(cor, 0.8));
+ctx.font = '600 38px Montserrat'; ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fillText('Ela pode virar um episódio', W / 2, 590); ctx.fillText('com o Davi e Deus 💛', W / 2, 640);
+// chamada para a caixa de perguntas (o adesivo vai no espaço livre abaixo)
+ctx.font = '800 40px Montserrat'; ctx.fillStyle = cor; ctx.fillText('ESCREVA AQUI EMBAIXO', W / 2, 1360);
+ctx.strokeStyle = cor; ctx.lineWidth = 6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(W / 2, 1395); ctx.lineTo(W / 2, 1440); ctx.moveTo(W / 2 - 18, 1424); ctx.lineTo(W / 2, 1444); ctx.lineTo(W / 2 + 18, 1424); ctx.stroke();
+// garantia de privacidade
+ctx.fillStyle = 'rgba(8,8,18,0.6)'; ctx.beginPath(); ctx.roundRect(110, 1700, W - 220, 92, 46); ctx.fill(); ctx.strokeStyle = hex(cor, 0.5); ctx.lineWidth = 2; ctx.stroke();
+ctx.font = '600 30px Montserrat'; ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.fillText('🔒 Nomes, lugares e detalhes são trocados.', W / 2, 1734); ctx.fillText('Ninguém vai saber que é você.', W / 2, 1770);
+window.__ready = true;
+</script></body></html>

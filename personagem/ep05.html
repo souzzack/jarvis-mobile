@@ -1,0 +1,159 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 5 — "É culpa minha?" (pais brigando). Uso: ep05.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, addLongHair, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps345/ep05/envelopes.json');
+const SHOTS = {
+  SH01: [0, 7.0, 'quarto'], SH02: [7.0, 14.0, 'quarto'], SH03: [14.0, 22.0, 'quarto'], SH04: [22.0, 26.0, 'quarto'],
+  SH05: [26.0, 32.6, 'familia'], SH06: [32.6, 42.0, 'quarto'], SH07: [42.0, 52.0, 'quarto'], SH08: [52.0, 60.4, 'quarto'],
+  SH09: [60.4, 70.4, 'quarto'], SH10: [70.4, 78.4, 'quarto'], SH11: [78.4, 81.0, 'quarto'], SH12: [81.0, 84.5, 'quarto'],
+  SH13: [84.5, 89.71, 'manha'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const LYING = ['SH01', 'SH02', 'SH04', 'SH12'];
+const expr = makeExpr(
+  { hx: 0.1, hy: -0.4, hz: 0, lean: 0.05, brUp: 0.3, brSad: 0.8, eyes: 0.85, lx: -0.5, ly: 0, tear: 0, god: 0.3, lamp: 0.25, wipe: 0, knees: 0, glow: 0, phones: 1, smile: 0 },
+  [[0, {}],
+   [32.6, { hy: -0.7, lx: -0.9, ly: 0.45, hx: -0.12, brUp: 0.6, brSad: 0.4, eyes: 1, god: 0.75 }],
+   [34.8, { brSad: 0.7, tear: 0.5 }], [40.5, { brUp: 0.7, brSad: 0.5, tear: 0.6 }],
+   [42.2, { glow: 1, god: 0.9 }], [46.0, { hy: 0.45, lx: 0.8, ly: 0 }],
+   [52.3, { hy: -0.2, lx: 0, ly: -0.3, hx: 0.2, brSad: 1, eyes: 0.6, tear: 1 }], [55.5, { wipe: 1 }], [57.5, { wipe: 0, eyes: 0.8 }],
+   [60.7, { hy: -0.6, lx: -0.8, ly: 0.4, hx: -0.05, brSad: 0.8, tear: 0.6 }], [64.1, { god: 1.1, tear: 0.4 }], [67.8, { brSad: 0.3, brUp: 0.5 }],
+   [70.6, { hy: 0.45, lx: 0.8, ly: 0, brSad: 0.4 }], [73.0, { god: 1.2 }],
+   [78.9, { phones: 0, brUp: 0.8, brSad: 0, hy: -0.4, lx: -0.5 }], [80.3, { smile: 1, tear: 0 }], [100, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+
+function addHeadphones(k) {
+  const m = std(0x22252e, 0.4), cushion = std(0x3a3f4c, 0.8);
+  const g = new THREE.Group();
+  const band = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.05, 10, 32, Math.PI), m); band.position.y = 0.05; g.add(band);
+  for (const s of [-1, 1]) { const cup = rb(0.16, 0.36, 0.32, 0.07, cushion); cup.position.set(s * 0.6, 0.0, 0); g.add(cup); }
+  g.position.set(0, 0.0, 0); k.head.add(g); return g;
+}
+
+if (CEN === 'quarto') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  const phones = addHeadphones(d);
+  // porta no lado do quarto com luz por baixo e sombras passando (a briga)
+  const doorM = std(0x5a3e2a, 0.7);
+  const door = rb(0.12, 3.3, 1.6, 0.03, doorM); door.position.set(-5.86, 1.68, 1.6); scene.add(door);
+  for (const [h, w, y, z] of [[0.12, 1.9, 3.38, 1.6], [3.4, 0.12, 1.7, 0.75], [3.4, 0.12, 1.7, 2.45]]) { const f = rb(0.18, h, w, 0.02, std(0xe8e0d0, 0.6)); f.position.set(-5.84, y, z); scene.add(f); }
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 10), std(0xc9a46a, 0.3, { metalness: 0.6 })); knob.position.set(-5.76, 1.6, 2.2); scene.add(knob);
+  const stripTex = canvasTex(256, 16, () => {}); const sg = stripTex.userData.canvas.getContext('2d');
+  const strip = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 0.05), new THREE.MeshBasicMaterial({ map: stripTex, transparent: true, toneMapped: false }));
+  strip.rotation.y = Math.PI / 2; strip.position.set(-5.78, 0.03, 1.6); scene.add(strip);
+  const spill = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.6), new THREE.MeshBasicMaterial({ map: canvasTex(64, 64, (c) => { const gr = c.createLinearGradient(0, 0, 64, 0); gr.addColorStop(0, 'rgba(255,200,130,0.5)'); gr.addColorStop(1, 'rgba(255,200,130,0)'); c.fillStyle = gr; c.fillRect(0, 0, 64, 64); }), transparent: true, depthWrite: false }));
+  spill.rotation.x = -Math.PI / 2; spill.position.set(-5.2, 0.015, 1.6); scene.add(spill);
+  const doorLight = new THREE.PointLight(0xffc890, 2.5, 5, 2); doorLight.position.set(-5.6, 0.15, 1.6); scene.add(doorLight);
+  const beside = glowSprite(2.4, 0); scene.add(beside); const besideL = new THREE.PointLight(0xffc77a, 0, 5, 2); scene.add(besideL);
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    // briga atrás da porta até a porta bater (77,9 s)
+    const fight = T < 77.9 ? 1 : 0;
+    sg.clearRect(0, 0, 256, 16);
+    const br = fight * (0.75 + 0.25 * Math.sin(T * 7.3) * Math.sin(T * 2.1));
+    sg.fillStyle = `rgba(255,205,140,${br})`; sg.fillRect(0, 0, 256, 16);
+    if (fight) for (let i = 0; i < 2; i++) { const x = 128 + Math.sin(T * (0.9 + i * 0.7) + i * 2) * 100; sg.fillStyle = 'rgba(0,0,0,0.85)'; sg.fillRect(x - 14, 0, 28, 16); }
+    stripTex.needsUpdate = true; spill.material.opacity = br; doorLight.intensity = 3 * br;
+    const lying = LYING.includes(SHOT);
+    Q.pose(lying ? 'lying' : 'bed', { ...e, hy0: 0 }, T, talk);
+    // fones: na cabeça; em "Parou." ele tira e deixa no pescoço
+    const off = 1 - e.phones;
+    if (!lying && off > 0) { const a = Math.sin(Math.min(1, off) * Math.PI); d.arms.R.sh.rotation.set(mix(-0.35, -1.6, a), 0, mix(0.08, -0.2, a)); d.head.rotation.x *= 1 - a; d.arms.R.elbow.rotation.set(mix(-0.8, -0.2, a), 0, 0); }
+    phones.position.set(0, -0.95 * off, 0.05 * off); phones.rotation.x = 0.4 * off; phones.visible = off < 0.6; // tirou o fone: some de cena
+    // presença sentada ao lado dele na cama
+    d.root.updateMatrixWorld(true);
+    const side = Q.BED.clone().add(V(-1.05, 0.85, 0).applyAxisAngle(V(0, 1, 0), -0.45));
+    beside.position.copy(side); beside.material.opacity = 0.75 * e.glow * (0.9 + 0.1 * Math.sin(T * 2.5)); beside.scale.set(1.8, 2.6, 1);
+    besideL.position.copy(side).add(V(0, 0.4, 0.6)); besideL.intensity = 9 * e.glow;
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH01': return Q.lyingCam(mix(3.4, 2.8, smooth(u)));
+      case 'SH02': return Q.lyingCam(mix(3.3, 3.0, u), 0.25);
+      case 'SH04': return Q.lyingCam(mix(2.7, 2.5, u));
+      case 'SH12': return Q.lyingCam(mix(2.8, 2.4, u));
+      case 'SH03': { if (!update.fillD) { update.fillD = new THREE.PointLight(0x8fa0d8, 4, 7, 2); update.fillD.position.set(-3.6, 2.2, 2.6); scene.add(update.fillD); } camera.up.set(0, 1, 0); camera.position.set(mix(-1.9, -2.5, u), 1.4, mix(4.4, 3.6, u)); camera.lookAt(-5.8, 1.3, 1.6); return V(-5.8, 0.6, 1.6); }
+      case 'SH06': Q.camMove('MED', 'CLOSE', smooth(u), 0, 0.15); return h;
+      case 'SH07': Q.camMove('WIDE', 'WIDE', u, 1.0, 1.6); return h;
+      case 'SH08': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH09': Q.camMove('MED', 'MED', u, 0.2, 0.6); return h;
+      case 'SH10': Q.camMove('WIDE', 'MED', smooth(u), 0.6, 0.2); return h;
+      case 'SH11': return Q.camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+    }
+    return h;
+  };
+} else if (CEN === 'familia') {
+  // lembrança: a família sorrindo na cozinha, foto na geladeira
+  scene.background = new THREE.Color(0xf0e2c8);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0xcbb492, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xf2d9b0, 0.95)); wall.position.set(0, 4, -3); scene.add(wall);
+  const fridge = rb(1.4, 3.6, 1.0, 0.1, std(0xeeeeea, 0.4)); fridge.position.set(-3.0, 1.8, -2.3); scene.add(fridge);
+  const photoTex = canvasTex(256, 200, (g, w, h) => {
+    g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#9fd0f2'; g.fillRect(10, 10, w - 20, h - 50);
+    const fig = (x, s, skin, hair, shirt) => { g.fillStyle = shirt; g.fillRect(x - s * 0.45, 150 - s * 0.9, s * 0.9, s * 0.9); g.fillStyle = skin; g.fillRect(x - s * 0.4, 150 - s * 1.75, s * 0.8, s * 0.8); g.fillStyle = hair; g.fillRect(x - s * 0.42, 150 - s * 1.8, s * 0.84, s * 0.2); };
+    fig(70, 60, '#8f5d3d', '#120c08', '#4f6d8f'); fig(128, 42, '#a8714b', '#17110f', '#6e3b26'); fig(186, 58, '#a8714b', '#1e1410', '#d9a441');
+    g.fillStyle = '#333'; g.font = 'bold 18px DejaVu Sans'; g.fillText('nós ♥', 100, 186);
+  });
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.48), new THREE.MeshStandardMaterial({ map: photoTex })); photo.position.set(-2.95, 2.6, -1.79); photo.rotation.z = 0.06; scene.add(photo);
+  const pai = addSmile(createDavi(PALETTE.PAI)); pai.root.scale.setScalar(1.3); scene.add(pai.root);
+  const mae = addSmile(createDavi(PALETTE.MAE)); addLongHair(mae, PALETTE.MAE.hair); mae.root.scale.setScalar(1.25); scene.add(mae.root);
+  const d = addSmile(createDavi()); scene.add(d.root);
+  [pai, mae, d].forEach(stand);
+  pai.root.position.set(-1.45, 0, -0.4); mae.root.position.set(2.05, 0, -0.4); d.root.position.set(0.3, 0, 0.3);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc8b090, 1.2));
+  const sun = new THREE.DirectionalLight(0xfff0d8, 1.8); sun.position.set(3, 7, 6); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    pai.arms.R.sh.rotation.set(-0.3, 0, 0.55); mae.arms.L.sh.rotation.set(-0.3, 0, -0.55); // abraçando o Davi
+    [pai, mae, d].forEach((k, i) => { setFace(k, { open: blink(T, i * 0.7), browUp: 0.6, look: [0, 0] }); k.setSmile(true); k.body.position.y = Math.abs(Math.sin(T * 3 + i)) * 0.02; });
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.6, 0.3, u), 3.0, mix(10.6, 9.2, smooth(u))); camera.lookAt(0.3, 2.5, -0.5);
+    return headW(d);
+  };
+} else if (CEN === 'manha') {
+  // dia seguinte: a lancheira aberta com o bilhete da mãe
+  scene.background = new THREE.Color(0xfff2dc);
+  const table = rb(6, 0.2, 4, 0.05, std(0xc79a6a, 0.6)); table.position.set(0, 1.4, 0); scene.add(table);
+  const red = std(0xd64541, 0.5);
+  const base = rb(1.3, 0.55, 0.9, 0.06, red); base.position.set(0, 1.78, 0); scene.add(base);
+  const inner = rb(1.18, 0.5, 0.78, 0.04, std(0xf4e6d0, 0.8)); inner.position.set(0, 1.83, 0); scene.add(inner);
+  const lidG = new THREE.Group(); lidG.position.set(0, 2.05, -0.45); scene.add(lidG);
+  const lid = rb(1.3, 0.08, 0.9, 0.04, red); lid.position.set(0, 0, -0.45); lidG.add(lid); lidG.rotation.x = -1.9;
+  const apple = new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 14), std(0x5aa84a, 0.5)); apple.position.set(0.35, 2.0, 0.05); scene.add(apple);
+  const noteTex = canvasTex(512, 320, (g, w, h) => {
+    g.fillStyle = '#fffaf0'; g.fillRect(0, 0, w, h); g.strokeStyle = '#e8c9c9'; for (let y = 60; y < h; y += 44) { g.beginPath(); g.moveTo(20, y); g.lineTo(w - 20, y); g.stroke(); }
+    g.fillStyle = '#2a3a8a'; g.font = 'italic bold 44px DejaVu Serif'; g.fillText('Te amo, filho.', 40, 92);
+    g.font = 'italic 36px DejaVu Serif'; g.fillText('Nada disso é culpa sua.', 40, 176); g.fillText('— Mãe ♥', 280, 262);
+  });
+  const note = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.6), new THREE.MeshStandardMaterial({ map: noteTex, roughness: 0.9 }));
+  note.rotation.set(-Math.PI / 2 + 0.35, 0, -0.08); note.position.set(-0.1, 2.12, 0.05); scene.add(note);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xd8b890, 1.3));
+  const sun = new THREE.DirectionalLight(0xffe8c0, 2.4); sun.position.set(-4, 7, 3); sun.castShadow = true; scene.add(sun);
+  const sunGlow = glowSprite(5, 0.5); sunGlow.position.set(-3.5, 4.5, -3); scene.add(sunGlow);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.5, 0.25, u), mix(4.0, 3.6, smooth(u)), mix(2.6, 2.0, smooth(u))); camera.lookAt(-0.1, 2.0, 0.0);
+    return note.position.clone();
+  };
+}
+finish(R, update, T0, CEN === 'quarto' ? 0.5 : 0.3);
+</script>
+</body>
+</html>

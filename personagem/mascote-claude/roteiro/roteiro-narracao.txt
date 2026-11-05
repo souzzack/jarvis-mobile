@@ -1,0 +1,44 @@
+MASCOTE CLAUDE — O PEQUENO EDITOR DE VÍDEO
+Roteiro de narração · duração total: ~30 segundos · formato 9:16 (1080 × 1920)
+
+VOZ
+- Português brasileiro, voz natural, ritmo animado, personalidade simpática, dicção clara.
+- Narrador em off (o mascote não tem boca animada; não fazer sincronia labial).
+- Sorriso na voz nas cenas 1 e 5; tom de "explicação amiga" nas cenas 2 a 4.
+
+------------------------------------------------------------
+CENA 1 — 0:00 a 0:06 · imagens/cena-01-despertar.png
+"Você sabia que o Claude pode ajudar a transformar vídeos brutos em edições profissionais?"
+Entonação: pergunta curiosa, subindo no final. Pausa curta depois de "Você sabia".
+
+CENA 2 — 0:06 a 0:12 · imagens/cena-02-timeline.png
+"Primeiro, ele ajuda a planejar os cortes e organizar a sequência do vídeo."
+Entonação: didática, ênfase leve em "planejar os cortes".
+
+CENA 3 — 0:12 a 0:18 · imagens/cena-03-animacoes.png
+"Também pode ajudar a criar legendas, animações, títulos e efeitos."
+Entonação: animada, enumerando os itens no ritmo dos elementos que aparecem na tela.
+
+CENA 4 — 0:18 a 0:24 · imagens/cena-04-antes-depois.png
+"Com as ferramentas certas, o projeto pode ser montado, renderizado e revisado."
+Entonação: segura; ênfase em "com as ferramentas certas".
+
+CENA 5 — 0:24 a 0:30 · imagens/cena-05-encerramento.png
+"A inteligência artificial acelera o processo. Mas é a criatividade que transforma uma edição em algo inesquecível!"
+Entonação: primeira frase tranquila; pausa; segunda frase calorosa e inspiradora.
+
+------------------------------------------------------------
+NOTAS DE TEMPO
+- As cenas 1 a 4 têm entre 11 e 14 palavras e cabem com folga em 6 segundos.
+- A cena 5 tem 19 palavras e fica apertada em 6 s num ritmo natural (~2,7 palavras/s
+  dá cerca de 7 s). Opções: (a) estender a cena 5 para 7–8 s e o vídeo para ~32 s;
+  (b) acelerar levemente só essa fala; (c) encurtar para:
+  "A IA acelera o processo. Mas é a criatividade que torna uma edição inesquecível!"
+
+CUIDADOS DE MENSAGEM
+- Todas as falas usam "pode ajudar" / "com as ferramentas certas": o Claude não é
+  apresentado como quem executa sozinho tarefas que dependem de programas de edição,
+  ferramentas conectadas ou código adicional.
+
+TEXTO SUGERIDO PARA A TELA FINAL (espaço negativo da cena 5)
+"A IA acelera. A criatividade transforma."

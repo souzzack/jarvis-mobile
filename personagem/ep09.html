@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 9 — "Eu não consigo perdoar ele" (traição e perdão). Uso: ep09.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, PALETTE, stand, walk, setupRenderer, finish, quartoRig } from './serie.js';
+import { createEscola } from './cenarios.js';
+await document.fonts.load('800 40px Montserrat');
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps789/ep09/envelopes.json');
+const SHOTS = {
+  SH01: [0, 6.3, 'quarto'], SH02: [6.3, 11.5, 'recreio'], SH03: [11.5, 15.3, 'quarto'], SH04: [15.3, 24.9, 'quarto'],
+  SH05: [24.9, 38.9, 'praia'], SH06: [38.9, 51.6, 'quarto'], SH07: [51.6, 64.9, 'quarto'], SH08: [64.9, 82.6, 'quarto'],
+  SH09: [82.6, 91.5, 'quarto'], SH10: [91.5, 98.0, 'quarto'], SH11: [98.0, 104.07, 'corredor'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const GABRIEL = { skin: 0xd9a77e, skinDark: 0xc28f66, hair: 0x5a3a20, shirt: 0x2e8b57, shirtDark: 0x24704a, pants: 0x2c3442, curls: false };
+const expr = makeExpr(
+  { hx: 0.15, hy: -0.2, hz: 0, lean: 0.1, brUp: 0, brSad: -0.6, eyes: 0.9, lx: 0, ly: -0.2, tear: 0, god: 0.3, lamp: 0.5, smile: 0, fist: 1, stone: 0, sand: 0, phone: 1, laugh: 0 },
+  [[0, {}],
+   [4.1, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0 }], [11.5, { hx: 0.3, hy: 0, lx: 0, ly: -0.6, brSad: 0.6, brUp: 0.3, tear: 0.5 }],
+   [15.5, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, god: 0.5, tear: 0.6, brSad: 0.8 }], [18.7, { brSad: -0.7, tear: 0.3 }], [21.5, { brSad: 0.3, brUp: 0.4 }],
+   [24.2, { brUp: 0.8, brSad: 0, phone: 0 }],
+   [39.3, { brSad: 0.6, brUp: 0.2, fist: 0.5, tear: 0 }], [45.5, { stone: 1, fist: 0, god: 0.6, hx: 0.3, hy: 0, lx: 0, ly: -0.6 }],
+   [52.0, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, brUp: 0.5, brSad: 0.4 }], [55.0, { brSad: 0.1 }],
+   [65.3, { brSad: 0.7, brUp: 0.2 }], [67.9, { god: 0.75 }], [74.4, { laugh: 1, smile: 1, brUp: 0.9, brSad: 0 }], [76.0, { laugh: 0 }],
+   [76.5, { smile: 0, god: 0.9 }], [83.1, { brSad: 0.5, brUp: 0.5, hx: 0.3, hy: 0, lx: 0, ly: -0.6 }],
+   [88.0, { sand: 0.35, god: 1.0 }], [91.8, { sand: 1, brUp: 1, brSad: 0, eyes: 1.05 }], [94.0, { smile: 1, god: 1.2 }], [110, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+// conversa do grupo da sala no celular
+const CHAT = canvasTex(360, 640, (g) => {
+  g.fillStyle = '#0d0d12'; g.fillRect(0, 0, 360, 640); g.fillStyle = '#1f2a24'; g.fillRect(0, 0, 360, 56);
+  g.fillStyle = '#fff'; g.font = '800 20px Montserrat'; g.fillText('7º ano B 🏫', 20, 36);
+  const msg = (y, w, txt, me = false, c = '#2a2d36') => { g.fillStyle = c; g.beginPath(); g.roundRect(me ? 360 - w - 14 : 14, y, w, 46, 14); g.fill(); g.fillStyle = '#fff'; g.font = '800 17px Montserrat'; g.fillText(txt, (me ? 360 - w - 14 : 14) + 14, y + 29); };
+  g.fillStyle = '#3a4a5a'; g.beginPath(); g.roundRect(14, 76, 240, 170, 14); g.fill(); g.fillStyle = '#ccd'; g.font = '800 15px Montserrat'; g.fillText('📷 print da conversa', 30, 166);
+  msg(258, 220, 'KKKKKKKKKKKK'); msg(314, 170, 'não acredito 😂'); msg(370, 250, 'mano o Davi kkkkkk'); msg(426, 200, '😂😂😂😂'); msg(482, 230, 'KKKKKKKKKKKK');
+});
+function makePhone() {
+  const ph = new THREE.Group(); ph.add(rb(0.36, 0.64, 0.05, 0.04, std(0x15151a, 0.4)));
+  const sc = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.58), new THREE.MeshBasicMaterial({ map: CHAT, toneMapped: false })); sc.position.z = 0.027; ph.add(sc);
+  scene.add(ph); return ph;
+}
+
+if (CEN === 'quarto') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  const ph = makePhone();
+  const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(0.2, 1), std(0x7a7a80, 0.95)); stone.scale.set(1.2, 0.85, 1); scene.add(stone);
+  const grains = [...Array(70)].map(() => { const m = new THREE.Mesh(new THREE.BoxGeometry(0.025, 0.025, 0.025), std(0xd8c49a, 0.9)); scene.add(m); return m; });
+  let rnd = 9; const R1 = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; }; const gd = grains.map(() => [R1() - 0.5, R1() - 0.5, R1()]);
+  const glowS = glowSprite(1.0, 0); scene.add(glowS);
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.4 * deus); q.lamp.intensity = 9 * e.lamp;
+    Q.pose('bed', e, T, talk);
+    const lg = e.laugh * Math.abs(Math.sin(T * 16)); d.body.position.y += lg * 0.03;
+    // mãos: punhos no colo / segurando o celular / segurando a pedra com as duas mãos
+    const hold = Math.max(e.stone, SHOT === 'SH03' ? 1 : 0);
+    for (const [k, s] of [['R', 1], ['L', -1]]) { const a = d.arms[k]; a.sh.rotation.set(mix(-0.5, -0.95, hold), 0, s * mix(0.12, 0.3, hold)); a.elbow.rotation.x = mix(-0.9, -0.95, hold); }
+    d.root.updateMatrixWorld(true);
+    const hands = d.arms.R.hand.getWorldPosition(new THREE.Vector3()).add(d.arms.L.hand.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5);
+    // celular: na cama ao lado, tela acesa; no SH03 em close
+    ph.visible = e.phone > 0.5 || SHOT === 'SH03';
+    if (SHOT === 'SH03') { ph.position.copy(hands).add(V(0, 0.15, 0)); ph.lookAt(headW(d)); }
+    else { ph.position.copy(Q.BED).add(V(0.85, 0.24, 0.35).applyAxisAngle(V(0, 1, 0), -0.45)); ph.rotation.set(-Math.PI / 2, 0, 0.3); }
+    // pedra → areia
+    const sand = e.sand;
+    stone.visible = e.stone > 0.5 && sand < 0.98; stone.position.copy(hands).add(V(0, 0.02, 0.14)); stone.scale.set(1.2 * (1 - 0.85 * sand), 0.85 * (1 - 0.85 * sand), 1 - 0.85 * sand);
+    glowS.position.copy(stone.position); glowS.material.opacity = 0.6 * clamp(sand * 2) * (1 - seg(T, 96, 98));
+    grains.forEach((m, i) => { const [x, z, p] = gd[i]; const life = ((T * 0.9 + p) % 1); m.visible = sand > 0.05 && e.stone > 0.5; m.position.copy(hands).add(V(x * 0.25, 0.1 - life * 0.9, z * 0.25)); });
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH01': Q.camMove('MED', 'MED', u, 0, 0.6); return h;
+      case 'SH03': { d.root.visible = false; ph.updateMatrixWorld(true); const qp = ph.getWorldQuaternion(new THREE.Quaternion()); const n = V(0, 0, 1).applyQuaternion(qp), up = V(0, 1, 0).applyQuaternion(qp); camera.up.copy(up); camera.position.copy(ph.position).addScaledVector(n, mix(1.0, 0.9, u)); camera.lookAt(ph.position); return ph.position.clone(); }
+      case 'SH04': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.35);
+      case 'SH06': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.7); return h;
+      case 'SH07': Q.camMove('MED', 'MED', u, 0.3, 0.7); return h;
+      case 'SH08': Q.camMove('WIDE', 'MED', smooth(u), 0.8, 0.3); return h;
+      case 'SH09': case 'SH10': { // perto das mãos com a pedra
+        const c = hands.clone().lerp(h, SHOT === 'SH09' ? 0.4 : 0.2); camera.up.set(0, 1, 0);
+        camera.position.set(c.x + 0.9, c.y + 0.4, c.z + mix(2.3, 1.9, u)); camera.lookAt(c); return stone.position.clone();
+      }
+    }
+    return h;
+  };
+} else if (CEN === 'recreio') {
+  // lembrança: o Davi e o Gabriel, melhores amigos, rindo; o Davi conta um segredo
+  const es = createEscola(scene);
+  const d = addSmile(createDavi()); scene.add(d.root); stand(d); const g = addSmile(createDavi(GABRIEL)); scene.add(g.root); stand(g);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0), whisper = seg(T, 8.6, 9.2);
+    d.root.position.set(mix(-0.8, -0.72, whisper), 0, 1.5); d.root.rotation.y = 1.1; g.root.position.set(0.8, 0, 1.5); g.root.rotation.y = -1.1;
+    d.body.rotation.z = -0.12 * whisper; d.arms.R.sh.rotation.set(-1.6 * whisper, 0, 0.5 * whisper); d.arms.R.elbow.rotation.x = -1.4 * whisper; // mão em concha
+    const lg = (1 - whisper) * Math.abs(Math.sin(T * 12)) * 0.03; d.body.position.y = lg; g.body.position.y = lg;
+    setFace(d, { open: blink(T), browUp: 0.7, look: [0.6, 0] }); d.setSmile(true);
+    setFace(g, { open: blink(T, 1), browUp: mix(0.7, 1, whisper), look: [-0.6, 0] }); g.setSmile(true);
+    camera.up.set(0, 1, 0); camera.position.set(0, 2.4, mix(6.4, 5.4, u)); camera.lookAt(0, 2.0, 1.5);
+    return V(0, 2.2, 1.5);
+  };
+} else if (CEN === 'praia') {
+  // João 21: amanhecer na praia, brasas com peixe e pão, um barco chegando; a presença é luz junto ao fogo
+  const sky = canvasTex(16, 512, (c) => { const gr = c.createLinearGradient(0, 0, 0, 512); gr.addColorStop(0, '#3a5fa8'); gr.addColorStop(0.55, '#f0a46a'); gr.addColorStop(1, '#ffd9a0'); c.fillStyle = gr; c.fillRect(0, 0, 16, 512); }); scene.background = sky;
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(200, 120), new THREE.MeshStandardMaterial({ color: 0x3a6a9a, roughness: 0.25, metalness: 0.2 })); sea.rotation.x = -Math.PI / 2; sea.position.set(0, 0.0, -60); scene.add(sea);
+  const sandP = new THREE.Mesh(new THREE.PlaneGeometry(200, 40), std(0xe2c99a, 1)); sandP.rotation.x = -Math.PI / 2; sandP.position.set(0, 0.02, 12); scene.add(sandP);
+  const sun = glowSprite(22, 0.9); sun.position.set(-10, 6, -90); scene.add(sun);
+  const dl = new THREE.DirectionalLight(0xffc27a, 2.2); dl.position.set(-8, 6, -20); dl.castShadow = true; scene.add(dl); scene.add(new THREE.HemisphereLight(0xffd9b0, 0x8a6a4a, 0.9));
+  const boat = new THREE.Group(); const bm = std(0x6b4128, 0.8); const hull = rb(1.6, 0.6, 4.2, 0.2, bm); hull.position.y = 0.3; boat.add(hull);
+  const mast = rb(0.1, 3.4, 0.1, 0.03, bm); mast.position.set(0, 2, 0.4); boat.add(mast); const sail = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 2.4), std(0xf0e6d0, 0.9, { side: THREE.DoubleSide })); sail.position.set(0, 2.2, 0.4); sail.rotation.y = Math.PI / 2; boat.add(sail);
+  scene.add(boat);
+  const pedro = addSmile(createDavi({ skin: 0xa8714b, skinDark: 0x8f5d3d, hair: 0x2a1a10, shirt: 0x8a7a5a, shirtDark: 0x7a6a4a, pants: 0x6a5a40, curls: true })); pedro.root.scale.setScalar(1.2); scene.add(pedro.root); stand(pedro);
+  const fireS = [...Array(14)].map(() => { const s = glowSprite(0.7, 0); s.material.color.set(0xff8a3a); scene.add(s); return s; });
+  const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 0.15, 12), std(0x2a1a14, 0.9, { emissive: 0xff4a1a, emissiveIntensity: 0.6 })); coals.position.set(1.0, 0.08, 4.0); scene.add(coals);
+  for (let i = 0; i < 3; i++) { const f = rb(0.45, 0.08, 0.16, 0.04, std(0xb8a07a, 0.6)); f.position.set(0.75 + i * 0.25, 0.2, 3.85 + (i % 2) * 0.25); f.rotation.y = 0.4; scene.add(f); }
+  const bread = rb(0.4, 0.18, 0.25, 0.08, std(0xc9963a, 0.7)); bread.position.set(1.65, 0.12, 4.5); scene.add(bread);
+  const fireL = new THREE.PointLight(0xff8a3a, 14, 8, 2); fireL.position.set(1.0, 0.8, 4.0); scene.add(fireL);
+  const presence = glowSprite(3.2, 0.8); presence.position.set(0.2, 1.9, 3.4); presence.scale.set(2.2, 3.4, 1); scene.add(presence);
+  let rnd = 5; const R1 = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; }; const fd = fireS.map(() => [R1() - 0.5, R1() - 0.5, R1()]);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    boat.position.set(4.5, Math.sin(T * 1.2) * 0.06, mix(-14, -5.5, seg(T, 25, 33))); boat.rotation.z = Math.sin(T * 0.9) * 0.04;
+    // Pedro desce do barco e vem até a fogueira (a partir de "perdoei")
+    const come = seg(T, 34.0, 38.6);
+    pedro.root.position.set(mix(2.9, 2.9, come), 0, mix(-3.0, 1.6, come)); pedro.root.rotation.y = Math.atan2(2.6 - 4.4, 3.0 + 4.2) * 0 + (come > 0.02 && come < 0.98 ? 2.9 : 3.6);
+    if (come > 0.02 && come < 0.98) walk(pedro, T * 8, 0.8); else stand(pedro);
+    pedro.visible = T > 33.6; pedro.root.visible = T > 33.6;
+    setFace(pedro, { open: blink(T), browSad: mix(0.7, 0.2, seg(T, 37.0, 38.6)), browUp: 0.4, look: [0, -0.3] }); pedro.setSmile(T > 37.6);
+    fireS.forEach((s, i) => { const [x, z, p] = fd[i]; const life = (T * (0.8 + p) + p) % 1; s.position.set(1.0 + x * 0.6, 0.2 + life * 1.3, 4.0 + z * 0.6); s.material.opacity = 0.8 * (1 - life); });
+    fireL.intensity = 12 + Math.sin(T * 17) * 2; presence.material.opacity = 0.65 + 0.1 * Math.sin(T * 1.5);
+    camera.up.set(0, 1, 0); camera.position.set(mix(3.6, 2.8, u), mix(2.8, 2.4, u), mix(13.0, 10.5, smooth(u))); camera.lookAt(mix(2.0, 1.6, u), 1.4, mix(-2.0, 3.0, smooth(u)));
+    return V(1.6, 1.0, mix(-2, 3.5, u));
+  };
+} else if (CEN === 'corredor') {
+  // dia seguinte: o Davi passa pelo Gabriel no corredor e acena, tranquilo
+  scene.background = new THREE.Color(0xeef2f4);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(10, 60), std(0xc8ccd2, 0.6)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  for (const sx of [-3.2, 3.2]) { const w = new THREE.Mesh(new THREE.BoxGeometry(0.2, 6, 60), std(0xe6e0d0, 0.95)); w.position.set(sx, 3, 0); scene.add(w);
+    for (let z = -20; z < 20; z += 2.2) { const l = rb(0.5, 2.6, 1.6, 0.04, std(sx < 0 ? 0x3a6ea8 : 0xd6a441, 0.5)); l.position.set(sx * 0.95, 1.3, z); scene.add(l); } }
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b8c0, 1.2)); const sun = new THREE.DirectionalLight(0xfff4e0, 1.2); sun.position.set(2, 8, 4); scene.add(sun);
+  const d = addSmile(createDavi()); scene.add(d.root); const g = addSmile(createDavi(GABRIEL)); scene.add(g.root);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    // andam em sentidos opostos, cada um do seu lado do corredor (1,8 de distância)
+    d.root.position.set(-0.9, 0, mix(6, -4, u)); d.root.rotation.y = Math.PI; walk(d, T * 8, 0.9);
+    g.root.position.set(0.9, 0, mix(-6, 4, u)); g.root.rotation.y = 0; walk(g, T * 8 + 1, 0.9);
+    const meet = seg(T, 100.0, 100.6) * (1 - seg(T, 101.8, 102.4));
+    d.head.rotation.y = -0.7 * meet; g.head.rotation.y = -0.5 * meet;
+    d.arms.L.sh.rotation.set(0, 0, -2.4 * meet); d.arms.L.elbow.rotation.z = Math.sin(T * 10) * 0.3 * meet; // aceno
+    setFace(d, { open: blink(T), browUp: 0.5, look: [-0.6 * meet, 0] }); d.setSmile(meet > 0.3);
+    setFace(g, { open: blink(T, 1), browUp: 0.4, browSad: 0.3, look: [-0.5 * meet, -0.2] }); g.setSmile(meet > 0.6);
+    camera.up.set(0, 1, 0); camera.position.set(0.2, 2.6, mix(-9.5, -8.0, u)); camera.lookAt(0, 1.9, 0);
+    return V(0, 2, 0);
+  };
+}
+finish(R, update, T0, CEN === 'quarto' ? 0.5 : 0.28);
+</script>
+</body>
+</html>

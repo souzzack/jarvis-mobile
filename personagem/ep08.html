@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 8 — "Meu coração não para" (ansiedade). Uso: ep08.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, chestHand, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, addLongHair, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+await document.fonts.load('800 40px Montserrat');
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps789/ep08/envelopes.json');
+const SHOTS = {
+  SH01: [0, 3.0, 'relogio'], SH02: [3.0, 8.0, 'quarto'], SH03: [8.0, 19.0, 'quarto'], SH04: [19.0, 34.0, 'quarto'],
+  SH05: [34.0, 44.5, 'quarto'], SH06: [44.5, 54.0, 'quarto'], SH07: [54.0, 66.0, 'quarto'], SH08: [66.0, 73.0, 'mae'],
+  SH09: [73.0, 80.3, 'quarto'], SH10: [80.3, 95.5, 'quarto'], SH11: [95.5, 102.0, 'quarto'], SH12: [102.0, 108.2, 'relogio'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const expr = makeExpr(
+  { hx: 0.05, hy: -0.2, hz: 0, lean: 0.12, brUp: 0.8, brSad: 0.6, eyes: 1.0, lx: 0, ly: 0, tear: 0, god: 0.3, lamp: 0.25, smile: 0, chest: 1, panic: 1, breath: 0 },
+  [[0, {}],
+   [5.5, { hy: -0.6, lx: -0.8, ly: 0.4, god: 0.55 }], [8.3, { hy: -0.1, lx: 0.3, ly: 0.2 }], [12.2, { hy: -0.6, lx: -0.8, ly: 0.4 }], [15.3, { hx: 0.2, ly: -0.3, lx: 0, hy: -0.2 }],
+   [19.1, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, god: 0.7 }], [23.0, { breath: 1, eyes: 0.4, panic: 0.5 }], [33.2, { breath: 0, eyes: 1, panic: 0.3 }],
+   [34.2, { brUp: 0.4, brSad: 0.3, chest: 0.6 }], [42.6, { brUp: 0.7, brSad: 0.6, panic: 0.5 }], [44.8, { god: 0.85, panic: 0.3, brSad: 0.3 }],
+   [54.3, { brSad: 0.9, brUp: 0.3, tear: 0.6, hx: 0.2, ly: -0.3, lx: 0, hy: -0.2, chest: 0.3 }], [58.6, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, tear: 0.4 }],
+   [73.3, { brUp: 0.6, brSad: 0.4, tear: 0, chest: 0 }], [76.7, { smile: 1 }], [80.7, { smile: 0, god: 1.0, panic: 0.1 }],
+   [87.0, { brUp: 0.6, brSad: 0.2 }], [89.6, { god: 1.15, panic: 0, smile: 1 }], [110, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+// relógio digital da madrugada: 2:47 → 3:05 ao longo do episódio
+const clockTex = canvasTex(256, 112, () => {}); const cg = clockTex.userData.canvas.getContext('2d');
+function drawClock(T) {
+  const m = 47 + Math.floor(T / 108.2 * 18), hh = m >= 60 ? 3 : 2, mm = m % 60;
+  cg.fillStyle = '#050505'; cg.fillRect(0, 0, 256, 112); cg.fillStyle = '#ff3b30'; cg.font = '800 84px Montserrat'; cg.textAlign = 'center'; cg.textBaseline = 'middle';
+  cg.shadowColor = '#ff3b30'; cg.shadowBlur = 16; cg.fillText(`${hh}:${String(mm).padStart(2, '0')}`, 128, 60); cg.shadowBlur = 0; clockTex.needsUpdate = true;
+}
+// pensamentos que flutuam pelo quarto, e somem um a um
+const THOUGHTS = [['prova amanhã', 26.4], ['e se eu não passar?', 31.8], ['todo mundo vai rir', 41.6], ['e se acontecer algo ruim?', 47.9], ['não sou bom o suficiente', 53.2], ['e se...', 92.0]];
+function thoughtSprite(txt) {
+  const t = canvasTex(512, 160, (g, w, h) => {
+    g.fillStyle = 'rgba(20,22,40,0.92)'; g.beginPath(); g.roundRect(8, 8, w - 16, h - 40, 50); g.fill();
+    g.beginPath(); g.arc(90, h - 22, 14, 0, 7); g.fill(); g.beginPath(); g.arc(60, h - 8, 8, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(140,150,220,0.6)'; g.lineWidth = 4; g.beginPath(); g.roundRect(8, 8, w - 16, h - 40, 50); g.stroke();
+    g.fillStyle = '#e8e8ff'; g.font = '800 40px Montserrat'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, w / 2, (h - 32) / 2 + 6);
+  });
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false })); s.scale.set(1.6, 0.5, 1); scene.add(s); return s;
+}
+
+if (CEN === 'quarto' || CEN === 'relogio') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  const clock = rb(0.7, 0.34, 0.25, 0.05, std(0x1a1a1e, 0.5)); clock.position.set(q.bed.x + 1.7, 1.08, q.bed.z - 0.25); scene.add(clock);
+  const face = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.26), new THREE.MeshBasicMaterial({ map: clockTex, toneMapped: false })); face.position.set(q.bed.x + 1.7, 1.08, q.bed.z - 0.12); scene.add(face);
+  const clockL = new THREE.PointLight(0xff3b30, 0.6, 2, 2); clockL.position.set(q.bed.x + 1.7, 1.1, q.bed.z + 0.2); scene.add(clockL);
+  const thoughts = THOUGHTS.map(([t]) => thoughtSprite(t));
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.4 * deus); q.lamp.intensity = 9 * e.lamp; drawClock(T);
+    const lying = SHOT === 'SH11';
+    Q.pose(lying ? 'lying' : 'bed', e, T, talk);
+    if (!lying) {
+      // respiração: rápida no pânico; lenta e funda no exercício
+      const slow = Math.sin(((T - 23.0) / 4.4) * Math.PI * 2 - Math.PI / 2) * 0.5 + 0.5;
+      const fast = Math.abs(Math.sin(T * 9)) * e.panic;
+      d.body.scale.set(1 + 0.03 * slow * e.breath, 1 + 0.025 * (fast * 0.6 + slow * e.breath), 1 + 0.04 * slow * e.breath);
+      d.body.position.y += 0.012 * fast;
+      // mão no peito
+      chestHand(d, e.chest);
+    }
+    // pensamentos flutuando ao redor da cabeça
+    const h = headW(d);
+    thoughts.forEach((s, i) => {
+      const [txt, gone] = THOUGHTS[i]; const born = 8.0 + i * 0.9;
+      const a = clamp((T - born) / 0.8) * (1 - clamp((T - gone) / 0.6)), pop = clamp((T - gone) / 0.6);
+      const ang = i * 1.05 + T * 0.12; // espalhados em volta da cabeça, em alturas diferentes
+      s.position.set(h.x - 0.45 + Math.cos(ang) * 0.9, h.y + 0.85 + (i % 3) * 0.5 + Math.sin(T * 0.7 + i) * 0.08, h.z + Math.sin(ang) * 0.8 + 0.2); // sempre acima da cabeça
+      s.material.opacity = a; s.scale.set(1.25 * (1 + pop * 0.6), 0.39 * (1 + pop * 0.6), 1); s.visible = a > 0.01 && !lying && CEN === 'quarto';
+    });
+    if (CEN === 'relogio') {
+      d.root.visible = SHOT === 'SH12';
+      const c = face.position; camera.up.set(0, 1, 0);
+      if (SHOT === 'SH01') { camera.position.set(c.x - 0.3, c.y + 0.25, c.z + mix(1.3, 1.0, u)); camera.lookAt(c); return c.clone(); }
+      // final: relógio em 3:05 e o Davi dormindo atrás
+      Q.pose('lying', { ...e, eyes: 0.1 }, T, 0); setFace(d, { open: 0.08, browUp: 0.3 }); d.setSmile(true);
+      camera.position.set(c.x + 0.2, c.y + 0.5, c.z + mix(1.2, 2.6, smooth(u))); camera.lookAt(mix(c.x, q.bed.x, 0.2 * u), c.y + 0.1 + 0.2 * u, c.z - 0.2);
+      return c.clone();
+    }
+    switch (SHOT) {
+      case 'SH02': Q.camMove('MED', 'MED', u, 0, 0.5); return h;
+      case 'SH03': Q.camMove('WIDE', 'WIDE', u, 0.8, 1.6); return h;
+      case 'SH04': return Q.camMove('CLOSE', 'CLOSE', u, -0.2, 0.2);
+      case 'SH05': Q.camMove('MED', 'MED', u, 0.2, 0.6); return h;
+      case 'SH06': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.7); return h;
+      case 'SH07': return Q.camMove('CLOSE2', 'CLOSE', smooth(u), 0, 0.2);
+      case 'SH09': Q.camMove('MED', 'MED', u, 0.3, 0.6); return h;
+      case 'SH10': Q.camMove('WIDE', 'MED', smooth(u), 0.6, 0.3); return h;
+      case 'SH11': { setFace(d, { open: mix(0.6, 0.1, seg(T, 98.6, 101.5)), talk, browUp: 0.3 }); d.setSmile(talk < 0.06); return Q.lyingCam(mix(3.0, 2.6, u)); }
+    }
+    return h;
+  };
+} else if (CEN === 'mae') {
+  // "conta pra sua mãe": de manhã, ele conta e ela o abraça
+  scene.background = new THREE.Color(0xfff2dc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0xcbb492, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xf2d9b0, 0.95)); wall.position.set(0, 4, -3); scene.add(wall);
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xfff4dc, emissiveIntensity: 1.3 })); win.position.set(2.6, 3.4, -2.88); scene.add(win);
+  const mae = addSmile(createDavi(PALETTE.MAE)); addLongHair(mae, PALETTE.MAE.hair); mae.root.scale.setScalar(1.25); scene.add(mae.root); stand(mae);
+  const d = addSmile(createDavi()); scene.add(d.root); stand(d);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc8b090, 1.2)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.8); sun.position.set(3, 7, 6); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0), hug = seg(T, 69.5, 70.6);
+    // ela se abaixa e abraça; os dois mantêm distância de corpo (sem se atravessar)
+    mae.root.position.set(mix(1.9, 1.3, hug), 0, -0.3); mae.root.rotation.y = -1.2;
+    d.root.position.set(-0.9, 0, 0.0); d.root.rotation.y = 1.25;
+    mae.body.rotation.x = 0.12 * hug; mae.arms.R.sh.rotation.set(-1.3 * hug, 0, 0.5 * hug); mae.arms.L.sh.rotation.set(-1.3 * hug, 0, -0.5 * hug);
+    d.arms.R.sh.rotation.set(-1.0 * hug, 0, 0.3 * hug); d.arms.L.sh.rotation.set(-1.0 * hug, 0, -0.3 * hug);
+    setFace(mae, { open: blink(T), browUp: 0.5, browSad: 0.3 * (1 - hug), look: [0, -0.3] }); mae.setSmile(hug > 0.5);
+    setFace(d, { open: mix(1, 0.2, hug) * blink(T), browUp: 0.4, browSad: 0.5 * (1 - hug), look: [0, 0.3] }); d.setSmile(hug > 0.5);
+    d.head.rotation.set(-0.2, 0, 0);
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.6, 0.3, u), 2.7, mix(6.8, 5.8, smooth(u))); camera.lookAt(0.1, 2.2, -0.2);
+    return headW(d);
+  };
+}
+finish(R, update, T0, CEN === 'mae' ? 0.28 : 0.5);
+</script>
+</body>
+</html>

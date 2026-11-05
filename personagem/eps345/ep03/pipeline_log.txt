@@ -1,0 +1,68 @@
+D1     1.00-  2.87
+G1     3.47-  5.97
+D2     6.77- 10.96
+D3    11.46- 13.06
+G2    13.86- 16.21
+D4    16.91- 18.38
+G3    18.98- 23.19
+D5    24.09- 26.17
+G4    26.77- 33.75
+D6    34.95- 36.19
+G5    36.79- 40.46
+D7    41.06- 43.40
+G6    44.00- 49.39
+D8    50.59- 53.98
+G7    54.78- 59.32
+G8    59.92- 62.84
+D9    63.84- 65.33
+G9    65.93- 69.00
+D10   69.40- 70.40
+G10   71.00- 72.23
+D11   73.23- 74.33
+G11   75.33- 81.29
+D12   82.49- 85.46
+G12   86.06- 92.56
+DUR 99.06
+[0.95, 2.83, 'DAVI', 'Eu não queria falar com o Senhor hoje.']
+[3.42, 3.97, 'DEUS', 'Eu sei.']
+[4.42, 5.75, 'DEUS', 'Mesmo assim eu fiquei.']
+[6.73, 8.12, 'DAVI', 'Eu orei todo dia,']
+[8.35, 9.24, 'DAVI', 'todo dia.']
+[9.45, 10.86, 'DAVI', 'Pedi pro o Senhor curar a vó.']
+[11.48, 12.83, 'DAVI', 'E o Senhor não fez nada.']
+[13.81, 14.95, 'DEUS', 'Pode falar, Davi.']
+[15.32, 16.05, 'DEUS', 'Fala tudo.']
+[16.86, 18.21, 'DAVI', 'Eu tô com raiva do Senhor.']
+[18.95, 20.42, 'DEUS', 'Eu aguento a sua raiva.']
+[20.75, 23.12, 'DEUS', 'O que eu não quero é a sua distância.']
+[24.05, 25.6, 'DAVI', 'Por que o Senhor deixou ela ir?']
+[26.76, 29.25, 'DEUS', 'Tem perguntas que eu vou te responder um dia.']
+[29.58, 31.37, 'DEUS', 'Hoje não é sobre responder.']
+[31.66, 33.67, 'DEUS', 'É sobre não te deixar sozinho.']
+[34.9, 36.06, 'DAVI', 'O Senhor chorou também?']
+[36.84, 37.59, 'DEUS', 'Chorei.']
+[37.72, 39.49, 'DEUS', 'Quando meu amigo Lázaro morreu,']
+[39.72, 40.47, 'DEUS', 'eu chorei.']
+[41.02, 43.19, 'DAVI', 'Mas o Senhor sabia que ia trazer ele de volta.']
+[43.97, 44.7, 'DEUS', 'Sabia.']
+[44.99, 46.5, 'DEUS', 'E chorei mesmo assim,']
+[46.65, 49.38, 'DEUS', 'porque a dor de quem eu amo dói em mim.']
+[50.54, 52.4, 'DAVI', 'A cadeira dela tá vazia na cozinha.']
+[52.69, 53.94, 'DAVI', 'O casaco ainda tá lá.']
+[54.73, 57.2, 'DEUS', 'Eu guardo cada lágrima sua, Davi.']
+[57.43, 59.26, 'DEUS', 'Nenhuma cai no chão sem eu ver.']
+[59.9, 62.69, 'DEUS', 'Eu estou perto dos que estão com o coração partido.']
+[63.81, 65.1, 'DAVI', 'Ela tá com o Senhor agora?']
+[65.95, 66.22, 'DEUS', 'Tá.']
+[66.53, 68.96, 'DEUS', 'E sabe qual foi a última coisa que ela me pediu?']
+[69.35, 69.8, 'DAVI', 'O quê?']
+[70.95, 72.31, 'DEUS', 'Cuida do meu neto.']
+[73.18, 74.26, 'DAVI', 'Isso é a cara dela.']
+[75.29, 78.92, 'DEUS', 'Um dia, eu vou enxugar dos seus olhos toda a lágrima.']
+[79.05, 80.46, 'DEUS', 'E não vai ter mais morte,']
+[80.63, 81.2, 'DEUS', 'nem dor.']
+[82.44, 83.05, 'DAVI', 'Até lá...']
+[83.3, 85.39, 'DAVI', 'O Senhor me ajuda a sentir menos saudade?']
+[86.04, 87.95, 'DEUS', 'A saudade não vai embora, Davi.']
+[88.14, 90.51, 'DEUS', 'Ela é o amor que ficou sem lugar para ir.']
+[90.68, 92.45, 'DEUS', 'Mas eu vou carregar ela com você.']

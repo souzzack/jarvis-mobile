@@ -1,0 +1,74 @@
+D1     1.00-  3.46
+G1     4.06-  5.95
+D2     6.55- 11.04
+D3    11.54- 14.68
+G2    15.48- 18.07
+D4    18.67- 20.71
+G3    21.51- 23.68
+D5    24.18- 24.66
+G4    25.16- 31.96
+D6    32.76- 34.02
+G5    34.62- 38.60
+D7    39.30- 41.62
+G6    42.12- 45.24
+G7    45.84- 51.16
+D8    51.96- 54.50
+G8    55.00- 60.85
+G9    61.45- 64.47
+D9    65.27- 67.35
+G10   67.85- 73.94
+D10   74.44- 75.97
+G11   76.47- 79.68
+G12   80.28- 82.13
+D11   83.13- 86.41
+G13   87.01- 90.76
+D12   91.76- 93.15
+G14   93.75- 97.57
+DUR 104.07
+[0.95, 3.34, 'DAVI', 'Pai, eu tô com muita raiva.']
+[4.01, 4.68, 'DEUS', 'Eu sei.']
+[5.09, 5.8, 'DEUS', 'Pode falar.']
+[6.55, 8.3, 'DAVI', 'O Gabriel era meu melhor amigo.']
+[8.59, 10.06, 'DAVI', 'Eu contei um segredo pra ele,']
+[10.11, 10.98, 'DAVI', 'só pra ele.']
+[11.54, 13.19, 'DAVI', 'E ele mandou pro grupo da sala,']
+[13.36, 14.57, 'DAVI', 'todo mundo riu de mim.']
+[15.48, 16.13, 'DEUS', 'Eu vi.']
+[16.56, 17.91, 'DEUS', 'E doeu em mim também.']
+[18.67, 20.03, 'DAVI', 'Eu nunca vou perdoar ele,']
+[20.05, 20.56, 'DAVI', 'nunca!']
+[21.46, 23.56, 'DEUS', 'Posso te contar de um amigo que me traiu?']
+[24.13, 24.47, 'DAVI', 'Quem?']
+[25.11, 28.0, 'DEUS', 'Pedro, ele jurou que nunca ia me deixar.']
+[28.31, 31.8, 'DEUS', 'Na mesma noite, falou três vezes que nem me conhecia.']
+[32.76, 33.93, 'DAVI', 'E o Senhor perdoou?']
+[34.62, 35.29, 'DEUS', 'Perdoei.']
+[35.7, 38.61, 'DEUS', 'E depois, fiz um café da manhã para ele na praia.']
+[39.3, 40.43, 'DAVI', 'Mas eu não sou o Senhor,']
+[40.66, 41.47, 'DAVI', 'eu não consigo.']
+[42.11, 42.66, 'DEUS', 'Eu sei.']
+[42.89, 45.16, 'DEUS', 'Por isso, eu não te peço para fazer sozinho.']
+[45.84, 48.15, 'DEUS', 'Perdoar não é dizer que não doeu.']
+[48.42, 51.15, 'DEUS', 'É parar de carregar a pedra que ele te jogou.']
+[51.91, 54.31, 'DAVI', 'Então eu tenho que voltar a ser amigo dele como antes?']
+[54.95, 55.57, 'DEUS', 'Não.']
+[55.84, 57.39, 'DEUS', 'Perdoar é uma coisa.']
+[57.62, 59.49, 'DEUS', 'Confiar de novo é outra.']
+[59.76, 60.83, 'DEUS', 'E ela leva tempo.']
+[61.45, 62.74, 'DEUS', 'No que depender de você,']
+[62.93, 64.34, 'DEUS', 'tenha paz com todos.']
+[65.22, 67.26, 'DAVI', 'E se eu perdoar e a raiva voltar amanhã?']
+[67.81, 69.32, 'DEUS', 'Aí você perdoa de novo.']
+[69.55, 71.34, 'DEUS', 'Pedro me perguntou quantas vezes?']
+[71.65, 73.96, 'DEUS', 'Eu disse setenta vezes sete.']
+[74.45, 75.78, 'DAVI', 'Isso é muita vez!']
+[76.48, 76.83, 'DEUS', 'É.']
+[77.02, 79.65, 'DEUS', 'E eu te perdoo muito mais vezes que isso.']
+[80.24, 82.13, 'DEUS', 'Perdoe como eu te perdoei.']
+[83.08, 84.99, 'DAVI', 'Tá, eu não consigo hoje inteiro.']
+[85.18, 86.29, 'DAVI', 'Mas eu quero conseguir.']
+[87.01, 88.2, 'DEUS', 'Isso já é o começo.']
+[88.49, 90.64, 'DEUS', 'E a pedra já está ficando mais leve, olha.']
+[91.74, 93.09, 'DAVI', 'Ela tá virando areia.']
+[93.73, 96.34, 'DEUS', 'É assim que o perdão funciona. Devagar.']
+[96.63, 97.3, 'DEUS', 'Mas funciona.']

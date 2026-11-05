@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 900; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// Versão 3: montagem dos 11 planos + tipografia cinética. window.draw(T) desenha o instante T (s).
+const W = 1080, H = 1920, FPS = 30;
+const ctx = document.getElementById('c').getContext('2d');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const outCubic = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const outBack = (x, c = 1.9) => { x = clamp(x); return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// ---------- planos
+const SHOTS = [['A', 0, 2.0], ['B', 2.0, 3.5], ['C1', 5.5, 2.1], ['C2', 7.6, 2.4], ['D1', 10.0, 2.6], ['D2', 12.6, 2.4],
+  ['E1', 15.0, 2.4], ['E2', 17.4, 2.1], ['F1', 19.5, 2.3], ['F2', 21.8, 2.2], ['G', 24.0, 6.0]];
+const WHIPS = [2.0, 5.5, 10.0, 15.0, 19.5, 24.0];
+const CUTS = [7.6, 12.6, 17.4, 21.8];
+function source(T) {
+  let s = SHOTS[0];
+  for (const x of SHOTS) if (T >= x[1] - 1e-6) s = x;
+  return { name: s[0], u: Math.min(T - s[1], s[2] - 1 / FPS) };
+}
+const cache = new Map();
+function frameImg(name, u) {
+  const idx = Math.max(0, Math.round(u * FPS));
+  const key = name + ':' + idx;
+  if (!cache.has(key)) {
+    const im = new Image();
+    im.src = `video/frames/v2/${name}/${String(idx).padStart(4, '0')}.jpg`;
+    cache.set(key, im.decode().then(() => im));
+    if (cache.size > 30) cache.delete(cache.keys().next().value);
+  }
+  return cache.get(key);
+}
+
+// ---------- câmera de pós-produção
+const SHAKES = [{ T: 0.9, a: 16, d: 0.3 }, { T: 2.0, a: 12, d: 0.25 }, { T: 2.98, a: 18, d: 0.3 }, { T: 18.3, a: 9, d: 0.2 }, { T: 22.55, a: 12, d: 0.25 }, { T: 8.85, a: 5, d: 0.15 }, { T: 26.72, a: 6, d: 0.15 }];
+const PUNCH = [{ T: 0.9, s: 1.12, back: 0.6 }, { T: 2.98, s: 1.08, back: 0.5 }, { T: 13.55, s: 1.06, back: 0.6 }, { T: 16.88, s: 1.06, back: 0.5 }];
+function camera(T) {
+  let s = 1, dx = 0, dy = 0, flash = 0, blur = 0;
+  for (const p of PUNCH) { const u = T - p.T; if (u >= 0 && u < p.back + 0.08) s *= u < 0.06 ? lerp(1, p.s, u / 0.06) : lerp(p.s, 1, outCubic((u - 0.06) / p.back)); }
+  for (const k of SHAKES) { const u = (T - k.T) / k.d; if (u >= 0 && u < 1) { const a = k.a * (1 - u); dx += Math.sin(T * 97) * a; dy += Math.cos(T * 83) * a; } }
+  for (const c of WHIPS) {
+    if (T >= c - 0.1 && T < c) { const u = (T - (c - 0.1)) / 0.1; s *= 1 + 0.45 * u * u; blur = Math.max(blur, u); }
+    if (T >= c && T < c + 0.18) { const u = outCubic((T - c) / 0.18); s *= lerp(1.4, 1, u); blur = Math.max(blur, 1 - u); }
+    const f = (T - c) / 0.16; if (f >= 0 && f < 1) flash = Math.max(flash, 0.3 * (1 - f));
+  }
+  for (const c of CUTS) { const f = (T - c) / 0.1; if (f >= 0 && f < 1) flash = Math.max(flash, 0.14 * (1 - f)); }
+  { const f = (T - 0.9) / 0.14; if (f >= 0 && f < 1) flash = Math.max(flash, 0.45 * (1 - f)); }
+  { const f = (T - 2.98) / 0.12; if (f >= 0 && f < 1) flash = Math.max(flash, 0.3 * (1 - f)); }
+  return { s, dx, dy, flash, blur };
+}
+
+// ---------- tipografia cinética
+// estilos: 'w' texto com contorno; 'box' caixa laranja; 'under' sublinhado que se desenha; 'ghost' palavra de ligação; 'pill' chamada final
+const O = '#ff7a2a', Wt = '#ffffff', G = '#b3aca6';
+const CARDS = [
+  { t0: 0.05, t1: 1.95, y: 1430, lines: [['SEU VÍDEO', 112, 'w', Wt, 0.1, 'up'], ['PARECE', 84, 'w', Wt, 0.55, 'up'], ['AMADOR?', 190, 'box', O, 0.9, 'pop']] },
+  { t0: 2.1, t1: 2.95, y: 1450, lines: [['CALMA.', 160, 'w', Wt, 2.15, 'pop']] },
+  { t0: 2.97, t1: 6.2, y: 1420, lines: [['o Claude pode', 64, 'ghost', Wt, 2.99, 'up'], ['TE AJUDAR', 132, 'w', O, 3.6, 'pop'], ['a editar como um', 60, 'ghost', Wt, 4.2, 'up'], ['PROFISSIONAL', 118, 'under', Wt, 5.05, 'left']] },
+  { t0: 6.22, t1: 6.93, y: 1420, lines: [['PRIMEIRO,', 136, 'box', O, 6.24, 'pop']] },
+  { t0: 6.95, t1: 7.97, y: 1430, lines: [['planejar', 72, 'ghost', Wt, 6.95, 'up'], ['OS CORTES', 146, 'w', Wt, 7.45, 'drop']] },
+  { t0: 8.0, t1: 10.05, y: 1480, lines: [['e organizar a', 66, 'ghost', Wt, 8.0, 'up'], ['TIMELINE', 164, 'box', O, 8.85, 'pop']] },
+  { t0: 10.08, t1: 10.88, y: 1500, lines: [['DEPOIS:', 120, 'w', Wt, 10.1, 'pop']] },
+  { t0: 10.9, t1: 12.97, y: 1460, lines: [['LEGENDAS', 112, 'w', Wt, 10.92, 'left'], ['TÍTULOS', 112, 'w', O, 11.49, 'right'], ['ANIMAÇÕES', 112, 'box', O, 12.2, 'left']] },
+  { t0: 13.0, t1: 14.95, y: 1480, lines: [['que prendem', 70, 'ghost', Wt, 13.0, 'up'], ['A ATENÇÃO', 152, 'box', O, 13.55, 'pop']] },
+  { t0: 15.08, t1: 16.85, y: 1240, lines: [['DO BRUTO', 122, 'w', G, 15.12, 'left'], ['AO EDITADO', 132, 'under', O, 15.75, 'right']] },
+  { t0: 16.86, t1: 19.45, y: 1320, lines: [['COR.', 128, 'w', Wt, 16.88, 'pop'], ['RITMO.', 128, 'w', O, 17.39, 'pop'], ['ACABAMENTO.', 116, 'box', O, 17.85, 'pop']] },
+  { t0: 19.58, t1: 20.98, y: 1450, lines: [['com as', 64, 'ghost', Wt, 19.62, 'up'], ['FERRAMENTAS', 120, 'w', Wt, 19.94, 'left'], ['CERTAS', 146, 'box', O, 20.55, 'pop']] },
+  { t0: 21.0, t1: 24.12, y: 1450, lines: [['você', 64, 'ghost', Wt, 21.0, 'up'], ['MONTA', 112, 'w', Wt, 21.32, 'left'], ['RENDERIZA', 112, 'w', O, 21.74, 'right'], ['E REVISA', 112, 'w', Wt, 22.38, 'left'], ['mais rápido', 70, 'ghost', Wt, 23.0, 'up']] },
+  { t0: 24.25, t1: 25.8, y: 560, lines: [['A IA', 112, 'w', Wt, 24.28, 'up'], ['ACELERA.', 152, 'w', Wt, 24.7, 'pop']] },
+  { t0: 25.82, t1: 27.5, y: 560, lines: [['A CRIATIVIDADE', 100, 'w', O, 25.83, 'up'], ['É SUA.', 176, 'under', O, 26.72, 'pop']] },
+  { t0: 27.52, t1: 30.0, y: 600, lines: [['BORA EDITAR?', 142, 'w', Wt, 27.54, 'pop'], ['SIGA PARA MAIS DICAS', 50, 'pill', O, 28.3, 'up']] },
+];
+const fontOf = (size, style) => `${style === 'ghost' ? 800 : 900} ${size}px Montserrat, DejaVu Sans, sans-serif`;
+
+function drawLine(ln, x, y, T, exitK) {
+  const [text, size0, style, color, at, anim] = ln;
+  if (T < at) return;
+  ctx.font = fontOf(size0, style);
+  let wd = ctx.measureText(text).width;
+  const size = wd > 960 ? size0 * 960 / wd : size0;
+  ctx.font = fontOf(size, style); wd = ctx.measureText(text).width;
+  const u = (T - at) / 0.22;
+  const k = outBack(u), kc = outCubic(u);
+  ctx.save();
+  let ox = 0, oy = 0, sc = 1, rot = 0, alpha = clamp((T - at) / 0.07);
+  if (anim === 'up') { oy = lerp(50, 0, kc); }
+  if (anim === 'pop') { sc = lerp(0.3, 1, k); rot = lerp(-0.12, 0, kc); }
+  if (anim === 'left') { ox = lerp(-520, 0, kc); }
+  if (anim === 'right') { ox = lerp(520, 0, kc); }
+  if (anim === 'drop') { oy = lerp(-220, 0, outBack(u, 2.6)); }
+  if (style === 'box') rot += -0.035;
+  sc *= lerp(1, 1.12, exitK); alpha *= 1 - exitK;
+  ctx.translate(x + ox, y + oy); ctx.rotate(rot); ctx.scale(sc, sc);
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  if (style === 'box' || style === 'pill') {
+    const padX = style === 'pill' ? 40 : 28, h = size * (style === 'pill' ? 1.6 : 1.18);
+    ctx.shadowColor = 'rgba(255,100,20,0.55)'; ctx.shadowBlur = 40;
+    ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-wd / 2 - padX, -h / 2, wd + padX * 2, h, style === 'pill' ? h / 2 : 22); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = style === 'pill' ? '#1a0d06' : '#ffffff';
+    ctx.fillText(text, 0, size * 0.04);
+  } else {
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 22; ctx.shadowOffsetY = 8;
+    ctx.strokeStyle = '#120804'; ctx.lineWidth = style === 'ghost' ? 10 : Math.max(12, size * 0.11); ctx.strokeText(text, 0, 0);
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = color; ctx.fillText(text, 0, 0);
+    if (style === 'under') {
+      const w = (wd + 20) * outCubic((T - at - 0.15) / 0.25);
+      ctx.fillStyle = O; ctx.beginPath(); ctx.roundRect(-wd / 2 - 10, size * 0.55, w, size * 0.13, size * 0.06); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+function drawCards(T) {
+  for (const c of CARDS) {
+    if (T < c.t0 || T >= c.t1) continue;
+    const exitK = clamp((T - (c.t1 - 0.12)) / 0.12);
+    const heights = c.lines.map(l => l[1] * (l[2] === 'ghost' ? 1.3 : l[2] === 'pill' ? 2.0 : l[2] === 'box' || l[2] === 'under' ? 1.42 : 1.2));
+    const total = heights.reduce((a, b) => a + b, 0);
+    let y = c.y - total / 2;
+    c.lines.forEach((ln, i) => { drawLine(ln, W / 2, y + heights[i] / 2, T, exitK); y += heights[i]; });
+  }
+}
+
+// grão de filme
+const grains = [...Array(4)].map(() => {
+  const g = document.createElement('canvas'); g.width = 540; g.height = 960;
+  const x = g.getContext('2d'); const d = x.createImageData(540, 960);
+  for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0); return g;
+});
+
+window.draw = async (T) => {
+  const src = source(T);
+  const im = await frameImg(src.name, src.u);
+  frameImg(src.name, src.u + 1 / FPS);
+  const cam = camera(T);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  ctx.filter = 'contrast(1.1) saturate(1.18) brightness(1.03)';
+  const s0 = cam.s * (cam.dx || cam.dy ? 1.035 : 1);
+  const drawAt = (s, a) => { ctx.globalAlpha = a; ctx.setTransform(s, 0, 0, s, W / 2 - W / 2 * s + cam.dx, H / 2 - H / 2 * s + cam.dy); ctx.drawImage(im, 0, 0, W, H); };
+  drawAt(s0, 1);
+  if (cam.blur > 0.02) for (let i = 1; i <= 6; i++) drawAt(s0 * (1 + 0.04 * i * cam.blur), 0.45 * cam.blur);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
+  const vg = ctx.createRadialGradient(W / 2, H * 0.48, H * 0.25, W / 2, H * 0.5, H * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.07;
+  ctx.drawImage(grains[Math.floor(T * FPS) % 4], 0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  if (cam.flash > 0) { ctx.fillStyle = `rgba(255,236,214,${cam.flash})`; ctx.fillRect(0, 0, W, H); }
+  drawCards(T);
+};
+document.fonts.load('900 84px Montserrat').then(() => document.fonts.load('800 64px Montserrat')).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

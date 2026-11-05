@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 3 — "Por que o Senhor não respondeu?" (luto). Uso: ep03.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, loadEnv, makeExpr,
+  addSmile, addGlasses, addBun, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps345/ep03/envelopes.json');
+const SHOTS = {
+  SH01: [0, 6.3, 'quarto'], SH02: [6.3, 11.3, 'hospital'], SH03: [11.3, 16.6, 'quarto'], SH04: [16.6, 24.0, 'quarto'],
+  SH05: [24.0, 34.6, 'quarto'], SH06: [34.6, 41.0, 'quarto'], SH07: [41.0, 50.3, 'quarto'], SH08: [50.3, 54.5, 'cozinha'],
+  SH09: [54.5, 63.6, 'quarto'], SH10: [63.6, 70.8, 'quarto'], SH11: [70.8, 73.0, 'hospital'], SH12: [73.0, 82.3, 'quarto'],
+  SH13: [82.3, 92.8, 'quarto'], SH14: [92.8, 99.06, 'quarto'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const expr = makeExpr(
+  { hx: 0.25, hy: 0, hz: 0, lean: 0, brUp: 0, brSad: 0.7, eyes: 0.8, lx: 0, ly: -0.4, tear: 0, god: 0.25, lamp: 0.3, knees: 1, turn: 0, wipe: 0, smile: 0 },
+  [[0, {}],
+   [11.46, { brSad: -0.5, brUp: 0, hx: 0, ly: 0, eyes: 1 }], [13.9, { brSad: 0.4, hx: 0.2 }],
+   [16.9, { brSad: -0.6, hx: 0.05, tear: 0.3 }], [19.0, { brSad: 0.6, ly: -0.3 }],
+   [24.1, { brSad: 1, brUp: 0.2, tear: 0.7, hx: -0.05, ly: 0.1 }], [26.8, { hx: 0.3, ly: -0.5, eyes: 0.7 }],
+   [34.95, { hx: 0, hy: 0.55, lx: 0.8, ly: 0.2, brUp: 0.5, brSad: 0.5, eyes: 1 }], [37.0, { hy: 0.25 }],
+   [41.06, { hy: 0, lx: 0, brSad: 0.8, ly: -0.2 }], [44.0, { god: 0.45 }],
+   [54.8, { wipe: 1, tear: 1, god: 0.6 }], [57.0, { wipe: 0 }], [59.9, { god: 0.7, knees: 0.8 }],
+   [63.84, { hx: 0, ly: 0.2, brUp: 0.6, brSad: 0.4, eyes: 1, tear: 0.5 }], [66.0, { hy: 0.6, lx: 0.8 }], [69.4, { brUp: 0.9 }],
+   [73.2, { smile: 1, tear: 1, hy: 0.3, brSad: 0.6 }],
+   [74.6, { turn: 1, knees: 0.6, hy: 0, lx: 0, ly: 0.35, smile: 0, god: 0.95, lamp: 0.2 }],
+   [82.5, { brUp: 0.5, brSad: 0.6, tear: 0.7 }], [86.0, { god: 0.95, tear: 0.4, brSad: 0.3, eyes: 0.9 }], [90.0, { smile: 1 }],
+   [100, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+
+function makeVo() { const v = addSmile(createDavi(PALETTE.VO)); addBun(v, PALETTE.VO.hair); addGlasses(v, 0x8a6a4a); scene.add(v.root); return v; }
+function lie(k, pos) { // deitado de barriga para cima
+  setSitting(k, 0); k.legs.forEach(({ hip, knee }) => { hip.rotation.x = -0.15; knee.rotation.x = 0.2; });
+  k.root.rotation.set(-Math.PI / 2, 0, 0); k.root.position.copy(pos); k.head.rotation.set(-0.25, 0.35, 0);
+}
+
+if (CEN === 'quarto') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  // a vó "na luz" (último plano)
+  let ghost = null;
+  if (SHOT === 'SH14') {
+    ghost = makeVo(); stand(ghost); ghost.root.position.set(-1.5, 0, -2.6); ghost.root.rotation.y = 0.45;
+    ghost.root.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.depthWrite = false; if (o.material.emissive) { o.material.emissive = new THREE.Color(0xffd59a); o.material.emissiveIntensity = 0.9; } o.castShadow = false; } });
+    ghost.halo = glowSprite(4.2, 0); ghost.halo.position.set(-1.7, 2.0, -3.4); scene.add(ghost.halo);
+  }
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    Q.pose('floor', e, T, talk);
+    const u = (T - T0) / (T1 - T0), h = headW(d);
+    const front = (dist, side, y) => { const c = V(Q.FLOOR.x + side, y, Q.FLOOR.z + dist); camera.up.set(0, 1, 0); camera.position.copy(c); camera.lookAt(h.x, h.y - 0.25, h.z); return h; };
+    switch (SHOT) {
+      case 'SH01': return front(mix(4.6, 3.8, smooth(u)), 3.4, 2.9);
+      case 'SH03': return front(mix(2.6, 2.3, u), 0.3, 2.0);
+      case 'SH04': return front(mix(4.0, 3.6, u), -1.8, 2.7);
+      case 'SH05': return front(mix(3.6, 2.2, smooth(u)), 0.4, 2.0);
+      case 'SH06': { camera.up.set(0, 1, 0); camera.position.set(h.x + 2.4, 2.0, h.z + 1.8 - 0.3 * u); camera.lookAt(h.x - 0.6, h.y - 0.2, h.z - 0.6); return h; }
+      case 'SH07': return front(mix(2.4, 2.0, u), -0.4, 1.9);
+      case 'SH09': return front(mix(4.2, 3.6, u), 3.2, 3.0);
+      case 'SH10': return front(mix(2.5, 2.1, u), 0.35, 1.95);
+      case 'SH12': { // de lado: vê o Davi se virar para a luz
+        camera.up.set(0, 1, 0); camera.position.set(h.x + mix(3.6, 3.0, u), 2.1, h.z + mix(1.6, 0.6, u)); camera.lookAt(mix(h.x, -1.2, 0.35), 1.6, mix(h.z, -2.6, 0.35)); return h;
+      }
+      case 'SH13': { // perfil, olhando para a luz
+        d.root.updateMatrixWorld(true); const q4 = d.head.getWorldQuaternion(new THREE.Quaternion());
+        const f = V(0, 0, 1).applyQuaternion(q4); f.y = 0; f.normalize(); const sd = V(-f.z, 0, f.x);
+        camera.up.set(0, 1, 0); camera.position.copy(h).addScaledVector(f, mix(1.5, 1.2, u)).addScaledVector(sd, mix(2.3, 2.0, u)).add(V(0, 0.1, 0));
+        camera.lookAt(h.clone().addScaledVector(f, 0.5).add(V(0, -0.2, 0))); return h; }
+      case 'SH14': {
+        const a = seg(T, 93.4, 95.0) * (1 - seg(T, 97.6, 99.0));
+        ghost.root.traverse(o => { if (o.isMesh) o.material.opacity = 0.8 * a; });
+        ghost.halo.material.opacity = 0.7 * a; ghost.setSmile(true);
+        setFace(ghost, { open: 0.85 * blink(T), browUp: 0.5, look: [0.3, -0.3] }); ghost.setSmile(true);
+        ghost.arms.R.sh.rotation.set(-0.3, 0, 0.3 + 0.9 * seg(T, 95.3, 95.9)); ghost.arms.R.elbow.rotation.z = Math.sin(T * 5) * 0.3 * seg(T, 95.3, 95.9);
+        camera.up.set(0, 1, 0); camera.position.set(h.x + 4.4, 2.6, h.z + mix(3.0, 3.6, u)); camera.lookAt(-1.2, 1.6, -2.2);
+        return V(-1.5, 2.0, -2.6);
+      }
+    }
+    return h;
+  };
+} else if (CEN === 'hospital') {
+  scene.background = new THREE.Color(0xdfe8e2);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0xc9cfc8, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xcfe0d4, 0.95)); wall.position.set(0, 4, -3.2); scene.add(wall);
+  const sideW = new THREE.Mesh(new THREE.BoxGeometry(0.2, 8, 12), std(0xcfe0d4, 0.95)); sideW.position.set(-4.5, 4, 2); scene.add(sideW);
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.8), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xfff4dc, emissiveIntensity: 1.4 })); win.position.set(2.6, 3.2, -3.08); scene.add(win);
+  const white = std(0xf2f2ee, 0.6), metal = std(0x9aa3ad, 0.4);
+  const bed = rb(1.7, 0.5, 3.2, 0.08, metal); bed.position.set(0, 0.7, -0.8); scene.add(bed);
+  const matt = rb(1.6, 0.3, 3.1, 0.12, white); matt.position.set(0, 1.08, -0.8); scene.add(matt);
+  const pil = rb(1.1, 0.25, 0.6, 0.12, white); pil.position.set(0, 2.6, -1.85); pil.rotation.x = 0.6; scene.add(pil);
+  const sheet = rb(1.66, 0.5, 2.9, 0.12, std(0xa9c6e0, 0.9)); sheet.position.set(0, 1.45, 0.15); scene.add(sheet);
+  const mon = rb(0.8, 0.6, 0.3, 0.05, std(0x2a2f36, 0.5)); mon.position.set(-1.6, 2.4, -2.6); scene.add(mon);
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.44), new THREE.MeshStandardMaterial({ color: 0, emissive: 0x3ddc84, emissiveIntensity: 0.9 })); scr.position.set(-1.6, 2.4, -2.44); scene.add(scr);
+  const pole = rb(0.06, 2.4, 0.06, 0.02, metal); pole.position.set(1.4, 1.2, -2.2); scene.add(pole);
+  const bag = rb(0.3, 0.4, 0.1, 0.05, std(0xe8f4ff, 0.2, { transparent: true, opacity: 0.8 })); bag.position.set(1.4, 2.3, -2.2); scene.add(bag);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8c4b8, 1.2));
+  const sun = new THREE.DirectionalLight(0xfff0d8, 1.6); sun.position.set(4, 6, 3); sun.castShadow = true; scene.add(sun);
+  const vo = makeVo(); setSitting(vo, 0); vo.legs.forEach(({ hip }) => { hip.visible = false; });
+  vo.root.rotation.set(-0.95, 0, 0); vo.root.position.set(0, 1.4, 0.85);
+  const back = rb(1.5, 0.25, 2.2, 0.1, white); back.position.set(0, 1.85, -1.25); back.rotation.x = -0.95 + Math.PI / 2; scene.add(back);
+  const d = addSmile(createDavi()); scene.add(d.root); stand(d);
+  d.root.position.set(1.8, 0, -0.6); d.root.rotation.y = -1.35;
+  // a mão do Davi segura a da vó
+  vo.arms.R.sh.rotation.set(0, 0, 0.45); vo.arms.R.elbow.rotation.z = 0.15;
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    d.arms.R.sh.rotation.set(-0.9, 0, -0.1); d.arms.R.elbow.rotation.x = -0.2;
+    d.arms.L.sh.rotation.set(-0.9, 0, 0.1); d.arms.L.elbow.rotation.x = -0.2;
+    d.head.rotation.set(0.35, 0, 0);
+    if (SHOT === 'SH02') {
+      setFace(d, { open: 0.25, browSad: 0.6, browUp: 0.3, look: [0, -0.5] }); // de olhos fechados, orando
+      setFace(vo, { open: 0.15, browUp: 0.1, look: [0, 0] }); vo.setSmile(false);
+      camera.up.set(0, 1, 0); camera.position.set(mix(-1.4, -1.1, u), 3.0, mix(5.2, 4.6, u)); camera.lookAt(0.5, 2.1, -0.6);
+      return headW(d);
+    }
+    // "Cuida do meu neto": a vó sorrindo, olhando para ele
+    setFace(vo, { open: 0.75 * blink(T), browUp: 0.5, look: [0.6, 0.2] }); vo.setSmile(true);
+    setFace(d, { open: blink(T), browSad: 0.4, browUp: 0.5, look: [0, -0.4] });
+    const h = headW(vo); camera.up.set(0, 1, 0);
+    vo.root.updateMatrixWorld(true); const q4 = vo.head.getWorldQuaternion(new THREE.Quaternion());
+    const f = V(0, 0, 1).applyQuaternion(q4), up = V(0, 1, 0).applyQuaternion(q4);
+    camera.up.copy(up); camera.position.copy(h).addScaledVector(f, mix(3.4, 3.0, u)).add(V(0.6, 0, 0)).addScaledVector(up, -0.3); camera.lookAt(h.clone().addScaledVector(up, -0.3));
+    return h;
+  };
+} else if (CEN === 'cozinha') {
+  scene.background = new THREE.Color(0x0e1424);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0x3a3a44, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0x6e6a78, 0.95)); wall.position.set(0, 4, -3.5); scene.add(wall);
+  const wood = std(0x6b4a30, 0.7);
+  const table = rb(2.6, 0.12, 1.5, 0.04, wood); table.position.set(0, 1.5, -1.2); scene.add(table);
+  for (const [x, z] of [[-1.2, -0.55], [1.2, -0.55], [-1.2, -1.85], [1.2, -1.85]]) { const l = rb(0.12, 1.45, 0.12, 0.03, wood); l.position.set(x, 0.72, z); scene.add(l); }
+  const chair = (x, z, ry) => {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry;
+    const s = rb(0.9, 0.1, 0.9, 0.03, wood); s.position.y = 0.95; g.add(s);
+    const b = rb(0.9, 1.1, 0.1, 0.03, wood); b.position.set(0, 1.55, -0.42); g.add(b);
+    for (const [lx, lz] of [[-0.38, -0.38], [0.38, -0.38], [-0.38, 0.38], [0.38, 0.38]]) { const l = rb(0.08, 0.95, 0.08, 0.02, wood); l.position.set(lx, 0.47, lz); g.add(l); }
+    scene.add(g); return g;
+  };
+  chair(-0.6, -2.4, 0); chair(0.7, -2.4, 0);
+  const her = chair(-0.4, 0.15, Math.PI + 0.25);
+  // o casaco lilás dela pendurado no encosto
+  const coatM = std(PALETTE.VO.shirt, 0.95);
+  const c1 = rb(1.0, 0.95, 0.22, 0.1, coatM); c1.position.set(0, 1.45, -0.52); her.add(c1);
+  for (const s of [-1, 1]) { const sl = rb(0.22, 0.85, 0.22, 0.08, coatM); sl.position.set(s * 0.5, 1.25, -0.5); sl.rotation.z = s * 0.1; her.add(sl); }
+  const fridge = rb(1.3, 3.4, 1.0, 0.1, std(0xdcdcd8, 0.4)); fridge.position.set(3.0, 1.7, -2.8); scene.add(fridge);
+  const win = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 1.4), new THREE.MeshStandardMaterial({ color: 0, emissive: 0x6f86c8, emissiveIntensity: 0.8 })); win.position.set(-2.4, 3.2, -3.38); scene.add(win);
+  scene.add(new THREE.HemisphereLight(0x8f9fd8, 0x2a2430, 0.9));
+  const moon = new THREE.SpotLight(0x9fb4ff, 60, 20, 0.5, 0.7, 1.4); moon.position.set(-2.6, 4.2, -2.6); moon.target.position.set(-0.4, 1, 0.1); moon.castShadow = true; scene.add(moon, moon.target);
+  const lamp = new THREE.PointLight(0xffb070, 14, 8, 2); lamp.position.set(0, 3.8, -1.2); scene.add(lamp);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0); camera.up.set(0, 1, 0);
+    camera.position.set(mix(2.4, 1.6, u), 2.3, mix(4.2, 3.2, smooth(u))); camera.lookAt(-0.4, 1.4, 0.1);
+    return V(-0.4, 1.35, 0.1);
+  };
+}
+finish(R, update, T0, CEN === 'quarto' ? 0.5 : 0.3);
+</script>
+</body>
+</html>

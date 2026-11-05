@@ -1,0 +1,436 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 11 — "Eu não sou bom em nada". Uso: ep11.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, chestHand, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, loadEnv, makeExpr,
+  addSmile, addLongHair, addBun, addGlasses, PALETTE, stand, walk, canvasTex, setupRenderer, finish, quartoRig } from './serie.js';
+import { createEscola } from './cenarios.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps101112/ep11/envelopes.json');
+const SHOTS = {
+  SH01: [0, 6.3, 'quarto'], SH02: [6.3, 7.85, 'gol'], SH03: [7.85, 9.45, 'violao'], SH04: [9.45, 11.0, 'boletim'],
+  SH05: [11.0, 12.1, 'quarto'], SH06: [12.1, 17.9, 'palco'], SH07: [17.9, 22.9, 'quarto'], SH08: [22.9, 28.2, 'moises'],
+  SH09: [28.2, 29.9, 'quarto'], SH10: [29.9, 33.6, 'farao'], SH11: [33.6, 40.7, 'quarto'], SH12: [40.7, 48.7, 'quarto'],
+  SH13: [48.7, 50.6, 'quarto'], SH14: [50.6, 57.5, 'banco'], SH15: [57.5, 65.0, 'vo'], SH16: [65.0, 73.1, 'quarto'],
+  SH17: [73.1, 80.8, 'quarto'], SH18: [80.8, 86.0, 'medalhas'], SH19: [86.0, 91.5, 'quarto'], SH20: [91.5, 94.6, 'quarto'],
+  SH21: [94.6, 100.5, 'quarto'], SH22: [100.5, 111.25, 'sala'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const LYING = ['SH01', 'SH05', 'SH07'];
+const expr = makeExpr(
+  { hx: 0.25, hy: -0.2, hz: 0, lean: 0.08, brUp: 0.1, brSad: 0.7, eyes: 0.85, lx: 0, ly: 0.3, tear: 0, god: 0.3, lamp: 0.5, smile: 0, laugh: 0, wipe: 0, hy0: 0 },
+  [[0, {}], [4.7, { brUp: 0.5, brSad: 0.4, hy0: 0.25 }], [6.4, { brSad: 0.7, brUp: 0.1, hy0: 0 }],
+   [11.0, { brSad: 0.95, eyes: 0.8, ly: 0.1 }], [17.9, { brSad: 0.8, eyes: 0.8 }], [18.2, { brSad: 0.5, brUp: 0.4, hy0: 0.25 }], [22.2, { brUp: 0.8, brSad: 0.1 }],
+   [28.2, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, brUp: 0.6, brSad: 0.2, god: 0.45, eyes: 1 }],
+   [33.7, { laugh: 1, smile: 1, brUp: 0.6, brSad: 0, hx: 0.05 }], [35.7, { laugh: 0 }], [40.5, { smile: 0 }],
+   [41.2, { god: 0.6, brUp: 0.5, brSad: 0.2 }], [46.1, { hx: 0.25, ly: -0.4, hy: -0.2, lx: 0, brSad: 0.8, brUp: 0.1, eyes: 0.85, god: 0.4 }],
+   [48.9, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, brUp: 0.6, brSad: 0.3, god: 0.55 }],
+   [65.1, { hx: 0.2, hy: -0.3, ly: -0.2, lx: -0.3, brSad: 0.5, brUp: 0.3, eyes: 0.85, tear: 0.3 }],
+   [66.6, { hy: -0.6, lx: -0.8, ly: 0.35, hx: 0.02, god: 0.7, brUp: 0.7, brSad: 0.3, tear: 0.45 }], [73.2, { god: 0.75 }],
+   [78.6, { brSad: 0.55, brUp: 0.2, hx: 0.12, ly: 0, tear: 0.2 }],
+   [81.0, { hx: 0, ly: 0.45, brUp: 0.95, brSad: 0, god: 0.9, eyes: 1, tear: 0 }], [84.0, { smile: 1 }], [86.2, { smile: 0, god: 0.8, brUp: 0.6 }],
+   [91.7, { brUp: 0.8, brSad: 0.35, tear: 0.5, eyes: 0.95 }], [95.0, { god: 1.15, smile: 1, brSad: 0, brUp: 0.5, tear: 0.6 }],
+   [97.8, { wipe: 1 }], [99.4, { wipe: 0 }], [120, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+const kid = (o) => { const k = addSmile(createDavi(o)); scene.add(k.root); return k; };
+const seat = (k, x, z, ry, y = 0.45) => { setSitting(k, 1); k.root.position.set(x, y, z); k.root.rotation.y = ry; k.arms.L.sh.rotation.set(-0.45, 0, -0.08); k.arms.R.sh.rotation.set(-0.45, 0, 0.08); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; };
+const handW = (k, s) => k.arms[s].hand.getWorldPosition(new THREE.Vector3());
+const happy = (k, T, look = [0, 0], i = 0) => { setFace(k, { open: blink(T, i), browUp: 0.6, look }); k.setSmile(true); };
+const THEO = PALETTE.THEO;
+const IRMAO = { skin: 0xa8714b, skinDark: 0x8f5d3d, hair: 0x17110f, shirt: 0xf1c40f, shirtDark: 0x1f8a4c, pants: 0x1f3a7a, curls: true };
+const BIA = { skin: 0xc98d63, skinDark: 0xb27a52, hair: 0x3a2214, shirt: 0xe58fb4, shirtDark: 0xc9739a, pants: 0x4a5a8a, curls: false };
+const RAFA = { skin: 0xf0cfb0, skinDark: 0xdcb595, hair: 0x6b3d1f, shirt: 0x2ecc71, shirtDark: 0x27ae60, pants: 0x2c3e50, curls: false };
+const KIDS = [PALETTE.LUCAS, { ...PALETTE.THEO, shirt: 0xe74c3c, shirtDark: 0xc0392b }, { ...PALETTE.LUCAS, hair: 0x2a1a10, skin: 0xc68e62, shirt: 0x2ecc71, shirtDark: 0x27ae60 },
+  { ...PALETTE.THEO, shirt: 0xf1c40f, shirtDark: 0xd4ac0d }, { skin: 0x7a4a2e, skinDark: 0x643a22, hair: 0x120c08, shirt: 0x9b59b6, shirtDark: 0x8e44ad, pants: 0x3d3d5c, curls: true }];
+const adult = (o, s = 1.25, beard = 0) => { const a = addSmile(createDavi(o)); a.root.scale.setScalar(s); scene.add(a.root); stand(a); if (beard) { const b = rb(0.82, 0.5, 0.22, 0.1, std(beard, 0.9)); b.position.set(0, -0.42, 0.5); a.head.add(b); } return a; };
+const fireSprites = (n, color = 0xff8a3a) => { const fl = [...Array(n)].map(() => { const s = glowSprite(0.6, 0); s.material.color.set(color); scene.add(s); return s; }); let r = 5; const R1 = () => { r = (r * 16807) % 2147483647; return r / 2147483647; }; return { fl, fd: fl.map(() => [R1() - 0.5, R1() - 0.5, R1()]) }; };
+
+if (CEN === 'quarto') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    const lying = LYING.includes(SHOT);
+    Q.pose(lying ? 'lying' : 'bed', e, T, talk);
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH01': return Q.lyingCam(mix(3.4, 2.8, smooth(u)));
+      case 'SH05': return Q.lyingCam(mix(2.5, 2.3, u));
+      case 'SH07': return Q.lyingCam(mix(3.1, 2.7, u));
+      case 'SH09': Q.camMove('MED', 'MED', u, 0, 0.3); return h;
+      case 'SH11': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.7); return h;
+      case 'SH12': Q.camMove('WIDE', 'MED', smooth(u), 0.8, 0.3); return h;
+      case 'SH13': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH16': return Q.camMove('CLOSE2', 'CLOSE', smooth(u), 0, 0.2);
+      case 'SH17': Q.camMove('MED', 'MED', u, 0.3, 0.7); return h;
+      case 'SH19': Q.camMove('R3Q', 'MED', smooth(u), 0.3, 0.4); return h;
+      case 'SH20': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.45);
+      case 'SH21': Q.camMove('MED', 'CLOSE2', smooth(u), 0.2, 0); return h;
+    }
+    return h;
+  };
+} else if (CEN === 'gol' || CEN === 'banco') {
+  const es = createEscola(scene);
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 16), std(0xf2f2f2, 0.5)); scene.add(ball);
+  if (CEN === 'gol') {
+    // o irmão mais velho faz o gol e os amigos correm para comemorar
+    const ir = adult(IRMAO, 1.15); const f1 = kid(KIDS[1]), f2 = kid(KIDS[2]);
+    // a rede do gol
+    const net = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.35, 2.0), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, wireframe: true })); net.position.set(10.45, 0.68, -1); scene.add(net);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0), kick = seg(T, 6.3, 6.9), cel = seg(T, 6.75, 7.1);
+      ir.root.position.set(7.4, 0, -0.6); ir.root.rotation.y = mix(1.4, -0.7, cel); stand(ir);
+      ir.legs[1].hip.rotation.x = -0.9 * Math.sin(clamp((T - 6.3) / 0.35) * Math.PI);
+      ir.arms.L.sh.rotation.set(-2.9 * cel, 0, -0.3 * cel); ir.arms.R.sh.rotation.set(-2.9 * cel, 0, 0.3 * cel);
+      ir.body.position.y = cel * Math.abs(Math.sin(T * 9)) * 0.12; happy(ir, T, [0, 0.2]);
+      ball.position.set(mix(7.9, 10.5, kick), 0.3 + Math.sin(kick * Math.PI) * 0.7, mix(-0.6, -1.3, kick));
+      // os amigos correm até ele (param a 1,7 de distância)
+      [[f1, 9.4, 2.6, 8.5, 0.85], [f2, 4.8, -3.0, 6.2, -2.0]].forEach(([k, x0, z0, x1, z1], i) => {
+        const r = seg(T, 6.7 + i * 0.1, 7.6 + i * 0.1); k.root.position.set(mix(x0, x1, r), 0, mix(z0, z1, r));
+        k.root.rotation.y = Math.atan2(7.4 - k.root.position.x, -0.6 - k.root.position.z);
+        if (r < 1) walk(k, T * 18, 1); else stand(k);
+        k.arms.L.sh.rotation.set(-2.9 * cel, 0, -0.3 * cel); k.arms.R.sh.rotation.set(-2.9 * cel, 0, 0.3 * cel); happy(k, T, [0, 0], i + 1);
+      });
+      camera.up.set(0, 1, 0); camera.position.set(mix(4.0, 4.4, u), 2.8, mix(8.6, 7.8, u)); camera.lookAt(7.9, 1.5, -0.9);
+      return V(7.4, 1.8, -0.6);
+    };
+  } else {
+    // lembrança: o Theo sozinho no banco; o Davi chega e senta do lado
+    ball.visible = false;
+    const d = kid(); const theo = kid(THEO); addGlasses(theo);
+    const B = es.benchB, fwd = V(Math.sin(B.rotation.y), 0, Math.cos(B.rotation.y));
+    const seatP = (dx) => V(dx, 0.67, 0.08).applyAxisAngle(V(0, 1, 0), B.rotation.y).add(B.position);
+    const sitOn = (k, dx) => { setSitting(k, 1); k.root.position.copy(seatP(dx)); k.root.rotation.y = B.rotation.y; k.arms.L.sh.rotation.set(-0.45, 0, -0.08); k.arms.R.sh.rotation.set(-0.45, 0, 0.08); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; };
+    const pSeat = seatP(-0.75).addScaledVector(fwd, 0.07), pStand = pSeat.clone().setY(0).addScaledVector(fwd, 0.75), pFrom = pStand.clone().add(V(-5.5, 0, 3.0));
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      sitOn(theo, 0.75); theo.head.rotation.set(0.25, -0.15, 0);
+      const wk = seg(T, 52.6, 55.2), sit = seg(T, 55.3, 55.9), look = seg(T, 56.0, 56.6);
+      d.root.visible = T > 52.6;
+      if (T < 55.3) {
+        stand(d); d.root.position.copy(pFrom.clone().lerp(pStand, wk));
+        const dir = Math.atan2(pStand.x - pFrom.x, pStand.z - pFrom.z);
+        d.root.rotation.y = mix(dir, B.rotation.y + Math.PI * 2 * (B.rotation.y < dir - Math.PI ? 1 : 0), seg(T, 54.6, 55.25));
+        if (wk < 1) walk(d, T * 12, 1);
+        d.head.rotation.set(0, 0.2, 0);
+      } else {
+        setSitting(d, sit); d.root.rotation.y = B.rotation.y;
+        d.root.position.copy(pStand.clone().lerp(pSeat, sit)); d.root.position.y = pSeat.y * Math.min(1, sit * 1.3);
+        d.arms.L.sh.rotation.set(-0.45 * sit, 0, -0.08); d.arms.R.sh.rotation.set(-0.45 * sit, 0, 0.08); d.arms.L.elbow.rotation.x = d.arms.R.elbow.rotation.x = -0.7 * sit;
+        d.head.rotation.set(0.05, mix(0, 0.5, look), 0);
+      }
+      setFace(d, { open: blink(T), browUp: 0.6, look: [look * 0.6, 0] }); d.setSmile(look > 0.5);
+      const tl = seg(T, 56.4, 57.0);
+      theo.head.rotation.set(mix(0.25, 0, tl), mix(-0.15, -0.55, tl), 0);
+      setFace(theo, { open: 0.85 * blink(T, 1), browSad: mix(0.85, 0, tl), browUp: mix(0, 0.7, tl), look: [mix(0, -0.6, tl), mix(-0.4, 0, tl)] }); theo.setSmile(tl > 0.6);
+      const c = seatP(0.75).lerp(seatP(-0.75), 0.5 * seg(T, 53.0, 55.5));
+      camera.up.set(0, 1, 0); camera.position.copy(c).addScaledVector(fwd, mix(5.6, 4.6, smooth(u))).add(V(0.4, 1.1, 0)); camera.lookAt(c.x, c.y + 0.95, c.z);
+      return c.clone().add(V(0, 1.2, 0));
+    };
+  }
+} else if (CEN === 'violao') {
+  // aniversário: a prima Bia toca violão, a família bate palmas
+  scene.background = new THREE.Color(0x2a1e1a);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0x8a6a4a, 0.8)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xf0d9b8, 0.95)); wall.position.set(0, 4, -3.2); scene.add(wall);
+  const banner = canvasTex(1024, 160, (g, w, h) => { const cols = ['#e74c3c', '#f1c40f', '#3498db', '#2ecc71', '#9b59b6']; 'PARABÉNS!'.split('').forEach((ch, i) => { g.fillStyle = cols[i % 5]; g.beginPath(); g.moveTo(40 + i * 108, 10); g.lineTo(140 + i * 108, 10); g.lineTo(90 + i * 108, 150); g.fill(); g.fillStyle = '#fff'; g.font = '900 64px Arial'; g.textAlign = 'center'; g.fillText(ch, 90 + i * 108, 80); }); });
+  const bn = new THREE.Mesh(new THREE.PlaneGeometry(5.5, 0.86), new THREE.MeshStandardMaterial({ map: banner, transparent: true })); bn.position.set(0, 4.6, -3.08); scene.add(bn);
+  const balCols = [0xe74c3c, 0xf1c40f, 0x3498db, 0x2ecc71, 0xe58fb4, 0x9b59b6];
+  [[-3.4, 3.6], [-2.8, 4.2], [-3.9, 4.5], [3.2, 3.8], [3.9, 4.4], [2.7, 4.6]].forEach(([x, y], i) => { const b = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 16), std(balCols[i], 0.3)); b.scale.y = 1.15; b.position.set(x, y, -2.7); scene.add(b); });
+  const wood = std(0x6b4a30, 0.7);
+  const table = rb(2.4, 0.1, 1.0, 0.03, std(0xffffff, 0.8)); table.position.set(3.0, 1.3, -1.9); scene.add(table);
+  for (const x of [2.0, 4.0]) { const l = rb(0.1, 1.3, 0.1, 0.02, wood); l.position.set(x, 0.65, -1.9); scene.add(l); }
+  const cake = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.4, 24), std(0xf4d0e0, 0.6)); cake.position.set(3.0, 1.55, -1.9); scene.add(cake);
+  for (let i = 0; i < 3; i++) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8), std(0x7fb6ff)); c.position.set(2.85 + i * 0.15, 1.85, -1.9); scene.add(c); const f = glowSprite(0.22, 0.9); f.position.set(2.85 + i * 0.15, 2.0, -1.9); scene.add(f); }
+  const bia = kid(BIA); addLongHair(bia, BIA.hair);
+  const stool = rb(0.9, 0.1, 0.9, 0.04, wood); stool.position.set(0, 0.62, -0.28); scene.add(stool);
+  for (const [x, z] of [[-0.35, -0.35], [0.35, -0.35], [-0.35, 0.35], [0.35, 0.35]]) { const l = rb(0.08, 0.6, 0.08, 0.02, wood); l.position.set(x, 0.3, z - 0.28); scene.add(l); }
+  seat(bia, 0, 0, 0);
+  // violão no colo, à frente do corpo
+  const gtr = new THREE.Group(); const gw = std(0xc98a4a, 0.5), gd = std(0x3a2414, 0.6);
+  const gb1 = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.16, 24), gw); gb1.rotation.x = Math.PI / 2; gb1.position.set(0.12, 0, 0); gtr.add(gb1);
+  const gb2 = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.16, 24), gw); gb2.rotation.x = Math.PI / 2; gb2.position.set(-0.3, 0, 0); gtr.add(gb2);
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(0.1, 20), gd); hole.position.set(-0.05, 0, 0.085); gtr.add(hole);
+  const neckG = rb(1, 0.09, 0.06, 0.02, gd); gtr.add(neckG); scene.add(gtr);
+  const fam = [adult(PALETTE.MAE, 1.15), adult(PALETTE.VO, 1.1), kid(KIDS[0])]; addLongHair(fam[0], PALETTE.MAE.hair); addBun(fam[1], PALETTE.VO.hair); addGlasses(fam[1], 0x8a6a4a);
+  [[-2.2, -1.2, 0.5], [2.2, -0.5, -0.45], [-1.4, 1.6, 2.4]].forEach(([x, z, ry], i) => { fam[i].root.position.set(x, 0, z); fam[i].root.rotation.y = ry; });
+  scene.add(new THREE.HemisphereLight(0xffe6c8, 0x4a3020, 0.9));
+  const lampL = new THREE.PointLight(0xffc890, 26, 12, 2); lampL.position.set(1.5, 4.5, 2.5); lampL.castShadow = true; scene.add(lampL);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    // mão direita dedilhando, esquerda no braço do violão
+    bia.arms.R.sh.rotation.set(-0.75, 0, 0.25); bia.arms.R.elbow.rotation.set(-0.75 + Math.sin(T * 14) * 0.12, 0, -0.5);
+    bia.arms.L.sh.rotation.set(-1.1, 0, -0.45); bia.arms.L.elbow.rotation.set(-0.5, 0, 0.2);
+    bia.root.updateMatrixWorld(true); const hr = handW(bia, 'R'), hl = handW(bia, 'L');
+    gtr.position.set(hr.x - 0.12, hr.y - 0.1, hr.z + 0.06); const dx = hl.x - gtr.position.x, dy = hl.y - gtr.position.y, dist = Math.hypot(dx, dy);
+    gtr.rotation.set(0, 0, Math.atan2(dy, dx) - Math.PI); neckG.scale.x = Math.max(0.2, dist - 0.55); neckG.position.set(-(0.55 + dist) / 2, 0, 0.02);
+    bia.head.rotation.set(0.12, -0.15 + Math.sin(T * 2.2) * 0.08, Math.sin(T * 2.2) * 0.06); happy(bia, T, [-0.3, -0.4]);
+    fam.forEach((k, i) => { pray(k, 0.72 + 0.28 * Math.abs(Math.sin(T * 7 + i))); happy(k, T, [0, 0], i); k.head.rotation.set(0.1, 0, 0); });
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.9, 0.5, u), 2.0, mix(5.6, 4.8, smooth(u))); camera.lookAt(-0.1, 1.5, 0);
+    return headW(bia);
+  };
+} else if (CEN === 'boletim') {
+  // o Rafa segura o boletim cheio de 10
+  scene.background = new THREE.Color(0xe8e0cc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0xb8ad96, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xdfe8d8, 0.95)); wall.position.set(0, 4, -3); scene.add(wall);
+  const board = rb(5, 2.2, 0.1, 0.03, std(0x2f5a44, 0.9)); board.position.set(0, 3.2, -2.85); scene.add(board);
+  const rafa = kid(RAFA); addGlasses(rafa); stand(rafa);
+  const card = canvasTex(512, 640, (g, w, h) => {
+    g.fillStyle = '#fbf8ef'; g.fillRect(0, 0, w, h); g.fillStyle = '#2c3e50'; g.font = '900 54px Arial'; g.textAlign = 'center'; g.fillText('BOLETIM', w / 2, 80);
+    g.font = '600 26px Arial'; g.fillText('Rafael · 6º ano', w / 2, 120); g.strokeStyle = '#c9c2b0'; g.lineWidth = 3;
+    ['Português', 'Matemática', 'Ciências', 'História', 'Geografia'].forEach((m, i) => { const y = 190 + i * 82; g.beginPath(); g.moveTo(40, y + 30); g.lineTo(w - 40, y + 30); g.stroke(); g.textAlign = 'left'; g.fillStyle = '#2c3e50'; g.font = '600 34px Arial'; g.fillText(m, 50, y + 10); g.textAlign = 'right'; g.fillStyle = '#1a73e8'; g.font = '900 46px Arial'; g.fillText('10', w - 60, y + 14); });
+    g.fillStyle = '#f1c40f'; g.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 26 : 60; g.lineTo(420 + Math.cos(a) * r, 90 + Math.sin(a) * r); } g.fill();
+  });
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 1.06), new THREE.MeshStandardMaterial({ map: card, roughness: 0.9, side: THREE.DoubleSide })); scene.add(paper);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a080, 1.1)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.5); sun.position.set(3, 8, 6); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    rafa.root.position.set(0, 0, 0); rafa.root.rotation.y = 0;
+    rafa.arms.R.sh.rotation.set(-0.9, 0, -0.1); rafa.arms.L.sh.rotation.set(-0.9, 0, 0.1); rafa.arms.R.elbow.rotation.set(-0.2, 0, 0); rafa.arms.L.elbow.rotation.set(-0.2, 0, 0);
+    rafa.head.rotation.set(-0.05, Math.sin(T * 1.5) * 0.05, 0); happy(rafa, T, [0, 0]);
+    rafa.root.updateMatrixWorld(true);
+    const m = handW(rafa, 'L').lerp(handW(rafa, 'R'), 0.5); paper.position.set(m.x, m.y + 0.3, m.z + 0.06); paper.rotation.set(-0.1, 0, 0);
+    camera.up.set(0, 1, 0);
+    const k = smooth(u); camera.position.set(mix(0.25, 0.4, k), mix(paper.position.y + 0.05, 2.3, k), mix(paper.position.z + 1.5, 5.2, k)); camera.lookAt(0, mix(paper.position.y, 1.9, k), mix(paper.position.z, 0, k));
+    return k < 0.5 ? paper.position.clone() : headW(rafa);
+  };
+} else if (CEN === 'palco' || CEN === 'sala') {
+  if (CEN === 'palco') {
+    // apresentação: o Davi trava no palco; a turma ri baixinho
+    scene.background = new THREE.Color(0x0c0a10);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0x2a2430, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    const stage = rb(10, 0.8, 4.4, 0.04, std(0x7a5232, 0.6)); stage.position.set(0, 0.4, -3.2); scene.add(stage);
+    const cur = std(0x8a1a22, 0.85);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(12, 7, 0.2), cur); back.position.set(0, 3.5, -5.5); scene.add(back);
+    for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { const f = rb(0.5, 6.6, 0.4, 0.2, cur); f.position.set(s * (3.6 + i * 0.45), 3.7, -1.3 - i * 0.06); scene.add(f); }
+    const val = rb(10, 0.9, 0.3, 0.1, cur); val.position.set(0, 6.6, -1.2); scene.add(val);
+    const d = kid(); stand(d);
+    const aud = []; const chairM = std(0x3a4a6a, 0.7);
+    [[-2.4, 2.0], [-0.8, 2.0], [0.8, 2.0], [2.4, 2.0], [-1.6, 3.8], [0, 3.8], [1.6, 3.8]].forEach(([x, z], i) => {
+      const c = rb(0.95, 0.1, 0.9, 0.03, chairM); c.position.set(x, 0.62, z); scene.add(c); const cb = rb(0.95, 0.9, 0.1, 0.03, chairM); cb.position.set(x, 1.12, z + 0.42); scene.add(cb);
+      const k = kid(KIDS[i % 5]); seat(k, x, z - 0.27, Math.PI); aud.push(k);
+    });
+    scene.add(new THREE.HemisphereLight(0x8a8ab0, 0x2a2028, 0.7));
+    const front = new THREE.SpotLight(0xffe8c8, 30, 25, 0.35, 0.7, 1.2); front.position.set(1.5, 4.5, 7); front.target.position.set(0, 1.8, -2.6); scene.add(front, front.target);
+    const spot = new THREE.SpotLight(0xfff0d0, 85, 20, 0.32, 0.5, 1.2); spot.position.set(0, 9, 1); spot.target.position.set(0, 0.8, -2.6); spot.castShadow = true; scene.add(spot, spot.target);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0), riu = seg(T, 16.2, 16.6);
+      d.root.position.set(0, 0.8, -2.6); d.root.rotation.y = 0;
+      const tr = 0.012 * Math.sin(T * 31);
+      d.arms.R.sh.rotation.set(-0.15 + tr, 0, 0.1); d.arms.L.sh.rotation.set(-0.15 - tr, 0, -0.1); d.arms.R.elbow.rotation.x = d.arms.L.elbow.rotation.x = -0.25;
+      const freeze = seg(T, 12.6, 13.4);
+      d.head.rotation.set(mix(0, 0.08, freeze) + tr, Math.sin(T * 1.7) * 0.25 * freeze, 0);
+      setFace(d, { open: mix(1, 1.2, freeze), talk: 0.25 * freeze, browUp: mix(0.3, 1, freeze), browSad: mix(0, 0.8, riu), look: [Math.sin(T * 1.7) * 0.5 * freeze, 0] }); d.setSmile(false);
+      aud.forEach((k, i) => {
+        const lg = riu * Math.abs(Math.sin(T * 11 + i * 1.3)) * (i % 2 ? 1 : 0.6);
+        k.body.position.y = -0.38 + lg * 0.035; k.head.rotation.set(-0.1 * riu, (i % 2 ? 0.45 : -0.45) * riu * (i < 4 ? 1 : 0.6), 0);
+        setFace(k, { open: blink(T, i), talk: lg * 0.5, browUp: 0.5, look: [0, 0] }); k.setSmile(riu > 0.3 && lg < 0.4);
+        if (i === 1) { k.arms.R.sh.rotation.set(-1.3 * riu, 0, 0.1); k.arms.R.elbow.rotation.set(-1.4 * riu, 0, -0.3 * riu); } // mão na boca, rindo
+      });
+      camera.up.set(0, 1, 0);
+      if (T < 15.0) { camera.position.set(mix(0.6, 0.3, smooth((T - T0) / 2.9)), 4.3, mix(9.8, 8.0, smooth((T - T0) / 2.9))); camera.lookAt(0, 2.2, -2.4); return headW(d); }
+      const k2 = (T - 15.0) / (T1 - 15.0); camera.position.set(0.35, 2.8, mix(1.5, 1.0, k2)); camera.lookAt(0, 2.7, -2.6); return headW(d);
+    };
+  } else {
+    // final: um colega chora no canto da sala; todos passam reto; o Davi senta do lado e escuta
+    scene.background = new THREE.Color(0xe8e0cc);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0xb8ad96, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 8, 0.2), std(0xdfe8d8, 0.95)); wall.position.set(0, 4, -3.4); scene.add(wall);
+    const wall2 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 8, 20), std(0xd6e0cf, 0.95)); wall2.position.set(-4.4, 4, 0); scene.add(wall2);
+    const board = rb(5, 2.2, 0.1, 0.03, std(0x2f5a44, 0.9)); board.position.set(2.6, 3.4, -3.25); scene.add(board);
+    for (let x = 6.5; x < 14; x += 3) { const w = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.6), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xfff4dc, emissiveIntensity: 1.0 })); w.position.set(x, 3.6, -3.28); scene.add(w); }
+    const wood = std(0x9a6a42, 0.7), metal = std(0x4a5060, 0.5);
+    const chair = (x, z, ry) => { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; const s = rb(0.95, 0.1, 0.9, 0.03, wood); s.position.y = 0.62; g.add(s); const b = rb(0.95, 0.8, 0.08, 0.03, wood); b.position.set(0, 1.1, -0.44); g.add(b); for (const [lx, lz] of [[-0.4, -0.38], [0.4, -0.38], [-0.4, 0.38], [0.4, 0.38]]) { const l = rb(0.06, 0.6, 0.06, 0.02, metal); l.position.set(lx, 0.3, lz); g.add(l); } scene.add(g); return g; };
+    for (const [x, z] of [[2.0, 0.8], [4.4, 0.8], [6.8, 0.8], [4.4, -1.2], [6.8, -1.2]]) { const t = rb(1.4, 0.08, 0.9, 0.02, wood); t.position.set(x, 1.3, z - 0.75); scene.add(t); for (const lx of [-0.6, 0.6]) { const l = rb(0.06, 1.3, 0.06, 0.02, metal); l.position.set(x + lx, 0.65, z - 0.75); scene.add(l); } chair(x, z, 0); }
+    chair(-3.2, -1.9, 0.35); chair(-1.6, -1.6, 0.35);
+    const sad = kid(KIDS[4]); seat(sad, -3.2 + Math.sin(0.35) * 0.25, -1.9 + Math.cos(0.35) * 0.25, 0.35);
+    const d = kid(); const pass = [kid(KIDS[0]), kid(KIDS[1]), kid(KIDS[3])];
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a080, 0.95)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.2); sun.position.set(6, 8, 6); sun.castShadow = true; scene.add(sun);
+    const spot = new THREE.SpotLight(0xffd79a, 0, 14, 0.4, 0.6, 1.2); spot.position.set(-2.4, 7.5, 0.6); spot.target.position.set(-2.4, 1, -1.7); scene.add(spot, spot.target);
+    const halo = glowSprite(4, 0); halo.position.set(-2.4, 2.0, -1.6); halo.scale.set(4.2, 3.4, 1); scene.add(halo);
+    const dir0 = V(Math.sin(0.35), 0, Math.cos(0.35)), pSeat = V(-1.6, 0.45, -1.6).addScaledVector(dir0, 0.25), pStand = V(-1.6, 0, -1.6).addScaledVector(dir0, 0.85), pFrom = V(4.6, 0, 2.5), pMid = V(-0.3, 0, 1.5);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      // o colega chorando: cabeça baixa
+      sad.body.rotation.x = 0.18; sad.head.rotation.set(mix(0.55, 0.25, seg(T, 106.5, 107.3)), mix(0, 0.45, seg(T, 106.5, 107.3)), 0);
+      sad.arms.L.sh.rotation.set(-0.6, 0, -0.1); sad.arms.R.sh.rotation.set(-0.6, 0, 0.1); sad.arms.L.elbow.rotation.x = sad.arms.R.elbow.rotation.x = -0.9;
+      setFace(sad, { open: 0.5, browSad: 1, look: [0, -0.5] }); sad.tears.forEach(t => { t.visible = true; t.scale.setScalar(0.8); t.scale.y *= 1.4; t.position.y = -0.12; });
+      // os outros passam reto (andando da esquerda para a direita, na frente)
+      pass.forEach((k, i) => {
+        const r = clamp((T - 100.3 - i * 0.3) / 2.4); k.root.visible = r > 0 && r < 1;
+        k.root.position.set(mix(-2.6, 7.5, r), 0, 1.9 + i * 0.05); k.root.rotation.y = Math.PI / 2; walk(k, T * 11 + i, 1);
+        k.head.rotation.set(0, i === 1 ? -0.5 * Math.sin(r * Math.PI) : 0, 0); setFace(k, { open: blink(T, i), look: [0, 0] }); k.setSmile(false);
+      });
+      // o Davi chega e senta do lado
+      const wk = clamp((T - 103.3) / 2.0), sit = seg(T, 105.4, 106.0), look = seg(T, 106.0, 106.6);
+      d.root.visible = T > 103.3;
+      if (T < 105.4) {
+        stand(d); const a = wk < 0.6, A = a ? pFrom : pMid, B = a ? pMid : pStand;
+        d.root.position.copy(A.clone().lerp(B, a ? wk / 0.6 : (wk - 0.6) / 0.4)); const dir = Math.atan2(B.x - A.x, B.z - A.z);
+        d.root.rotation.y = mix(dir, 0.35, seg(T, 104.9, 105.35)); if (wk < 1) walk(d, T * 11, 1); d.head.rotation.set(0, 0, 0);
+        setFace(d, { open: blink(T), browSad: 0.4, browUp: 0.3, look: [-0.5, 0] });
+      } else {
+        setSitting(d, sit); d.root.rotation.y = 0.35; d.root.position.copy(pStand.clone().lerp(pSeat, sit)); d.root.position.y = pSeat.y * Math.min(1, sit * 1.3);
+        d.arms.L.sh.rotation.set(-0.45 * sit, 0, -0.08); d.arms.R.sh.rotation.set(-0.45 * sit, 0, 0.08); d.arms.L.elbow.rotation.x = d.arms.R.elbow.rotation.x = -0.7 * sit;
+        d.head.rotation.set(0.12, mix(0, 0.6, look), 0); d.body.rotation.x = 0.06 * look;
+        setFace(d, { open: blink(T), browSad: 0.5, browUp: 0.4, look: [0.6 * look, -0.1] });
+      }
+      d.setSmile(false);
+      const glow = seg(T, 106.6, 108.2); spot.intensity = 110 * glow; halo.material.opacity = 0.3 * glow;
+      camera.up.set(0, 1, 0); const kc = smooth(seg(T, 100.5, 108.5)); camera.position.set(mix(1.0, -0.6, kc), mix(3.1, 2.5, kc), mix(10.0, 5.2, kc)); camera.lookAt(mix(-1.4, -2.3, kc), mix(1.5, 1.75, kc), -1.4);
+      return V(-2.4, 1.8, -1.7);
+    };
+  }
+} else if (CEN === 'moises' || CEN === 'farao') {
+  const MOI = { skin: 0xa8714b, skinDark: 0x8f5d3d, hair: 0xb8b0a4, shirt: 0x8a6a4a, shirtDark: 0x6e5238, pants: 0x6a5a40, curls: true };
+  const moi = adult(MOI, 1.25, 0xd8d2c8);
+  const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 3.4, 8), std(0x5a3a20, 0.8)); scene.add(staff);
+  const holdStaff = () => { moi.root.updateMatrixWorld(true); const hl = handW(moi, 'L'), o = V(-0.2, 0, 0.12).applyAxisAngle(V(0, 1, 0), moi.root.rotation.y); staff.position.set(hl.x + o.x, 1.7, hl.z + o.z); };
+  if (CEN === 'moises') {
+    // a sarça ardente no deserto à noite; Moisés de cabeça baixa: "eu não sei falar"
+    scene.background = new THREE.Color(0x120c1a);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), std(0x8a6a48, 1)); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+    for (const [x, z, s] of [[-6, -6, 2.2], [5, -8, 3], [9, -4, 1.6], [-9, -2, 1.8]]) { const r = rb(s * 1.6, s, s * 1.2, 0.3, std(0x6a4a34, 0.95)); r.position.set(x, s / 2, z); scene.add(r); }
+    const leaf = std(0x3a5a2a, 0.9); const BX = 1.5;
+    for (const [x, y, z, s] of [[0, 0.5, 0, 1.1], [0.4, 0.9, 0.1, 0.8], [-0.4, 0.85, -0.1, 0.8], [0, 1.3, 0, 0.7]]) { const b = rb(s, s * 0.8, s, 0.25, leaf); b.position.set(BX + x, y, -0.4 + z); scene.add(b); }
+    const F = fireSprites(22);
+    const fireL = new THREE.PointLight(0xffa04a, 34, 14, 2); fireL.position.set(BX, 1.5, 0.2); fireL.castShadow = true; scene.add(fireL);
+    const halo = glowSprite(4.5, 0.55); halo.position.set(BX, 1.4, -0.4); scene.add(halo);
+    scene.add(new THREE.HemisphereLight(0x4a4a8a, 0x1a1008, 0.55)); const moon = new THREE.DirectionalLight(0xb0b8ff, 1.5); moon.position.set(-4, 8, 6); scene.add(moon);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      F.fl.forEach((s, i) => { const [x, z, p] = F.fd[i]; const life = (T * (0.8 + p) + p) % 1; s.position.set(BX + x * 1.1, 0.5 + life * 1.6, -0.4 + z * 1.0); s.material.opacity = 0.9 * (1 - life); });
+      fireL.intensity = 32 + Math.sin(T * 13) * 4;
+      moi.root.position.set(-1.0, 0, 0.6); moi.root.rotation.y = 1.15;
+      const low = seg(T, 24.4, 25.2);
+      moi.arms.L.sh.rotation.set(-0.35, 0, -0.1); moi.arms.L.elbow.rotation.set(-0.5, 0, 0);
+      chestHand(moi, seg(T, 25.4, 26.0));
+      moi.head.rotation.set(mix(0, 0.35, low), 0, 0); moi.body.rotation.x = 0.06 * low;
+      setFace(moi, { open: mix(1, 0.7, low) * blink(T), browSad: 0.9 * low, browUp: mix(0.7, 0.2, low), look: [0, -0.3 * low] }); moi.setSmile(false);
+      holdStaff();
+      camera.up.set(0, 1, 0); camera.position.set(mix(-0.3, -0.1, u), 2.8, mix(11.0, 9.6, smooth(u))); camera.lookAt(0.2, 2.1, 0);
+      return V(-0.4, 2.4, 0.3);
+    };
+  } else {
+    // Moisés diante do faraó, no trono alto
+    scene.background = new THREE.Color(0x1a120a);
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0xc9a874, 0.6)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 14, 0.4), std(0xb48a5a, 0.9)); wall.position.set(0, 7, -8); scene.add(wall);
+    const gold = std(0xd4a640, 0.35, { metalness: 0.6 }), sand = std(0xd8bc8a, 0.8);
+    for (const x of [-5.5, -3.0, 3.0, 5.5]) for (const z of [-5.5, -1.5]) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.6, 10, 16), sand); c.position.set(x, 5, z); scene.add(c); const band = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.3, 16), gold); band.position.set(x, 8.6, z); scene.add(band); }
+    for (let i = 0; i < 3; i++) { const st = rb(4.6 - i * 0.6, 0.35, 1.0, 0.03, sand); st.position.set(0, 0.175 + i * 0.35, -2.2 - i * 0.7); scene.add(st); }
+    const plat = rb(4.0, 1.05, 2.4, 0.04, sand); plat.position.set(0, 0.525, -4.6); scene.add(plat);
+    const thSeat = rb(1.75, 0.3, 1.2, 0.05, gold); thSeat.position.set(0, 1.05 + 0.6, -4.7); scene.add(thSeat);
+    const thBack = rb(1.6, 2.6, 0.25, 0.06, gold); thBack.position.set(0, 1.05 + 1.9, -5.35); scene.add(thBack);
+    for (const s of [-1, 1]) { const a = rb(0.25, 0.5, 1.1, 0.05, gold); a.position.set(s * 1.0, 1.05 + 1.0, -4.7); scene.add(a); }
+    const far = adult({ skin: 0xa8714b, skinDark: 0x8f5d3d, hair: 0x17110f, shirt: 0xcdb88a, shirtDark: 0xd4a640, pants: 0xbfa878, curls: false }, 1.3);
+    // toucado listrado (nemes)
+    const nm = canvasTex(64, 64, (g) => { for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#1f3a8a' : '#e0b040'; g.fillRect(0, i * 8, 64, 8); } });
+    const nmM = new THREE.MeshStandardMaterial({ map: nm, roughness: 0.5 });
+    const nTop = rb(1.3, 0.35, 1.2, 0.12, nmM); nTop.position.set(0, 0.62, -0.02); far.head.add(nTop);
+    for (const s of [-1, 1]) { const fl = rb(0.22, 1.1, 0.5, 0.06, nmM); fl.position.set(s * 0.68, -0.15, 0.05); far.head.add(fl); }
+    const cobra = rb(0.12, 0.25, 0.1, 0.04, gold); cobra.position.set(0, 0.72, 0.58); far.head.add(cobra);
+    const seatTop = 1.05 + 0.75;
+    const F = fireSprites(18, 0xffa040);
+    const torches = [[-4.2, 3.2, -1.2], [4.2, 3.2, -1.2], [-4.2, 3.2, -5.0], [4.2, 3.2, -5.0]];
+    torches.forEach(([x, y, z]) => { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 3.0, 8), std(0x4a3420)); p.position.set(x, 1.5, z); scene.add(p); const l = new THREE.PointLight(0xffa04a, 10, 9, 2); l.position.set(x, y + 0.5, z); scene.add(l); });
+    scene.add(new THREE.HemisphereLight(0xffd9a0, 0x3a2410, 0.6));
+    const key = new THREE.SpotLight(0xffe0b0, 80, 30, 0.5, 0.6, 1.2); key.position.set(3, 10, 4); key.target.position.set(0, 1.5, -3); key.castShadow = true; scene.add(key, key.target);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      F.fl.forEach((s, i) => { const [x, z, p] = F.fd[i], tc = torches[i % 4]; const life = (T * (1.1 + p) + p) % 1; s.position.set(tc[0] + x * 0.25, tc[1] + 0.2 + life * 0.7, tc[2] + z * 0.25); s.material.opacity = 0.9 * (1 - life); s.scale.setScalar(0.5); });
+      setSitting(far, 1); far.root.position.set(0, seatTop - 0.22 * 1.3, -4.3); far.root.rotation.y = 0;
+      far.arms.L.sh.rotation.set(-0.45, 0, -0.18); far.arms.R.sh.rotation.set(-0.45, 0, 0.18); far.arms.L.elbow.rotation.x = far.arms.R.elbow.rotation.x = -0.7;
+      far.head.rotation.set(-0.12, 0, 0); setFace(far, { open: 0.75 * blink(T), browSad: -0.6, browUp: 0, look: [0, -0.3] }); far.setSmile(false);
+      moi.root.position.set(0.3, 0, 1.2); moi.root.rotation.y = Math.PI;
+      moi.arms.L.sh.rotation.set(-0.35, 0, -0.1); moi.arms.L.elbow.rotation.set(-0.5, 0, 0);
+      moi.head.rotation.set(-0.25, 0, 0); setFace(moi, { open: blink(T), browUp: 0.4, look: [0, 0.4] });
+      holdStaff();
+      camera.up.set(0, 1, 0); camera.position.set(mix(3.6, 3.2, u), 2.1, mix(5.4, 4.6, smooth(u))); camera.lookAt(-0.3, 3.0, -2.6);
+      return V(0, 3.4, -4.5);
+    };
+  }
+} else if (CEN === 'vo') {
+  // lembrança: a vó conta as mesmas histórias; o Davi escuta como se fosse a primeira vez
+  scene.background = new THREE.Color(0x1e1612);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0x7a5a3c, 0.8)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const rug = new THREE.Mesh(new THREE.CircleGeometry(2.4, 40), std(0xa04a3a, 0.95)); rug.rotation.x = -Math.PI / 2; rug.position.set(0, 0.01, 0); scene.add(rug);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 8, 0.2), std(0xc9a98a, 0.95)); wall.position.set(0, 4, -3.0); scene.add(wall);
+  for (const [x, y, w, h] of [[-1.6, 3.6, 0.9, 1.1], [-0.4, 3.9, 0.7, 0.7], [1.4, 3.7, 1.1, 0.8]]) { const f = rb(w, h, 0.08, 0.02, std(0x5a3a20)); f.position.set(x, y, -2.88); scene.add(f); const p = new THREE.Mesh(new THREE.PlaneGeometry(w - 0.16, h - 0.16), std(0xe8d8b8, 0.9)); p.position.set(x, y, -2.83); scene.add(p); }
+  const fab = std(0x6a7a4a, 0.95);
+  const arm = new THREE.Group(); arm.position.set(-1.25, 0, -0.6); arm.rotation.y = 0.9; scene.add(arm);
+  const as = rb(1.5, 0.5, 1.3, 0.12, fab); as.position.set(0, 0.42, 0.05); arm.add(as);
+  const ab = rb(1.5, 1.4, 0.35, 0.12, fab); ab.position.set(0, 1.1, -0.62); arm.add(ab);
+  for (const s of [-1, 1]) { const a = rb(0.28, 0.75, 1.3, 0.1, fab); a.position.set(s * 0.82, 0.6, 0.05); arm.add(a); }
+  const vo = adult(PALETTE.VO, 1.12); addBun(vo, PALETTE.VO.hair); addGlasses(vo, 0x8a6a4a);
+  const pouf = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.62, 20), std(0xd9a441, 0.9)); pouf.position.set(1.15, 0.31, -0.1); scene.add(pouf);
+  const d = kid();
+  const lampP = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 8), std(0x3a2a1a)); lampP.position.set(-2.6, 1.3, -1.6); scene.add(lampP);
+  const shade = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 0.55, 20), std(0xf4e2b8, 0.9, { emissive: 0xffc070, emissiveIntensity: 0.6 })); shade.position.set(-2.6, 2.75, -1.6); scene.add(shade);
+  scene.add(new THREE.HemisphereLight(0xffe0b8, 0x3a2414, 0.7));
+  const lampL = new THREE.PointLight(0xffb870, 22, 10, 2); lampL.position.set(-2.4, 2.9, -1.2); lampL.castShadow = true; scene.add(lampL);
+  const fill = new THREE.PointLight(0xffd0a0, 8, 10, 2); fill.position.set(2.5, 3.0, 3.0); scene.add(fill);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    setSitting(vo, 1); vo.root.position.copy(V(0, 0.67, 0.45).applyAxisAngle(V(0, 1, 0), 0.9).add(arm.position)).setY(0.67 - 0.22 * 1.12 + 0.0); vo.root.rotation.y = 0.9;
+    vo.arms.L.sh.rotation.set(-0.45, 0, -0.08); vo.arms.L.elbow.rotation.x = -0.7;
+    const g = Math.sin(T * 2.3); vo.arms.R.sh.rotation.set(-0.95 + 0.25 * g, 0, 0.3); vo.arms.R.elbow.rotation.set(-0.8 + 0.2 * g, 0, 0);
+    vo.head.rotation.set(0.02, 0.1 * Math.sin(T * 0.8), 0.04 * g);
+    setFace(vo, { open: blink(T, 2), talk: 0.45 * Math.abs(Math.sin(T * 9.5)) * (Math.sin(T * 1.3) > -0.7 ? 1 : 0), browUp: 0.6 + 0.3 * g, look: [0.4, 0] }); vo.setSmile(false);
+    seat(d, 1.15 + Math.sin(-1.6) * 0.3, -0.1 + Math.cos(-1.6) * 0.3, -1.6, 0.62 - 0.22 + 0.04);
+    d.head.rotation.set(-0.05 + 0.06 * Math.max(0, Math.sin(T * 1.6)), 0, 0.05);
+    setFace(d, { open: blink(T), browUp: 0.8, look: [0, 0.1] }); d.setSmile(Math.sin(T * 0.9) > -0.2);
+    camera.up.set(0, 1, 0); camera.position.set(mix(-2.3, -2.0, u), 2.3, mix(6.0, 5.2, smooth(u))); camera.lookAt(0.05, 1.75, -0.25);
+    return V(0.3, 1.9, -0.25);
+  };
+} else if (CEN === 'medalhas') {
+  // "no céu tem uma sala inteira cheia delas": um corredor de luz com medalhas que ninguém viu
+  scene.background = new THREE.Color(0xe9c98a); scene.fog = new THREE.Fog(0xe9c98a, 16, 46);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 80), std(0xd9c49a, 0.25, { metalness: 0.1 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const WORDS = ['ESCUTOU', 'SENTOU DO LADO', 'VIU QUEM NINGUÉM VIU', 'FICOU', 'ABRAÇOU', 'PERGUNTOU SE ESTAVA TUDO BEM', 'DIVIDIU O LANCHE', 'NÃO RIU', 'ORou JUNTO', 'ESPEROU'];
+  WORDS[8] = 'OROU JUNTO';
+  const goldM = std(0xe0b040, 0.25, { metalness: 0.75, emissive: 0x7a5a10, emissiveIntensity: 0.35 });
+  const ribC = [0xc0392b, 0x2a5aa8, 0x2e8a5a, 0x8e44ad];
+  let n = 0;
+  for (const s of [-1, 1]) {
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 9, 60), std(0xa8804f, 0.9)); wall.position.set(s * 4.2, 4.5, -18); scene.add(wall);
+    for (let c = 0; c < 7; c++) for (let r = 0; r < 3; r++) {
+      const z = 2 - c * 3.2 - (r % 2) * 1.2, y = 1.8 + r * 1.9, x = s * 4.0;
+      const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = -s * Math.PI / 2; scene.add(g);
+      const rib = rb(0.34, 0.7, 0.04, 0.02, std(ribC[n % 4], 0.8)); rib.position.set(0, 0.55, 0); g.add(rib);
+      const disc = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.07, 32), goldM); disc.rotation.x = Math.PI / 2; g.add(disc);
+      const w = WORDS[n % WORDS.length]; n++;
+      const t = canvasTex(256, 256, (cx, W2) => { cx.fillStyle = '#7a5410'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; const words = w.split(' '); const lines = []; let cur = ''; for (const ww of words) { if ((cur + ' ' + ww).trim().length > 10) { lines.push(cur.trim()); cur = ww; } else cur += ' ' + ww; } lines.push(cur.trim()); const fs = lines.length > 2 ? 34 : 44; cx.font = `900 ${fs}px Arial`; lines.forEach((l, i) => cx.fillText(l, 128, 128 + (i - (lines.length - 1) / 2) * fs * 1.1)); cx.strokeStyle = '#a07a20'; cx.lineWidth = 8; cx.beginPath(); cx.arc(128, 128, 118, 0, 7); cx.stroke(); });
+      const face = new THREE.Mesh(new THREE.CircleGeometry(0.48, 32), new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.4 })); face.position.z = 0.04; g.add(face);
+    }
+  }
+  scene.add(new THREE.HemisphereLight(0xfff6e0, 0x8a6a48, 0.7));
+  const key = new THREE.DirectionalLight(0xffe2a8, 1.1); key.position.set(0, 10, 6); scene.add(key);
+  const end = glowSprite(9, 0.4); end.position.set(0, 4, -24); scene.add(end);
+  const motes = [...Array(40)].map((_, i) => { const s = glowSprite(0.12, 0.8); scene.add(s); return [s, (i * 0.618) % 1, (i * 0.37) % 1, (i * 0.73) % 1]; });
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    motes.forEach(([s, a, b, c]) => { s.position.set((a - 0.5) * 7, 1 + ((b + T * 0.05) % 1) * 6, 2 - c * 22); });
+    const cz = mix(5, -9, smooth(u)), turn = seg(u, 0.65, 1); camera.up.set(0, 1, 0); camera.position.set(mix(-1.3, 0, turn), 2.9, cz); camera.lookAt(mix(-4, 0, turn), 2.9, cz - mix(3.2, 12, turn));
+    return V(mix(-4, 0, turn), 2.9, cz - 3.2);
+  };
+}
+finish(R, update, T0, CEN === 'quarto' || CEN === 'moises' || CEN === 'medalhas' ? 0.5 : CEN === 'farao' ? 0.4 : 0.28);
+</script>
+</body>
+</html>

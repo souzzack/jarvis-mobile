@@ -1,0 +1,224 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0a0706; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createMascot, makeStar } from './mascote.js';
+
+// ===== Cena 01 — O despertar =====
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.85;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+RectAreaLightUniformsLib.init();
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0706);
+scene.fog = new THREE.Fog(0x0a0706, 18, 40);
+
+const rb = (w, h, d, r, m, seg = 4) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, seg, r), m);
+const std = (color, roughness = 0.6, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness, ...extra });
+
+// Mesa
+const desk = new THREE.Mesh(new THREE.BoxGeometry(60, 0.4, 40), new THREE.MeshPhysicalMaterial({ color: 0x1a1412, roughness: 0.35, clearcoat: 0.5 }));
+desk.position.y = -0.2; desk.receiveShadow = true; scene.add(desk);
+
+// Notebook
+const laptop = new THREE.Group();
+const alu = new THREE.MeshPhysicalMaterial({ color: 0x2a272d, metalness: 0.7, roughness: 0.32, clearcoat: 0.4 });
+const base = rb(17, 0.45, 11.5, 0.2, alu); base.position.set(0, 0.225, 0); laptop.add(base);
+const well = new THREE.Mesh(new THREE.BoxGeometry(15.4, 0.04, 6.6), std(0x0b0a0c, 0.8));
+well.position.set(0, 0.45, -1.2); laptop.add(well);
+const pad = rb(5.5, 0.03, 3.2, 0.1, new THREE.MeshPhysicalMaterial({ color: 0x232026, metalness: 0.5, roughness: 0.4 }));
+pad.position.set(0, 0.45, 3.9); laptop.add(pad);
+
+// Teclas com legendas
+const keyMat = new THREE.MeshPhysicalMaterial({ color: 0x141216, roughness: 0.6, clearcoat: 0.1 });
+const rows = ['1234567890-=', 'QWERTYUIOP[]', 'ASDFGHJKLÇ;\'', 'ZXCVBNM,.;/↑', ''];
+const pitch = 1.16, cols = 12;
+const keyTops = [];
+const legendTex = (ch) => {
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.font = 'bold 30px DejaVu Sans, Arial';
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(ch, 32, 34);
+  const t = new THREE.CanvasTexture(c); return t;
+};
+let pressed = null;
+for (let r = 0; r < 4; r++) {
+  for (let k = 0; k < cols; k++) {
+    const x = (k - (cols - 1) / 2) * pitch + (r % 2) * 0.25;
+    const z = -4.0 + r * pitch;
+    const isPressed = r === 3 && k === 6;
+    const m = isPressed ? keyMat.clone() : keyMat;
+    if (isPressed) { m.emissive = new THREE.Color(0xff6a20); m.emissiveIntensity = 1.4; }
+    const key = rb(1.0, 0.24, 1.0, 0.07, m);
+    key.position.set(x, isPressed ? 0.5 : 0.58, z);
+    laptop.add(key);
+    const ch = rows[r][k];
+    if (ch) {
+      const lg = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), new THREE.MeshBasicMaterial({
+        map: legendTex(ch), transparent: true, opacity: isPressed ? 1 : 0.35, color: isPressed ? 0xffb070 : 0xffffff,
+      }));
+      lg.rotation.x = -Math.PI / 2; lg.position.set(x, key.position.y + 0.121, z);
+      laptop.add(lg);
+    }
+    if (isPressed) pressed = new THREE.Vector3(x, 0.5, z);
+  }
+}
+// barra de espaço
+const space = rb(6.8, 0.24, 1.0, 0.07, keyMat); space.position.set(0, 0.58, -4.0 + 4 * pitch); laptop.add(space);
+for (const x of [-6.0, -4.6, 4.6, 6.0]) { const k = rb(1.2, 0.24, 1.0, 0.07, keyMat); k.position.set(x, 0.58, -4.0 + 4 * pitch); laptop.add(k); }
+
+// brilho saindo por baixo da tecla pressionada
+{
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.MeshBasicMaterial({
+    color: 0xff7a2a, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false,
+    map: (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+      const gr = g.createRadialGradient(64, 64, 10, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })(),
+  }));
+  halo.rotation.x = -Math.PI / 2; halo.position.copy(pressed).add(new THREE.Vector3(0, 0.005, 0));
+  laptop.add(halo);
+  const kl = new THREE.PointLight(0xff7a2a, 9, 4, 2); kl.position.copy(pressed).add(new THREE.Vector3(0, 0.3, 0.3)); laptop.add(kl);
+}
+
+// Tela (tampa) com a interface de edição acendendo
+const screenTex = (() => {
+  const c = document.createElement('canvas'); c.width = 1600; c.height = 1000;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0f0b0a'; g.fillRect(0, 0, 1600, 1000);
+  // barra superior
+  g.fillStyle = '#1c1512'; g.fillRect(0, 0, 1600, 60);
+  for (const [x, col] of [[30, '#ff5f57'], [60, '#febc2e'], [90, '#28c840']]) { g.fillStyle = col; g.beginPath(); g.arc(x, 30, 9, 0, 7); g.fill(); }
+  g.fillStyle = '#ffb27a'; g.font = 'bold 28px DejaVu Sans'; g.fillText('Editor de vídeo', 680, 40);
+  // biblioteca
+  g.fillStyle = '#17110e'; g.fillRect(20, 80, 300, 520);
+  for (let i = 0; i < 6; i++) { g.fillStyle = ['#3a2a22', '#4b3324', '#2d2420'][i % 3]; g.fillRect(40 + (i % 2) * 140, 100 + Math.floor(i / 2) * 160, 120, 90); }
+  // preview
+  const pg = g.createLinearGradient(360, 80, 1240, 600);
+  pg.addColorStop(0, '#ff9a4a'); pg.addColorStop(0.5, '#c2461f'); pg.addColorStop(1, '#3a120a');
+  g.fillStyle = pg; g.fillRect(360, 80, 880, 520);
+  g.fillStyle = 'rgba(255,255,255,0.92)';
+  g.beginPath(); g.moveTo(760, 270); g.lineTo(760, 410); g.lineTo(880, 340); g.closePath(); g.fill();
+  // painel direito
+  g.fillStyle = '#17110e'; g.fillRect(1280, 80, 300, 520);
+  for (let i = 0; i < 6; i++) { g.fillStyle = '#2a201b'; g.fillRect(1300, 110 + i * 75, 260, 14); g.fillStyle = '#ff7a2a'; g.fillRect(1300, 110 + i * 75, 60 + i * 30, 14); }
+  // linha do tempo
+  g.fillStyle = '#140f0d'; g.fillRect(20, 630, 1560, 350);
+  const clips = [['#ff7a2a', [[60, 300], [380, 420], [820, 260], [1100, 380]]], ['#ffb15c', [[60, 520], [600, 500], [1120, 360]]], ['#c2461f', [[200, 700], [920, 560]]], ['#6b4a3a', [[60, 1480]]]];
+  clips.forEach(([col, list], t) => { g.fillStyle = col; for (const [x, w] of list) g.fillRect(x, 660 + t * 75, w - 10, 55); });
+  g.fillStyle = '#ffffff'; g.fillRect(700, 630, 5, 350);
+  g.beginPath(); g.moveTo(690, 630); g.lineTo(715, 630); g.lineTo(702, 648); g.fill();
+  // "acendendo": a tela clareia de baixo para cima
+  const fade = g.createLinearGradient(0, 0, 0, 1000);
+  fade.addColorStop(0, 'rgba(10,7,6,0.75)'); fade.addColorStop(0.45, 'rgba(10,7,6,0.25)'); fade.addColorStop(1, 'rgba(10,7,6,0)');
+  g.fillStyle = fade; g.fillRect(0, 0, 1600, 1000);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const lid = new THREE.Group();
+const lidBody = rb(17, 11, 0.35, 0.2, alu); lidBody.position.y = 5.5; lid.add(lidBody);
+const bezel = new THREE.Mesh(new THREE.PlaneGeometry(16.4, 10.4), std(0x050405, 0.3)); bezel.position.set(0, 5.5, 0.18); lid.add(bezel);
+const display = new THREE.Mesh(new THREE.PlaneGeometry(15.6, 9.75), new THREE.MeshStandardMaterial({ color: 0x000000, emissive: 0xffffff, emissiveMap: screenTex, emissiveIntensity: 0.6 }));
+display.position.set(0, 5.5, 0.185); lid.add(display);
+lid.position.set(0, 0.45, -5.75); lid.rotation.x = -0.22;
+laptop.add(lid);
+scene.add(laptop);
+
+const screenLight = new THREE.RectAreaLight(0xffb27a, 2.2, 15.6, 9.75);
+screenLight.position.set(0, 5.9, -5.0); screenLight.lookAt(0, 1.5, 2);
+scene.add(screenLight);
+
+// O mascote, em pé sobre as teclas
+const m = createMascot();
+m.root.position.set(pressed.x - 0.9, 0.7, pressed.z - 1.5);
+m.root.rotation.y = 0.5;
+m.head.rotation.z = 0.07;       // cabeça levemente inclinada: curiosidade
+m.head.rotation.x = -0.04;
+scene.add(m.root);
+// pé direito afundando na tecla pressionada
+
+
+// Fundo: estante com livros e fitas de LED laranja
+{
+  const shelf = new THREE.Group();
+  const wood = std(0x140f0d, 0.8);
+  for (const y of [0, 4, 8, 12]) { const s = new THREE.Mesh(new THREE.BoxGeometry(50, 0.25, 2), wood); s.position.y = y; shelf.add(s); }
+  const cols = [0x5a2a1a, 0x8a3c1c, 0x2a2228, 0x3c2a22, 0xb5561f, 0x1e1a22, 0x6e4a32];
+  let i = 0;
+  for (const row of [0.12, 4.12, 8.12]) {
+    let x = -24.5;
+    while (x < 24) {
+      const w = 0.45 + ((i * 37) % 10) / 22, h = 2.4 + ((i * 53) % 9) / 8;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.5), std(cols[(i * 3) % cols.length], 0.7));
+      b.position.set(x + w / 2, row + h / 2, 0); shelf.add(b);
+      x += w + 0.06; i++; if (i % 9 === 0) x += 1.6;
+    }
+  }
+  const led = new THREE.MeshStandardMaterial({ color: 0xff8a40, emissive: 0xff6a20, emissiveIntensity: 4 });
+  for (const y of [3.85, 7.85, 11.85]) { const l = new THREE.Mesh(new THREE.BoxGeometry(50, 0.06, 0.06), led); l.position.set(0, y, 1.0); shelf.add(l); }
+  shelf.position.set(-8, -1, -24); shelf.rotation.y = 0.35;
+  scene.add(shelf);
+  // monitor secundário ao fundo
+  const mon = rb(9, 5.5, 0.4, 0.2, std(0x0c0a0b, 0.4)); mon.position.set(-11, 7, -16); mon.rotation.y = 0.4; scene.add(mon);
+  const frame = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.08, 0.1), led); frame.position.set(-11, 9.5, -15.7); frame.rotation.y = 0.4; scene.add(frame);
+}
+
+// Primeiro plano: caneca com estrela (desfocada)
+{
+  const mug = new THREE.Group();
+  const mm = new THREE.MeshPhysicalMaterial({ color: 0x141215, roughness: 0.35, clearcoat: 0.8 });
+  const cyl = rb(1.6, 1.9, 1.6, 0.25, mm); cyl.position.y = 0.95; mug.add(cyl);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.14, 12, 24), mm); handle.position.set(1.0, 1.0, 0); mug.add(handle);
+  const st = makeStar(0.35, new THREE.MeshStandardMaterial({ color: 0xff9a50, emissive: 0xff6a20, emissiveIntensity: 2.5 }), 0.03);
+  st.position.set(0, 1.05, 0.82); mug.add(st);
+  mug.position.set(9.6, 0, 4.5); mug.rotation.y = -0.3;
+  scene.add(mug);
+}
+
+// Luzes
+scene.add(new THREE.HemisphereLight(0x6a4a3a, 0x0a0706, 0.35));
+const key = new THREE.SpotLight(0xffa066, 45, 30, 0.32, 0.9, 1.6);
+key.position.set(5, 8, 9); key.target.position.set(0, 1.6, 0);
+key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
+scene.add(key, key.target);
+const rim = new THREE.DirectionalLight(0xff8a40, 2.2); rim.position.set(-6, 5, -8); scene.add(rim);
+const fill = new THREE.PointLight(0xffc29a, 32, 14, 2); fill.position.set(6, 4, 8); scene.add(fill);
+const cool = new THREE.DirectionalLight(0x5a78ff, 0.5); cool.position.set(8, 3, -4); scene.add(cool);
+
+// Câmera baixa, quase na altura das teclas
+const camera = new THREE.PerspectiveCamera(36, W / H, 0.1, 200);
+const target = new THREE.Vector3(m.root.position.x + 0.2, 2.75, m.root.position.z);
+const ang = 0.6, dist = 10.2;
+camera.position.set(target.x + Math.sin(ang) * dist, 3.0, target.z + Math.cos(ang) * dist);
+camera.lookAt(target);
+
+const rt = new THREE.WebGLRenderTarget(W, H, { samples: 4, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.5, 0.9));
+composer.addPass(new BokehPass(scene, camera, { focus: camera.position.distanceTo(target), aperture: 0.0022, maxblur: 0.012 }));
+composer.addPass(new OutputPass());
+composer.render();
+requestAnimationFrame(() => { composer.render(); window.__done = true; });
+</script>
+</body>
+</html>

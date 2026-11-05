@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #120c22; }
+  canvas { display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x120c22);
+scene.fog = new THREE.Fog(0x1a1030, 9, 22);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.15;
+
+const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+camera.position.set(1.5, 2.0, 8.8);
+camera.lookAt(0.7, 1.4, 0);
+
+// Luzes: ambiente roxo, luz principal quente e contraluz violeta
+scene.add(new THREE.HemisphereLight(0x8a6cff, 0x1a1030, 0.7));
+const key = new THREE.DirectionalLight(0xffe2cc, 2.4);
+key.position.set(-3, 5, 5);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -5, right: 5, top: 5, bottom: -3 });
+key.shadow.radius = 5; key.shadow.normalBias = 0.02;
+scene.add(key);
+const rim = new THREE.DirectionalLight(0x9b6bff, 4.5);
+rim.position.set(4, 3, -4); scene.add(rim);
+const rimL = new THREE.DirectionalLight(0xff5fa8, 1.6);
+rimL.position.set(-5, 2, -3); scene.add(rimL);
+const monitorGlow = new THREE.PointLight(0x7f8cff, 12, 8, 2);
+monitorGlow.position.set(-2.2, 2.2, -1.2); scene.add(monitorGlow);
+
+const mat = (color, rough = 0.75, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: rough, ...extra });
+const box = (w, h, d, m, x = 0, y = 0, z = 0, parent = scene) => {
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+  b.position.set(x, y, z); parent.add(b); return b;
+};
+
+// Mesa
+box(16, 0.3, 9, mat(0x2b2140, 0.45, { metalness: 0.1 }), 0, -0.15, 0.5);
+box(16, 0.06, 0.08, mat(0x8f6bff, 0.3, { emissive: 0x6a3dff, emissiveIntensity: 0.6 }), 0, -0.02, 4.96);
+
+// Estante ao fundo com livros
+{
+  const shelf = new THREE.Group();
+  const wood = mat(0x1d1530, 0.8);
+  box(9, 0.12, 1, wood, 0, 2.2, 0, shelf);
+  box(9, 0.12, 1, wood, 0, 4.4, 0, shelf);
+  box(9, 0.12, 1, wood, 0, 0.0, 0, shelf);
+  box(9, 0.12, 1, wood, 0, 6.6, 0, shelf);
+  const colors = [0xff3d8b, 0x7a4dff, 0x3d6bff, 0xd9663a, 0xb84dff, 0xff6f61, 0x4d8bff, 0xe24dff, 0x9c2f5a];
+  let x = -4.3, i = 0;
+  for (const row of [0.06, 2.26, 4.46]) {
+    x = -4.3;
+    while (x < 4.2) {
+      const w = 0.22 + ((i * 37) % 10) / 40, h = 1.3 + ((i * 53) % 7) / 10;
+      const c = colors[(i * 5) % colors.length];
+      const bk = box(w, h, 0.75, mat(c, 0.6, { emissive: c, emissiveIntensity: 0.12 }), x + w / 2, row + h / 2, 0, shelf);
+      if (i % 9 === 4) bk.rotation.z = 0.18;
+      x += w + 0.03; i++;
+      if (i % 11 === 0) x += 0.6;
+    }
+  }
+  shelf.position.set(1.2, -0.5, -6);
+  scene.add(shelf);
+}
+
+// Monitor com uma linha do tempo de edição
+{
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 600;
+  const g = c.getContext('2d');
+  const grd = g.createLinearGradient(0, 0, 0, 600);
+  grd.addColorStop(0, '#2c2a7a'); grd.addColorStop(1, '#3b1f78');
+  g.fillStyle = grd; g.fillRect(0, 0, 1024, 600);
+  // janela de preview
+  g.fillStyle = '#120c22'; g.fillRect(260, 40, 500, 280);
+  g.fillStyle = '#d9663a'; g.fillRect(430, 140, 160, 100);
+  g.fillStyle = '#1b2b33'; g.fillRect(465, 170, 22, 22); g.fillRect(535, 170, 22, 22);
+  g.fillStyle = '#d9663a'; g.fillRect(445, 240, 20, 30); g.fillRect(555, 240, 20, 30);
+  // linha do tempo
+  g.fillStyle = '#17112a'; g.fillRect(30, 350, 964, 220);
+  const tracks = [['#ff5fa8', [[60, 260], [340, 200], [560, 300]]], ['#7a8cff', [[60, 180], [260, 340], [620, 240]]], ['#ffc94a', [[120, 420], [560, 360]]], ['#4dd1a0', [[60, 900]]]];
+  tracks.forEach(([col, clips], t) => {
+    g.fillStyle = col;
+    for (const [x0, w] of clips) { g.globalAlpha = 0.9; g.fillRect(x0, 370 + t * 50, w - 8, 36); }
+  });
+  g.globalAlpha = 1;
+  g.fillStyle = '#ffffff'; g.fillRect(470, 350, 4, 220);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const mon = new THREE.Group();
+  box(3.4, 2.1, 0.12, mat(0x0d0a18, 0.4), 0, 0, -0.07, mon);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 1.9), new THREE.MeshBasicMaterial({ map: tex }));
+  screen.position.z = 0.001; mon.add(screen);
+  box(0.25, 1.0, 0.25, mat(0x0d0a18, 0.4), 0, -1.4, -0.2, mon);
+  box(1.2, 0.08, 0.8, mat(0x0d0a18, 0.4), 0, -1.9, -0.2, mon);
+  mon.position.set(-2.6, 1.95, -1.8);
+  mon.rotation.y = 0.35;
+  scene.add(mon);
+}
+
+// Teclado em blocos
+{
+  const kb = new THREE.Group();
+  box(1.9, 0.1, 0.7, mat(0x1a1428, 0.5), 0, 0.05, 0, kb);
+  const keyMat = mat(0x3a3150, 0.6);
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 8; k++) box(0.17, 0.06, 0.15, keyMat, -0.77 + k * 0.22, 0.13, -0.2 + r * 0.2, kb);
+  kb.position.set(-2.1, 0, 1.0); kb.rotation.y = 0.25;
+  scene.add(kb);
+}
+
+// Caneca
+{
+  const mug = new THREE.Group();
+  const m = mat(0xbfd3e6, 0.35);
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.6, 10), m);
+  cyl.position.y = 0.3; mug.add(cyl);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.045, 6, 10), m);
+  handle.position.set(0.3, 0.32, 0); mug.add(handle);
+  mug.position.set(-0.6, 0, 4.4); mug.rotation.y = -0.5;
+  scene.add(mug);
+}
+
+// ===== O personagem =====
+const hero = new THREE.Group();
+const orange = mat(0xd9663a, 0.8);
+const orangeLight = mat(0xe8794a, 0.8);
+const orangeDark = mat(0xb94f2c, 0.8);
+const eyeMat = mat(0x14262c, 0.25, { metalness: 0.2 });
+
+// pernas (duas cores, como na referência)
+const legH = 0.6;
+for (const x of [-0.82, -0.5, 0.5, 0.82]) {
+  for (const z of [-0.45, 0.45]) {
+    const leg = new THREE.Group();
+    box(0.16, legH, 0.3, orangeLight, -0.08, 0, 0, leg);
+    box(0.16, legH, 0.3, orangeDark, 0.08, 0, 0, leg);
+    leg.position.set(x, legH / 2, z);
+    hero.add(leg);
+  }
+}
+// corpo
+const BW = 2.3, BH = 1.35, BD = 1.5, BY = legH + BH / 2;
+box(BW, BH, BD, orange, 0, BY, 0, hero);
+// olhos quadrados
+for (const x of [-0.58, 0.58]) {
+  box(0.24, 0.24, 0.04, eyeMat, x, BY + 0.12, BD / 2 + 0.005, hero);
+  box(0.06, 0.06, 0.02, mat(0xffffff, 0.2, { emissive: 0xffffff, emissiveIntensity: 0.6 }), x + 0.06, BY + 0.18, BD / 2 + 0.03, hero);
+}
+// bracinhos laterais
+box(0.12, 0.42, 0.34, orangeLight, -BW / 2 - 0.06, BY - 0.1, 0.2, hero);
+const armR = box(0.12, 0.42, 0.34, orangeLight, BW / 2 + 0.06, BY - 0.05, 0.25, hero);
+armR.rotation.z = 0.5;
+
+// fones de ouvido em blocos
+{
+  const dark = mat(0x1c1a26, 0.35, { metalness: 0.3 });
+  const accent = mat(0x9b6bff, 0.3, { emissive: 0x7a4dff, emissiveIntensity: 0.9 });
+  const top = BY + BH / 2;
+  box(BW + 0.5, 0.12, 0.26, dark, 0, top + 0.28, 0, hero);
+  for (const s of [-1, 1]) {
+    box(0.12, 0.42, 0.26, dark, s * (BW / 2 + 0.19), top + 0.07, 0, hero);
+    box(0.24, 0.6, 0.55, dark, s * (BW / 2 + 0.16), BY + 0.2, 0, hero);
+    box(0.03, 0.4, 0.35, accent, s * (BW / 2 + 0.29), BY + 0.2, 0, hero);
+  }
+}
+// antena com estrela em blocos
+{
+  const gold = mat(0xffc94a, 0.25, { metalness: 0.6, emissive: 0xffa000, emissiveIntensity: 0.5 });
+  box(0.08, 0.3, 0.08, orangeDark, 0.3, BY + BH / 2 + 0.47, 0, hero);
+  const st = new THREE.Group();
+  box(0.07, 0.56, 0.1, gold, 0, 0, 0, st);
+  box(0.56, 0.07, 0.1, gold, 0, 0, 0, st);
+  box(0.15, 0.32, 0.12, gold, 0, 0, 0, st);
+  box(0.32, 0.15, 0.12, gold, 0, 0, 0, st);
+  box(0.2, 0.2, 0.14, gold, 0, 0, 0, st).rotation.z = Math.PI / 4;
+  st.position.set(0.3, BY + BH / 2 + 0.8, 0);
+  hero.add(st);
+  const glow = new THREE.PointLight(0xffb84a, 3, 2.5, 2);
+  glow.position.set(0.3, BY + BH / 2 + 0.8, 0.4); hero.add(glow);
+}
+hero.position.set(0.2, 0, 0.3);
+hero.rotation.y = -0.28;
+scene.add(hero);
+
+// Claquete em blocos, apoiada na mesa ao lado
+{
+  const cl = new THREE.Group();
+  const black = mat(0x18151f, 0.5);
+  const whiteM = mat(0xf2f2f2, 0.5);
+  box(1.1, 0.75, 0.08, black, 0, 0.375, 0, cl);
+  for (const [w, y] of [[0.8, 0.5], [0.55, 0.33], [0.7, 0.16]]) box(w, 0.04, 0.01, mat(0xcfcfe0, 0.8), -0.1 + w / 2 - 0.35, y, 0.045, cl);
+  const bar = (yy, rot) => {
+    const g = new THREE.Group();
+    box(1.1, 0.16, 0.09, black, 0.55, 0, 0, g);
+    for (let i = 0; i < 5; i++) {
+      const s = box(0.12, 0.16, 0.095, whiteM, 0.12 + i * 0.22, 0, 0, g);
+    }
+    g.position.set(-0.55, yy, 0); g.rotation.z = rot; cl.add(g);
+  };
+  bar(0.83, 0);
+  bar(0.93, 0.38);
+  cl.position.set(2.15, 0, 0.7);
+  cl.rotation.set(-0.12, -0.55, 0);
+  scene.add(cl);
+}
+
+// partículas de luz no ar
+for (let i = 0; i < 40; i++) {
+  const s = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.04), new THREE.MeshBasicMaterial({ color: i % 3 ? 0xb89cff : 0xffc0e0 }));
+  const r = (n) => (Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1;
+  s.position.set(Math.abs(r(1)) * 9 - 4.5, Math.abs(r(2)) * 4 + 0.5, -Math.abs(r(3)) * 5 + 0.5);
+  scene.add(s);
+}
+
+scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+const target = new THREE.WebGLRenderTarget(W, H, { samples: 4, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, target);
+composer.addPass(new RenderPass(scene, camera));
+const focus = camera.position.distanceTo(new THREE.Vector3(0.2, 1.3, 0.6));
+composer.addPass(new BokehPass(scene, camera, { focus, aperture: 0.006, maxblur: 0.016 }));
+composer.addPass(new OutputPass());
+composer.render();
+requestAnimationFrame(() => { composer.render(); window.__done = true; });
+</script>
+</body>
+</html>

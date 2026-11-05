@@ -1,0 +1,235 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 6 — "E se ela for embora?" (primeiro amor, o tempo certo). Uso: ep06.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, addLongHair, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+import { createCidade } from './cenarios.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps345/ep06/envelopes.json');
+const SHOTS = {
+  SH01: [0, 8.3, 'quarto'], SH02: [8.3, 10.8, 'livia'], SH03: [10.8, 16.2, 'onibus'], SH04: [16.2, 23.2, 'quarto'],
+  SH05: [23.2, 27.4, 'grupo'], SH06: [27.4, 29.0, 'curso'], SH07: [29.0, 30.3, 'onibus'], SH08: [30.3, 35.7, 'orando'],
+  SH09: [35.7, 44.7, 'quarto'], SH10: [44.7, 52.2, 'quarto'], SH11: [52.2, 54.9, 'quarto'], SH12: [54.9, 64.6, 'semente'],
+  SH13: [64.6, 72.3, 'quarto'], SH14: [72.3, 77.2, 'quarto'], SH15: [77.2, 84.9, 'cidade'], SH16: [84.9, 92.6, 'quarto'],
+  SH17: [92.6, 97.0, 'quarto'], SH18: [97.0, 101.5, 'quarto'], SH19: [101.5, 107.3, 'quarto'], SH20: [107.3, 116.5, 'quarto'],
+  SH21: [116.5, 122.3, 'quarto'], SH22: [122.3, 128.15, 'quarto'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const LIVIA = { skin: 0xc98d63, skinDark: 0xb27a52, hair: 0x3a2216, shirt: 0x6fb3a0, shirtDark: 0x5a9a88, pants: 0x3a3f5c, curls: false };
+const expr = makeExpr(
+  { hx: 0.15, hy: -0.5, hz: 0, lean: 0.05, brUp: 0.3, brSad: 0.3, eyes: 0.95, lx: -0.7, ly: 0.3, tear: 0, god: 0.35, lamp: 0.5, smile: 0, hold: 1, open: 0, heart: 0, box: 0 },
+  [[0, {}],
+   [16.35, { brUp: 0.9, brSad: 0, hx: -0.05 }], [18.2, { smile: 1, hz: 0.06 }],
+   [35.85, { smile: 0, hz: 0, brUp: 0.4, brSad: 0.4, ly: 0.1, hx: 0.1 }], [38.5, { brUp: 0.8 }], [39.7, { brSad: 0, brUp: 0.5, god: 0.6 }], [42.0, { smile: 1 }],
+   [44.8, { hx: 0.35, hy: 0, lx: 0, ly: -0.6, smile: 0 }],
+   [52.4, { hx: 0, hy: -0.5, lx: -0.7, ly: 0.3, brSad: 0.2 }],
+   [64.8, { brSad: 1, brUp: 0.2, tear: 0.6, eyes: 0.8, hx: 0.2, ly: -0.2, god: 0.4 }], [68.9, { tear: 0.9 }], [70.9, { eyes: 0.6 }],
+   [72.6, { god: 0.9, tear: 0.5, hx: 0, ly: 0.3, eyes: 0.9 }],
+   [85.4, { brUp: 0.6, brSad: 0.5, tear: 0.3 }], [89.4, { smile: 1, tear: 0, brSad: 0 }],
+   [92.7, { smile: 0, heart: 1, god: 1.0 }], [96.3, { heart: 0 }], [97.1, { brUp: 0.5, brSad: 0.3 }],
+   [101.5, { open: 1, hx: 0.35, hy: 0, lx: 0, ly: -0.6 }],
+   [107.4, { open: 0, hx: 0.1, hy: -0.5, lx: -0.7, ly: 0.3, brUp: 0.6 }],
+   [109.4, { box: 1 }], [112.6, { box: 2, hold: 0 }],
+   [116.6, { brUp: 0.7, brSad: 0.2 }], [118.3, { smile: 1, god: 1.25, lamp: 0.2 }], [130, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+const livia = () => { const l = addSmile(createDavi(LIVIA)); addLongHair(l, LIVIA.hair); scene.add(l.root); return l; };
+function seatOn(k, pos, ry) { setSitting(k, 1); k.root.position.copy(pos).add(V(Math.sin(ry), 0, Math.cos(ry)).multiplyScalar(pos.y < 0.5 ? 0.12 : 0)); k.root.position.y = Math.max(pos.y, 0.45); k.root.rotation.y = ry; k.arms.L.sh.rotation.set(-0.45, 0, -0.08); k.arms.R.sh.rotation.set(-0.45, 0, 0.08); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; }
+const chair = (x, z, ry, color = 0x6b4a30) => {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; const m = std(color, 0.7);
+  const s = rb(0.95, 0.1, 0.75, 0.03, m); s.position.set(0, 0.62, -0.08); g.add(s); const b = rb(0.95, 0.9, 0.1, 0.03, m); b.position.set(0, 1.1, -0.47); g.add(b);
+  for (const [lx, lz] of [[-0.4, -0.42], [0.4, -0.42], [-0.4, 0.22], [0.4, 0.22]]) { const l = rb(0.08, 0.62, 0.08, 0.02, m); l.position.set(lx, 0.31, lz); g.add(l); }
+  scene.add(g); return g;
+};
+// bilhete dobrado / aberto
+const noteTex = canvasTex(512, 340, (g, w, h) => {
+  g.fillStyle = '#fffaf0'; g.fillRect(0, 0, w, h); g.strokeStyle = '#d8e4f0'; for (let y = 70; y < h; y += 48) { g.beginPath(); g.moveTo(20, y); g.lineTo(w - 20, y); g.stroke(); }
+  g.fillStyle = '#6a3a8a'; g.font = 'italic bold 52px DejaVu Serif'; g.fillText('Vou sentir', 50, 120); g.fillText('saudade.', 50, 190);
+  g.font = 'italic 40px DejaVu Serif'; g.fillText('— L. ♡', 300, 290);
+});
+
+if (CEN === 'quarto' || CEN === 'orando') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  const folded = rb(0.26, 0.04, 0.18, 0.01, std(0xf6efe0, 0.9)); scene.add(folded);
+  const opened = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.41), new THREE.MeshStandardMaterial({ map: noteTex, roughness: 0.9, side: THREE.DoubleSide })); scene.add(opened);
+  const heartG = glowSprite(0.9, 0); scene.add(heartG);
+  // caixinha de lembranças ao lado dele na cama
+  const boxG = new THREE.Group(); const wood = std(0x8a5a35, 0.6);
+  const bx = rb(0.6, 0.3, 0.45, 0.04, wood); bx.position.y = 0.15; boxG.add(bx);
+  const lidP = new THREE.Group(); lidP.position.set(0, 0.3, -0.22); boxG.add(lidP);
+  const lid = rb(0.62, 0.07, 0.47, 0.03, std(0x9a6a42, 0.6)); lid.position.set(0, 0.03, 0.22); lidP.add(lid);
+  const BOXP = Q.BED.clone().add(V(0.95, 0.2, 0.25).applyAxisAngle(V(0, 1, 0), -0.45)); boxG.position.copy(BOXP); boxG.rotation.y = -0.45; scene.add(boxG);
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    if (CEN === 'orando') { // lembrança: de joelhos ao lado da cama
+      Q.pose('bed', e, T, 0); setSitting(d, 0);
+      d.legs.forEach(({ hip, knee }) => { hip.rotation.x = 0; knee.rotation.x = 1.55; });
+      d.root.position.copy(Q.BED).add(V(-0.1, -0.8 - 0.12, 1.1)); d.root.rotation.y = Math.PI - 0.45; d.body.position.y = 0; d.body.rotation.x = 0.35;
+      pray(d);
+      d.head.rotation.set(0.45, 0, 0); setFace(d, { open: 0.1, browSad: 0.6, browUp: 0.3 }); d.setSmile(false); d.tears.forEach(t => (t.visible = false));
+      folded.visible = opened.visible = boxG.visible = false;
+      const h = headW(d); camera.up.set(0, 1, 0); camera.position.set(h.x + mix(3.6, 3.2, u), h.y + 1.1, h.z + mix(3.9, 3.4, u)); camera.lookAt(h.x, h.y - 0.7, h.z);
+      return h;
+    }
+    Q.pose('bed', e, T, talk);
+    // segura o bilhete com as duas mãos
+    const hd = e.hold;
+    d.arms.R.sh.rotation.set(mix(-0.35, -0.9, hd), 0, mix(0.08, 0.3, hd)); d.arms.R.elbow.rotation.x = mix(-0.8, -0.9, hd);
+    d.arms.L.sh.rotation.set(mix(-0.35, -0.9, hd), 0, mix(-0.08, -0.3, hd)); d.arms.L.elbow.rotation.x = mix(-0.8, -0.9, hd);
+    d.root.updateMatrixWorld(true);
+    const hands = d.arms.R.hand.getWorldPosition(new THREE.Vector3()).add(d.arms.L.hand.getWorldPosition(new THREE.Vector3())).multiplyScalar(0.5).add(V(0, 0.1, 0));
+    const inBox = clamp(e.box), closeLid = clamp(e.box - 1);
+    folded.position.copy(hands.clone().lerp(BOXP.clone().add(V(0, 0.32, 0)), inBox)); folded.rotation.set(0, -0.45, 0);
+    folded.visible = e.open < 0.5 && (e.hold > 0.05 || inBox > 0.95) && closeLid < 0.6;
+    opened.visible = e.open >= 0.5; opened.position.copy(hands).add(V(0, 0.15, 0)); opened.lookAt(headW(d)); opened.scale.setScalar(0.6 + 0.4 * e.open);
+    lidP.rotation.x = mix(-1.9, 0, closeLid);
+    const chest = d.body.localToWorld(V(-0.1, d.hipY + 0.5, 0.35));
+    heartG.position.copy(chest); heartG.material.opacity = e.heart * (0.75 + 0.25 * Math.sin(T * 4)); heartG.scale.setScalar(0.7 + 0.15 * Math.sin(T * 4));
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH01': Q.camMove('MED', 'MED', u, -0.2, 0.5); return h;
+      case 'SH04': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH09': Q.camMove('R3Q', 'R3Q', u, 0.1, 0.6); return h;
+      case 'SH10': { camera.up.set(0, 1, 0); camera.position.copy(hands).add(V(0.9, 0.7, 1.5 - 0.3 * u)); camera.lookAt(mix(hands.x, h.x, 0.4), mix(hands.y, h.y, 0.4), mix(hands.z, h.z, 0.4)); return hands; }
+      case 'SH11': return Q.camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+      case 'SH13': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.45);
+      case 'SH14': Q.camMove('WIDE', 'WIDE', u, 0.6, 1.4); return h;
+      case 'SH16': Q.camMove('MED', 'MED', u, 0.3, 0.7); return h;
+      case 'SH17': Q.camMove('MED', 'MED', u, 0.6, 0.9); return chest;
+      case 'SH18': return Q.camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+      case 'SH19': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.35);
+      case 'SH20': { camera.up.set(0, 1, 0); const c = hands.clone().lerp(BOXP, 0.5); camera.position.set(c.x + 1.2, c.y + 1.3, c.z + mix(2.6, 2.2, u)); camera.lookAt(c.x, c.y + 0.3, c.z); return c; }
+      case 'SH21': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.4);
+      case 'SH22': Q.camMove('MED', 'WIDE', smooth(u), 0.2, 0.3); return h;
+    }
+    return h;
+  };
+} else if (CEN === 'livia') {
+  scene.background = new THREE.Color(0xe8d8b8);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 10, 0.2), std(0xe8d8b8, 0.95)); wall.position.set(0, 4, -3); scene.add(wall);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc8b090, 1.2)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.6); sun.position.set(3, 6, 6); scene.add(sun);
+  const l = livia(); stand(l);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0); l.head.rotation.set(0, Math.sin(T * 1.2) * 0.08, 0.06);
+    setFace(l, { open: blink(T), browUp: 0.6, look: [0.3, 0] }); l.setSmile(true);
+    const h = headW(l); camera.up.set(0, 1, 0); camera.position.set(h.x + 0.4, h.y - 0.1, h.z + mix(3.4, 3.0, u)); camera.lookAt(h.x, h.y - 0.35, h.z); return h;
+  };
+} else if (CEN === 'onibus') {
+  // interior do ônibus da viagem: bancos, janelas com a paisagem passando
+  scene.background = new THREE.Color(0x9fd0f2);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(6, 30), std(0x55555e, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const roof = new THREE.Mesh(new THREE.PlaneGeometry(6, 30), std(0xd8d8d0, 0.9)); roof.rotation.x = Math.PI / 2; roof.position.y = 3.6; scene.add(roof);
+  const passTex = canvasTex(512, 128, () => {}); const pg = passTex.userData.canvas.getContext('2d'); passTex.wrapS = THREE.RepeatWrapping;
+  { const g = pg; const gr = g.createLinearGradient(0, 0, 0, 128); gr.addColorStop(0, '#bfe3ff'); gr.addColorStop(0.6, '#e8f4ff'); gr.addColorStop(0.62, '#7fb26a'); gr.addColorStop(1, '#5a8a4a'); g.fillStyle = gr; g.fillRect(0, 0, 512, 128);
+    for (let i = 0; i < 14; i++) { const x = (i * 97) % 512; g.fillStyle = '#4c8a4a'; g.beginPath(); g.arc(x, 70, 14 + (i % 3) * 6, 0, 7); g.fill(); g.fillStyle = '#6b4128'; g.fillRect(x - 3, 70, 6, 12); } }
+  for (const sx of [-2.4, 2.4]) {
+    const side = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3.6, 30), std(0xeeeeea, 0.8)); side.position.set(sx * 1.25, 1.8, 0); scene.add(side);
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(28, 1.3), new THREE.MeshBasicMaterial({ map: passTex, toneMapped: false })); win.position.set(sx * 1.2, 2.3, 0); win.rotation.y = sx < 0 ? Math.PI / 2 : -Math.PI / 2; scene.add(win);
+  }
+  const seatM = std(0x3a5ea8, 0.8);
+  for (let r = 0; r < 6; r++) for (const sx of [-1.65, 1.65]) {
+    const z = 3 - r * 1.9; if (r >= 3 && sx < 0) continue; const s = rb(2.0, 0.2, 0.9, 0.06, seatM); s.position.set(sx, 0.7, z); scene.add(s);
+    const b = rb(2.0, 1.3, 0.2, 0.08, seatM); b.position.set(sx, 1.35, z + 0.45); scene.add(b);
+  }
+  const d = addSmile(createDavi()); scene.add(d.root); const l = livia();
+  seatOn(d, V(-2.35, 0.6, -1.25), Math.PI); seatOn(l, V(-0.75, 0.6, -1.25), Math.PI); // 1,6 de distância, em cima do assento // fileira 2, lado a lado (espaçados)
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8a90, 1.1)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.4); sun.position.set(-6, 5, 2); scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0); passTex.offset.x = T * 0.35; passTex.needsUpdate = true;
+    const bump = Math.sin(T * 9) * 0.008;
+    d.body.position.y = -0.38 + bump; l.body.position.y = -0.38 + bump;
+    // o Davi sorrindo "pro nada"; a Lívia olhando a janela
+    d.head.rotation.set(-0.05, 0.25, 0.04); setFace(d, { open: blink(T), browUp: 0.7, look: [0.2, 0.2] }); d.setSmile(true);
+    l.head.rotation.set(0, -0.6, 0); setFace(l, { open: blink(T, 1.3), browUp: 0.5, look: [-0.6, 0] }); l.setSmile(SHOT === 'SH07');
+    const c = V(-1.5, 2.25, -1.25); camera.up.set(0, 1, 0);
+    camera.position.set(mix(-1.3, -1.45, u), 2.6, mix(-7.6, -7.0, u)); camera.lookAt(c.x, c.y - 0.15, c.z);
+    return headW(d);
+  };
+} else if (CEN === 'grupo' || CEN === 'curso') {
+  scene.background = new THREE.Color(0xf2e6cc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0xc9b48e, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 10, 0.2), std(0xf0dfc0, 0.95)); wall.position.set(0, 5, -5); scene.add(wall);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc8b090, 1.15)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.5); sun.position.set(4, 8, 6); sun.castShadow = true; scene.add(sun);
+  const d = addSmile(createDavi()); scene.add(d.root); const l = livia();
+  if (CEN === 'grupo') { // roda do grupo de jovens
+    const cross = new THREE.Group(); const cm = std(0x8a5a35, 0.6); const a = rb(0.2, 1.6, 0.1, 0.03, cm); a.position.y = 0.8; cross.add(a); const b = rb(0.9, 0.2, 0.1, 0.03, cm); b.position.y = 1.15; cross.add(b); cross.position.set(0, 3.2, -4.85); scene.add(cross);
+    const others = [PALETTE.LUCAS, PALETTE.THEO, { ...PALETTE.LUCAS, shirt: 0xe74c3c, shirtDark: 0xc0392b, hair: 0x2a1a10, skin: 0xc68e62 }, { ...PALETTE.THEO, shirt: 0xf1c40f, shirtDark: 0xd4ac0d }].map(o => { const k = addSmile(createDavi(o)); scene.add(k.root); return k; });
+    const ring = [d, l, ...others], N = ring.length, rad = 3.0;
+    ring.forEach((k, i) => { const a = Math.PI * 1.1 + (i / N) * Math.PI * 2; const p = V(Math.sin(a) * rad, 0, -0.5 + Math.cos(a) * rad); chair(p.x, p.z, a + Math.PI); seatOn(k, V(p.x, 0.43, p.z), a + Math.PI); });
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      ring.forEach((k, i) => { setFace(k, { open: blink(T, i), browUp: 0.5, look: [0, 0] }); k.setSmile(true); k.body.position.y = -0.38 + Math.abs(Math.sin(T * 3 + i)) * 0.02; });
+      d.head.rotation.y = 0.5; l.head.rotation.y = -0.4; setFace(d, { open: blink(T), browUp: 0.8, look: [0.6, 0] });
+      camera.up.set(0, 1, 0); camera.position.set(mix(1.0, 0.6, u), 6.5, mix(8.8, 7.8, u)); camera.lookAt(0, 1.0, -0.9);
+      return headW(d);
+    };
+  } else { // curso: carteiras lado a lado
+    const board = new THREE.Mesh(new THREE.PlaneGeometry(5, 2.2), std(0x2f4a3a, 0.8)); board.position.set(0, 3.0, -4.88); scene.add(board);
+    for (const x of [-0.85, 0.85]) { const desk = rb(1.3, 0.1, 0.8, 0.03, std(0xc79a6a, 0.6)); desk.position.set(x, 1.15, 0.4); scene.add(desk); chair(x, 1.2, 0, 0x3a5ea8); }
+    seatOn(d, V(-0.85, 0.43, 1.2), 0); seatOn(l, V(0.85, 0.43, 1.2), 0);
+    update = (T) => {
+      const u = (T - T0) / (T1 - T0);
+      d.head.rotation.set(0.05, -0.35, 0); setFace(d, { open: blink(T), browUp: 0.7, look: [0.6, 0] }); d.setSmile(true);
+      l.head.rotation.set(0.05, 0.3, 0); setFace(l, { open: blink(T, 1), browUp: 0.5, look: [-0.5, 0] }); l.setSmile(true);
+      camera.up.set(0, 1, 0); camera.position.set(0, 2.7, mix(6.8, 6.2, u)); camera.lookAt(0, 2.0, 1.0);
+      return V(0, 2.0, 1.2);
+    };
+  }
+} else if (CEN === 'semente') {
+  // "tem um tempo pra tudo": uma semente vira árvore enquanto o dia passa
+  const sky = canvasTex(16, 512, (g) => { const gr = g.createLinearGradient(0, 0, 0, 512); gr.addColorStop(0, '#3a6fb8'); gr.addColorStop(1, '#ffd9a0'); g.fillStyle = gr; g.fillRect(0, 0, 16, 512); }); scene.background = sky;
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(30, 48), std(0x6a9a4a, 0.95)); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+  const mound = new THREE.Mesh(new THREE.SphereGeometry(1.2, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), std(0x6b4a30, 0.95)); mound.scale.y = 0.3; scene.add(mound);
+  const seed = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), std(0xc9a46a, 0.6)); seed.scale.set(1, 0.7, 0.8); scene.add(seed);
+  const trunk = rb(0.5, 3.0, 0.5, 0.1, std(0x6b4128, 0.9)); trunk.position.y = 1.5; scene.add(trunk);
+  const leaves = []; const lm = std(0x4c9a4a, 0.85);
+  for (const [x, y, z, r] of [[0, 3.6, 0, 1.4], [0.9, 3.2, 0.3, 1.0], [-0.9, 3.3, -0.2, 1.1], [0.1, 4.4, 0.1, 1.0], [0.5, 3.9, -0.7, 0.9]]) { const m = rb(2 * r, 1.7 * r, 2 * r, 0.3 * r, lm); m.position.set(x, y, z); scene.add(m); leaves.push(m); }
+  const sprout = new THREE.Group(); const sm = std(0x5aa84a, 0.7); const st = rb(0.06, 0.6, 0.06, 0.02, sm); st.position.y = 0.3; sprout.add(st);
+  for (const s of [-1, 1]) { const lf = rb(0.3, 0.05, 0.16, 0.02, sm); lf.position.set(s * 0.15, 0.58, 0); lf.rotation.z = s * 0.4; sprout.add(lf); } scene.add(sprout);
+  const sunS = glowSprite(6, 0.9); scene.add(sunS);
+  const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x6a5a3a, 1.0); scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xfff0d8, 2.0); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    const sp = seg(T, 56.0, 58.5), tree = seg(T, 59.0, 63.5);
+    seed.position.y = mix(0.45, 0.32, seg(T, 55.0, 55.8)); seed.visible = sp < 0.3;
+    sprout.scale.setScalar(Math.max(0.001, sp * (1 - tree))); sprout.visible = sp > 0 && tree < 1;
+    trunk.scale.set(Math.max(0.001, tree), Math.max(0.001, tree), Math.max(0.001, tree)); trunk.position.y = 1.5 * tree; trunk.visible = tree > 0;
+    leaves.forEach((m, i) => { const k = seg(T, 60.0 + i * 0.4, 61.6 + i * 0.4); m.scale.setScalar(Math.max(0.001, k)); m.position.y = [3.6, 3.2, 3.3, 4.4, 3.9][i] * tree; m.visible = k > 0; });
+    const a = mix(-0.2, Math.PI + 0.2, u * 1.0); sunS.position.set(Math.cos(a) * -18, 3 + Math.sin(a) * 14, -25); sun.position.copy(sunS.position);
+    camera.up.set(0, 1, 0); camera.position.set(mix(1.2, 3.0, u), mix(1.0, 3.4, smooth(u)), mix(3.4, 9.0, smooth(u))); camera.lookAt(0, mix(0.4, 2.6, smooth(u)), 0);
+    return V(0, mix(0.4, 2.6, u), 0);
+  };
+} else if (CEN === 'cidade') {
+  // "eu vou junto com os dois": a janela dele e, longe, a dela, as duas com a mesma luz
+  const c = createCidade(scene, 'noite');
+  const far = V(-26, 10, -24);
+  const fw = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.2), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xffc77a, emissiveIntensity: 2.6 })); fw.position.copy(far); scene.add(fw);
+  const g1 = glowSprite(4, 0), g2 = glowSprite(4, 0); g1.position.copy(c.homeWindow); g2.position.copy(far).add(V(0, 0, 0.5)); scene.add(g1, g2);
+  const big = glowSprite(30, 0); big.position.set(-12, 30, -40); scene.add(big);
+  update = (T) => {
+    const k = smooth((T - T0) / (T1 - T0)), w = c.homeWindow;
+    g1.material.opacity = 0.8; g2.material.opacity = 0.8 * seg(T, 78.5, 80.0); big.material.opacity = 0.5 * seg(T, 80.5, 83.0);
+    camera.up.set(0, 1, 0); camera.position.set(mix(w.x + 1, -8, k), mix(w.y + 0.4, 18, k), mix(w.z + 5, 34, k)); camera.lookAt(mix(w.x, -12, k), mix(w.y, 12, k), mix(w.z, -14, k));
+    return mix(0, 1, k) > 0.5 ? far : w;
+  };
+}
+finish(R, update, T0, CEN === 'quarto' || CEN === 'orando' || CEN === 'cidade' ? 0.5 : 0.28);
+</script>
+</body>
+</html>

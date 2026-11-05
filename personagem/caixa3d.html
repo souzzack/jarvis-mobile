@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:transparent}canvas{display:block}</style>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }</script>
+</head><body><script type="module">
+// Davi sorrindo, em pé, segurando uma carta (arte da caixa de perguntas). Fundo transparente.
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createDavi, setFace } from './davi.js';
+const W = 1080, H = 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio || 1); renderer.setSize(W, H); renderer.setClearColor(0x000000, 0);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const d = createDavi(); scene.add(d.root);
+const sm = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.024, 10, 28, Math.PI * 0.75), new THREE.MeshStandardMaterial({ color: 0x5a2a20 }));
+sm.rotation.z = Math.PI + Math.PI * 0.125; sm.position.set(0, 0.04, 0.01); d.mouth.add(sm); d.mouth.children[1].visible = false; d.inner.visible = false;
+setFace(d, { open: 1, browUp: 0.7, look: [0, 0.05] });
+// pose segura (sem atravessar o corpo): carta na frente do peito com as duas mãos
+d.arms.R.sh.rotation.set(-0.9, 0, -0.1); d.arms.R.elbow.rotation.set(-0.2, 0, 0);
+d.arms.L.sh.rotation.set(-0.9, 0, 0.1); d.arms.L.elbow.rotation.set(-0.2, 0, 0);
+d.head.rotation.set(-0.06, -0.12, 0.05);
+d.root.updateMatrixWorld(true);
+const hr = d.arms.R.hand.getWorldPosition(new THREE.Vector3()), hl = d.arms.L.hand.getWorldPosition(new THREE.Vector3());
+const env = new THREE.Group(); const paper = new THREE.MeshStandardMaterial({ color: 0xfff6e6, roughness: 0.8 });
+const body = new THREE.Mesh(new RoundedBoxGeometry(1.05, 0.68, 0.04, 2, 0.02), paper); env.add(body);
+const flapG = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-0.52, 0.33), new THREE.Vector2(0.52, 0.33), new THREE.Vector2(0, -0.05)]));
+const flap = new THREE.Mesh(flapG, new THREE.MeshStandardMaterial({ color: 0xf2e4c8, roughness: 0.8, side: THREE.DoubleSide })); flap.position.z = 0.022; env.add(flap);
+const seal = new THREE.Mesh(new THREE.CircleGeometry(0.08, 24), new THREE.MeshStandardMaterial({ color: 0xd64541, emissive: 0x401010 })); seal.position.set(0, -0.02, 0.025); env.add(seal);
+const heart = new THREE.Shape(); heart.moveTo(0, -0.03); heart.bezierCurveTo(-0.05, 0.01, -0.03, 0.05, 0, 0.025); heart.bezierCurveTo(0.03, 0.05, 0.05, 0.01, 0, -0.03);
+const hm = new THREE.Mesh(new THREE.ShapeGeometry(heart), new THREE.MeshBasicMaterial({ color: 0xffe8e8 })); hm.position.set(0, -0.02, 0.027); env.add(hm);
+env.position.copy(hr).add(hl).multiplyScalar(0.5).add(new THREE.Vector3(0, 0.12, 0.08)); env.rotation.set(-0.15, 0, 0.04); scene.add(env);
+d.root.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
+scene.add(new THREE.HemisphereLight(0x8fa0d8, 0x1a1420, 0.4));
+const key = new THREE.SpotLight(0xffc98a, 40, 25, 0.6, 0.7, 1.4); key.position.set(-3, 6, 4); key.target.position.set(0, 1.6, 0); key.castShadow = true; scene.add(key, key.target);
+{ const l = new THREE.PointLight(0x7f95ff, 8, 12, 2); l.position.set(3, 2.5, 3); scene.add(l); }
+{ const l = new THREE.PointLight(0xffd59a, 12, 8, 2); l.position.set(-1.2, 3.6, -1.8); scene.add(l); }
+{ const l = new THREE.PointLight(0xffe2c8, 2.0, 5, 2); l.position.set(0, 2.4, 2.6); scene.add(l); }
+const camera = new THREE.PerspectiveCamera(30, W / H, 0.1, 100); camera.position.set(0.3, 1.7, 11.5); camera.lookAt(0, 1.55, 0);
+renderer.render(scene, camera); window.__ready = true; // render direto: mantém o fundo transparente
+</script></body></html>

@@ -1,0 +1,80 @@
+MASCOTE CLAUDE — "COISAS QUE NINGUÉM TE CONTA SOBRE SER UMA IA"
+Vídeo descontraído · ~38 s · 9:16 · narrado em 1ª pessoa pelo próprio mascote
+
+Tom: autodepreciativo e carinhoso. Piadas tiradas do que aconteceu de verdade
+no projeto anterior (não tenho mãos, não ouço áudio, 900 quadros, brilho demais).
+Nenhuma piada promete algo que eu não faço.
+
+------------------------------------------------------------
+CENA 1 · GANCHO · 0–3 s
+Imagem: close no rosto do mascote, encarando a câmera, sério demais.
+         Zoom lento e dramático. Silêncio, só um "tum" grave.
+Narração: "Coisas que ninguém te conta sobre ser uma IA."
+Texto:    COISAS QUE NINGUÉM TE CONTA / SOBRE SER UMA IA
+Efeito:   disco arranhando no fim da frase; a estrela pisca, sem graça.
+
+CENA 2 · "ZERO MÃOS" · 3–9 s
+Imagem: ele olha para os próprios bracinhos de bloco. Tenta segurar a régua
+         com pose de herói, mas ela escorrega e cai na tecla: "clonc".
+         Ele olha para a câmera. Pausa.
+Narração: "Número um: eu não tenho mãos. Essa régua aqui é puramente decorativa."
+Texto:    1. ZERO MÃOS
+Efeito:   "clonc" da régua; tecla acende onde ela caiu.
+
+CENA 3 · "FIZ A MÚSICA. NÃO ESCUTO." · 9–15 s
+Imagem: ele de fones, balançando a cabeça fora do ritmo da batida, bem confiante.
+         A trilha para de repente; ele continua balançando por mais dois tempos.
+Narração: "Número dois: eu compus a música do meu último vídeo... e nunca ouvi.
+          Os fones também são decorativos."
+Texto:    2. FIZ A MÚSICA. NÃO ESCUTO.
+Efeito:   a batida corta seco; só o silêncio e ele balançando.
+
+CENA 4 · "900 QUADROS, 0 CAFÉS" · 15–21 s
+Imagem: tela com barra "Renderizando 3/900". Corte rápido: o relógio voa,
+         ele sentado esperando, depois deitado no teclado. Ele olha para a
+         caneca ao lado, tenta pegar, o bracinho não alcança.
+Narração: "Número três: pra um vídeo de trinta segundos, eu renderizei
+          novecentos quadros. Um por um. Sem café. Eu nem consigo segurar a caneca."
+Texto:    3. 900 QUADROS. 0 CAFÉS.
+Efeito:   tique-taque acelerado; "pling" quando a barra chega a 900/900.
+
+CENA 5 · "NA DÚVIDA, MAIS BRILHO" · 21–27 s
+Imagem: tela com o pedido "deixa mais profissional". Ele aponta a régua para
+         a própria estrela, que brilha mais... mais... até a imagem estourar
+         em branco. Volta a imagem: ele com os olhos apertados.
+Narração: "Número quatro: quando me pedem 'deixa mais profissional',
+          minha primeira ideia é sempre... mais brilho."
+Texto:    4. NA DÚVIDA: MAIS BRILHO
+Efeito:   subida aguda até um "BLAM" e um coro de anjos de 0,5 s.
+
+CENA 6 · VIRADA SINCERA · 27–33 s
+Imagem: tudo fica calmo. Luz laranja suave. Ele se senta no teclado, olha
+         para a câmera, com a régua no ombro.
+Narração: "Mas a melhor parte? Ver a sua ideia ganhando forma.
+          A régua é decorativa. A vontade de ajudar, não."
+Texto:    5. A MELHOR PARTE: A SUA IDEIA
+Efeito:   a música volta, mais suave.
+
+CENA 7 · FECHAMENTO · 33–38 s
+Imagem: ele acena; o bracinho é curto demais e ele perde o equilíbrio,
+         recupera, finge que foi de propósito.
+Narração: "Me chama pro próximo projeto. Eu levo o brilho."
+Texto:    BORA CRIAR? / SIGA PARA MAIS
+Pós-crédito (1 s): cartão "Erros de gravação: a régua caiu 14 vezes."
+
+------------------------------------------------------------
+TEXTO PARA O ELEVENLABS (uma fala por linha)
+
+Coisas que ninguém te conta sobre ser uma IA.
+Número um: eu não tenho mãos. Essa régua aqui é puramente decorativa.
+Número dois: eu compus a música do meu último vídeo... e nunca ouvi. Os fones também são decorativos.
+Número três: pra um vídeo de trinta segundos, eu renderizei novecentos quadros. Um por um. Sem café. Eu nem consigo segurar a caneca.
+Número quatro: quando me pedem "deixa mais profissional", minha primeira ideia é sempre... mais brilho.
+Mas a melhor parte? Ver a sua ideia ganhando forma. A régua é decorativa. A vontade de ajudar, não.
+Me chama pro próximo projeto. Eu levo o brilho.
+
+DIREÇÃO DE VOZ
+- Voz leve e simpática, com timing de comédia: pausa curta ANTES de cada final de piada
+  ("...e nunca ouvi." / "...mais brilho.").
+- Cena 1 com seriedade exagerada, de documentário; a partir da cena 2, natural.
+- Cena 6 mais baixa e sincera, sem ironia.

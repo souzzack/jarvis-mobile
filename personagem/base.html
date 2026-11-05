@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; overflow: hidden; background: #0a0706; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createMascot } from './mascote.js';
+
+// Imagem-base do mascote. ?modo=hero (1080×1920) ou ?modo=folha (vistas frente, 3/4, perfil e costas)
+const folha = new URLSearchParams(location.search).get('modo') === 'folha';
+const W = folha ? 2400 : 1080, H = folha ? 1100 : 1920;
+document.body.style.width = W + 'px'; document.body.style.height = H + 'px';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+{
+  const c = document.createElement('canvas'); c.width = 16; c.height = 512;
+  const g = c.getContext('2d'); const gr = g.createLinearGradient(0, 0, 0, 512);
+  gr.addColorStop(0, '#0a0706'); gr.addColorStop(0.6, '#24120a'); gr.addColorStop(1, '#0a0706');
+  g.fillStyle = gr; g.fillRect(0, 0, 16, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; scene.background = t;
+}
+const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 64), new THREE.MeshPhysicalMaterial({ color: 0x15100e, roughness: 0.3, clearcoat: 0.6 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+scene.add(new THREE.HemisphereLight(0x6a4a3a, 0x0a0706, 0.4));
+const key = new THREE.SpotLight(0xffb27a, 120, 40, 0.5, 0.8, 1.5);
+key.position.set(5, 9, 10); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.normalBias = 0.02;
+scene.add(key);
+const fill = new THREE.PointLight(0xffc29a, 30, 20, 2); fill.position.set(-6, 4, 7); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xff7a2a, 3.5); rim.position.set(-3, 5, -8); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0xff9a50, 2.5); rim2.position.set(5, 3, -6); scene.add(rim2);
+
+const views = folha ? [0, -0.6, -Math.PI / 2, Math.PI] : [0.35];
+const spacing = 4.6;
+views.forEach((ry, i) => {
+  const m = createMascot();
+  m.root.position.x = (i - (views.length - 1) / 2) * spacing;
+  m.root.rotation.y = ry;
+  if (!folha) m.head.rotation.z = 0.06;
+  scene.add(m.root);
+});
+scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+const camera = new THREE.PerspectiveCamera(folha ? 30 : 34, W / H, 0.1, 200);
+if (folha) { camera.position.set(0, 2.6, 24); camera.lookAt(0, 2.0, 0); }
+else { camera.position.set(0.4, 2.6, 13); camera.lookAt(0.1, 2.3, 0); }
+if (!folha) key.target.position.set(0, 1.5, 0); scene.add(key.target);
+
+const rt = new THREE.WebGLRenderTarget(W, H, { samples: 4, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.45, 0.5, 0.9));
+composer.addPass(new OutputPass());
+composer.render();
+requestAnimationFrame(() => { composer.render(); window.__done = true; });
+</script>
+</body>
+</html>

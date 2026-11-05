@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }</script>
+</head><body><script type="module">
+// Ajuste de poses de braço sem atravessar o corpo (busca em grade).
+import * as THREE from 'three';
+import { OBB } from 'three/addons/math/OBB.js';
+import { createDavi, setSitting } from './davi.js';
+const scene = new THREE.Scene(); const d = createDavi(); scene.add(d.root); setSitting(d, 1);
+const obbs = (g, shrink = 0.92) => { const r = []; g.updateMatrixWorld(true); g.traverse(o => { if (o.isMesh && o.visible) { o.geometry.computeBoundingBox(); const bb = o.geometry.boundingBox; const ob = new OBB(); ob.center.copy(bb.getCenter(new THREE.Vector3())); ob.halfSize.copy(bb.getSize(new THREE.Vector3())).multiplyScalar(0.5 * shrink); ob.applyMatrix4(o.matrixWorld); r.push(ob); } }); return r; };
+window.test = (p) => {
+  const set = (a, s, sx, sz, ex, ez = 0) => { a.sh.rotation.set(sx, 0, s * sz); a.elbow.rotation.set(ex, 0, s * ez); };
+  set(d.arms.R, 1, p.sx, p.sz, p.ex, p.ez || 0); set(d.arms.L, -1, p.sxL ?? p.sx, p.szL ?? p.sz, p.exL ?? p.ex, p.ezL ?? (p.ez || 0));
+  d.head.rotation.set(p.hx || 0, 0, 0); d.root.updateMatrixWorld(true);
+  const arms = [...obbs(d.arms.R.elbow), ...obbs(d.arms.L.elbow)];
+  const torso = d.body.children.filter(o => o.isMesh).flatMap(o => obbs(o)), head = obbs(d.head), legs = d.legs.flatMap(l => obbs(l.hip));
+  let hits = 0; for (const a of arms) for (const x of [...torso, ...head, ...legs]) if (a.intersectsOBB(x)) hits++;
+  const inv = new THREE.Matrix4().copy(d.body.matrixWorld).invert();
+  const hr = d.arms.R.hand.getWorldPosition(new THREE.Vector3()).applyMatrix4(inv), hl = d.arms.L.hand.getWorldPosition(new THREE.Vector3()).applyMatrix4(inv);
+  const hd = d.head.getWorldPosition(new THREE.Vector3()).applyMatrix4(inv);
+  return { hits, hr: hr.toArray().map(v => +v.toFixed(2)), hl: hl.toArray().map(v => +v.toFixed(2)), head: hd.toArray().map(v => +v.toFixed(2)) };
+};
+window.__ready = true;
+</script></body></html>

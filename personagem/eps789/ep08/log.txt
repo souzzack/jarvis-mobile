@@ -1,0 +1,69 @@
+D1     1.00-  4.86
+G1     5.46-  7.86
+D2     8.26- 11.65
+G2    12.15- 14.93
+D3    15.33- 18.52
+G3    19.12- 22.39
+G4    22.99- 27.09
+G5    28.69- 33.00
+D4    34.20- 36.47
+G6    37.07- 41.94
+D5    42.64- 44.28
+G7    44.78- 48.32
+G8    48.92- 53.49
+D6    54.29- 57.94
+G9    58.54- 65.55
+G10   66.35- 72.61
+D7    73.31- 76.15
+G11   76.65- 79.95
+G12   80.65- 86.19
+D8    86.99- 89.01
+G13   89.61- 94.72
+D9    95.92- 97.93
+G14   98.63-101.70
+DUR 108.2
+[0.95, 3.12, 'DAVI', 'Pai, meu coração não para,']
+[3.27, 4.68, 'DAVI', 'parece que vai sair do peito.']
+[5.41, 6.24, 'DEUS', 'Eu tô aqui.']
+[6.69, 7.96, 'DEUS', 'Olha para mim, Davi.']
+[8.21, 9.92, 'DAVI', 'Tem prova amanhã, E se eu não passar?']
+[10.21, 11.1, 'DAVI', 'E se todo mundo rir?']
+[11.29, 11.64, 'DAVI', 'e se']
+[12.1, 14.8, 'DEUS', 'Calma, uma coisa de cada vez.']
+[15.28, 16.94, 'DAVI', 'Eu não consigo parar de pensar,']
+[17.15, 18.4, 'DAVI', 'minha cabeça não desliga.']
+[19.1, 20.97, 'DEUS', 'Então, vamos fazer uma coisa juntos.']
+[21.44, 22.31, 'DEUS', 'Respira comigo.']
+[22.99, 24.28, 'DEUS', 'Puxa o ar devagar.']
+[24.87, 27.08, 'DEUS', 'Segura e solta.']
+[28.72, 29.25, 'DEUS', 'De novo.']
+[29.68, 32.99, 'DEUS', 'Puxa, segura, solta.']
+[34.98, 36.25, 'DAVI', 'Tá um pouco melhor.']
+[37.05, 38.28, 'DEUS', 'Sabe esses pensamentos?']
+[38.55, 40.16, 'DEUS', 'Eles falam muito alto,']
+[40.33, 41.66, 'DEUS', 'mas não falam a verdade.']
+[42.59, 44.15, 'DAVI', 'E se acontecer alguma coisa ruim?']
+[44.76, 46.31, 'DEUS', 'Não se preocupe com o amanhã.']
+[46.62, 48.31, 'DEUS', 'O amanhã também é meu.']
+[48.87, 51.72, 'DEUS', 'Joga em cima de mim toda a sua ansiedade,']
+[51.74, 53.41, 'DEUS', 'porque eu cuido de você.']
+[54.27, 56.42, 'DAVI', 'Mas eu orei e continuo sentindo isso,']
+[56.63, 57.86, 'DAVI', 'será que eu tenho pouca fé?']
+[58.52, 59.33, 'DEUS', 'Não, filho.']
+[59.62, 61.61, 'DEUS', 'Sentir medo não é falta de fé.']
+[61.74, 63.55, 'DEUS', 'Até eu, quando estive na terra,']
+[63.68, 65.45, 'DEUS', 'suei de angústia numa noite.']
+[66.35, 67.44, 'DEUS', 'E tem mais uma coisa.']
+[67.69, 70.24, 'DEUS', 'Conta para sua mãe como você está se sentindo.']
+[70.39, 72.52, 'DEUS', 'Pedir ajuda também é coragem.']
+[73.3, 75.56, 'DAVI', 'O Senhor não fica chateado se eu precisar de ajuda de']
+[75.58, 75.99, 'DAVI', 'gente?']
+[76.99, 79.86, 'DEUS', 'Fui eu que coloquei essas pessoas na sua vida.']
+[80.65, 83.44, 'DEUS', 'Quando os cuidados se multiplicam dentro de você,']
+[83.69, 86.18, 'DEUS', 'o meu consolo alegra a sua alma.']
+[86.94, 88.92, 'DAVI', 'O Senhor fica até meu coração acalmar?']
+[89.56, 92.65, 'DEUS', 'Fico. E a paz que eu te dou vai guardar o']
+[92.67, 94.66, 'DEUS', 'seu coração e a sua mente.']
+[96.26, 97.77, 'DAVI', 'Ele tá calmo agora.']
+[98.65, 99.26, 'DEUS', 'Dorme.']
+[99.41, 101.44, 'DEUS', 'Amanhã a gente faz a prova juntos.']

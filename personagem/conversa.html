@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createDavi, setSitting, setFace } from './davi.js';
+import { createQuarto } from './quarto.js';
+import { createIgreja, createCidade } from './cenarios.js';
+
+// "Deus cansa de mim?" — conversa do Davi com Deus. Uso: conversa.html?shot=S05 ; window.frame(T) com T = tempo global (s).
+const W = 1080, H = 1920;
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await (await fetch('davi_video/envelopes_v2.json')).json();
+// o tempo do vídeo novo (TN) é mapeado para o tempo em que a animação foi desenhada (T) por âncoras ligadas às falas
+const RM = (await (await fetch('davi_video/remap.json')).json()).anchors;
+const toOld = (tn) => { for (let i = 0; i < RM.length - 1; i++) { const [oa, na] = RM[i], [ob, nb] = RM[i + 1]; if (tn <= nb) return oa + (ob - oa) * Math.max(0, (tn - na) / (nb - na)); } return RM.at(-1)[0]; };
+let TN = 0;
+const envAt = (arr, T) => arr[Math.min(arr.length - 1, Math.max(0, Math.round(T * ENV.fps)))] || 0;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => smooth((t - a) / (b - a));
+const mix = (a, b, k) => a + (b - a) * k;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+// ---------- planos: [nome, início, fim, cenário]
+const SHOTS = {
+  S01: [0, 4.31, 'quarto'], S02: [4.31, 10.92, 'quarto'], S03: [10.92, 16.97, 'quarto'], S04: [16.97, 20.69, 'quarto'],
+  S05: [20.69, 23.09, 'quarto'], S06: [23.09, 26.0, 'quarto'], S07: [26.0, 28.6, 'igreja'], S08: [28.6, 30.78, 'quarto'],
+  S09: [30.78, 37.9, 'quarto'], S10: [37.9, 41.35, 'quarto'], S11: [41.35, 47.45, 'quarto'], S12: [47.45, 50.49, 'quarto'],
+  S13: [50.49, 57.7, 'amanhecer'], S14: [57.7, 64.58, 'quarto'], S15: [64.58, 67.88, 'quarto'], S16: [67.88, 76.76, 'quarto'],
+  S17: [76.76, 81.84, 'quarto'], S18: [81.84, 88.6, 'deitado'], S19: [88.6, 95.0, 'fora'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT];
+
+// ---------- expressões e gestos do Davi ao longo da conversa (quadros-chave)
+const BASE = { hy: -0.7, hx: -0.15, hz: 0, lean: 0, brUp: 0.3, brSad: 0, eyes: 1, lx: -0.9, ly: 0.4, scratch: 0, knees: 0, hair: 0, wipe: 0, tear: 0, god: 0.12, lamp: 1 };
+const K = [
+  [0, {}], [1.2, { brUp: 0.6 }],
+  [4.31, { god: 0.6, brUp: 0.9 }], [5.2, { brUp: 0.5 }],
+  [6.35, { scratch: 1, hy: -0.2, hx: 0.05, lx: 0, ly: -0.2, brUp: 0.35 }], [7.5, { scratch: 0 }],
+  [7.99, { hx: 0.15, ly: -0.5, hy: -0.3, brUp: 0.2, brSad: 0.25 }],
+  [10.92, { hx: -0.15, hy: -0.7, lx: -0.9, ly: 0.4, brUp: 0.4, brSad: 0 }],
+  [13.65, { brSad: 0.4, hx: 0.05, ly: -0.2, lx: -0.4 }],
+  [20.69, { eyes: 0.45, brSad: 0.7, hz: 0.08, hy: -0.2 }],
+  [23.09, { lean: 0.25, knees: 1, hx: 0.35, brSad: 0.9, eyes: 0.8, ly: -0.5, lx: 0, lamp: 0.3, god: 0.3, hz: 0 }],
+  [28.6, { hx: 0.1, lx: -0.6, ly: 0.2, hy: -0.6 }],
+  [30.78, { god: 0.55, knees: 0.6, lean: 0.12 }],
+  [33.5, { knees: 0, lean: 0, hx: -0.1, brSad: 0.5, eyes: 1, lx: -0.8, ly: 0.4, god: 0.85, lamp: 0.5 }],
+  [38.0, { brUp: 0.9, brSad: 0, god: 0.95 }],
+  [41.35, { hair: 1, hy: -0.3, ly: 0.6, lx: -0.3, brUp: 0.7 }], [44.8, { hair: 0 }],
+  [45.2, { brUp: 0.5, hy: -0.6, lx: -0.8, ly: 0.4 }],
+  [47.45, { brSad: 0.5, brUp: 0.2, hx: -0.05, eyes: 0.9, lamp: 0.6 }],
+  [57.7, { eyes: 0.65, brUp: 0, brSad: -0.4, hy: -0.5, hz: -0.08, god: 0.8, lamp: 0.9 }],
+  [60.61, { brUp: 0.8, brSad: 0, eyes: 1, hz: 0.06 }],
+  [64.58, { eyes: 0.7 }], [65.6, { brSad: 1, brUp: 0, eyes: 0.6, tear: 0.6, hx: 0.2, ly: -0.4, hz: 0 }],
+  [67.88, { hx: 0.25, god: 0.9 }], [71.9, { hx: -0.18, lx: -0.8, ly: 0.5, brUp: 0.5, brSad: 0.6, tear: 1, god: 1.3 }],
+  [76.76, { hx: 0.3, brSad: 1, eyes: 0.5, brUp: 0 }],
+  [78.7, { wipe: 1 }], [80.4, { wipe: 0, hx: -0.1, eyes: 1, brSad: 0.2, tear: 0, god: 1.0 }],
+  [95, {}],
+];
+const KEYS = (() => { let cur = { ...BASE }; return K.map(([t, v]) => { cur = { ...cur, ...v }; return [t, { ...cur }]; }); })();
+function expr(T) {
+  let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= T) i++;
+  const [ta, a] = KEYS[i];
+  // transição suave de 0,45 s a partir de cada quadro-chave
+  const o = {}, prev = i > 0 ? KEYS[i - 1][1] : a, kk = smooth((T - ta) / 0.45);
+  for (const key in a) o[key] = mix(prev[key], a[key], kk);
+  return o;
+}
+const blink = (T) => { const ph = (T * 0.31) % 1; return ph > 0.97 ? 0.1 : 1; };
+
+// ---------- renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 400);
+
+let update;
+const rb = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, r), m);
+
+if (CEN === 'quarto' || CEN === 'deitado') {
+  const q = createQuarto(scene);
+  const d = createDavi(); scene.add(d.root);
+  const DPOS = V(q.bed.x - 0.3, 0.75, q.bed.z + 1.17), DROT = -0.45;
+  const blanket = rb(2.3, 0.32, 1.95, 0.12, new THREE.MeshStandardMaterial({ color: 0x3b5f8a, roughness: 0.95 }));
+  blanket.position.set(q.bed.x, 1.18, q.bed.z + 0.25); blanket.visible = CEN === 'deitado'; scene.add(blanket);
+  const headW = () => d.head.getWorldPosition(new THREE.Vector3());
+  const faceLight = new THREE.PointLight(0xffd9c2, 7, 5, 2); faceLight.position.set(1.0, 3.0, 0.2); scene.add(faceLight);
+  const CAMS = {
+    WIDE: [V(-0.3, 2.5, 6.8), V(0.4, 2.4, -2.2)], MED: [V(0.9, 2.45, 3.4), V(1.35, 2.25, -1.6)],
+    CLOSE: [V(0.85, 2.72, 1.7), V(1.5, 2.55, -1.6)], CLOSE2: [V(2.35, 2.78, 1.75), V(1.55, 2.55, -1.6)],
+    R3Q: [V(-0.4, 2.7, 2.4), V(1.5, 2.35, -1.6)], OTS: [V(2.9, 3.1, 0.2), V(-1.8, 3.0, -4.0)],
+    HAIR: [V(1.05, 3.55, 1.0), V(1.55, 2.95, -1.6)], CAL: [V(-4.45, 3.1, -1.9), V(-4.6, 3.1, -3.88)],
+  };
+  const camMove = (A, B, k, pushA = 0, pushB = 0) => {
+    const [pa, la] = CAMS[A], [pb, lb] = CAMS[B];
+    const p = pa.clone().lerp(pb, k), l = la.clone().lerp(lb, k);
+    const dir = l.clone().sub(p).normalize(); p.addScaledVector(dir, mix(pushA, pushB, k));
+    camera.position.copy(p); camera.lookAt(l); return l;
+  };
+  update = (T) => {
+    const e = expr(T);
+    const deus = envAt(ENV.deus, TN), davi = envAt(ENV.davi, TN);
+    // luz de Deus: base + pulso junto com a voz; "risada" em "Principalmente segunda-feira"
+    let god = e.god + 0.45 * deus;
+    if (T > 61.4 && T < 63.6) god += 0.25 * Math.max(0, Math.sin(T * 26));
+    q.setGod(god);
+    q.lamp.intensity = 9 * e.lamp;
+    if (CEN === 'deitado') {
+      setSitting(d, 0);
+      d.legs.forEach(({ hip, knee }) => { hip.rotation.x = -1.1; knee.rotation.x = 1.5; });
+      d.root.rotation.set(-Math.PI / 2, 0, 0);
+      d.root.position.set(q.bed.x, 1.42, q.bed.z + 1.4);
+      d.body.position.y = 0; d.body.rotation.set(0, 0, 0);
+      d.head.rotation.set(-0.2, 0.15, 0);
+      Object.values(d.arms).forEach(a => { a.sh.rotation.set(0, 0, 0); a.elbow.rotation.set(0, 0, 0); });
+      setFace(d, { open: (T < 84.3 ? 0.55 : mix(0.55, 0.12, seg(T, 86.5, 88.0))) * blink(T), talk: davi, browUp: 0.2, look: [-0.3, 0.6] });
+      d.tears.forEach(t => (t.visible = false));
+      blanket.visible = true;
+    } else {
+      setSitting(d, 1);
+      d.root.position.copy(DPOS); d.root.rotation.set(0, DROT, 0);
+      d.body.rotation.x = e.lean; d.body.position.y += Math.sin(T * 1.6) * 0.006;
+      // corpo ri um pouco junto com a "risada"
+      if (T > 61.6 && T < 63.8) d.body.position.y += Math.abs(Math.sin(T * 18)) * 0.02;
+      d.head.rotation.set(e.hx + Math.sin(T * 0.9) * 0.015, e.hy, e.hz);
+      // braços: descanso, coçar a cabeça, abraçar os joelhos, mão nos cachos, enxugar os olhos
+      const R = d.arms.R, L = d.arms.L;
+      const rest = { sx: -0.35, ex: -0.8 };
+      R.sh.rotation.set(mix(mix(mix(rest.sx, -2.7, e.scratch), -0.95, e.knees), -2.4, e.wipe), 0, mix(mix(0.08, 0.45, e.scratch), 0.35, e.wipe));
+      R.elbow.rotation.x = mix(mix(mix(rest.ex, -1.25 + Math.sin(T * 14) * 0.15 * e.scratch, e.scratch), -1.35, e.knees), -2.0 + Math.sin(T * 6) * 0.1 * e.wipe, e.wipe);
+      L.sh.rotation.set(mix(mix(rest.sx, -0.95, e.knees), -2.95, e.hair), 0, mix(-0.08, -0.25, e.hair));
+      L.elbow.rotation.x = mix(mix(rest.ex, -1.35, e.knees), -1.45 + Math.sin(T * 9) * 0.12 * e.hair, e.hair);
+      const lids = e.eyes * blink(T);
+      setFace(d, { open: lids, talk: davi, browUp: e.brUp, browSad: e.brSad, look: [e.lx, e.ly] });
+      // lágrimas
+      d.tears.forEach((t, i) => {
+        t.visible = e.tear > 0.05;
+        t.scale.setScalar(0.4 + 0.6 * e.tear); t.scale.y *= 1.4;
+        const fall = i === 0 && T > 77.0 && T < 78.6 ? clamp((T - 77.0) / 0.8) : 0;
+        t.position.y = -0.12 - 0.55 * fall * fall; t.visible = t.visible && !(i === 0 && T >= 78.6 && T < 80.4 && e.tear < 0.5);
+      });
+      blanket.visible = false;
+    }
+    // câmeras
+    const u = (T - T0) / (T1 - T0);
+    switch (SHOT) {
+      case 'S01': return camMove('WIDE', 'WIDE', smooth(u), -0.8, 0.4);
+      case 'S02': return camMove('MED', 'MED', u, 0, 0.5);
+      case 'S03': { const l = camMove('R3Q', 'R3Q', u, 0, 0.4); camera.position.x -= 0.6 * u; camera.lookAt(l); return l; }
+      case 'S04': { const l = camMove('CAL', 'CAL', u, 0, 0.3); camera.position.x -= 0.3 * (u - 0.5); return l; }
+      case 'S05': return camMove('CLOSE', 'CLOSE', u, 0, 0.25);
+      case 'S06': { const l = camMove('WIDE', 'WIDE', u, 0.8, 1.4); camera.position.y += 0.8; camera.lookAt(l); return headW(); }
+      case 'S08': return camMove('CLOSE', 'CLOSE', u, 0.1, 0.35);
+      case 'S09': camMove('WIDE', 'MED', smooth(u), 0, 0.2); return headW();
+      case 'S10': return camMove('HAIR', 'HAIR', u, 0, 0.35);
+      case 'S11': camMove('MED', 'MED', u, 0.2, 0.6); return headW();
+      case 'S12': return camMove('OTS', 'OTS', u, 0, 0.6);
+      case 'S14': { camMove('R3Q', 'R3Q', u, 0.4, 0.9); return headW(); }
+      case 'S15': return camMove('CLOSE', 'CLOSE', u, 0.2, 0.5);
+      case 'S16': camMove('MED', 'CLOSE', smooth(u), 0, 0.15); return headW();
+      case 'S17': return camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+      case 'S18': { // deitado: de perto, depois a câmera se afasta para a janela
+        const hp = headW();
+        const near = V(q.bed.x + 2.1, 3.5, q.bed.z + 1.6), far = V(-0.8, 4.6, 4.0);
+        const k = smooth((T - 84.4) / (88.6 - 84.4));
+        camera.position.copy(near.clone().lerp(far, k)); camera.lookAt(hp.clone().lerp(V(0, 2.5, -3.5), 0.25 * k));
+        return hp;
+      }
+    }
+  };
+} else if (CEN === 'igreja') {
+  const ig = createIgreja(scene);
+  const lucas = createDavi({ skin: 0xe9c2a0, skinDark: 0xd9a983, hair: 0xb07a3a, shirt: 0x8ec5ff, shirtDark: 0x6aa7e6, pants: 0xd9c7a3, curls: false });
+  scene.add(lucas.root); setSitting(lucas, 1);
+  lucas.root.position.set(ig.pew.x, 0.7, ig.pew.z + 0.15);
+  const bible = rb(0.42, 0.1, 0.32, 0.03, new THREE.MeshStandardMaterial({ color: 0x1f2a44 })); scene.add(bible);
+  const sparkles = []; const sm = new THREE.MeshBasicMaterial({ color: 0xfff1b8 });
+  for (let i = 0; i < 14; i++) { const s = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), sm); scene.add(s); sparkles.push(s); }
+  update = (T) => {
+    const u = T - T0;
+    lucas.head.rotation.set(-0.05, Math.sin(u * 1.2) * 0.05, 0.04);
+    setFace(lucas, { open: 0.85 * blink(T + 0.7), talk: 0, browUp: 0.6, look: [0, 0.1] });
+    lucas.arms.L.sh.rotation.x = lucas.arms.R.sh.rotation.x = -0.75; lucas.arms.L.elbow.rotation.x = lucas.arms.R.elbow.rotation.x = -0.9;
+    bible.position.set(ig.pew.x, 1.42, ig.pew.z + 0.62);
+    sparkles.forEach((s, i) => { const a = i / 14 * Math.PI * 2 + u * 0.8; s.position.set(ig.pew.x + Math.cos(a) * 1.3, 2.3 + Math.sin(a * 2 + i) * 0.7, ig.pew.z + 0.2 + Math.sin(a) * 0.4); s.rotation.y = u * 3 + i; });
+    camera.position.set(ig.pew.x + 0.3, 2.3, ig.pew.z + mix(6.2, 5.4, u / 2.6));
+    camera.lookAt(ig.pew.x, 2.0, ig.pew.z);
+    return lucas.head.getWorldPosition(new THREE.Vector3());
+  };
+} else if (CEN === 'amanhecer') {
+  const c = createCidade(scene, 'amanhecer');
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    c.setDawn(mix(0.12, 1, smooth(u * 1.1)));
+    camera.position.set(0, mix(13, 14.5, u), mix(36, 30, u)); camera.lookAt(4, mix(10, 13, u), -60);
+    return V(4, 8, -40);
+  };
+} else { // fora: o prédio à noite, a janela do Davi acesa, a câmera se afasta
+  const c = createCidade(scene, 'noite');
+  update = (T) => {
+    const k = smooth((T - T0) / (T1 - T0));
+    const w = c.homeWindow;
+    camera.position.set(mix(w.x, 2, k), mix(w.y + 0.3, 13, k), mix(w.z + 5, 46, k));
+    camera.lookAt(mix(w.x, 0, k), mix(w.y, 11, k), mix(w.z, -10, k));
+    return w;
+  };
+}
+
+scene.traverse(o => { if (o.isMesh && !(o.material && o.material.transparent)) { o.castShadow = true; o.receiveShadow = true; } });
+const f0 = update(T0);
+const rt = new THREE.WebGLRenderTarget(W, H, { samples: 0, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.55, 0.85));
+const bokeh = new BokehPass(scene, camera, { focus: camera.position.distanceTo(f0), aperture: 0.0016, maxblur: 0.008 });
+composer.addPass(bokeh);
+composer.addPass(new OutputPass());
+window.frame = (tn) => { TN = tn; const f = update(toOld(tn)); bokeh.uniforms['focus'].value = camera.position.distanceTo(f); composer.render(); };
+window.frame(RM.find(a => a[0] >= T0) ? T0 : T0);
+window.__ready = true;
+</script>
+</body>
+</html>

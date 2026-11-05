@@ -1,0 +1,7 @@
+<!doctype html><html><body style="margin:0;background:#333">
+<script type="module">
+import * as T from './telas.js';
+const list=[['telaRender',{n:3}],['telaRender',{n:900}],['telaPedido',{typing:1}]];
+for (const [f,o] of list) { const c=document.createElement('canvas'); c.width=1600; c.height=1000; c.style.display='block'; T[f](c.getContext('2d'),1600,1000,o); document.body.appendChild(c); }
+window.__done=true;
+</script></body></html>

@@ -1,0 +1,69 @@
+MASCOTE CLAUDE — INSTRUÇÕES DE ANIMAÇÃO
+Cada cena começa exatamente no quadro da imagem correspondente (image-to-video).
+Duração de cada cena: 6 s · 30 fps · 1080 × 1920 · ~30 s no total.
+
+REGRAS GERAIS (valem para todas as cenas)
+- Personagem idêntico em todas as cenas: cabeça laranja retangular de cantos
+  arredondados, olhos quadrados pretos com dois reflexos brancos, bochechas rosadas
+  discretas, sorriso pequeno em blocos, fones pretos com aro laranja luminoso,
+  túnica preta com cinto, bolso e fivela luminosa, estrela de quatro pontas brilhando
+  sobre a cabeça, quatro perninhas laranja, régua clara com pontas laranja na mão direita.
+- Movimentos curtos e suaves (ease-in/ease-out). Nada de squash-and-stretch exagerado,
+  deformação do corpo, troca de cor, troca de roupa ou de proporções.
+- O personagem é pequeno: cada passo cobre no máximo uma tecla.
+- A estrela pulsa levemente o tempo todo (brilho 90%–110%, ciclo de ~2 s).
+- Piscar: uma vez por cena, os olhos fecham em ~4 quadros (achatar o olho na vertical).
+- Câmera: movimentos lentos, com profundidade de campo rasa e foco no mascote.
+- Iluminação laranja cinematográfica; fundo escuro.
+- Transições entre cenas: corte seco no ritmo da narração ou fusão curta (6–8 quadros).
+
+------------------------------------------------------------
+CENA 1 — O DESPERTAR (0:00–0:06)
+0,0–1,0 s  A tela do notebook está quase apagada; o mascote parado, cabeça baixa.
+1,0–2,0 s  A estrela acende (de 0% a 100% em ~12 quadros), os olhos se abrem, piscar.
+2,0–3,0 s  Ergue a cabeça e olha para a câmera; leve inclinação curiosa (5°).
+3,0–4,0 s  Levanta a régua e bate na tecla à frente; a tecla afunda e brilha laranja.
+4,0–6,0 s  A tela acende de baixo para cima, iluminando as costas do mascote.
+Câmera: aproximação muito lenta (push-in de ~5%).
+
+CENA 2 — ORGANIZANDO A TIMELINE (0:06–0:12)
+0,0–2,0 s  O mascote dá 2 ou 3 passinhos sobre as teclas, da esquerda para o centro.
+2,0–3,0 s  Para, vira o corpo ~20° na direção da tela e ergue a régua.
+3,0–5,0 s  Aponta para os clipes da faixa V1; o clipe selecionado ganha contorno
+           laranja e o cabeçote vermelho anda alguns segundos na timeline.
+5,0–6,0 s  Olha de volta para a câmera, como quem explica.
+Câmera: travelling lateral lento acompanhando os passos; foco no mascote.
+
+CENA 3 — CRIANDO ANIMAÇÕES (0:12–0:18)
+0,0–1,5 s  O mascote, na borda inferior da tela, levanta a régua.
+1,5–4,5 s  Faz pequenos movimentos com a régua, "regendo": a cada gesto um elemento
+           aparece no anúncio vertical — título "NOVO SABOR" (escala de 90% a 100%),
+           selo "-20%" seguindo o caminho pontilhado, legenda deslizando de baixo,
+           brilhos piscando. O cabeçote azul avança sobre os keyframes.
+4,5–6,0 s  Abaixa a régua e olha satisfeito para a tela.
+Câmera: inclinação suave (tilt up) do mascote para o anúncio.
+
+CENA 4 — ANTES E DEPOIS (0:18–0:24)
+0,0–2,0 s  O mascote olha para o painel "Original" (cabeça girando ~15° para a esquerda).
+2,0–3,5 s  Gira a cabeça para o painel "Editado".
+3,5–5,0 s  Aponta a régua para o vídeo editado; os selos "Cortes, Cor, Títulos,
+           Legendas, Áudio" acendem um a um.
+5,0–6,0 s  Pequeno pulinho de satisfação (sobe ~1/4 da altura de uma tecla).
+Câmera: parada ou push-in muito lento.
+
+CENA 5 — ENCERRAMENTO (0:24–0:30)
+0,0–1,5 s  O mascote se acomoda sentado no teclado, apoiando a régua no ombro.
+1,5–3,0 s  Olha para a câmera; a luz laranja atrás dele cresce suavemente.
+3,0–4,5 s  Acena com a mão esquerda (dois movimentos curtos).
+4,5–6,0 s  Fica parado, a estrela pulsa; espaço negativo no alto para a frase final
+           entrar em fade-in. Último quadro estável por pelo menos 1 s.
+Câmera: recuo lento (pull-back de ~5%).
+
+------------------------------------------------------------
+ÁUDIO
+- Narração: ver roteiro-narracao.txt.
+- Trilha: instrumental leve, eletrônica/lo-fi animada, -18 a -20 LUFS sob a voz
+  (voz em torno de -14 LUFS no mix final).
+- Efeitos: "clique" de tecla (cena 1), "whoosh" curto quando títulos aparecem (cena 3),
+  "ding" suave nos selos (cena 4).
+- Legendas na tela sincronizadas com a narração, em até duas linhas, na faixa inferior.

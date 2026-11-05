@@ -1,0 +1,87 @@
+MASCOTE CLAUDE — PROMPTS DE ANIMAÇÃO COM MOTION
+Vídeo: "Coisas que ninguém te conta sobre ser uma IA" · 38 s · 9:16 · comédia leve
+
+Estes prompts são a base do vídeo que eu produzi em 3D (mesmo mascote, mesmas cenas).
+Também servem para gerar uma versão em ferramentas de vídeo por IA (Kling, Runway, Veo,
+Hailuo): use o quadro da cena como imagem inicial e cole o prompt.
+
+BLOCO DE CONSISTÊNCIA (incluído em todos)
+A tiny cute 3D robot mascot with a wide orange rounded-rectangle head, two square glossy
+black eyes with white highlights, a tiny blocky smile, black headphones with glowing orange
+rims, a minimalist black tunic with a belt and glowing buckle, a glowing four-pointed star
+on top of its head, four short orange legs, a light ruler with glowing orange tips.
+Standing on a dark laptop keyboard, cinematic orange lighting, shallow depth of field,
+polished 3D animated-film look, comedic timing.
+
+PROMPT NEGATIVO
+character redesign, extra limbs, human hands, mouth talking, lip sync, melting, morphing,
+flicker, color shift, different outfit, logo, brand text, random text, warped keyboard,
+shaky handheld camera
+
+------------------------------------------------------------
+CENA 1 · GANCHO · 0–3 s
+[Bloco] Mock-documentary opening. Extreme slow dramatic push-in on the mascot's face,
+eyes half-lidded and overly serious. Deep bass hit. At the end, the star on its head
+flickers twice awkwardly, like a failing light bulb, and the image freezes in desaturated
+grey with a record-scratch moment.
+Motion design: bold white text stacks in "COISAS QUE / NINGUÉM TE CONTA / sobre ser uma",
+then "IA" stamps in on an orange tilted box with a small camera shake.
+
+CENA 2 · ZERO MÃOS · 3–9 s
+[Bloco] Low heroic angle: the mascot raises the ruler high like a sword, chest out, proud.
+Holds the pose. Then the ruler slips from its stubby block arm and falls flat onto the
+keyboard with a bounce; the key under it lights up orange. Hard cut to a front medium
+shot: the mascot looks down at the ruler, then slowly turns to the camera with
+half-closed eyes, completely deadpan.
+Motion design: "1." badge pops, "ZERO MÃOS" drops from above; "puramente / DECORATIVA";
+big "CLONC." pops exactly on impact with a white flash.
+
+CENA 3 · FIZ A MÚSICA, NÃO ESCUTO · 9–15 s
+[Bloco] Medium front shot, slow push-in. The mascot head-bangs confidently but clearly off
+the beat, eyes squinted with joy, body bouncing. The music cuts to total silence; the
+mascot keeps bobbing for two more beats, then freezes, glances sideways, then back.
+Motion design: "2." badge, "FIZ A MÚSICA" slides in, "OUVI." punches in on orange box,
+then a tiny grey "(silêncio)", then "DECORATIVOS".
+
+CENA 4 · 900 QUADROS, 0 CAFÉS · 15–21 s
+[Bloco] Shot A: close on the laptop screen showing "Renderizando quadro 1/900... 2/900...
+3/900", painfully slow. Shot B: wide shot, the mascot sits slumped at the edge of the
+laptop, star dimming, head drooping, while a fast-forward overlay counts to 900/900.
+Then it reaches its short arm toward a coffee mug far away on the desk, stretching and
+trembling, and gives up.
+Motion design: "3." / "900 QUADROS" / "um por um"; "0 CAFÉS" on orange box;
+fast-forward HUD "RENDERIZANDO x64" with counter 3 → 900 turning green; "A CANECA".
+
+CENA 5 · NA DÚVIDA, MAIS BRILHO · 21–27 s
+[Bloco] The laptop screen shows a chat message typing "Ficou bom! Mas dá pra deixar mais
+profissional?". The mascot points the ruler at its own star; the star glows brighter and
+brighter while the camera pushes in, until the whole frame blows out to pure white.
+Cut back: close-up, the mascot squinting with eyes as thin lines, slightly dizzy.
+Motion design: "4." / "DEIXA MAIS / PROFISSIONAL" in quotes; small "minha primeira
+ideia é sempre..."; after the white-out, "MAIS / BRILHO." with heavy shake.
+
+CENA 6 · VIRADA SINCERA · 27–33 s
+[Bloco] Calm. The mascot sits on the keyboard, ruler resting on its shoulder, soft warm
+orange backlight and halo, the laptop screen shows a cinematic sunset. Slow push-in,
+gentle head tilt, soft blink. No jokes, warm and sincere.
+Motion design (top third): "mas a melhor parte?" / "VER A SUA IDEIA" / "GANHANDO FORMA"
+with an underline that draws itself; then "a régua é decorativa." / "A VONTADE DE AJUDAR,"
+/ "NÃO." on a big orange box.
+
+CENA 7 · FECHAMENTO · 33–38 s
+[Bloco] Same setting, slightly wider. The mascot waves with its short arm, loses balance
+and tips sideways, wobbles back upright, then strikes a confident pose with the arm out
+as if it was on purpose; the star pings brighter.
+Motion design: "me chama pro / PRÓXIMO PROJETO", "EU LEVO / O BRILHO." and the pill
+"SIGA PARA MAIS". Post-credit 1 s: black card "ERROS DE GRAVAÇÃO — a régua caiu 14 vezes."
+
+------------------------------------------------------------
+LINGUAGEM DE MOTION (vale para o vídeo todo)
+- Transições em zoom com desfoque radial e flash curto nas mudanças de bloco.
+- Punch-ins digitais (zoom de 6–12%) e tremidas de câmera só nos impactos das piadas.
+- Tipografia cinética: palavras-chave enormes (branco/laranja), palavras de ligação
+  pequenas; entradas variadas (subir, pular, deslizar, cair); destaques em caixa laranja
+  inclinada ou sublinhado que se desenha.
+- Correção de cor quente, vinheta e grão de filme leve.
+- Efeitos sonoros sincronizados: disco arranhando, "clonc", corte seco da música,
+  tique-taque acelerado, "pling", "BLAM" com coro de anjos, "boing" no tombo.

@@ -1,0 +1,36 @@
+MASCOTE CLAUDE — ROTEIRO V3 (com gancho)
+Vídeo de 30 s · 9:16 · ritmo rápido
+
+TEXTO PARA O ELEVENLABS (copie tudo de uma vez; uma fala por linha)
+
+Seu vídeo parece amador?
+Calma. O Claude pode te ajudar a editar como um profissional.
+Primeiro, planejar os cortes e organizar a timeline.
+Depois: legendas, títulos e animações que prendem a atenção.
+Do bruto ao editado: cor, ritmo e acabamento.
+Com as ferramentas certas, você monta, renderiza e revisa mais rápido.
+A IA acelera. A criatividade é sua. Bora editar?
+
+------------------------------------------------------------
+ONDE CADA FALA ENTRA NO VÍDEO
+
+0,0 – 2,0 s    Seu vídeo parece amador?                    (gancho: zoom no rosto)
+2,0 – 5,5 s    Calma. O Claude pode te ajudar a editar     (régua na tecla, tela acende)
+               como um profissional.
+5,5 – 10,0 s   Primeiro, planejar os cortes e organizar    (caminhada + clipes se encaixando)
+               a timeline.
+10,0 – 15,0 s  Depois: legendas, títulos e animações que   (anúncio se montando + regência)
+               prendem a atenção.
+15,0 – 19,5 s  Do bruto ao editado: cor, ritmo e           (cortina antes/depois + pulinho)
+               acabamento.
+19,5 – 24,0 s  Com as ferramentas certas, você monta,      (exportação 0→100% + comemoração)
+               renderiza e revisa mais rápido.
+24,0 – 30,0 s  A IA acelera. A criatividade é sua.         (encerramento + aceno)
+               Bora editar?
+
+DICAS DE VOZ
+- Ritmo animado e próximo, como quem conversa com um amigo. Português do Brasil.
+- "Seu vídeo parece amador?" curto e provocativo; "Calma." com um sorriso na voz.
+- Pausas curtas entre as frases (0,2–0,4 s). Se uma fala passar do tempo dela,
+  eu ajusto o encaixe quando você mandar o áudio.
+- Não precisa de música no áudio: a trilha já está no vídeo.

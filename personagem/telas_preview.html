@@ -1,0 +1,9 @@
+<!doctype html><html><body style="margin:0;background:#333">
+<script type="module">
+import * as T from './telas.js';
+for (const f of ['telaTimeline','telaMotion','telaAntesDepois','telaFinal']) {
+  const c=document.createElement('canvas'); c.width=1600; c.height=1000; c.style.display='block';
+  T[f](c.getContext('2d'),1600,1000); document.body.appendChild(c);
+}
+window.__done=true;
+</script></body></html>

@@ -1,0 +1,407 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createDavi, setSitting, setFace } from './davi.js';
+import { createQuarto } from './quarto.js';
+import { createEscola } from './cenarios.js';
+
+// Episódio 2 — "Ninguém gosta de mim". Uso: ep02.html?shot=SH05 ; window.frame(T) com T = tempo do vídeo (s).
+const W = 1080, H = 1920;
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await (await fetch('ep02/envelopes.json')).json();
+const envAt = (arr, T) => arr[Math.min(arr.length - 1, Math.max(0, Math.round(T * ENV.fps)))] || 0;
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => smooth((t - a) / (b - a));
+const mix = (a, b, k) => a + (b - a) * k;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+// ---------- planos: [início, fim, cenário]
+const SHOTS = {
+  SH01: [0, 5.25, 'deitado'], SH02: [5.25, 10.0, 'times'], SH03: [10.0, 12.9, 'banco'], SH04: [12.9, 15.1, 'quarto'],
+  SH05: [15.1, 20.0, 'bancoluz'], SH06: [20.0, 25.3, 'quarto'], SH07: [25.3, 29.4, 'lucas'], SH08: [29.4, 31.9, 'quarto'],
+  SH09: [31.9, 34.4, 'quarto'], SH10: [34.4, 37.6, 'quarto'], SH11: [37.6, 42.8, 'quarto'], SH12: [42.8, 52.7, 'quarto'],
+  SH13: [52.7, 58.5, 'quarto'], SH14: [58.5, 65.5, 'quarto'], SH15: [65.5, 69.0, 'deitado'], SH16: [69.0, 73.1, 'theo'],
+  SH17: [73.1, 80.1, 'quarto'], SH18: [80.1, 87.2, 'quarto'], SH19: [87.2, 94.2, 'deitado'], SH20: [94.2, 100.0, 'dia'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT];
+
+// ---------- expressões do Davi no quarto (quadros-chave no tempo do vídeo)
+const BASE = { hy: -0.7, hx: -0.15, hz: 0, lean: 0, brUp: 0.3, brSad: 0.3, eyes: 1, lx: -0.9, ly: 0.4, tear: 0, god: 0.3, lamp: 0.7, hand: 0, palm: 0, laugh: 0, smile: 0, wipe: 0, knees: 0, notes: 0 };
+const K = [
+  [0, {}],
+  [12.9, { hx: 0.05, hy: -0.55, brSad: -0.5, brUp: 0, lx: -0.8, ly: 0.35, god: 0.35, lamp: 0.6 }],
+  [20.0, { brSad: 0, brUp: 0.95, eyes: 1, hx: -0.12, hy: -0.7, god: 0.6 }],
+  [22.6, { brUp: 0.6 }], [24.6, { smile: 1, hz: 0.06 }],
+  [25.3, { smile: 0, hz: 0 }],
+  [29.4, { brSad: 0.95, brUp: 0, eyes: 0.7, ly: -0.5, lx: 0, hx: 0.3, hy: -0.25, tear: 0.6, god: 0.25, lamp: 0.45, knees: 1, lean: 0.2 }],
+  [31.9, { knees: 0, lean: 0, hx: -0.12, hy: -0.7, lx: -0.9, ly: 0.5, brUp: 0.5, brSad: 0.3, eyes: 1, tear: 0.3, god: 0.75 }],
+  [32.8, { hand: 1 }],
+  [34.55, { palm: 1, god: 0.95 }],
+  [37.6, { hy: 0.35, hx: 0.05, lx: 0.6, ly: 0.2, brUp: 1, brSad: 0, tear: 0, hand: 0.7 }],
+  [40.0, { laugh: 1, smile: 1, brUp: 0.7 }],
+  [42.3, { laugh: 0, hand: 0, palm: 0 }],
+  [43.09, { smile: 0, hy: -0.7, hx: -0.15, brUp: 0.6, brSad: 0.45, eyes: 0.9, lx: -0.9, ly: 0.45, god: 0.8 }],
+  [45.6, { god: 1.25, brUp: 0.85, brSad: 0.55, eyes: 1, tear: 0.6, lamp: 0.4 }],
+  [52.97, { brUp: 1, brSad: 0.1, tear: 0.35, hx: -0.2 }],
+  [58.7, { brUp: 0.8, tear: 0, hz: 0.06, god: 0.9, lamp: 0.6 }],
+  [59.6, { notes: 1, smile: 1 }],
+  [60.9, { laugh: 1, brUp: 1 }], [63.4, { laugh: 0 }],
+  [65.0, { notes: 0, smile: 0 }],
+  [73.1, { brSad: 0.7, brUp: 0.1, eyes: 0.85, ly: 0.35, lx: -0.7, hz: 0, god: 0.6, lamp: 0.45 }],
+  [76.4, { tear: 0.8, brSad: 1, eyes: 0.7 }],
+  [80.1, { tear: 0.6, brUp: 0.35, eyes: 0.9 }],
+  [82.3, { god: 1.15, tear: 0.4, brSad: 0.45 }],
+  [84.6, { wipe: 1 }], [86.2, { wipe: 0, tear: 0, smile: 1, brSad: 0, brUp: 0.5 }],
+  [100, {}],
+];
+const KEYS = (() => { let cur = { ...BASE }; return K.map(([t, v]) => { cur = { ...cur, ...v }; return [t, { ...cur }]; }); })();
+function expr(T) {
+  let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= T) i++;
+  const [ta, a] = KEYS[i];
+  const o = {}, prev = i > 0 ? KEYS[i - 1][1] : a, kk = smooth((T - ta) / 0.45);
+  for (const key in a) o[key] = mix(prev[key], a[key], kk);
+  return o;
+}
+const blink = (T) => { const ph = (T * 0.31) % 1; return ph > 0.97 ? 0.1 : 1; };
+
+// ---------- renderer
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 400);
+const rb = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, r), m);
+const canvasTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
+const glowTex = canvasTex(256, 256, (g) => { const r = g.createRadialGradient(128, 128, 0, 128, 128, 128); r.addColorStop(0, 'rgba(255,240,200,1)'); r.addColorStop(0.35, 'rgba(255,205,120,0.6)'); r.addColorStop(1, 'rgba(255,190,100,0)'); g.fillStyle = r; g.fillRect(0, 0, 256, 256); });
+const glowSprite = (s, op = 1) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: op })); sp.scale.set(s, s, 1); return sp; };
+
+// sorriso (arco) que troca com o lábio reto quando o Davi não está falando
+function addSmile(d) {
+  const sm = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.022, 10, 28, Math.PI * 0.7), new THREE.MeshStandardMaterial({ color: 0x5a2a20, roughness: 0.6 }));
+  sm.rotation.z = Math.PI + Math.PI * 0.15; sm.position.set(0, 0.04, 0.01); sm.visible = false; d.mouth.add(sm);
+  d.setSmile = (on) => { sm.visible = on; d.mouth.children[1].visible = !on; d.inner.visible = !on; };
+  return d;
+}
+// crianças da escola
+const KIDS = [
+  { skin: 0xe9c2a0, skinDark: 0xd9a983, hair: 0xb07a3a, shirt: 0x8ec5ff, shirtDark: 0x6aa7e6, pants: 0xd9c7a3, curls: false }, // Lucas
+  { skin: 0xc68e62, skinDark: 0xb07a50, hair: 0x2a1a10, shirt: 0xe74c3c, shirtDark: 0xc0392b, pants: 0x34495e, curls: false },
+  { skin: 0xf0cfb0, skinDark: 0xdcb595, hair: 0x6b3d1f, shirt: 0x2ecc71, shirtDark: 0x27ae60, pants: 0x2c3e50, curls: false },
+  { skin: 0x7a4a2e, skinDark: 0x643a22, hair: 0x120c08, shirt: 0xf1c40f, shirtDark: 0xd4ac0d, pants: 0x3d3d5c, curls: true },
+  { skin: 0xd9a77e, skinDark: 0xc28f66, hair: 0x3a2312, shirt: 0x9b59b6, shirtDark: 0x8e44ad, pants: 0x2c3442, curls: false },
+  { skin: 0xf3d4b8, skinDark: 0xe0bc9c, hair: 0xd9a54a, shirt: 0xff8c42, shirtDark: 0xe67a30, pants: 0x34495e, curls: false },
+  { skin: 0x8f5d3d, skinDark: 0x7a4c30, hair: 0x1a110b, shirt: 0x1abc9c, shirtDark: 0x16a085, pants: 0x2c3e50, curls: true },
+  { skin: 0xe2b48e, skinDark: 0xcf9f78, hair: 0x241710, shirt: 0xff6b9d, shirtDark: 0xe0567f, pants: 0x3a3a50, curls: false },
+];
+const THEO = { skin: 0xd8a47c, skinDark: 0xc28e66, hair: 0x2b1a12, shirt: 0x5b7fbf, shirtDark: 0x4a6aa3, pants: 0x3b3b3b, curls: false };
+const PEOPLE = []; window.__people = PEOPLE;
+function kid(opts) { const k = addSmile(createDavi(opts)); scene.add(k.root); PEOPLE.push(k); return k; }
+function addGlasses(k) {
+  const m = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.4 });
+  for (const s of [-1, 1]) { const f = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.022, 8, 4), m); f.rotation.z = Math.PI / 4; f.scale.set(1.1, 0.9, 1); f.position.set(s * 0.23, 0.02, 0.53); k.head.add(f); }
+  const br = rb(0.16, 0.03, 0.03, 0.01, m); br.position.set(0, 0.04, 0.53); k.head.add(br);
+}
+function walk(k, ph, amt = 1) {
+  const s = Math.sin(ph) * 0.55 * amt;
+  k.legs[0].hip.rotation.x = s; k.legs[1].hip.rotation.x = -s;
+  k.legs[0].knee.rotation.x = Math.max(0, -s) * 0.8; k.legs[1].knee.rotation.x = Math.max(0, s) * 0.8;
+  k.arms.L.sh.rotation.x = -s * 0.7; k.arms.R.sh.rotation.x = s * 0.7;
+  k.body.position.y = Math.abs(Math.cos(ph)) * 0.05 * amt;
+}
+function stand(k) { k.legs.forEach(l => { l.hip.rotation.x = 0; l.knee.rotation.x = 0; }); k.body.position.y = 0; }
+function sitOn(k, bench, dx) { // senta no banco (grupo com rotação)
+  setSitting(k, 1);
+  const p = V(dx, 0.67, 0.08).applyAxisAngle(V(0, 1, 0), bench.rotation.y).add(bench.position);
+  k.root.position.copy(p); k.root.rotation.y = bench.rotation.y;
+  k.arms.L.sh.rotation.x = k.arms.R.sh.rotation.x = -0.45; k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7;
+}
+const headW = (k) => k.head.getWorldPosition(new THREE.Vector3());
+
+let update;
+if (CEN === 'quarto' || CEN === 'deitado') {
+  const q = createQuarto(scene);
+  const d = addSmile(createDavi()); scene.add(d.root);
+  const DPOS = V(q.bed.x - 0.3, 0.75, q.bed.z + 1.17), DROT = -0.45;
+  const blanket = rb(2.3, 0.32, 1.95, 0.12, new THREE.MeshStandardMaterial({ color: 0x3b5f8a, roughness: 0.95 }));
+  blanket.position.set(q.bed.x, 1.18, q.bed.z + 0.25); scene.add(blanket);
+  const faceLight = new THREE.PointLight(0xffd9c2, 7, 5, 2); faceLight.position.set(1.0, 3.0, 0.2); scene.add(faceLight);
+  // nome brilhando na palma da mão
+  const palmTex = canvasTex(512, 256, (g, w, h) => { g.font = 'bold 150px DejaVu Sans, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = '#ffb84a'; g.shadowBlur = 30; g.fillStyle = '#fff2c4'; g.fillText('DAVI', w / 2, h / 2 + 8); });
+  const palmName = new THREE.Sprite(new THREE.SpriteMaterial({ map: palmTex, transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending }));
+  palmName.scale.set(0.42, 0.21, 1); scene.add(palmName);
+  const palmGlow = glowSprite(0.9, 0.0); scene.add(palmGlow);
+  // notas musicais douradas ("Eu canto")
+  const noteTex = ['♪', '♫', '♬'].map(ch => canvasTex(128, 128, (g) => { g.font = '100px DejaVu Sans, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = '#ffb84a'; g.shadowBlur = 18; g.fillStyle = '#ffe39a'; g.fillText(ch, 64, 68); }));
+  const notes = [...Array(16)].map((_, i) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: noteTex[i % 3], transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); s.scale.setScalar(0.35 + (i % 4) * 0.06); scene.add(s); return s; });
+  const WIN = V(q.window.x, q.window.y, q.window.z);
+  const CAMS = {
+    WIDE: [V(-0.3, 2.5, 6.8), V(0.4, 2.4, -2.2)], MED: [V(0.9, 2.45, 3.4), V(1.35, 2.25, -1.6)],
+    CLOSE: [V(0.85, 2.72, 1.7), V(1.5, 2.55, -1.6)], CLOSE2: [V(2.35, 2.78, 1.75), V(1.55, 2.55, -1.6)],
+    R3Q: [V(-0.4, 2.7, 2.4), V(1.5, 2.35, -1.6)], OTS: [V(2.9, 3.1, 0.2), V(-1.8, 3.0, -4.0)],
+  };
+  const camMove = (A, B, k, pushA = 0, pushB = 0) => {
+    const [pa, la] = CAMS[A], [pb, lb] = CAMS[B];
+    const p = pa.clone().lerp(pb, k), l = la.clone().lerp(lb, k);
+    const dir = l.clone().sub(p).normalize(); p.addScaledVector(dir, mix(pushA, pushB, k));
+    camera.position.copy(p); camera.lookAt(l); return l;
+  };
+  update = (T) => {
+    const e = expr(T);
+    const deus = envAt(ENV.deus, T), davi = envAt(ENV.davi, T);
+    let god = e.god + 0.45 * deus;
+    if (T > 39.98 && T < 42.2) god += 0.2 * Math.max(0, Math.sin(T * 24)); // Deus "rindo" no banho
+    q.setGod(god); q.lamp.intensity = 9 * e.lamp;
+    const talking = davi > 0.06;
+    d.setSmile(!talking && e.smile > 0.5);
+    if (CEN === 'deitado') {
+      setSitting(d, 0);
+      d.legs.forEach(({ hip, knee }) => { hip.rotation.x = -1.1; knee.rotation.x = 1.5; });
+      d.root.rotation.set(-Math.PI / 2, 0, 0); d.root.position.set(q.bed.x, 1.42, q.bed.z + 1.75);
+      d.body.position.y = 0; d.body.rotation.set(0, 0, 0);
+      d.head.rotation.set(-0.2, 0.15 + Math.sin(T * 0.5) * 0.03, 0);
+      Object.values(d.arms).forEach(a => { a.sh.rotation.set(0, 0, 0); a.elbow.rotation.set(0, 0, 0); });
+      let open = 0.75, brSad = 0.5, brUp = 0.2, sleepy = 0;
+      if (SHOT === 'SH19') { sleepy = seg(T, 92.5, 94.0); open = mix(0.6, 0.12, sleepy); brSad = 0; brUp = 0.3; d.setSmile(!talking); }
+      if (SHOT === 'SH15') { brSad = 0.85; open = 0.8; }
+      setFace(d, { open: open * blink(T), talk: davi, browUp: brUp, browSad: brSad, look: [-0.3, 0.6] });
+      d.tears.forEach(t => (t.visible = SHOT === 'SH15'));
+      blanket.visible = true; palmName.visible = palmGlow.visible = false; notes.forEach(n => (n.visible = false));
+    } else {
+      blanket.visible = false;
+      setSitting(d, 1);
+      d.root.position.copy(DPOS); d.root.rotation.set(0, DROT, 0);
+      const lg = e.laugh * Math.abs(Math.sin(T * 16));
+      d.body.rotation.x = e.lean - e.laugh * 0.1; d.body.position.y += Math.sin(T * 1.6) * 0.006 + lg * 0.03;
+      d.head.rotation.set(e.hx + Math.sin(T * 0.9) * 0.015 - e.laugh * 0.15, e.hy, e.hz + lg * 0.04);
+      const R = d.arms.R, L = d.arms.L;
+      // mão erguida para a luz; abraçar os joelhos; enxugar os olhos
+      R.sh.rotation.set(mix(mix(mix(-0.35, -0.95, e.knees), -0.5, e.hand), -2.4, e.wipe), 0, mix(mix(0.08, 2.2, e.hand), 0.35, e.wipe));
+      R.elbow.rotation.x = mix(mix(mix(-0.8, -1.35, e.knees), -0.25, e.hand), -2.0 + Math.sin(T * 6) * 0.1 * e.wipe, e.wipe);
+      L.sh.rotation.set(mix(-0.35, -0.95, e.knees), 0, -0.08);
+      L.elbow.rotation.x = mix(-0.8, -1.35, e.knees);
+      setFace(d, { open: e.eyes * blink(T), talk: davi, browUp: e.brUp, browSad: e.brSad, look: [e.lx, e.ly] });
+      d.tears.forEach(t => { t.visible = e.tear > 0.05; t.scale.setScalar(0.4 + 0.6 * e.tear); t.scale.y *= 1.4; t.position.y = -0.12; });
+      // palma
+      const hp = R.hand.getWorldPosition(new THREE.Vector3());
+      const toCam = camera.position.clone().sub(hp).normalize();
+      palmName.position.copy(hp).addScaledVector(toCam, 0.2); palmGlow.position.copy(hp).addScaledVector(toCam, 0.1);
+      palmName.material.opacity = e.palm * (0.85 + 0.15 * Math.sin(T * 5)); palmGlow.material.opacity = e.palm * 0.9;
+      palmName.visible = palmGlow.visible = e.palm > 0.02;
+      // notas saindo da janela e passeando pelo quarto
+      notes.forEach((n, i) => {
+        const life = ((T - 59.6) * 0.32 + i / 16) % 1, a = i * 2.4 + T * 0.6;
+        const p = WIN.clone().lerp(V(1.4, 2.8, 0.6), life); p.x += Math.sin(a) * 1.2; p.y += Math.sin(a * 1.3) * 0.6 + life * 0.4; p.z += 0.4 + Math.cos(a) * 0.5;
+        n.position.copy(p); n.material.opacity = e.notes * Math.sin(life * Math.PI); n.material.rotation = Math.sin(a) * 0.4; n.visible = e.notes > 0.02;
+      });
+    }
+    const u = (T - T0) / (T1 - T0);
+    switch (SHOT) {
+      case 'SH01': case 'SH15': case 'SH19': {
+        const hp = headW(d);
+        // de cima e de lado, vendo o rosto (deitado de barriga para cima); no fim afasta para a janela
+        // câmera na direção para onde o rosto aponta (deitado), com a cabeça "para cima" no quadro; no fim afasta para a janela
+        d.root.updateMatrixWorld(true);
+        const q4 = d.head.getWorldQuaternion(new THREE.Quaternion());
+        const nF = V(0, 0, 1).applyQuaternion(q4), nU = V(0, 1, 0).applyQuaternion(q4);
+        const dist = SHOT === 'SH01' ? mix(3.4, 2.8, smooth(u)) : SHOT === 'SH15' ? mix(2.7, 2.5, u) : 3.0;
+        const near = hp.clone().addScaledVector(nF, dist).addScaledVector(nU, -0.9).add(V(0.4, 0, 0)), far = V(-0.8, 4.6, 4.0);
+        faceLight.position.copy(hp).addScaledVector(nF, 1.4).add(V(0.4, 0.3, 0)); faceLight.intensity = 3.5;
+        const k = SHOT === 'SH19' ? smooth((T - 91.5) / (94.2 - 91.5)) * 0.8 : 0;
+        camera.position.copy(near.clone().lerp(far, k)); camera.up.copy(nU.clone().lerp(V(0, 1, 0), smooth(k * 1.5)).normalize());
+        camera.lookAt(hp.clone().addScaledVector(nU, -0.25).lerp(V(0, 2.5, -3.5), 0.25 * k));
+        return hp;
+      }
+      case 'SH04': return camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH06': camMove('MED', 'MED', u, 0, 0.6); return headW(d);
+      case 'SH08': return camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH09': case 'SH10': case 'SH11': { // enquadra cabeça + mão erguida, de frente
+        const hp = d.arms.R.hand.getWorldPosition(new THREE.Vector3()), h = headW(d);
+        const dir = CAMS.MED[0].clone().sub(CAMS.MED[1]).normalize();
+        const [k, dist] = SHOT === 'SH09' ? [0.3, mix(5.6, 4.9, u)] : SHOT === 'SH10' ? [0.85, mix(2.1, 1.7, u)] : [0.55, mix(4.4, 4.0, u)];
+        const c = h.clone().lerp(hp, k * e.hand + (1 - e.hand) * 0);
+        camera.position.copy(c).addScaledVector(dir, dist).add(V(0, 0.1, 0)); camera.lookAt(c); return SHOT === 'SH10' ? hp : h;
+      }
+      case 'SH12': camMove('MED', 'CLOSE', smooth(u), 0, 0.2); return headW(d);
+      case 'SH13': return camMove('CLOSE2', 'CLOSE2', u, 0, 0.35);
+      case 'SH14': { const l = camMove('WIDE', 'WIDE', u, 0.6, 1.8); return headW(d); }
+      case 'SH17': camMove('R3Q', 'R3Q', u, 0.2, 0.8); return headW(d);
+      case 'SH18': camMove('CLOSE', 'MED', smooth(u), 0.2, 0.1); return headW(d);
+    }
+  };
+} else {
+  // ---------- escola
+  const es = createEscola(scene);
+  const davi = addSmile(createDavi()); scene.add(davi.root); PEOPLE.push(davi);
+  const lunch = rb(0.5, 0.36, 0.34, 0.06, new THREE.MeshStandardMaterial({ color: 0xd64541, roughness: 0.6 }));
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0x333333 })); handle.position.y = 0.18; lunch.add(handle);
+  scene.add(lunch); lunch.visible = false;
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(0.3, 24, 16), new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.5 })); scene.add(ball);
+  const kids = KIDS.map(o => kid(o));
+  const sad = (k, T, s = 0.8) => setFace(k, { open: 0.85 * blink(T), talk: 0, browSad: s, browUp: 0, look: [0, -0.4] });
+  const happy = (k, T, look = [0, 0]) => { setFace(k, { open: blink(T + k.root.position.x), talk: 0, browUp: 0.6, look }); k.setSmile(true); };
+  const playBall = (T, list) => { // crianças jogando bola ao fundo
+    list.forEach(([k, x, z], i) => { const ph = T * 7 + i * 1.7, m = Math.sin(T * 1.3 + i) * 0.45; k.root.position.set(x + m, 0, z); k.root.rotation.y = Math.atan2(4 - x, -2 - z) * 0 + (m > 0 ? 1.2 : -1.2) * (i % 2 ? 1 : -1); walk(k, ph, 0.9); happy(k, T); });
+    const bt = (T * 0.55) % 1, bi = Math.floor(T * 0.55) % list.length, a = list[bi], b = list[(bi + 1) % list.length];
+    ball.position.set(mix(a[1], b[1], bt), 0.3 + Math.abs(Math.sin(bt * Math.PI * 2)) * 1.2, mix(a[2], b[2], bt));
+  };
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    ball.visible = CEN !== 'times';
+    davi.setSmile(false); lunch.visible = false;
+    if (CEN === 'times') {
+      // dois capitães escolhem; o Davi sobra no meio
+      const cap = [kids[1], kids[3]], line = [kids[0], kids[2], kids[4], kids[5], kids[6], kids[7]];
+      cap[0].root.position.set(0.6, 0, 3.4); cap[1].root.position.set(5.4, 0, 3.4);
+      cap.forEach((c, i) => { c.root.rotation.y = Math.PI + (i ? 0.25 : -0.25); stand(c); c.arms.R.sh.rotation.x = -1.4 * (Math.sin(T * 3 + i) > 0.3 ? 1 : 0.2); setFace(c, { open: blink(T + i), browUp: 0.3, look: [0, 0] }); });
+      // cada criança escolhida anda para a frente da fila e depois para o lado do time, uma de cada vez (ninguém atravessa ninguém)
+      const order = [0, 3, 1, 4, 2, 5];
+      line.forEach((k, j) => {
+        const n = order.indexOf(j), tp = T0 + 0.3 + n * 0.68, team = n % 2;
+        const x0 = -1.5 + j * 1.5 + (j >= 3 ? 1.5 : 0), z0 = -1.2, zl = 0.7;
+        const x1 = team ? 10.4 - (n >> 1) * 1.5 : -4.4 + (n >> 1) * 1.5, z1 = 2.2;
+        const a = clamp((T - tp) / 0.2), b = clamp((T - tp - 0.2) / 0.4), c = clamp((T - tp - 0.6) / 0.05);
+        let x = x0, z = mix(z0, zl, smooth(a)), ry = 0;
+        if (b > 0) { x = mix(x0, x1, smooth(b)); z = mix(zl, z1, smooth(b)); ry = Math.atan2(x1 - x0, z1 - zl); }
+        k.root.position.set(x, 0, z); k.root.rotation.y = c >= 1 ? 0 : ry;
+        if ((a > 0 && a < 1) || (b > 0 && b < 1)) walk(k, T * 16, 1); else stand(k);
+        happy(k, T);
+      });
+      davi.root.position.set(3.0 + 0.0, 0, -1.2); davi.root.rotation.y = 0; stand(davi);
+      Object.values(davi.arms).forEach(a => { a.sh.rotation.set(0, 0, 0.08 * (a === davi.arms.R ? 1 : -1)); a.elbow.rotation.set(0, 0, 0); });
+      const alone = seg(T, 8.6, 9.3);
+      davi.head.rotation.set(mix(0, 0.25, alone), Math.sin(T * 2.2) * 0.35 * (1 - alone), 0);
+      setFace(davi, { open: blink(T), browUp: mix(0.6, 0, alone), browSad: mix(0, 0.9, alone), look: [Math.sin(T * 2.2) * 0.6 * (1 - alone), mix(0, -0.6, alone)] });
+      camera.position.set(mix(3.4, 3.1, u), mix(3.0, 2.4, u), mix(12.5, 5.4, smooth(u))); camera.lookAt(3.0, mix(1.2, 1.4, u), -0.6);
+      return headW(davi);
+    }
+    if (CEN === 'banco' || CEN === 'bancoluz') {
+      sitOn(davi, es.benchA, 0.6); davi.root.position.y += 0;
+      davi.body.rotation.x = 0.12; davi.head.rotation.set(0.25, 0.1, 0.03);
+      sad(davi, T, 0.9);
+      lunch.visible = true; lunch.position.copy(V(0.6, 1.05, 0.55).applyAxisAngle(V(0, 1, 0), es.benchA.rotation.y).add(es.benchA.position)); lunch.rotation.y = es.benchA.rotation.y;
+      kids.forEach(k => k.root.visible = false);
+      const players = [[kids[1], 3, -2], [kids[2], 7, -3], [kids[4], 5, 0.5], [kids[6], 1, -3.5]];
+      players.forEach(([k]) => (k.root.visible = true)); playBall(T, players);
+      if (CEN === 'bancoluz') {
+        if (!update.glow) {
+          const g = glowSprite(2.4, 0.9); scene.add(g); const g2 = glowSprite(1.2, 1); scene.add(g2);
+          const pl = new THREE.PointLight(0xffc77a, 10, 6, 2); scene.add(pl);
+          const sparks = [...Array(18)].map(() => { const s = glowSprite(0.12, 1); scene.add(s); return s; });
+          update.glow = { g, g2, pl, sparks };
+        }
+        const G = update.glow, p = V(-0.6, 1.5, 0.15).applyAxisAngle(V(0, 1, 0), es.benchA.rotation.y).add(es.benchA.position);
+        const k = seg(T, 15.3, 16.5);
+        G.g.position.copy(p); G.g2.position.copy(p); G.pl.position.copy(p).add(V(0, 0.3, 0.6));
+        G.g.material.opacity = 0.85 * k * (0.9 + 0.1 * Math.sin(T * 3)); G.g2.material.opacity = k; G.pl.intensity = 10 * k;
+        G.g.scale.set(2.0, 2.8, 1);
+        G.sparks.forEach((s, i) => { const a = i * 0.7 + T * 0.8; s.position.set(p.x + Math.cos(a) * 0.9, p.y + ((T * 0.3 + i / 18) % 1) * 1.8 - 0.6, p.z + Math.sin(a) * 0.5); s.material.opacity = k * 0.9; });
+        // o Davi não vê, mas fica um pouco mais tranquilo
+        const calm = seg(T, 17.5, 19.0); setFace(davi, { open: 0.9 * blink(T), browSad: mix(0.9, 0.4, calm), browUp: 0, look: [0, -0.3] });
+        const c = p.clone().lerp(headW(davi), 0.55);
+        const nb = V(Math.sin(es.benchA.rotation.y), 0, Math.cos(es.benchA.rotation.y)), dist = mix(6.6, 5.6, smooth(u));
+        camera.position.set(c.x + nb.x * dist, 1.9, c.z + nb.z * dist); camera.lookAt(c.x, 1.45, c.z);
+        return c;
+      }
+      const hp = headW(davi);
+      const nb = V(Math.sin(es.benchA.rotation.y), 0, Math.cos(es.benchA.rotation.y)), dist = mix(4.4, 3.5, smooth(u));
+      camera.position.set(hp.x + nb.x * dist + 0.9, 2.0, hp.z + nb.z * dist); camera.lookAt(hp.x - 0.2, 1.4, hp.z);
+      return hp;
+    }
+    if (CEN === 'lucas') {
+      // Lucas no meio da roda; o Davi olhando de longe
+      const lu = kids[0]; lu.root.position.set(4, 0, -1); lu.root.rotation.y = 0.3; stand(lu); happy(lu, T, [0.2, 0]);
+      lu.arms.R.sh.rotation.x = -1.2 + Math.sin(T * 4) * 0.4; lu.arms.R.elbow.rotation.x = -0.6;
+      kids[5].root.visible = false;
+      [kids[1], kids[2], kids[4], kids[7]].forEach((k, i) => {
+        const a = Math.PI - 1.55 + i * 1.03; k.root.position.set(4 + Math.sin(a) * 2.7, 0, -1 + Math.cos(a) * 2.2);
+        k.root.rotation.y = Math.atan2(4 - k.root.position.x, -1 - k.root.position.z); stand(k);
+        k.body.position.y = Math.abs(Math.sin(T * 9 + i)) * 0.04; happy(k, T); k.head.rotation.x = -0.1 + Math.sin(T * 8 + i) * 0.06;
+      });
+      kids[3].root.visible = kids[6].root.visible = false; ball.visible = false;
+      davi.root.position.set(-1.6, 0, 3.4); davi.root.rotation.y = 2.4 - Math.PI; stand(davi);
+      Object.values(davi.arms).forEach(a => { a.sh.rotation.set(0, 0, 0.08 * (a === davi.arms.R ? 1 : -1)); a.elbow.rotation.set(0, 0, 0); });
+      davi.root.rotation.y = Math.atan2(4 - (-1.6), -1 - 3.4);
+      davi.head.rotation.set(0.05, 0, 0); sad(davi, T, 0.7); setFace(davi, { open: 0.85 * blink(T), browSad: 0.7, look: [0, 0] });
+      // câmera começa na roda e termina atrás do Davi
+      const k = smooth(u);
+      camera.position.set(mix(4.6, -2.9, k), mix(2.6, 2.4, k), mix(6.5, 6.4, k)); camera.lookAt(mix(4, 2.2, k), 1.5, mix(-1.4, -0.2, k));
+      return k < 0.5 ? headW(lu) : headW(lu);
+    }
+    if (CEN === 'theo' || CEN === 'dia') {
+      const theo = update.theo || (update.theo = (() => { const t = kid(THEO); addGlasses(t); return t; })());
+      sitOn(theo, es.benchB, 0.95); theo.head.rotation.set(0.2, -0.2, 0);
+      theo.arms.L.sh.rotation.x = theo.arms.R.sh.rotation.x = -0.6; theo.arms.L.elbow.rotation.x = theo.arms.R.elbow.rotation.x = -0.9;
+      const players = [[kids[1], 2, 0], [kids[2], 6, -2], [kids[4], 4, 2], [kids[6], 0, -2.5], [kids[5], 7.5, 1]];
+      kids.forEach(k => (k.root.visible = false)); players.forEach(([k]) => (k.root.visible = true)); playBall(T, players);
+      if (CEN === 'theo') {
+        davi.root.visible = false;
+        setFace(theo, { open: 0.85 * blink(T), browSad: 0.8, look: [0, -0.4] });
+        // câmera passa pelos que jogam e para no menino sozinho
+        const k = smooth(u), tp = headW(theo);
+        camera.position.set(mix(1.0, tp.x - 1.2, k), mix(2.8, 2.1, k), mix(10.5, tp.z + 4.4, k)); camera.lookAt(mix(3.5, tp.x, k), mix(1.6, 1.5, k), mix(-1, tp.z, k));
+        return k > 0.4 ? tp : V(3.5, 1.2, -1);
+      }
+      // dia seguinte: o Davi chega e senta do lado do Theo
+      const wIn = seg(T, 94.4, 96.8);
+      const pSeat = V(-0.95, 0, 0.08).applyAxisAngle(V(0, 1, 0), es.benchB.rotation.y).add(es.benchB.position);
+      const pFrom = pSeat.clone().add(V(-4.5, 0, 2.5));
+      if (T < 96.8) {
+        davi.root.position.copy(pFrom.clone().lerp(pSeat.clone().add(V(0, 0, 0.6)), wIn)); davi.root.rotation.y = Math.atan2(pSeat.x - pFrom.x, pSeat.z - pFrom.z);
+        setSitting(davi, 0); walk(davi, T * 12, 1); davi.head.rotation.set(0, 0.2, 0);
+        lunch.visible = false;
+      } else {
+        const s = seg(T, 96.8, 97.4); sitOn(davi, es.benchB, -0.95); setSitting(davi, s); davi.root.position.y = mix(0, 0.67, s);
+        davi.head.rotation.set(0.05, mix(0, 0.5, seg(T, 97.2, 97.8)), 0);
+      }
+      setFace(davi, { open: blink(T), browUp: 0.6, look: [T > 97.3 ? 0.6 : 0, 0] }); davi.setSmile(true);
+      const look = seg(T, 97.4, 98.0);
+      theo.head.rotation.set(mix(0.2, 0, look), mix(-0.2, -0.55, look), 0);
+      setFace(theo, { open: blink(T + 1), browSad: mix(0.8, 0, look), browUp: mix(0, 0.7, look), look: [mix(0, -0.6, look), mix(-0.4, 0, look)] });
+      theo.setSmile(look > 0.6);
+      const c = pSeat.clone().lerp(headW(theo), 0.5);
+      camera.position.set(c.x + 0.6, 2.3, c.z + mix(8.6, 7.2, smooth(u))); camera.lookAt(c.x + 0.1, 1.75, c.z);
+      return c;
+    }
+  };
+}
+
+scene.traverse(o => { if (o.isMesh && !(o.material && o.material.transparent)) { o.castShadow = true; o.receiveShadow = true; } });
+const f0 = update(T0);
+scene.traverse(o => { if (o.isMesh && !(o.material && o.material.transparent)) { o.castShadow = true; o.receiveShadow = true; } });
+const rt = new THREE.WebGLRenderTarget(W, H, { samples: 0, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), CEN === 'quarto' || CEN === 'deitado' ? 0.5 : 0.25, 0.55, 0.85));
+const bokeh = new BokehPass(scene, camera, { focus: camera.position.distanceTo(f0), aperture: 0.0016, maxblur: 0.008 });
+composer.addPass(bokeh);
+composer.addPass(new OutputPass());
+window.minGap = (t) => { update(t); const v = window.__people.filter(k => k.root.visible && k.root.parent); let m = 99; for (let i = 0; i < v.length; i++) for (let j = i + 1; j < v.length; j++) { const a = v[i].root.position, b = v[j].root.position; m = Math.min(m, Math.hypot(a.x - b.x, a.z - b.z)); } return m; };
+window.frame = (t) => { const f = update(t); bokeh.uniforms['focus'].value = camera.position.distanceTo(f); composer.render(); };
+window.frame(T0);
+if (location.search.includes('dbg')) { window.frame(18); scene.traverse(o => { if (o.isGroup && o.children.length > 3 && o.parent === scene && o.visible) console.log(o.position.toArray().map(v => v.toFixed(2)).join(','), o.children.length); }); console.log('cam', camera.position.toArray().map(v => v.toFixed(2)).join(',')); }
+window.__ready = true;
+</script>
+</body>
+</html>

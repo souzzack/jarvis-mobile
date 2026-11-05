@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 12 — "Eu tenho raiva de mim". Uso: ep12.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, chestHand, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, loadEnv, makeExpr,
+  addSmile, addGlasses, PALETTE, stand, canvasTex, setupRenderer, finish, quartoRig } from './serie.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps101112/ep12/envelopes.json');
+const SHOTS = {
+  SH01: [0, 3.4, 'prova'], SH02: [3.4, 8.0, 'quarto'], SH03: [8.0, 13.4, 'quarto'], SH04: [13.4, 18.0, 'quarto'], SH05: [18.0, 23.0, 'quarto'],
+  SH06: [23.0, 26.9, 'theo'], SH07: [26.9, 28.3, 'quarto'], SH08: [28.3, 33.4, 'quarto'], SH09: [33.4, 36.0, 'quarto'], SH10: [36.0, 41.3, 'quarto'],
+  SH11: [41.3, 48.4, 'quarto'], SH12: [48.4, 50.0, 'quarto'], SH13: [50.0, 55.2, 'quarto'], SH14: [55.2, 57.5, 'quarto'], SH15: [57.5, 64.1, 'quarto'],
+  SH16: [64.1, 66.6, 'quarto'], SH17: [66.6, 73.0, 'quarto'], SH18: [73.0, 77.4, 'quarto'], SH19: [77.4, 80.4, 'quarto'], SH20: [80.4, 83.8, 'quarto'],
+  SH21: [83.8, 87.2, 'quarto'], SH22: [87.2, 93.4, 'quarto'], SH23: [93.4, 96.9, 'quarto'], SH24: [96.9, 102.9, 'quarto'], SH25: [102.9, 112.84, 'mesa'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const expr = makeExpr(
+  { hx: 0.7, hy: 0, hz: 0, lean: 0.12, brUp: 0, brSad: 0.9, eyes: 0.7, lx: 0, ly: -0.4, tear: 0.2, god: 0.25, lamp: 0.35, smile: 0, knees: 1, turn: 0, chest: 0 },
+  [[0, {}], [8.1, { hx: 0.3, ly: -0.2, brSad: 0.9, tear: 0.45, eyes: 0.8 }], [13.6, { brSad: -0.45, hx: 0.42, tear: 0.55 }],
+   [18.3, { hx: 0.2, brSad: 0.6, brUp: 0.3 }], [20.2, { hx: 0.05, hy: -0.4, lx: -0.6, ly: 0.3, god: 0.5, eyes: 0.85 }],
+   [27.1, { hy: -0.15, lx: -0.2, brUp: 0.55, brSad: 0.3 }], [28.4, { hy: -0.4, lx: -0.6, brSad: 0.5, brUp: 0.2 }],
+   [33.5, { hx: 0.3, hy: 0, lx: 0, ly: -0.3, brSad: 0.75 }], [36.2, { hy: -0.4, lx: -0.6, ly: 0.3, hx: 0.1, god: 0.6, brSad: 0.4 }],
+   [41.7, { knees: 0.6, god: 0.7, brUp: 0.5, tear: 0.3 }], [48.6, { brUp: 0.95, brSad: 0, eyes: 1 }], [50.1, { god: 0.8 }],
+   [55.4, { smile: 1, brUp: 0.5, tear: 0.1 }], [58.6, { smile: 0, god: 0.85 }],
+   [64.4, { brSad: 0.6, brUp: 0.4, hx: 0.15, hy: -0.1, lx: -0.2 }], [66.8, { hy: -0.4, lx: -0.6, hx: 0.05, god: 0.85, brSad: 0.2 }],
+   [77.6, { brUp: 0.8, brSad: 0.2 }], [80.5, { smile: 1, god: 0.95 }], [84.0, { smile: 0, brUp: 0.6, brSad: 0.4, tear: 0.4 }],
+   [87.4, { god: 1.0 }], [93.7, { eyes: 0.12, hx: 0.1, brSad: 0.2, brUp: 0.2, chest: 1 }],
+   [97.2, { eyes: 1, smile: 1, god: 1.1, chest: 0, tear: 0, brUp: 0.5, brSad: 0, hx: 0.25, ly: -0.3, hy: 0.2, lx: 0.3 }], [120, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+const kid = (o) => { const k = addSmile(createDavi(o)); scene.add(k.root); return k; };
+const seat = (k, x, z, ry, y = 0.45) => { setSitting(k, 1); k.root.position.set(x, y, z); k.root.rotation.y = ry; k.arms.L.sh.rotation.set(-0.45, 0, -0.08); k.arms.R.sh.rotation.set(-0.45, 0, 0.08); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; };
+const handW = (k, s) => k.arms[s].hand.getWorldPosition(new THREE.Vector3());
+// folha da prova
+const provaTex = (nome, nota) => canvasTex(512, 680, (g, w, h) => {
+  g.fillStyle = '#fbf8ef'; g.fillRect(0, 0, w, h); g.strokeStyle = '#b8cfe8'; g.lineWidth = 2; for (let y = 150; y < h; y += 34) { g.beginPath(); g.moveTo(20, y); g.lineTo(w - 20, y); g.stroke(); }
+  g.fillStyle = '#2c3e50'; g.font = '800 34px Arial'; g.fillText('PROVA DE MATEMÁTICA', 26, 52); g.font = '600 26px Arial'; g.fillText('Nome: ' + nome, 26, 92);
+  g.font = '500 22px Arial'; for (let i = 0; i < 9; i++) { g.fillText(`${i + 1}) ${['2x + 3 = 11', '7 × 8 = ?', '3/4 + 1/4', '144 ÷ 12', 'x² = 49', '15% de 80', '0,5 × 18', '(3 + 5) × 2', '√81'][i]}`, 30, 182 + i * 54); g.fillStyle = i % 3 === 1 ? '#d63031' : '#27ae60'; g.font = '900 30px Arial'; g.fillText(i % 3 === 1 ? '✗' : '✓', 300, 184 + i * 54); g.fillStyle = '#2c3e50'; g.font = '500 22px Arial'; }
+  g.strokeStyle = '#d63031'; g.lineWidth = 7; g.beginPath(); g.ellipse(410, 90, 78, 62, -0.1, 0, 7); g.stroke(); g.fillStyle = '#d63031'; g.font = '900 72px Arial'; g.textAlign = 'center'; g.fillText(nota, 410, 114);
+});
+
+if (CEN === 'quarto' || CEN === 'prova' || CEN === 'mesa') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q; q.cross.visible = false;
+  // frases de giz na parede (acima da cama) e as que a luz escreve no lugar
+  const WZ = -3.88;
+  const wordTex = (lines, color, glow) => canvasTex(1024, 256 * lines.length, (g, w, h) => {
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    lines.forEach((l, i) => {
+      const y = 128 + i * 256; let fs = 190; g.font = `900 ${fs}px Arial`; while (g.measureText(l).width > 960) { fs -= 6; g.font = `900 ${fs}px Arial`; }
+      if (glow) { g.shadowColor = color; g.shadowBlur = 40; }
+      g.fillStyle = color; g.save(); g.translate(w / 2, y); g.rotate((i % 2 ? 1 : -1) * 0.025); g.fillText(l, 0, 0); g.restore();
+      if (!glow) { g.globalCompositeOperation = 'destination-out'; for (let k = 0; k < 900; k++) { g.fillRect(Math.random() * w, y - 110 + Math.random() * 220, 2 + Math.random() * 6, 1 + Math.random() * 2); } g.globalCompositeOperation = 'source-over'; }
+    });
+  });
+  const mkWord = (lines, x, y, width, color, glow) => {
+    const t = wordTex(lines, color, glow), hh = width * (256 * lines.length) / 1024;
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(width, hh), new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: !glow }));
+    m.position.set(x, y, WZ); scene.add(m); return { m, t, x, width };
+  };
+  const WORDS = [mkWord(['BURRO'], 1.5, 4.3, 1.5, '#f4f2ea', false), mkWord(['VOCÊ SEMPRE ERRA'], 1.95, 3.5, 2.4, '#f4f2ea', false), mkWord(['NUNCA VAI SER', 'SUFICIENTE'], 1.95, 2.5, 2.1, '#f4f2ea', false)];
+  const GOOD = [mkWord(['APRENDENDO'], 1.9, 4.3, 2.3, '#ffd27a', true), mkWord(['AMADO'], 1.95, 3.5, 1.8, '#ffd27a', true), mkWord(['EM', 'CONSTRUÇÃO'], 1.95, 2.5, 2.0, '#ffd27a', true)];
+  const W_IN = [[13.7, 14.4], [14.9, 15.8], [16.1, 17.4]], W_OUT = [39.4, 59.6, 62.2], G_IN = [[68.0, 69.0], [74.0, 74.8], [80.6, 81.6]];
+  const eraser = WORDS.map(() => { const s = glowSprite(1.4, 0); scene.add(s); return s; });
+  const reveal = (w, k) => { w.t.repeat.x = Math.max(0.001, k); w.m.scale.x = Math.max(0.001, k); w.m.position.x = w.x - w.width / 2 * (1 - k); };
+  const words = (T) => {
+    WORDS.forEach((w, i) => {
+      const kin = clamp((T - W_IN[i][0]) / (W_IN[i][1] - W_IN[i][0])), out = seg(T, W_OUT[i], W_OUT[i] + 1.0);
+      reveal(w, kin); w.m.material.opacity = (kin > 0 ? 0.85 : 0) * (1 - out);
+      const e = eraser[i], a = Math.sin(clamp((T - W_OUT[i]) / 1.0) * Math.PI); e.material.opacity = 0.9 * a;
+      e.position.set(w.x - w.width / 2 + w.width * clamp((T - W_OUT[i]) / 1.0), w.m.position.y, WZ + 0.15); e.scale.set(1.4, 1.4, 1);
+    });
+    GOOD.forEach((w, i) => { const k = clamp((T - G_IN[i][0]) / (G_IN[i][1] - G_IN[i][0])); reveal(w, k); w.m.material.opacity = k > 0 ? 1 : 0; });
+  };
+  // pedaços da prova no chão
+  const pt = provaTex('Davi', '6,0');
+  const pieces = [[0.75, 0.55, 0.0, 0.6, 0.5], [1.3, 0.05, 0.25, 0.0, 0.5], [0.35, 0.95, 0.5, 0.5, 0.0], [1.6, 0.65, 0.75, 0.0, 0.0]].map(([x, z, r, ox, oy]) => {
+    const t = pt.clone(); t.needsUpdate = true; t.repeat.set(0.5, 0.5); t.offset.set(ox, oy);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.56), new THREE.MeshStandardMaterial({ map: t, roughness: 0.9, side: THREE.DoubleSide }));
+    m.rotation.set(-Math.PI / 2, 0, r * 2); m.position.set(x, 0.025, z); scene.add(m); return m;
+  });
+  const DAVI = () => headW(d);
+  if (CEN === 'quarto') {
+    const motes = [...Array(36)].map((_, i) => { const s = glowSprite(0.09, 0); scene.add(s); return [s, (i * 0.618) % 1, (i * 0.37) % 1, (i * 0.73) % 1]; });
+    update = (T) => {
+      const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+      q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+      Q.pose('floor', e, T, talk); d.root.position.x = 0.45;
+      if (e.chest > 0.01) chestHand(d, e.chest);
+      words(T);
+      // "de pó": poeira dourada flutuando no feixe de luz
+      const dust = seg(T, 50.3, 51.5) * (1 - seg(T, 57.0, 58.0));
+      motes.forEach(([s, a, b, c]) => { s.position.set(-2.4 + a * 2.6, 0.6 + ((b + T * 0.04) % 1) * 3.6, -3.2 + c * 3.0 + Math.sin(T * 0.7 + a * 9) * 0.1); s.material.opacity = dust * (0.5 + 0.5 * Math.sin(T * 2 + c * 20)); });
+      const h = headW(d);
+      const wide = (z0, z1, x = 1.0) => { camera.up.set(0, 1, 0); camera.position.set(1.45, 2.9, mix(z0, z1, smooth(u)) + 1.0); camera.lookAt(1.45, 2.55, -3); return V(1.2, 2.4, -2); };
+      switch (SHOT) {
+        case 'SH02': { const k = smooth(u); camera.up.set(0, 1, 0); camera.position.set(mix(1.9, 1.6, k), mix(1.2, 2.0, k), mix(2.4, 3.4, k)); camera.lookAt(mix(1.0, -0.3, k), mix(0.1, 1.5, k), mix(0.4, -0.9, k)); return k < 0.5 ? V(1.0, 0.1, 0.4) : h; }
+        case 'SH03': return Q.faceCam(mix(2.6, 2.2, u), 0.2, 0.25, 0.1);
+        case 'SH04': return wide(6.6, 5.8, 0.9);
+        case 'SH05': return Q.faceCam(mix(3.6, 3.0, u), 0.9, 0.4, 0.2);
+        case 'SH07': return Q.faceCam(2.3, 0.15, 0.2, 0.1);
+        case 'SH08': return Q.faceCam(mix(4.2, 3.6, u), -1.0, 0.6, 0.3);
+        case 'SH09': return Q.faceCam(mix(2.4, 2.2, u), 0.2, 0.2, 0.1);
+        case 'SH10': return wide(6.4, 5.6, 0.8);
+        case 'SH11': return Q.faceCam(mix(3.8, 3.2, u), 0.9, 0.5, 0.2);
+        case 'SH12': return Q.faceCam(2.2, -0.1, 0.2, 0.1);
+        case 'SH13': { camera.up.set(0, 1, 0); camera.position.set(mix(-0.2, 0.2, u), 2.4, mix(4.6, 3.8, smooth(u))); camera.lookAt(-0.9, 2.1, -1.6); return h; }
+        case 'SH14': return Q.faceCam(2.3, 0.2, 0.2, 0.1);
+        case 'SH15': return wide(6.2, 5.4, 0.9);
+        case 'SH16': return Q.faceCam(mix(2.4, 2.2, u), -0.2, 0.2, 0.1);
+        case 'SH17': return wide(6.0, 5.4, 0.9);
+        case 'SH18': return Q.faceCam(mix(3.6, 3.2, u), 1.0, 0.5, 0.2);
+        case 'SH19': return Q.faceCam(2.3, 0.15, 0.2, 0.1);
+        case 'SH20': return wide(6.4, 5.6, 0.9);
+        case 'SH21': return Q.faceCam(mix(2.4, 2.2, u), 0.2, 0.2, 0.1);
+        case 'SH22': return Q.faceCam(mix(4.0, 3.4, u), -0.9, 0.5, 0.2);
+        case 'SH23': return Q.faceCam(mix(2.5, 2.1, u), 0.1, 0.2, 0.1);
+        case 'SH24': return wide(6.8, 5.6, 0.7);
+      }
+      return h;
+    };
+  } else if (CEN === 'prova') {
+    // à tarde: o Davi vê o 6 e rasga a prova
+    pieces.forEach(p => (p.visible = false));
+    const halves = [0, 1].map(i => { const t = pt.clone(); t.needsUpdate = true; t.repeat.set(0.5, 1); t.offset.set(i * 0.5, 0); const m = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 1.12), new THREE.MeshStandardMaterial({ map: t, roughness: 0.9, side: THREE.DoubleSide })); scene.add(m); return m; });
+    update = (T) => {
+      const e = expr(T), talk = ENV.davi(T), u = (T - T0) / (T1 - T0);
+      q.setGod(0.15); q.lamp.intensity = 7;
+      Q.pose('bed', { ...e, hx: 0, hy: 0, lean: 0 }, T, talk);
+      setSitting(d, 0); d.body.position.y = 0; d.body.rotation.set(0, 0, 0); d.root.position.set(0.7, 0, 0.7); d.root.rotation.y = 0.15;
+      const tear = seg(T, 2.3, 2.6);
+      d.arms.R.sh.rotation.set(-0.9, 0, mix(-0.1, 0.35, tear)); d.arms.L.sh.rotation.set(-0.9, 0, mix(0.1, -0.35, tear)); d.arms.R.elbow.rotation.set(-0.2, 0, 0); d.arms.L.elbow.rotation.set(-0.2, 0, 0);
+      d.head.rotation.set(mix(0.25, 0.15, tear), 0, 0);
+      setFace(d, { open: 0.8, talk, browSad: mix(0.4, -0.7, seg(T, 1.0, 1.6)), browUp: 0, look: [0, -0.5] }); d.setSmile(false);
+      d.tears.forEach(t => (t.visible = false));
+      d.root.updateMatrixWorld(true); const hr = handW(d, 'R'), hl = handW(d, 'L');
+      halves[0].position.copy(hl).add(V(0.0, 0.32, 0.12)); halves[1].position.copy(hr).add(V(0.0, 0.32, 0.12));
+      if (tear === 0) { const m = hl.clone().lerp(hr, 0.5); halves[0].position.set(m.x - 0.21, m.y + 0.32, m.z + 0.12); halves[1].position.set(m.x + 0.21, m.y + 0.32, m.z + 0.12); }
+      halves[0].rotation.set(-0.1, 0.15 * tear, -0.35 * tear); halves[1].rotation.set(-0.1, -0.15 * tear, 0.35 * tear);
+      camera.up.set(0, 1, 0); const p = halves[0].position.clone().lerp(halves[1].position, 0.5);
+      camera.position.set(p.x + 0.25, mix(p.y + 0.15, p.y + 0.5, smooth(u)), p.z + mix(1.6, 3.0, smooth(u))); camera.lookAt(p.x, mix(p.y, p.y + 0.35, smooth(u)), p.z);
+      return p;
+    };
+  } else {
+    // final: na escrivaninha, o Davi cola os pedaços e escreve por cima "Eu tô aprendendo"
+    pieces.forEach(p => (p.visible = false)); d.tears.forEach(t => (t.visible = false));
+    const wood = std(0x7a5232, 0.6);
+    const DX = -4.0, DZ = 0.95;
+    const top = rb(2.0, 0.08, 0.9, 0.02, wood); top.position.set(DX, 1.42, DZ + 0.3); scene.add(top);
+    for (const [x, z] of [[-0.9, -0.15], [0.9, -0.15], [-0.9, 0.62], [0.9, 0.62]]) { const l = rb(0.08, 1.38, 0.08, 0.02, wood); l.position.set(DX + x, 0.69, DZ + z + 0.05); scene.add(l); }
+    const chairS = rb(0.95, 0.1, 0.9, 0.03, wood); chairS.position.set(DX, 0.62, DZ - 0.85); scene.add(chairS);
+    const chairB = rb(0.95, 1.0, 0.08, 0.03, wood); chairB.position.set(DX, 1.2, DZ - 1.28); scene.add(chairB);
+    for (const [x, z] of [[-0.4, -0.45], [0.4, -0.45], [-0.4, -1.25], [0.4, -1.25]]) { const l = rb(0.06, 0.6, 0.06, 0.02, wood); l.position.set(DX + x, 0.3, DZ + z); scene.add(l); }
+    const lampD = new THREE.PointLight(0xffc890, 6, 6, 2); lampD.position.set(DX + 0.8, 2.6, DZ + 0.6); scene.add(lampD);
+    const paperG = new THREE.Group(); paperG.position.set(DX, 1.465, DZ + 0.3); paperG.rotation.x = -Math.PI / 2; scene.add(paperG);
+    const quads = [[0, 0.5], [0.5, 0.5], [0, 0], [0.5, 0]].map(([ox, oy], i) => { const t = pt.clone(); t.needsUpdate = true; t.repeat.set(0.5, 0.5); t.offset.set(ox, oy); const m = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.4), new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 })); m.userData.home = V(ox ? 0.15 : -0.15, oy ? 0.2 : -0.2, 0); m.userData.from = V((i % 2 ? 0.5 : -0.5), (i < 2 ? 0.35 : -0.3), 0); paperG.add(m); return m; });
+    const tapeM = new THREE.MeshStandardMaterial({ color: 0xfff6d0, transparent: true, opacity: 0.6, roughness: 0.3 });
+    const tapes = [[0, 0, 0.08, 0.7, 0], [0, 0, 0.55, 0.08, 0]].map(([x, y, w, h]) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), tapeM.clone()); m.position.set(x, y, 0.002); paperG.add(m); return m; });
+    const write = canvasTex(512, 256, () => {}); const wc = write.userData.canvas;
+    const writeM = new THREE.Mesh(new THREE.PlaneGeometry(0.58, 0.29), new THREE.MeshBasicMaterial({ map: write, transparent: true, toneMapped: false })); writeM.position.set(0, -0.03, 0.004); writeM.rotation.z = 0.08; paperG.add(writeM);
+    const pen = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.32, 8), std(0x1f4ad8, 0.4)); scene.add(pen);
+    const TXT = 'Eu tô aprendendo'; let lastN = -1;
+    update = (T) => {
+      const e = expr(T), u = (T - T0) / (T1 - T0);
+      q.setGod(mix(0.7, 1.3, seg(T, 106, 110))); q.lamp.intensity = 6;
+      Q.pose('bed', { ...e, hx: 0, hy: 0, lean: 0, wipe: 0, knees: 0 }, T, 0);
+      d.body.rotation.set(0.03, 0, 0); d.root.rotation.set(0, 0, 0); setSitting(d, 1); d.root.position.set(DX, 0.45, DZ - 0.55);
+      d.arms.L.sh.rotation.set(-1.72, 0, 0.12); d.arms.L.elbow.rotation.set(0, 0, 0.2);
+      const wr = seg(T, 106.4, 109.2), wig = Math.sin(T * 22) * 0.04 * (wr > 0 && wr < 1 ? 1 : 0);
+      d.arms.R.sh.rotation.set(-1.72 + wig * 0.3, 0, mix(-0.05, 0.12, wr)); d.arms.R.elbow.rotation.set(0, 0, -0.2 + wig);
+      const lookUp = seg(T, 109.6, 110.3);
+      d.head.rotation.set(mix(0.5, 0.05, lookUp), mix(0, -0.35, lookUp), 0);
+      setFace(d, { open: blink(T), browUp: 0.5, browSad: 0, look: [mix(0, -0.5, lookUp), mix(-0.6, 0.2, lookUp)] }); d.setSmile(T > 109.4);
+      // os pedaços se juntam, a fita aparece, a frase é escrita
+      quads.forEach((m, i) => { const k = seg(T, 103.2 + i * 0.35, 103.9 + i * 0.35); m.position.copy(m.userData.from).lerp(m.userData.home, k); m.rotation.z = (1 - k) * (i % 2 ? 0.5 : -0.4); });
+      tapes.forEach((t, i) => { const k = seg(T, 105.0 + i * 0.6, 105.5 + i * 0.6); t.material.opacity = 0.6 * k; t.scale.set(i ? k : 1, i ? 1 : k, 1); });
+      const n = Math.floor(wr * 60);
+      if (n !== lastN) { const g = wc.getContext('2d'); g.clearRect(0, 0, 512, 256); g.fillStyle = '#1f4ad8'; g.font = 'italic 700 62px "Comic Sans MS", Arial'; g.textAlign = 'center'; const p = wr; g.save(); g.beginPath(); g.rect(0, 0, 512 * clamp(p / 0.35), 128); g.rect(0, 128, 512 * clamp((p - 0.35) / 0.65), 128); g.clip(); g.fillText('Eu tô', 256, 95); g.fillText('aprendendo', 256, 195); g.restore(); write.needsUpdate = true; lastN = n; }
+      d.root.updateMatrixWorld(true); const hr = handW(d, 'R'); pen.position.copy(hr).add(V(0.05, 0.02, 0.1)); pen.rotation.set(0.6, 0, -0.4);
+      words(200); WORDS.forEach(w => (w.m.material.opacity = 0)); GOOD.forEach(w => (w.m.material.opacity = seg(T, 109.5, 110.8)));
+      camera.up.set(0, 1, 0);
+      if (T < 109.3) { const k = smooth((T - 102.9) / 6.4); camera.position.set(DX + 0.05, mix(2.75, 2.5, k), DZ + mix(1.0, 0.85, k)); camera.lookAt(DX, 1.46, DZ + 0.28); return paperG.position.clone(); }
+      const k = smooth((T - 109.3) / 3.5); camera.position.set(DX + mix(0.7, 1.0, k), 2.7, DZ + mix(2.8, 3.6, k)); camera.lookAt(DX + 0.1, 2.05, DZ - 0.4);
+      return headW(d);
+    };
+  }
+} else if (CEN === 'theo') {
+  // "se o Theo tirasse seis...": o Theo triste com a prova; o Davi senta do lado e sorri para ele
+  scene.background = new THREE.Color(0xe8e0cc);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0xb8ad96, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 8, 0.2), std(0xdfe8d8, 0.95)); wall.position.set(0, 4, -3.4); scene.add(wall);
+  const board = rb(5, 2.2, 0.1, 0.03, std(0x2f5a44, 0.9)); board.position.set(0, 3.6, -3.25); scene.add(board);
+  const wood = std(0x9a6a42, 0.7), metal = std(0x4a5060, 0.5);
+  const desk = rb(4.2, 0.08, 0.9, 0.02, wood); desk.position.set(0, 1.32, 0.55); scene.add(desk);
+  for (const x of [-2.0, 2.0]) for (const z of [0.2, 0.9]) { const l = rb(0.06, 1.3, 0.06, 0.02, metal); l.position.set(x, 0.65, z); scene.add(l); }
+  for (const x of [-0.8, 0.8]) { const s = rb(0.95, 0.1, 0.9, 0.03, wood); s.position.set(x, 0.62, -0.55); scene.add(s); const b = rb(0.95, 0.9, 0.08, 0.03, wood); b.position.set(x, 1.15, -0.98); scene.add(b); }
+  const theo = kid(PALETTE.THEO); addGlasses(theo); const d = kid();
+  const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.56), new THREE.MeshStandardMaterial({ map: provaTex('Theo', '6,0'), roughness: 0.9 })); paper.rotation.set(-Math.PI / 2 + 0.25, 0, 0.1); paper.position.set(0.8, 1.38, 0.5); scene.add(paper);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb0a080, 1.0)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.3); sun.position.set(4, 8, 6); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    seat(theo, 0.8, -0.3, 0); seat(d, -0.8, -0.3, 0); [theo, d].forEach(k => { k.arms.L.sh.rotation.set(-0.25, 0, -0.1); k.arms.R.sh.rotation.set(-0.25, 0, 0.1); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.35; });
+    theo.body.rotation.x = 0.15; theo.head.rotation.set(0.45, 0, 0); setFace(theo, { open: 0.7 * blink(T, 1), browSad: 0.9, look: [0, -0.6] }); theo.setSmile(false);
+    const turn = seg(T, 24.6, 25.3);
+    d.head.rotation.set(0.05, mix(0, 0.55, turn), 0); setFace(d, { open: blink(T), browUp: 0.5, browSad: 0.3, look: [0.6 * turn, -0.1] }); d.setSmile(turn > 0.6);
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.6, 0.4, u), 2.6, mix(5.4, 4.6, smooth(u))); camera.lookAt(0.1, 1.9, -0.3);
+    return V(0, 2.1, -0.3);
+  };
+}
+finish(R, update, T0, CEN === 'theo' ? 0.28 : 0.5);
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 7 — "Por que eu não sinto nada quando oro?" (fé fria). Uso: ep07.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, PALETTE, stand, walk, setupRenderer, finish, quartoRig } from './serie.js';
+import { createIgreja } from './cenarios.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps789/ep07/envelopes.json');
+const SHOTS = {
+  SH01: [0, 8.4, 'joelhos'], SH02: [8.4, 13.5, 'quarto'], SH03: [13.5, 17.0, 'quarto'], SH04: [17.0, 22.2, 'culto'],
+  SH05: [22.2, 31.2, 'quarto'], SH06: [31.2, 42.5, 'montanha'], SH07: [42.5, 47.8, 'montanha'], SH08: [47.8, 57.0, 'quarto'],
+  SH09: [57.0, 68.4, 'quarto'], SH10: [68.4, 75.2, 'escuro'], SH11: [75.2, 88.0, 'quarto'], SH12: [88.0, 98.0, 'joelhos'],
+  SH13: [98.0, 104.04, 'quarto'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const expr = makeExpr(
+  { hx: 0.1, hy: -0.4, hz: 0, lean: 0.05, brUp: 0.1, brSad: 0.6, eyes: 0.9, lx: -0.5, ly: 0.2, tear: 0, god: 0.08, lamp: 0.55, smile: 0 },
+  [[0, {}],
+   [8.4, { brSad: -0.3, hx: 0.05, hy: -0.2, lx: -0.2, ly: 0 }], [13.6, { brSad: 0.5, hy: -0.6, lx: -0.8, ly: 0.4, god: 0.12 }],
+   [22.25, { brSad: 0.9, brUp: 0.3, eyes: 0.8, tear: 0.4, hx: 0.25, ly: -0.3 }], [24.7, { hy: -0.6, hx: 0, lx: -0.8, ly: 0.4, god: 0.18 }],
+   [28.9, { brSad: -0.2, tear: 0.3 }],
+   [47.9, { brUp: 0.7, brSad: 0.1, tear: 0, eyes: 1, god: 0.28 }], [54.6, { brUp: 0.6 }],
+   [57.2, { god: 0.35, hx: 0.1, ly: 0.2 }], [68.6, { brUp: 0.5, brSad: 0.3 }],
+   [75.4, { brSad: 0.7, brUp: 0.2 }], [77.8, { god: 0.55, brSad: 0.3, brUp: 0.5 }], [84.2, { god: 0.8, smile: 1 }],
+   [88.2, { god: 0.95, smile: 0 }], [93.5, { smile: 1, god: 1.15 }], [98.0, { god: 1.25, lamp: 0.25, smile: 1, brUp: 0.6, brSad: 0 }], [110, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+
+if (CEN === 'quarto' || CEN === 'joelhos') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.35 * deus); q.lamp.intensity = 9 * e.lamp;
+    if (CEN === 'joelhos') { // de joelhos na cama, mãos juntas
+      Q.pose('bed', e, T, talk); setSitting(d, 0);
+      d.legs.forEach(({ hip, knee }) => { hip.rotation.x = 0; knee.rotation.x = 1.55; });
+      d.root.position.set(q.bed.x - 0.1, 0.86, q.bed.z + 0.5); // joelhos em cima do colchão d.root.rotation.y = -0.2;
+      d.body.rotation.x = 0.1;
+      pray(d);
+      const opening = SHOT === 'SH01' ? seg(T, 4.4, 5.0) : 0; // abre os olhos frustrado no começo
+      d.head.rotation.set(mix(0.35, 0.1, opening), mix(0, -0.4, opening), 0);
+      setFace(d, { open: SHOT === 'SH01' ? mix(0.08, 0.9, opening) : (T < 93.5 ? 0.08 : 0.08), talk, browSad: SHOT === 'SH01' ? 0.5 : 0.1, browUp: SHOT === 'SH12' ? 0.4 : 0, look: [-0.6, 0.3] });
+      d.setSmile(talk < 0.06 && SHOT === 'SH12' && T > 93.5);
+      const h = headW(d); camera.up.set(0, 1, 0);
+      camera.position.set(h.x + mix(2.6, 2.2, u), h.y + 0.5, h.z + mix(3.4, 2.8, u)); camera.lookAt(h.x - 0.2, h.y - 0.6, h.z);
+      return h;
+    }
+    Q.pose('bed', e, T, talk);
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH02': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.3);
+      case 'SH03': Q.camMove('MED', 'MED', u, 0.2, 0.5); return h;
+      case 'SH05': return Q.camMove('CLOSE2', 'CLOSE', smooth(u), 0, 0.2);
+      case 'SH08': Q.camMove('MED', 'MED', u, 0.3, 0.7); return h;
+      case 'SH09': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.8); return h;
+      case 'SH11': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.45);
+      case 'SH13': Q.camMove('MED', 'WIDE', smooth(u), 0.2, 0.3); return h;
+    }
+    return h;
+  };
+} else if (CEN === 'culto') {
+  // lembrança: culto cheio, todo mundo de mãos levantadas; o Davi no meio, parado
+  const ig = createIgreja(scene);
+  const ops = [PALETTE.LUCAS, PALETTE.THEO, PALETTE.MAE, PALETTE.PAI, { ...PALETTE.THEO, shirt: 0xe74c3c, shirtDark: 0xc0392b }, { ...PALETTE.LUCAS, shirt: 0xf1c40f, shirtDark: 0xd4ac0d }];
+  const people = ops.map(o => { const k = addSmile(createDavi(o)); scene.add(k.root); stand(k); return k; });
+  const d = addSmile(createDavi()); scene.add(d.root); stand(d);
+  const spots = [[-3.7, -0.25], [-1.7, -0.25], [1.7, -0.25], [3.7, -0.25], [-2.6, 1.75], [2.6, 1.75]]; // entre as fileiras de bancos
+  people.forEach((k, i) => { k.root.position.set(spots[i][0], 0, spots[i][1]); k.root.rotation.y = Math.PI; });
+  d.root.position.set(0, 0, 1.75); d.root.rotation.y = Math.PI; // no corredor
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    people.forEach((k, i) => { const w = Math.sin(T * 1.5 + i) * 0.15; k.arms.R.sh.rotation.set(0, 0, 2.7 + w * 0.3); k.arms.L.sh.rotation.set(0, 0, -2.7 - w * 0.3); k.head.rotation.x = -0.25; }); // braços para cima, sem invadir o vizinho
+    d.head.rotation.set(0.1, Math.sin(T * 0.8) * 0.3, 0); setFace(d, { open: blink(T), browSad: 0.6, look: [Math.sin(T * 0.8) * 0.5, 0] });
+    // câmera do altar olhando a congregação
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.6, 0.2, u), 3.0, mix(-5.2, -4.4, u)); camera.lookAt(0, 2.0, 1.2);
+    return headW(d);
+  };
+} else if (CEN === 'montanha') {
+  // Elias na montanha: vento, terremoto, fogo — e depois a brisa suave
+  scene.background = new THREE.Color(0x2a2f44); scene.fog = new THREE.Fog(0x2a2f44, 18, 60);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), std(0x6a5a48, 1)); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+  const rockM = std(0x7a6a58, 0.95);
+  for (const [x, z, s] of [[0, -14, 9], [-9, -18, 7], [10, -20, 8], [-3, -8, 3.4], [4, -9, 2.6]]) { const m = new THREE.Mesh(new THREE.ConeGeometry(s, s * 1.6, 5), rockM); m.position.set(x, s * 0.8, z); scene.add(m); }
+  const cave = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24), std(0x0a0a0c, 1)); cave.position.set(-0.6, 1.4, -6.9); scene.add(cave);
+  const eli = addSmile(createDavi({ skin: 0x9a6644, skinDark: 0x845436, hair: 0x3a3a3a, shirt: 0x8a7a5a, shirtDark: 0x7a6a4a, pants: 0x6a5a40, curls: true }));
+  eli.root.scale.setScalar(1.25); scene.add(eli.root); stand(eli); eli.root.position.set(-0.4, 0, -5.6);
+  const beard = rb(0.8, 0.45, 0.2, 0.1, std(0x5a5a5a, 0.9)); beard.position.set(0, -0.42, 0.5); eli.head.add(beard);
+  const hemi = new THREE.HemisphereLight(0x8a9ad8, 0x2a2018, 0.7); scene.add(hemi);
+  const key = new THREE.DirectionalLight(0xb8c4ff, 1.6); key.position.set(3, 6, 8); key.castShadow = true; scene.add(key);
+  const fireL = new THREE.PointLight(0xff7a2a, 0, 25, 2); fireL.position.set(1.5, 2, -3); scene.add(fireL);
+  const warm = new THREE.PointLight(0xffd59a, 0, 14, 2); warm.position.set(-0.4, 3.5, -3.5); scene.add(warm);
+  const streaks = [...Array(60)].map(() => { const s = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.03), new THREE.MeshBasicMaterial({ color: 0xd8dcff, transparent: true, opacity: 0 })); scene.add(s); return s; });
+  const flames = [...Array(40)].map(() => { const s = glowSprite(1.2, 0); s.material.color.set(0xff7a2a); scene.add(s); return s; });
+  const rocks = [...Array(14)].map(() => { const r = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3), rockM); scene.add(r); return r; });
+  const leaf = rb(0.35, 0.03, 0.2, 0.02, std(0x5aa84a, 0.6)); leaf.position.set(2.2, 1.0, -3.6); scene.add(leaf);
+  const soft = glowSprite(6, 0); soft.position.set(-0.4, 3.2, -7.2); scene.add(soft);
+  let rnd = 3; const R1 = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; };
+  const sd = streaks.map(() => [R1() * 20 - 10, R1() * 5 + 0.3, -R1() * 10 - 1, R1()]), fd = flames.map(() => [R1() * 8 - 4, R1() * 3 - 6, R1()]), rd = rocks.map(() => [R1() * 10 - 5, R1() * 6 - 9, R1()]);
+  update = (T) => {
+    const wind = seg(T, 32.0, 32.8) * (1 - seg(T, 37.4, 37.9)), quake = seg(T, 37.9, 38.2) * (1 - seg(T, 40.3, 40.7)), fire = seg(T, 40.4, 41.0) * (1 - seg(T, 42.3, 42.9)), calm = seg(T, 42.9, 44.0);
+    streaks.forEach((s, i) => { const [x, y, z, p] = sd[i]; s.position.set(((x + T * 28 * (0.7 + p)) % 24) - 12, y, z); s.material.opacity = 0.55 * wind; });
+    flames.forEach((s, i) => { const [x, z, p] = fd[i]; const life = (T * (0.8 + p) + p) % 1; s.position.set(x, 0.3 + life * 4, z); s.material.opacity = fire * (1 - life); s.scale.setScalar(1.6 * (1 - life * 0.5)); });
+    rocks.forEach((r, i) => { const [x, z, p] = rd[i]; const fall = ((T * 1.3 + p) % 1); r.position.set(x, 8 - fall * 8, z); r.visible = quake > 0.3; r.rotation.set(T * 3 + p, T * 2, 0); });
+    fireL.intensity = 60 * fire * (0.8 + 0.2 * Math.sin(T * 30)); warm.intensity = 14 * calm; soft.material.opacity = 0.3 * calm;
+    hemi.intensity = mix(0.7, 0.9, calm); scene.background.set(calm > 0.5 ? 0x3a3550 : 0x2a2f44);
+    leaf.rotation.set(Math.sin(T * 2) * 0.3 * calm, 0, Math.sin(T * 1.7) * 0.2 * calm); leaf.position.y = 1.0 + Math.sin(T * 1.3) * 0.08 * calm;
+    eli.head.rotation.set(-0.15 * calm, Math.sin(T * 0.6) * 0.2 * (1 - calm), 0); eli.arms.R.sh.rotation.set(-0.3 * wind, 0, 0.2 + 0.4 * wind); eli.arms.L.sh.rotation.set(-0.3 * wind, 0, -0.2 - 0.4 * wind);
+    setFace(eli, { open: mix(1, 0.6, calm) * blink(T), browUp: mix(0.9, 0.4, calm), browSad: 0.2 * wind, look: [0, 0.2] }); eli.setSmile(calm > 0.5);
+    const sh = quake * 0.12; const u = (T - T0) / (T1 - T0);
+    camera.up.set(0, 1, 0);
+    if (SHOT === 'SH06') { camera.position.set(mix(2.2, 1.6, u) + (Math.random() - 0.5) * sh, 2.8 + (Math.random() - 0.5) * sh, mix(0.8, -0.4, u)); camera.lookAt(-0.4, 2.4, -5.6); }
+    else { camera.position.set(mix(2.4, 2.0, u), 2.8, mix(1.4, 0.7, u)); camera.lookAt(-0.3, 2.5, -5.6); }
+    return headW(eli);
+  };
+} else if (CEN === 'escuro') {
+  // fé: andar no escuro segurando a mão que você não vê
+  scene.background = new THREE.Color(0x05060c); scene.fog = new THREE.Fog(0x05060c, 4, 18);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), std(0x15161e, 1)); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+  const path = []; for (let i = 0; i < 30; i++) { const s = rb(0.9, 0.02, 0.6, 0.01, std(0x3a3a46, 0.9)); s.position.set(Math.sin(i * 0.4) * 0.6, 0.01, -i * 0.9 + 6); scene.add(s); path.push(s); }
+  const d = addSmile(createDavi()); scene.add(d.root);
+  const hand = glowSprite(1.2, 1); scene.add(hand); const handL = new THREE.PointLight(0xffd59a, 6, 6, 2); scene.add(handL);
+  scene.add(new THREE.HemisphereLight(0x4a5070, 0x050508, 0.55));
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0), z = 4 - (T - T0) * 0.7;
+    d.root.position.set(Math.sin((6 - z) / 0.9 * 0.4) * 0.6 - 0.35, 0.1, z); d.root.rotation.y = Math.PI; walk(d, T * 7, 0.8);
+    d.arms.L.sh.rotation.set(-0.5, 0, -0.5); d.arms.L.elbow.rotation.x = -0.2; // braço estendido segurando a mão de luz
+    setFace(d, { open: blink(T), browUp: 0.4, look: [0.3, 0] }); d.setSmile(T > 72.5); d.head.rotation.set(0, -0.3, 0);
+    d.root.updateMatrixWorld(true); const hp = d.arms.L.hand.getWorldPosition(new THREE.Vector3());
+    hand.position.copy(hp).add(V(-0.25, 0.05, 0)); hand.material.opacity = 0.85 + 0.15 * Math.sin(T * 3); handL.position.copy(hand.position).add(V(0, 0.5, 0.3));
+    camera.up.set(0, 1, 0); camera.position.set(d.root.position.x + 2.0, 2.6, d.root.position.z - mix(4.5, 3.8, u)); camera.lookAt(d.root.position.x - 0.2, 1.7, d.root.position.z);
+    return headW(d);
+  };
+}
+finish(R, update, T0, CEN === 'culto' ? 0.3 : 0.5);
+</script>
+</body>
+</html>

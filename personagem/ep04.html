@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 4 — "Por que eu não sou como eles?" (comparação). Uso: ep04.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, canvasTex, loadEnv, makeExpr,
+  addSmile, addGlasses, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+import { createEscola } from './cenarios.js';
+await document.fonts.load('800 40px Montserrat');
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps345/ep04/envelopes.json');
+const SHOTS = {
+  SH01: [0, 6.0, 'quarto'], SH02: [6.0, 12.2, 'quarto'], SH03: [12.2, 16.4, 'quarto'], SH04: [16.4, 25.3, 'quarto'],
+  SH05: [25.3, 38.4, 'espelho'], SH06: [38.4, 49.4, 'quarto'], SH07: [49.4, 55.0, 'lucas'], SH08: [55.0, 59.5, 'quarto'],
+  SH09: [59.5, 62.1, 'quarto'], SH10: [62.1, 66.0, 'escola'], SH11: [66.0, 71.0, 'quarto'], SH12: [71.0, 78.6, 'quarto'],
+  SH13: [78.6, 91.38, 'quarto'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const expr = makeExpr(
+  { hx: 0.35, hy: 0, hz: 0, lean: 0.08, brUp: 0.1, brSad: 0.5, eyes: 0.9, lx: 0, ly: -0.6, tear: 0, god: 0.2, lamp: 0.35, phone: 1, down: 0, heart: 0, pray: 0, smile: 0 },
+  [[0, {}],
+   [16.4, { hy: -0.55, hx: 0, lx: -0.8, ly: 0.3, brUp: 0.3 }], [18.79, { brUp: 0.8, brSad: 0 }], [22.11, { brSad: -0.4, brUp: 0, hx: 0.1 }],
+   [38.4, { hx: 0.35, hy: 0, lx: 0, ly: -0.6, brSad: 0.7, brUp: 0.1, god: 0.3 }], [40.9, { hy: -0.55, lx: -0.8, ly: 0.3, hx: 0, brSad: 0.4 }],
+   [49.7, { brUp: 0.7 }], [55.0, { heart: 1, god: 0.6, brSad: 0.2 }], [58.9, { heart: 0 }], [59.7, { brUp: 0.5, brSad: 0.5 }],
+   [66.0, { pray: 1, phone: 0, hx: 0.25, hy: -0.4, eyes: 0.15, brSad: 0.2, god: 0.75, lamp: 0.25 }],
+   [71.0, { pray: 0, phone: 1, eyes: 0.9, brSad: 0.6, ly: -0.6, hx: 0.35, hy: 0, lx: 0, god: 0.5 }],
+   [73.1, { hy: -0.5, lx: -0.8, ly: 0.3, hx: 0, brSad: 0.3 }], [74.4, { down: 1 }],
+   [77.54, { brUp: 1, brSad: 0, eyes: 1 }], [78.9, { god: 1.2, smile: 1, lamp: 0.2, brUp: 0.6 }], [100, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+
+// ---------- tela do celular (feed / galeria) desenhada em canvas
+const SCR = canvasTex(360, 640, () => {}); const sc = SCR.userData.canvas, g = sc.getContext('2d');
+const POSTS = [['#ff9a8b', '#ff6a88', '18,4 mil'], ['#8ec5fc', '#e0c3fc', '9,7 mil'], ['#f6d365', '#fda085', '32,1 mil'], ['#84fab0', '#8fd3f4', '12,9 mil'], ['#a18cd1', '#fbc2eb', '41,3 mil'], ['#fccb90', '#d57eeb', '7,2 mil']];
+function person(x, y, s, skin, hair) { // silhueta simples em blocos
+  g.fillStyle = skin; g.fillRect(x - s * 0.5, y - s * 0.5, s, s); g.fillStyle = hair; g.fillRect(x - s * 0.55, y - s * 0.62, s * 1.1, s * 0.3);
+  g.fillStyle = '#fff'; g.fillRect(x - s * 0.3, y - s * 0.1, s * 0.18, s * 0.16); g.fillRect(x + s * 0.12, y - s * 0.1, s * 0.18, s * 0.16);
+  g.fillStyle = '#5a2a20'; g.fillRect(x - s * 0.18, y + s * 0.2, s * 0.36, s * 0.06);
+  g.fillStyle = 'rgba(255,255,255,0.85)'; g.fillRect(x - s * 0.7, y + s * 0.55, s * 1.4, s * 0.7);
+}
+function heart(x, y, s, c) { g.fillStyle = c; g.beginPath(); g.moveTo(x, y + s * 0.3); g.bezierCurveTo(x - s, y - s * 0.4, x - s * 0.4, y - s, x, y - s * 0.4); g.bezierCurveTo(x + s * 0.4, y - s, x + s, y - s * 0.4, x, y + s * 0.3); g.fill(); }
+function drawFeed(T) {
+  g.fillStyle = '#0d0d12'; g.fillRect(0, 0, 360, 640);
+  const off = (T * 140) % (POSTS.length * 330);
+  for (let k = -1; k < 4; k++) {
+    const idx = ((Math.floor(off / 330) + k) % POSTS.length + POSTS.length) % POSTS.length, y = 60 + k * 330 - (off % 330);
+    const [a, b, likes] = POSTS[idx];
+    g.fillStyle = '#2a2a33'; g.beginPath(); g.arc(30, y + 18, 13, 0, 7); g.fill(); g.fillStyle = '#ddd'; g.fillRect(52, y + 12, 90, 10);
+    const gr = g.createLinearGradient(0, y + 40, 360, y + 280); gr.addColorStop(0, a); gr.addColorStop(1, b); g.fillStyle = gr; g.fillRect(0, y + 40, 360, 240);
+    person(180, y + 150, 70, ['#e9c2a0', '#c68e62', '#f3d4b8'][idx % 3], ['#b07a3a', '#2a1a10', '#d9a54a'][idx % 3]);
+    heart(24, y + 300, 13, '#ff3b5c'); g.fillStyle = '#fff'; g.font = '800 17px Montserrat'; g.fillText(likes, 46, y + 306);
+  }
+  g.fillStyle = '#0d0d12'; g.fillRect(0, 0, 360, 44); g.fillStyle = '#fff'; g.font = '800 20px Montserrat'; g.fillText('Para você', 120, 30);
+  SCR.needsUpdate = true;
+}
+function drawGallery(T) { // 10 selfies apagadas uma a uma
+  g.fillStyle = '#0d0d12'; g.fillRect(0, 0, 360, 640); g.fillStyle = '#fff'; g.font = '800 20px Montserrat'; g.fillText('Fotos', 145, 30);
+  for (let i = 0; i < 10; i++) {
+    const del = clamp((T - (12.5 + i * 0.32)) / 0.25); if (del >= 1) continue;
+    const x = 12 + (i % 3) * 114, y = 56 + Math.floor(i / 3) * 140;
+    g.globalAlpha = 1 - del; g.fillStyle = ['#3b4a6b', '#4a3b5c', '#2f4f4f'][i % 3]; g.fillRect(x, y, 108, 134);
+    person(x + 54, y + 60, 46, '#a8714b', '#17110f');
+    if (del > 0) { g.fillStyle = 'rgba(255,40,60,0.85)'; g.fillRect(x, y, 108, 134); g.fillStyle = '#fff'; g.font = '800 40px Montserrat'; g.fillText('🗑', x + 34, y + 82); }
+    g.globalAlpha = 1;
+  }
+  SCR.needsUpdate = true;
+}
+function makePhone() {
+  const ph = new THREE.Group();
+  const body = rb(0.36, 0.64, 0.05, 0.04, std(0x15151a, 0.4)); ph.add(body);
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.58), new THREE.MeshBasicMaterial({ map: SCR, toneMapped: false })); screen.position.z = 0.027; ph.add(screen);
+  const light = new THREE.PointLight(0xbcd4ff, 1.0, 2.0, 2); light.position.z = 0.3; ph.add(light);
+  ph.screen = screen; ph.light = light; scene.add(ph); return ph;
+}
+// segura o celular com as duas mãos, tela virada para o rosto
+function holdPhone(k, ph, amt = 1) {
+  k.arms.R.sh.rotation.set(mix(-0.35, -1.05, amt), 0, mix(0.08, 0.32, amt)); k.arms.R.elbow.rotation.x = mix(-0.8, -0.95, amt);
+  k.arms.L.sh.rotation.set(mix(-0.35, -1.05, amt), 0, mix(-0.08, -0.32, amt)); k.arms.L.elbow.rotation.x = mix(-0.8, -0.95, amt);
+  k.root.updateMatrixWorld(true);
+  const a = k.arms.R.hand.getWorldPosition(new THREE.Vector3()), b = k.arms.L.hand.getWorldPosition(new THREE.Vector3());
+  ph.position.copy(a).add(b).multiplyScalar(0.5).add(V(0, 0.12, 0)); ph.lookAt(headW(k));
+}
+
+if (CEN === 'quarto' || CEN === 'lucas') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  const ph = makePhone();
+  const heartG = glowSprite(0.9, 0); scene.add(heartG);
+  let lu = null;
+  if (CEN === 'lucas') { d.root.visible = false; lu = addSmile(createDavi(PALETTE.LUCAS)); scene.add(lu.root); q.lamp.color.set(0xa0b8ff); }
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    if (CEN === 'lucas') { // o Lucas sozinho no quarto, apagando fotos também
+      q.setGod(0.15); q.lamp.intensity = 2;
+      setSitting(lu, 1); lu.root.position.copy(Q.BED); lu.root.rotation.y = -0.45; lu.head.rotation.set(0.35, 0, 0);
+      setFace(lu, { open: 0.8 * blink(T), browSad: 0.8, look: [0, -0.6] }); lu.tears.forEach(t => (t.visible = false));
+      holdPhone(lu, ph); ph.light.intensity = 0.5; drawGallery(12.5 + ((T - 49.4) % 3.2));
+      const h = headW(lu); camera.up.set(0, 1, 0); camera.position.set(h.x + 1.4, h.y + 0.2, h.z + mix(3.4, 2.9, u)); camera.lookAt(h.x, h.y - 0.5, h.z);
+      return h;
+    }
+    Q.pose('bed', { ...e, hx: e.hx, knees: 0 }, T, talk);
+    d.body.rotation.x = e.lean;
+    // celular: nas mãos, apoiado na cama (tela para baixo) ou escondido (oração)
+    if (e.down > 0.01) {
+      const p0 = (() => { holdPhone(d, ph, 1 - e.down); return ph.position.clone(); })();
+      const tgt = Q.BED.clone().add(V(0.75, 0.24, 0.35));
+      ph.position.copy(p0.lerp(tgt, e.down)); ph.rotation.set(mix(ph.rotation.x, Math.PI / 2, e.down), 0, 0);
+      ph.screen.material.color.setScalar(1 - e.down); ph.light.intensity = 1.0 * (1 - e.down);
+    } else if (e.phone > 0.5) { holdPhone(d, ph); ph.screen.material.color.setScalar(1); ph.light.intensity = SHOT === 'SH02' || SHOT === 'SH03' ? 0 : 1.0; }
+    ph.visible = e.phone > 0.5 || e.down > 0.01;
+    if (e.pray > 0.5) { // mãos juntas, olhos fechados
+      pray(d);
+    }
+    if (SHOT === 'SH03') drawGallery(T); else drawFeed(T);
+    if (SHOT === 'SH02' || SHOT === 'SH03') { ph.updateMatrixWorld(true); d.root.visible = false; }
+    // coração brilhando no peito
+    d.root.updateMatrixWorld(true);
+    const chest = d.body.localToWorld(V(-0.1, d.hipY + 0.5, 0.35));
+    heartG.position.copy(chest); heartG.material.opacity = e.heart * (0.75 + 0.25 * Math.sin(T * 4)); heartG.scale.setScalar(0.7 + 0.15 * Math.sin(T * 4));
+    const h = headW(d);
+    const screenCam = (dist) => { ph.updateMatrixWorld(true); const qp = ph.getWorldQuaternion(new THREE.Quaternion()); const n = V(0, 0, 1).applyQuaternion(qp), up = V(0, 1, 0).applyQuaternion(qp); camera.up.copy(up); camera.position.copy(ph.position).addScaledVector(n, dist); camera.lookAt(ph.position); return ph.position.clone(); };
+    switch (SHOT) {
+      case 'SH01': Q.camMove('MED', 'MED', u, 0, 0.6); return h;
+      case 'SH02': case 'SH03': return screenCam(mix(1.0, 0.9, u));
+      case 'SH04': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.35);
+      case 'SH06': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.7); return h;
+      case 'SH08': { Q.camMove('MED', 'MED', u, 0.5, 0.9); return chest; }
+      case 'SH09': return Q.camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+      case 'SH11': Q.camMove('WIDE', 'WIDE', u, 0.8, 1.6); return h;
+      case 'SH12': Q.camMove('MED', 'MED', u, 0.3, 0.6); return h;
+      case 'SH13': Q.camMove('CLOSE', 'WIDE', smooth(u), 0.3, 0.2); return h;
+    }
+    return h;
+  };
+} else if (CEN === 'espelho') {
+  // parede com espelho; o "reflexo" é um segundo Davi espelhado atrás da moldura
+  scene.background = new THREE.Color(0x0b0d16);
+  const wallM = std(0x2c3150, 0.95);
+  const parts = [[-6, -0.9, 0, 7], [0.9, 6, 0, 7], [-0.9, 0.9, 0, 1.2], [-0.9, 0.9, 3.9, 7]];
+  for (const [x0, x1, y0, y1] of parts) { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, 0.15), wallM); m.position.set((x0 + x1) / 2, (y0 + y1) / 2, 0); scene.add(m); }
+  const frame = std(0xc9a46a, 0.4, { metalness: 0.4 });
+  for (const [w, h, x, y] of [[2.0, 0.12, 0, 3.95], [2.0, 0.12, 0, 1.15], [0.12, 2.9, -0.95, 2.55], [0.12, 2.9, 0.95, 2.55]]) { const b = rb(w, h, 0.12, 0.03, frame); b.position.set(x, y, 0.06); scene.add(b); }
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), std(0x3a3040, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  // o "outro lado" do espelho: um quarto escuro igual
+  const back = new THREE.Mesh(new THREE.BoxGeometry(8, 7, 0.1), std(0x262a44, 0.95)); back.position.set(0, 3.5, -3.6); scene.add(back);
+  const d = addSmile(createDavi()); scene.add(d.root); stand(d); d.root.position.set(0, 0, 1.25); d.root.rotation.y = Math.PI;
+  const m = addSmile(createDavi()); scene.add(m.root); stand(m); m.root.position.set(0, 0, -1.25); m.root.scale.x = -1;
+  scene.add(new THREE.HemisphereLight(0x8a9ad8, 0x1a1420, 0.5));
+  const lamp = new THREE.PointLight(0xffd9b0, 9, 8, 2); lamp.position.set(0.8, 3.6, 2.2); scene.add(lamp);
+  const lampM = new THREE.PointLight(0xffd9b0, 9, 8, 2); lampM.position.set(0.8, 3.6, -2.2); scene.add(lampM);
+  const godL = new THREE.SpotLight(0xffd59a, 0, 14, 0.5, 0.6, 1.2); godL.position.set(-3, 5, -2.5); godL.target = m.root; scene.add(godL);
+  const glow = glowSprite(3.2, 0); glow.position.set(0, 2.6, -2.2); scene.add(glow);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0), deus = ENV.deus(T);
+    const cover = 1 - seg(T, 30.4, 31.6); // mão no rosto até "Eu te formei"
+    const look = seg(T, 31.6, 33.0);
+    for (const k of [d, m]) {
+      k.arms.R.sh.rotation.set(0, 0, 0.08); k.arms.R.elbow.rotation.x = 0; k.arms.L.sh.rotation.set(0, 0, -0.08); k.arms.L.elbow.rotation.x = 0;
+      k.head.rotation.set(mix(0.55, -0.02, look) * mix(1, 1, cover), 0, 0); // cabeça baixa, depois olha o reflexo
+      setFace(k, { open: mix(0.6, 1, look) * blink(T), browSad: mix(0.8, 0.2, look), browUp: mix(0, 0.6, look), look: [0, mix(-0.5, 0, look)] });
+      k.setSmile(T > 35.8);
+    }
+    const lightUp = seg(T, 31.3, 34.0);
+    godL.intensity = (80 + 60 * deus) * lightUp; glow.material.opacity = (0.35 + 0.2 * deus) * lightUp;
+    // por cima do ombro, olhando o reflexo
+    camera.up.set(0, 1, 0); camera.position.set(mix(1.9, 1.6, u), 2.6, mix(3.8, 3.2, smooth(u))); camera.lookAt(-0.35, 2.3, -1.25);
+    return headW(m);
+  };
+} else if (CEN === 'escola') {
+  // lembrança: o Davi e o Theo no banco (episódio 2)
+  const es = createEscola(scene);
+  const d = addSmile(createDavi()); scene.add(d.root); const th = addSmile(createDavi(PALETTE.THEO)); addGlasses(th); scene.add(th.root);
+  const sit = (k, dx) => { setSitting(k, 1); const p = V(dx, 0.67, 0.08).applyAxisAngle(V(0, 1, 0), es.benchB.rotation.y).add(es.benchB.position); k.root.position.copy(p); k.root.rotation.y = es.benchB.rotation.y; k.arms.L.sh.rotation.x = k.arms.R.sh.rotation.x = -0.45; k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; };
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    sit(d, -0.95); sit(th, 0.95);
+    d.head.rotation.set(0.05, 0.5, 0); th.head.rotation.set(0, -0.5, 0);
+    setFace(d, { open: blink(T), browUp: 0.6, look: [0.6, 0] }); d.setSmile(true);
+    setFace(th, { open: blink(T, 1), browUp: 0.6, look: [-0.6, 0] }); th.setSmile(true);
+    const c = es.benchB.position.clone().add(V(0, 1.5, 0));
+    camera.up.set(0, 1, 0); camera.position.set(c.x + 0.6, 2.3, c.z + mix(7.6, 6.6, u)); camera.lookAt(c.x + 0.1, 1.75, c.z);
+    return c;
+  };
+}
+finish(R, update, T0, CEN === 'escola' ? 0.25 : 0.5);
+</script>
+</body>
+</html>

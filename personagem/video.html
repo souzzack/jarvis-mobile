@@ -1,0 +1,201 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0a0706; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { createStudio, keyPos, W, H } from './estudio.js';
+import { createMascot } from './mascote.js';
+import { telaTimeline, telaMotion, telaAntesDepois, telaFinal } from './telas.js';
+
+// Animação das 5 cenas. Uso: video.html?shot=N; depois window.frame(t) com t em segundos (0–6).
+const Q = new URLSearchParams(location.search);
+const shot = Number(Q.get('shot'));
+const SAMPLES = Number(Q.get('samples') ?? 4), SSCALE = Number(Q.get('ss') ?? 1.5), SHADOW = Number(Q.get('shadow') ?? 2048);
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => smooth((t - a) / (b - a));
+const mix = (a, b, k) => a + (b - a) * k;
+
+const STAND = { armR: 0, armL: -0.25, rp: [1.42, 1.06, 0.36], rr: [0, 0, -0.06], ry: -0.01 };
+const POINT = { armR: 0.6, armL: -0.45, rp: [1.33, 1.31, 0.31], rr: [-0.55, 0, -0.45], ry: 0.6 };
+const SHOULDER = { armR: 1.0, armL: -0.25, rp: [1.22, 1.41, 0.3], rr: [-0.45, 0, -0.4], ry: 0.85 };
+function pose(m, A, B, k) {
+  m.armR.rotation.z = mix(A.armR, B.armR, k);
+  m.armL.rotation.z = mix(A.armL, B.armL, k);
+  m.rulerPivot.position.set(...A.rp.map((v, i) => mix(v, B.rp[i], k)));
+  m.rulerPivot.rotation.set(...A.rr.map((v, i) => mix(v, B.rr[i], k)));
+  m.ruler.position.y = mix(A.ry, B.ry, k);
+}
+function eyes(m, open) {
+  m.eyes.forEach(({ eye, s1, s2 }) => { eye.scale.y = Math.max(0.08, open); s1.visible = s2.visible = open > 0.5; });
+}
+const blink = (t, at) => 1 - Math.max(0, 1 - Math.abs(t - at) / 0.07);
+function star(m, v) { m.star.material.emissiveIntensity = 5 * v; m.starLight.intensity = 6 * v; }
+function sit(m, s) {
+  const drop = (m.legH - 0.19) * s;
+  m.body.position.y = -drop;
+  m.legs.forEach(l => { l.rotation.x = -Math.PI / 2 * s; l.position.y = m.legH - drop; l.visible = l.position.z > 0 || s < 0.6; });
+}
+function walk(m, phase, amount) {
+  m.legs.forEach((l, i) => { l.rotation.x = Math.sin(phase + (i % 2 ? Math.PI : 0)) * 0.35 * amount; });
+  m.body.position.y = Math.abs(Math.sin(phase)) * 0.05 * amount;
+}
+
+const SHOTS = {
+  1: { screen: telaTimeline, pressedKey: [3, 6] },
+  2: { screen: telaTimeline },
+  3: { screen: telaMotion },
+  4: { screen: (g, w, h) => telaAntesDepois(g, w, h, { chips: 0 }) },
+  5: { screen: telaFinal, screenIntensity: 0.55, finale: true },
+};
+const S = SHOTS[shot];
+const studio = createStudio({ drawScreen: S.screen, screenIntensity: S.screenIntensity ?? 0.95, pressedKey: S.pressedKey ?? null, showMug: !S.finale, screenScale: SSCALE, shadowSize: SHADOW });
+const { scene } = studio;
+const m = createMascot();
+scene.add(m.root);
+const camera = new THREE.PerspectiveCamera(shot === 1 ? 36 : 40, W / H, 0.1, 200);
+
+let update;
+if (shot === 1) {
+  // ----- O despertar: a estrela acende, olha para a câmera e bate a régua na tecla
+  const kp = studio.pressed.pos;
+  m.root.rotation.y = 0.5;
+  m.root.position.set(kp.x - 1.42, kp.y, kp.z + 0.36);   // a ponta da régua fica sobre a tecla
+  const target = new THREE.Vector3(m.root.position.x + 0.2, 2.75, m.root.position.z);
+  const P = studio.pressed;
+  update = (t) => {
+    pose(m, STAND, STAND, 0);
+    star(m, seg(t, 0.9, 1.5));
+    eyes(m, seg(t, 1.2, 1.45) * blink(t, 2.7));
+    m.head.rotation.x = mix(0.28, -0.04, seg(t, 1.5, 2.4));
+    m.head.rotation.z = mix(0, 0.07, seg(t, 2.0, 2.7));
+    // levanta a régua e bate
+    const lift = seg(t, 3.0, 3.35) * (1 - seg(t, 3.35, 3.5));
+    m.rulerPivot.position.y = 1.06 + lift * 0.45;
+    m.armR.rotation.z = lift * 0.35;
+    const hit = seg(t, 3.47, 3.53);
+    const glow = hit * (1 - 0.4 * seg(t, 3.6, 4.4));
+    P.key.position.y = mix(0.58, 0.5, hit * (1 - 0.6 * seg(t, 3.7, 4.0)));
+    P.legend.position.y = P.key.position.y + 0.121;
+    P.mat.emissiveIntensity = 1.4 * glow; P.light.intensity = 9 * glow;
+    // a tela acende de baixo para cima (intensidade)
+    const sc = mix(0.06, 0.95, seg(t, 3.6, 5.2));
+    studio.display.material.emissiveIntensity = sc;
+    studio.screenLightRect.intensity = 2.2 * sc / 0.95;
+    const ang = 0.6, dist = mix(10.2, 9.6, t / 6);
+    camera.position.set(target.x + Math.sin(ang) * dist, 3.0, target.z + Math.cos(ang) * dist);
+    camera.lookAt(target);
+    return target;
+  };
+} else if (shot === 2) {
+  // ----- Caminha sobre o teclado e aponta para os clipes
+  const p = keyPos(3, 5);
+  update = (t) => {
+    const w = seg(t, 0, 2.0);
+    m.root.position.set(p.x - 2.3 * (1 - w), p.y, p.z);
+    const walking = t < 2.1 ? 1 - seg(t, 1.7, 2.1) : 0;
+    walk(m, t * 9, walking);
+    m.root.rotation.y = mix(0.1, 0.3, seg(t, 1.9, 2.8));
+    pose(m, STAND, POINT, seg(t, 2.1, 3.0));
+    m.rulerPivot.rotation.z += Math.sin(t * 3) * 0.05 * seg(t, 3, 3.5);
+    m.head.rotation.y = mix(0.15, 0.45, seg(t, 2.6, 3.4)) - 0.55 * seg(t, 4.9, 5.6);
+    m.head.rotation.z = 0.06;
+    eyes(m, blink(t, 1.2)); star(m, 1 + 0.08 * Math.sin(t * 3));
+    studio.redraw((g, W, H) => telaTimeline(g, W, H, { ph: 560 + 140 * seg(t, 3.0, 5.5) }));
+    camera.position.set(mix(0.9, 1.6, seg(t, 0, 3)), 4.4, 17);
+    camera.lookAt(mix(0.3, 0.9, seg(t, 0, 3)), 4.1, -3);
+    return m.root.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+  };
+} else if (shot === 3) {
+  // ----- Rege com a régua enquanto título, selo e legenda aparecem
+  const p = keyPos(0, 3);
+  m.root.position.copy(p); m.root.rotation.y = 0.3;
+  update = (t) => {
+    const up = seg(t, 0.2, 1.4) * (1 - 0.45 * seg(t, 4.6, 5.4));
+    pose(m, STAND, POINT, up);
+    const cond = seg(t, 1.4, 1.7) * (1 - seg(t, 4.4, 4.7));
+    m.rulerPivot.rotation.z += Math.sin((t - 1.4) * 6.3) * 0.18 * cond;
+    m.rulerPivot.rotation.x += Math.cos((t - 1.4) * 6.3) * 0.08 * cond;
+    m.head.rotation.y = mix(0.2, 0.55, seg(t, 4.6, 5.4));
+    m.head.rotation.z = 0.06;
+    eyes(m, blink(t, 0.6)); star(m, 1 + 0.08 * Math.sin(t * 3));
+    studio.redraw((g, W, H) => telaMotion(g, W, H, {
+      title: seg(t, 1.5, 2.2), badge: seg(t, 2.4, 3.3), caption: seg(t, 3.4, 4.1), sparkle: t, ph: 300 + 320 * seg(t, 1.2, 5.6),
+    }));
+    camera.position.set(0.6, mix(3.2, 3.8, seg(t, 0, 6)), 14.5);
+    camera.lookAt(-0.2, mix(3.6, 4.7, seg(t, 0.5, 5.5)), -5);
+    return m.root.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+  };
+} else if (shot === 4) {
+  // ----- Compara original e editado, aponta para o editado e dá um pulinho
+  const p = keyPos(2, 5);
+  m.root.rotation.y = 0.1;
+  update = (t) => {
+    m.head.rotation.y = mix(-0.4, 0.35, seg(t, 1.7, 2.6));
+    m.head.rotation.z = 0.06;
+    pose(m, STAND, POINT, seg(t, 3.0, 3.7));
+    const hop = Math.sin(clamp((t - 5.0) / 0.45) * Math.PI) * 0.28;
+    m.root.position.set(p.x, p.y + hop, p.z);
+    eyes(m, blink(t, 0.9)); star(m, 1 + 0.15 * seg(t, 4.9, 5.3) + 0.08 * Math.sin(t * 3));
+    studio.redraw((g, W, H) => telaAntesDepois(g, W, H, { chips: clamp((t - 3.6) / 0.28, 0, 5) }));
+    const d = mix(19.5, 18.6, t / 6);
+    camera.position.set(1.6, 4.4, d);
+    camera.lookAt(0.8, 4.2, -3);
+    return m.root.position.clone().add(new THREE.Vector3(0, 1.6, 0));
+  };
+} else {
+  // ----- Senta no teclado, régua no ombro, acena para a câmera
+  const p = keyPos(2, 5);
+  m.root.position.set(p.x + 0.58, p.y, p.z);
+  const back = new THREE.SpotLight(0xff7a2a, 160, 20, 0.5, 0.7, 1.5);
+  back.position.set(m.root.position.x, 6.5, m.root.position.z - 4.5);
+  back.target = m.root; scene.add(back);
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gr.addColorStop(0, 'rgba(255,140,60,0.9)'); gr.addColorStop(0.4, 'rgba(255,100,30,0.35)'); gr.addColorStop(1, 'rgba(255,80,20,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+  const halo = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  halo.position.set(m.root.position.x, 2.6, m.root.position.z - 1.6);
+  scene.add(halo);
+  studio.key.intensity = 25; studio.fill.intensity = 18;
+  update = (t) => {
+    const s = seg(t, 0.2, 1.5);
+    sit(m, s);
+    pose(m, STAND, SHOULDER, s);
+    const wave = seg(t, 2.9, 3.2) * (1 - seg(t, 4.3, 4.6));
+    m.armL.rotation.z = mix(-0.25, -2.25 + Math.sin((t - 3.2) * 9) * 0.25, wave);
+    m.head.rotation.z = 0.06 * Math.sin(t * 1.2);
+    eyes(m, blink(t, 1.9)); star(m, 1 + 0.1 * Math.sin(t * 3));
+    const glow = mix(0.75, 1.15, seg(t, 1.0, 3.5));
+    back.intensity = 160 * glow; halo.material.opacity = glow / 1.15;
+    camera.position.set(0.3, 3.4, mix(14.6, 15.6, t / 6));
+    camera.lookAt(0.3, 4.4, -2);
+    return m.root.position.clone().add(new THREE.Vector3(0, 1.3, 0));
+  };
+}
+
+const focus0 = update(0);
+const { composer, bokeh } = studio.makeComposer(camera, focus0, { aperture: 0.0012, maxblur: 0.008, samples: SAMPLES });
+if (Q.get('dof') === '0') bokeh.enabled = false;
+window.frame = (t) => {
+  const f = update(t);
+  bokeh.uniforms['focus'].value = camera.position.distanceTo(f);
+  composer.render();
+};
+window.frame(0);
+window.__ready = true;
+</script>
+</body>
+</html>

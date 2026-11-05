@@ -1,0 +1,109 @@
+MASCOTE CLAUDE — PROMPTS PARA GERAR O VÍDEO (image-to-video)
+
+COMO USAR
+- Ferramentas de vídeo por imagem (Kling, Runway, Veo, Hailuo, Luma e similares):
+  envie a imagem da cena como QUADRO INICIAL e cole o prompt da cena.
+- Os prompts estão em inglês porque essas ferramentas costumam segui-los melhor.
+  Cada um traz um resumo em português.
+- Formato 9:16, 1080 × 1920. Se a ferramenta só gerar 5 ou 10 s, gere e corte para 6 s.
+- Gere o vídeo SEM fala. A narração (roteiro-narracao.txt) é gravada ou gerada à parte
+  e montada no editor junto com trilha, efeitos e legendas.
+- Anexe referencia/mascote-base.png (e mascote-vistas.png, se a ferramenta aceitar
+  mais de uma referência) para reforçar a consistência do personagem.
+- Gere 2 a 4 versões por cena e escolha a que preserva melhor o personagem.
+
+------------------------------------------------------------
+BLOCO DE CONSISTÊNCIA (já incluído em cada prompt abaixo)
+A tiny cute 3D robot mascot with a wide orange rounded-rectangle head, two square
+glossy black eyes with small white highlights, faint pink cheeks, a tiny blocky smile,
+black headphones with glowing orange rims, a minimalist black tunic with a belt, small
+pocket and a glowing buckle, a glowing four-pointed star on top of its head, four
+short orange legs, holding a light ruler with glowing orange tips in its right hand.
+Small enough to walk on laptop keys. Polished 3D animated-film look, dark room,
+cinematic orange lighting, shallow depth of field.
+
+PROMPT NEGATIVO (use em todas as cenas, se a ferramenta aceitar)
+character redesign, changing proportions, extra limbs, extra eyes, mouth talking,
+melting, morphing, deformation, flicker, color shift, different outfit, logo, brand
+text, random text, distorted screen text, warped keyboard, fast camera, shaky camera,
+human hands, realistic human
+
+------------------------------------------------------------
+CENA 1 — O DESPERTAR · quadro inicial: imagens/cena-01-despertar.png · 6 s
+Resumo: a estrela acende, ele abre os olhos, olha para a câmera e bate a régua numa tecla.
+
+Prompt:
+[Bloco de consistência] The mascot stands still on the laptop keyboard with its head
+slightly lowered. The star on its head lights up softly, its eyes open and it blinks
+once. It raises its head and looks into the camera with a curious, confident tilt.
+Then it lifts the ruler and taps the glowing key in front of it; the key presses down
+and pulses orange. The laptop screen behind it brightens gently from bottom to top,
+rim-lighting the mascot. Very slow camera push-in. Smooth, subtle motion; the
+character keeps exactly the same design.
+
+------------------------------------------------------------
+CENA 2 — ORGANIZANDO A TIMELINE · quadro inicial: imagens/cena-02-timeline.png · 6 s
+Resumo: dá alguns passinhos sobre as teclas e aponta a régua para os clipes da timeline.
+
+Prompt:
+[Bloco de consistência] The mascot takes two or three small steps across the keys
+toward the center, then stops, turns slightly toward the screen and raises the ruler
+to point at the video clips on the editing timeline. On the screen the selected clip
+keeps its orange outline and the red playhead moves slowly to the right. The mascot
+glances back at the camera as if explaining. Slow lateral camera move following the
+mascot, focus on the mascot. The on-screen video-editing interface stays stable and
+legible; do not invent new text.
+
+------------------------------------------------------------
+CENA 3 — CRIANDO ANIMAÇÕES · quadro inicial: imagens/cena-03-animacoes.png · 6 s
+Resumo: ele "rege" com a régua enquanto título, selo e legenda se animam no anúncio.
+
+Prompt:
+[Bloco de consistência] Standing at the bottom edge of the laptop screen, the mascot
+moves the ruler in small conducting gestures. With each gesture an element of the
+vertical product ad on screen animates: the title gently scales in, the round discount
+badge slides along its dotted motion path, the caption slides up from the bottom,
+small sparkles twinkle. The blue playhead moves across the keyframe timeline. The
+mascot lowers the ruler and looks at the screen, pleased. Gentle camera tilt up from
+the mascot to the ad. Keep the ad layout and its existing text exactly as in the image.
+
+------------------------------------------------------------
+CENA 4 — ANTES E DEPOIS · quadro inicial: imagens/cena-04-antes-depois.png · 6 s
+Resumo: olha o original, depois o editado, aponta a régua para o editado e dá um pulinho.
+
+Prompt:
+[Bloco de consistência] The mascot looks at the left "Original" panel on the screen,
+then turns its head to the right "Edited" panel. It points the ruler at the edited
+video; the small step labels under it light up one by one. It does a tiny happy hop.
+Calm, satisfied expression. Static camera with a very slow push-in. Both video panels
+stay exactly as in the image; no extra text, no changes to the comparison.
+
+------------------------------------------------------------
+CENA 5 — ENCERRAMENTO · quadro inicial: imagens/cena-05-encerramento.png · 6 s
+Resumo: se acomoda sentado, olha para a câmera, acena e o quadro fica estável no final.
+
+Prompt:
+[Bloco de consistência] The mascot settles into a sitting position on the keyboard,
+resting the ruler against its shoulder. It looks into the camera and waves goodbye
+with its left hand, two short gentle waves. The orange backlight behind it slowly
+grows warmer; the star pulses softly. The top third of the frame stays dark and empty
+for closing text. Slow camera pull-back. Hold the final frame steady for the last second.
+
+------------------------------------------------------------
+PROMPT ÚNICO (para ferramentas que geram o vídeo inteiro a partir de várias imagens)
+A 30-second vertical 9:16 animated ad in five 6-second shots, using the five attached
+images as the first frame of each shot, in order. [Bloco de consistência]
+Shot 1: the mascot wakes up on a laptop keyboard, looks at the camera and taps a key
+with its ruler; the screen lights up. Shot 2: it walks over the keys and points the
+ruler at clips on a video-editing timeline. Shot 3: it conducts with the ruler while
+titles, a badge and captions animate in a vertical product ad on screen. Shot 4: it
+compares the original and edited versions and points at the edited one, pleased.
+Shot 5: it sits on the keyboard, waves goodbye to the camera, warm orange backlight,
+dark empty space at the top for closing text. Subtle, smooth motion, identical
+character in every shot, no dialogue, no lip sync, no new on-screen text.
+
+------------------------------------------------------------
+O QUE AINDA DEPENDE DE FERRAMENTA EXTERNA
+- Animação das imagens: ferramenta de image-to-video (ou animação 3D a partir das cenas).
+- Narração: gravação de voz ou ferramenta de texto-para-fala em português brasileiro.
+- Montagem final (cortes, trilha, efeitos, legendas, mixagem e exportação): editor de vídeo.

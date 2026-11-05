@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createDavi, setSitting, setFace } from './davi.js';
+import { createQuarto } from './quarto.js';
+
+// ?modo=folha (vistas do Davi) ou ?modo=quarto (Davi sentado na cama)
+const modo = new URLSearchParams(location.search).get('modo');
+const W = modo === 'folha' ? 2000 : 1080, H = modo === 'folha' ? 1100 : 1920;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 100);
+
+if (modo === 'folha') {
+  scene.background = new THREE.Color(0x1b2036);
+  scene.add(new THREE.HemisphereLight(0xc9d4ff, 0x30283a, 1.1));
+  const key = new THREE.DirectionalLight(0xffe2c4, 2.4); key.position.set(3, 6, 6); key.castShadow = true; scene.add(key);
+  const rim = new THREE.DirectionalLight(0xffc27a, 1.6); rim.position.set(-4, 4, -5); scene.add(rim);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(12, 48), new THREE.MeshStandardMaterial({ color: 0x262b45 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+  [0, -0.7, -Math.PI / 2, Math.PI].forEach((ry, i) => {
+    const d = createDavi(); d.root.position.x = (i - 1.5) * 2.3; d.root.rotation.y = ry;
+    setFace(d, { open: 1, talk: i === 0 ? 0.3 : 0, browUp: i === 1 ? 0.6 : 0 });
+    scene.add(d.root);
+  });
+  camera.position.set(0, 1.6, 13); camera.lookAt(0, 1.45, 0);
+} else {
+  const q = createQuarto(scene);
+  q.setGod(0.55);
+  const d = createDavi(); scene.add(d.root);
+  setSitting(d, 1);
+  d.root.position.set(q.bed.x - 0.3, 0.72, q.bed.z + 1.05);
+  d.root.rotation.y = -0.15;
+  d.head.rotation.set(-0.08, 0.45, 0.05);
+  setFace(d, { open: 1, browUp: 0.5, look: [0.6, 0.3] });
+  d.arms.L.sh.rotation.x = -0.3; d.arms.L.elbow.rotation.x = -0.9;
+  d.arms.R.sh.rotation.x = -0.3; d.arms.R.elbow.rotation.x = -0.9;
+  camera.fov = 40; camera.updateProjectionMatrix();
+  camera.position.set(0.3, 2.4, 6.5); camera.lookAt(0.5, 2.3, -2.0);
+}
+scene.traverse(o => { if (o.isMesh && !o.material.transparent) { o.castShadow = true; o.receiveShadow = true; } });
+const rt = new THREE.WebGLRenderTarget(W, H, { samples: 4, type: THREE.HalfFloatType });
+const composer = new EffectComposer(renderer, rt);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.45, 0.5, 0.85));
+composer.addPass(new OutputPass());
+composer.render();
+requestAnimationFrame(() => { composer.render(); window.__done = true; });
+</script>
+</body>
+</html>

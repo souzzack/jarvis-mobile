@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%">
+      <stop offset="0" stop-color="#FFF6EC"/>
+      <stop offset="1" stop-color="#F3D9C4"/>
+    </radialGradient>
+    <radialGradient id="body" cx="40%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#F4A07E"/>
+      <stop offset="0.6" stop-color="#E07A55"/>
+      <stop offset="1" stop-color="#B9573A"/>
+    </radialGradient>
+    <radialGradient id="star" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFF3B0"/>
+      <stop offset="1" stop-color="#F5B83D"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  <!-- confete / brilhos de fundo -->
+  <g opacity="0.55">
+    <circle cx="150" cy="200" r="14" fill="#E07A55"/>
+    <circle cx="880" cy="170" r="10" fill="#F5B83D"/>
+    <circle cx="900" cy="760" r="16" fill="#E07A55"/>
+    <circle cx="120" cy="720" r="9" fill="#F5B83D"/>
+    <path d="M820 330 l10 24 24 10 -24 10 -10 24 -10 -24 -24 -10 24 -10z" fill="#F5B83D"/>
+    <path d="M190 420 l8 18 18 8 -18 8 -8 18 -8 -18 -18 -8 18 -8z" fill="#E07A55"/>
+  </g>
+
+  <!-- sombra -->
+  <ellipse cx="512" cy="905" rx="230" ry="32" fill="#8A4A33" opacity="0.18"/>
+
+  <!-- antena -->
+  <path d="M512 330 Q500 250 540 200" stroke="#B9573A" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M545 120 l20 48 48 20 -48 20 -20 48 -20 -48 -48 -20 48 -20z" fill="url(#star)" stroke="#E0A030" stroke-width="4" stroke-linejoin="round"/>
+
+  <!-- pés -->
+  <ellipse cx="430" cy="880" rx="70" ry="34" fill="#B9573A"/>
+  <ellipse cx="594" cy="880" rx="70" ry="34" fill="#B9573A"/>
+
+  <!-- braço esquerdo acenando -->
+  <path d="M310 600 Q220 560 210 450" stroke="#D06A47" stroke-width="54" fill="none" stroke-linecap="round"/>
+  <circle cx="208" cy="440" r="40" fill="#E07A55"/>
+
+  <!-- corpo -->
+  <path d="M512 320 C690 320 760 470 760 620 C760 790 650 880 512 880 C374 880 264 790 264 620 C264 470 334 320 512 320Z" fill="url(#body)"/>
+  <!-- brilho do corpo -->
+  <ellipse cx="420" cy="430" rx="70" ry="40" fill="#FFFFFF" opacity="0.22" transform="rotate(-25 420 430)"/>
+
+  <!-- olhos -->
+  <ellipse cx="440" cy="570" rx="52" ry="62" fill="#FFFFFF"/>
+  <ellipse cx="590" cy="570" rx="52" ry="62" fill="#FFFFFF"/>
+  <ellipse cx="450" cy="585" rx="30" ry="38" fill="#2A1A14"/>
+  <ellipse cx="598" cy="585" rx="30" ry="38" fill="#2A1A14"/>
+  <circle cx="462" cy="568" r="11" fill="#FFFFFF"/>
+  <circle cx="610" cy="568" r="11" fill="#FFFFFF"/>
+  <circle cx="440" cy="600" r="5" fill="#FFFFFF"/>
+  <circle cx="588" cy="600" r="5" fill="#FFFFFF"/>
+
+  <!-- sobrancelhas -->
+  <path d="M398 490 Q440 470 478 488" stroke="#7A3A24" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M550 488 Q590 470 632 490" stroke="#7A3A24" stroke-width="10" fill="none" stroke-linecap="round"/>
+
+  <!-- bochechas -->
+  <ellipse cx="370" cy="660" rx="38" ry="22" fill="#FF8FA0" opacity="0.6"/>
+  <ellipse cx="660" cy="660" rx="38" ry="22" fill="#FF8FA0" opacity="0.6"/>
+
+  <!-- sorriso -->
+  <path d="M470 680 Q515 735 560 680 Q515 700 470 680Z" fill="#7A2E1E" stroke="#7A2E1E" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M495 702 Q515 718 537 702" fill="#FF7F7F"/>
+
+  <!-- braço direito segurando a claquete -->
+  <path d="M715 640 Q790 650 815 600" stroke="#D06A47" stroke-width="54" fill="none" stroke-linecap="round"/>
+
+  <!-- claquete -->
+  <g transform="translate(790 470) rotate(-8)">
+    <rect x="0" y="40" width="190" height="130" rx="12" fill="#2B2B33"/>
+    <rect x="16" y="70" width="158" height="6" rx="3" fill="#FFFFFF" opacity="0.5"/>
+    <rect x="16" y="98" width="110" height="6" rx="3" fill="#FFFFFF" opacity="0.5"/>
+    <rect x="16" y="126" width="140" height="6" rx="3" fill="#FFFFFF" opacity="0.5"/>
+    <g transform="rotate(-18 0 40)">
+      <rect x="0" y="0" width="190" height="38" rx="8" fill="#2B2B33"/>
+      <path d="M20 0 h28 l-20 38 h-28z M76 0 h28 l-20 38 h-28z M132 0 h28 l-20 38 h-28z" fill="#FFFFFF"/>
+    </g>
+  </g>
+  <circle cx="815" cy="595" r="40" fill="#E07A55"/>
+
+  <!-- nome -->
+  <text x="512" y="985" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="44" font-weight="bold" fill="#8A4A33">Claudinho, o editor</text>
+</svg>

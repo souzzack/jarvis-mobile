@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0a0706; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { createStudio, keyPos, W, H } from './estudio.js';
+import { createMascot } from './mascote.js';
+import { telaTimeline, telaMotion, telaCortina, telaExport, telaFinal } from './telas.js';
+
+// Versão 2: 11 planos. Uso: video2.html?shot=A ... G; window.frame(u) com u em segundos dentro do plano.
+const Q = new URLSearchParams(location.search);
+const SHOT = Q.get('shot');
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => smooth((t - a) / (b - a));
+const outExpo = (x) => { x = clamp(x); return x === 1 ? 1 : 1 - Math.pow(2, -10 * x); };
+const mix = (a, b, k) => a + (b - a) * k;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+
+const STAND = { armR: 0, armL: -0.25, rp: [1.42, 1.06, 0.36], rr: [0, 0, -0.06], ry: -0.01 };
+const POINT = { armR: 0.6, armL: -0.45, rp: [1.33, 1.31, 0.31], rr: [-0.55, 0, -0.45], ry: 0.6 };
+const POINT_FWD = { armR: 0.6, armL: -0.45, rp: [1.33, 1.31, 0.31], rr: [0.75, 0, -0.35], ry: 0.6 };
+const CHEER = { armR: 1.3, armL: -2.5, rp: [1.12, 1.6, 0.3], rr: [0, 0, 0.15], ry: 0.65 };
+const SHOULDER = { armR: 1.0, armL: -0.25, rp: [1.22, 1.41, 0.3], rr: [-0.45, 0, -0.4], ry: 0.85 };
+function pose(m, A, B, k) {
+  m.armR.rotation.z = mix(A.armR, B.armR, k);
+  m.armL.rotation.z = mix(A.armL, B.armL, k);
+  m.rulerPivot.position.set(...A.rp.map((v, i) => mix(v, B.rp[i], k)));
+  m.rulerPivot.rotation.set(...A.rr.map((v, i) => mix(v, B.rr[i], k)));
+  m.ruler.position.y = mix(A.ry, B.ry, k);
+}
+function eyes(m, open) { m.eyes.forEach(({ eye, s1, s2 }) => { eye.scale.y = Math.max(0.08, open); s1.visible = s2.visible = open > 0.5; }); }
+const blink = (t, at) => 1 - Math.max(0, 1 - Math.abs(t - at) / 0.07);
+function star(m, v) { m.star.material.emissiveIntensity = 5 * v; m.starLight.intensity = 6 * v; }
+function sit(m, s) {
+  const drop = (m.legH - 0.19) * s;
+  m.body.position.y = -drop;
+  m.legs.forEach(l => { l.rotation.x = -Math.PI / 2 * s; l.position.y = m.legH - drop; l.visible = l.position.z > 0 || s < 0.6; });
+}
+function walk(m, phase, amount) {
+  m.legs.forEach((l, i) => { l.rotation.x = Math.sin(phase + (i % 2 ? Math.PI : 0)) * 0.4 * amount; });
+  m.body.position.y = Math.abs(Math.sin(phase)) * 0.06 * amount;
+}
+
+const SCREENS = {
+  A: { draw: (g, w, h) => telaTimeline(g, w, h, { arrange: 0 }), intensity: 0.22 },
+  B: { draw: (g, w, h) => telaTimeline(g, w, h, { arrange: 0 }), intensity: 0.22, pressedKey: [3, 6] },
+  C1: { draw: (g, w, h) => telaTimeline(g, w, h, { arrange: 0 }) },
+  C2: { draw: (g, w, h) => telaTimeline(g, w, h, { arrange: 0 }) },
+  D1: { draw: (g, w, h) => telaMotion(g, w, h, { title: 0, badge: 0, caption: 0 }) },
+  D2: { draw: telaMotion },
+  E1: { draw: (g, w, h) => telaCortina(g, w, h, { p: 0 }) },
+  E2: { draw: telaCortina },
+  F1: { draw: (g, w, h) => telaExport(g, w, h, { p: 0 }) },
+  F2: { draw: telaExport },
+  G: { draw: telaFinal, intensity: 0.55, finale: true },
+};
+const S = SCREENS[SHOT];
+const studio = createStudio({
+  drawScreen: S.draw, screenIntensity: S.intensity ?? 0.95, pressedKey: S.pressedKey ?? null, showMug: !S.finale,
+  screenScale: Number(Q.get('ss') ?? 1), shadowSize: Number(Q.get('shadow') ?? 1024),
+});
+const { scene } = studio;
+const m = createMascot();
+scene.add(m.root);
+const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 200);
+const head = () => m.root.position.clone().add(V(0, 1.95 + m.body.position.y, 0));
+const screenNormal = V(0, Math.sin(0.22), Math.cos(0.22));
+
+let update;
+switch (SHOT) {
+  case 'A': { // gancho: zoom rápido até o rosto
+    const p = keyPos(2, 5); m.root.position.copy(p);
+    update = (u) => {
+      pose(m, STAND, STAND, 0);
+      eyes(m, seg(u, 0.3, 0.42) * blink(u, 1.5));
+      star(m, 0.7 + 0.5 * seg(u, 0.75, 0.85) - 0.2 * seg(u, 0.9, 1.4));
+      m.head.rotation.z = 0.1 * seg(u, 0.85, 1.2);
+      m.head.rotation.x = -0.12 * seg(u, 0.8, 1.1);
+      m.body.rotation.x = 0.06 * seg(u, 0.8, 1.1);
+      const k = outExpo(u / 0.75);
+      camera.position.set(mix(p.x, p.x + 0.35, k), mix(3.6, 2.75, k), mix(p.z + 26, p.z + 5.4, k) - 0.25 * u);
+      camera.lookAt(p.x + 0.05 * k, mix(2.3, 2.62, k), p.z);
+      return head();
+    };
+    break;
+  }
+  case 'B': { // bate a régua na tecla, a tela acende
+    const kp = studio.pressed.pos; const P = studio.pressed;
+    m.root.rotation.y = 0.5; m.root.position.set(kp.x - 1.42, kp.y, kp.z + 0.36);
+    update = (u) => {
+      star(m, 1 + 0.08 * Math.sin(u * 4)); eyes(m, blink(u, 2.5));
+      pose(m, STAND, STAND, 0);
+      const lift = seg(u, 0.55, 0.85) * (1 - seg(u, 0.85, 0.98));
+      m.rulerPivot.position.y = 1.06 + lift * 0.5; m.armR.rotation.z = lift * 0.4;
+      const hit = seg(u, 0.96, 1.02), glow = hit * (1 - 0.4 * seg(u, 1.1, 2.0));
+      P.key.position.y = mix(0.58, 0.5, hit * (1 - 0.6 * seg(u, 1.2, 1.5)));
+      P.legend.position.y = P.key.position.y + 0.121;
+      P.mat.emissiveIntensity = 1.4 * glow; P.light.intensity = 9 * glow;
+      const sc = mix(0.22, 0.95, seg(u, 1.05, 2.0));
+      studio.display.material.emissiveIntensity = sc; studio.screenLightRect.intensity = 2.2 * sc / 0.95;
+      m.head.rotation.y = -0.5 * seg(u, 2.3, 2.9); m.head.rotation.z = 0.06;
+      const t = V(m.root.position.x + 0.2, 2.3, m.root.position.z);
+      const ang = mix(0.15, 0.85, smooth(u / 3.5)), dist = mix(8.6, 7.6, u / 3.5);
+      camera.position.set(t.x + Math.sin(ang) * dist, mix(1.7, 2.3, u / 3.5), t.z + Math.cos(ang) * dist);
+      camera.lookAt(t);
+      return t;
+    };
+    break;
+  }
+  case 'C1': { // caminhada lateral sobre as teclas
+    const p = keyPos(3, 5); m.root.rotation.y = Math.PI / 2;
+    update = (u) => {
+      const k = mix(0, 1, smooth(u / 2.1) * 0.5 + (u / 2.1) * 0.5);
+      m.root.position.set(mix(-4.6, -0.4, k), p.y, p.z);
+      walk(m, u * 13, 1 - seg(u, 1.8, 2.1));
+      star(m, 1); eyes(m, blink(u, 1.2)); pose(m, STAND, STAND, 0);
+      m.head.rotation.y = 0.5 * seg(u, 1.3, 1.9);
+      const x = m.root.position.x;
+      camera.position.set(x + 0.2, 2.7, p.z + 9.6);
+      camera.lookAt(x + 0.5, 2.1, p.z - 0.5);
+      return m.root.position.clone().add(V(0, 1.4, 0));
+    };
+    break;
+  }
+  case 'C2': { // por cima do ombro: aponta e os clipes se encaixam
+    const p = keyPos(1, 6); m.root.position.copy(p); m.root.rotation.y = Math.PI + 0.35;
+    const tl = studio.screenPoint(760, 760);
+    update = (u) => {
+      pose(m, STAND, POINT_FWD, seg(u, 0.05, 0.45));
+      m.rulerPivot.rotation.z += Math.sin(u * 5) * 0.12 * seg(u, 0.45, 0.6);
+      star(m, 1); eyes(m, 1);
+      studio.redraw((g, w, h) => telaTimeline(g, w, h, { arrange: seg(u, 0.4, 2.0), ph: 560 + 120 * seg(u, 0.4, 2.4) }));
+      const d = mix(0, 1, u / 2.4);
+      camera.position.set(p.x + 3.0 - 0.4 * d, 5.6, p.z + 8.0 - 1.2 * d);
+      camera.lookAt(V(p.x, 2.6, p.z).lerp(tl, 0.85));
+      return tl;
+    };
+    break;
+  }
+  case 'D1': { // close na tela: título, selo e legenda aparecem
+    const p = keyPos(0, 4); m.root.position.copy(p); m.root.rotation.y = 0.4;
+    const art = studio.screenPoint(800, 360);
+    update = (u) => {
+      pose(m, POINT, POINT, 1);
+      m.rulerPivot.rotation.z += Math.sin(u * 7) * 0.2; m.rulerPivot.rotation.x += Math.cos(u * 7) * 0.08;
+      star(m, 1); eyes(m, 1);
+      studio.redraw((g, w, h) => telaMotion(g, w, h, { title: seg(u, 0.15, 0.7), badge: seg(u, 0.75, 1.4), caption: seg(u, 1.35, 1.9), sparkle: u * 2, ph: 300 + 300 * u / 2.6 }));
+      const dist = mix(9.6, 7.8, smooth(u / 2.6));
+      camera.position.copy(art).addScaledVector(screenNormal, dist).add(V(0.6, -1.2, 0));
+      camera.lookAt(art.clone().add(V(0, -0.2, 0)));
+      return art;
+    };
+    break;
+  }
+  case 'D2': { // lateral: o mascote "rege" com a régua
+    const p = keyPos(0, 4); m.root.position.copy(p); m.root.rotation.y = 0.4;
+    update = (u) => {
+      pose(m, POINT, POINT, 1);
+      m.rulerPivot.rotation.z += Math.sin(u * 8) * 0.25; m.rulerPivot.rotation.x += Math.cos(u * 8) * 0.1;
+      m.head.rotation.y = -0.6 * seg(u, 1.4, 1.9); m.head.rotation.z = 0.06;
+      star(m, 1 + 0.1 * Math.sin(u * 6)); eyes(m, blink(u, 0.8));
+      const ang = mix(-0.75, -0.45, u / 2.4), dist = 7.4;
+      const t = V(p.x + 0.4, 2.5, p.z - 0.4);
+      camera.position.set(t.x + Math.sin(ang) * dist, 2.9, t.z + Math.cos(ang) * dist);
+      camera.lookAt(t);
+      return head();
+    };
+    break;
+  }
+  case 'E1': { // cortina de antes/depois guiada pela régua
+    const p = keyPos(2, 5); m.root.position.copy(p); m.root.rotation.y = 0.15;
+    update = (u) => {
+      const w = seg(u, 0.3, 1.9);
+      pose(m, STAND, POINT, seg(u, 0, 0.3));
+      m.rulerPivot.rotation.z = mix(0.35, -1.0, w);
+      star(m, 1); eyes(m, 1);
+      m.head.rotation.y = mix(-0.3, 0.35, w);
+      studio.redraw((g, ww, hh) => telaCortina(g, ww, hh, { p: w }));
+      camera.position.set(0.4, mix(4.0, 4.3, u / 2.4), mix(16.0, 15.0, u / 2.4));
+      camera.lookAt(-0.1, 4.5, -3);
+      return studio.screenPoint(800, 440);
+    };
+    break;
+  }
+  case 'E2': { // close: pulinho de satisfação
+    const p = keyPos(2, 5); m.root.rotation.y = 0.25;
+    update = (u) => {
+      const hop = Math.sin(clamp((u - 0.45) / 0.45) * Math.PI) * 0.55 + Math.sin(clamp((u - 1.0) / 0.3) * Math.PI) * 0.18;
+      m.root.position.set(p.x, p.y + hop, p.z);
+      pose(m, POINT, CHEER, seg(u, 0.35, 0.6) * (1 - seg(u, 1.4, 1.8)));
+      m.head.rotation.z = 0.12 * Math.sin(u * 5);
+      star(m, 1 + 0.4 * seg(u, 0.5, 0.7) - 0.3 * seg(u, 1.0, 1.5)); eyes(m, blink(u, 1.6));
+      const t = V(p.x + 0.1, 2.3, p.z);
+      camera.position.set(t.x + 1.8, 2.1, t.z + mix(6.4, 5.6, u / 2.1));
+      camera.lookAt(t);
+      return head();
+    };
+    break;
+  }
+  case 'F1': { // por cima do ombro: barra de exportação
+    const p = keyPos(1, 6); m.root.position.copy(p); m.root.rotation.y = Math.PI - 0.3;
+    const card = studio.screenPoint(880, 620);
+    update = (u) => {
+      pose(m, STAND, STAND, 0);
+      m.head.rotation.x = 0.05 * Math.sin(u * 9); star(m, 1); eyes(m, 1);
+      studio.redraw((g, w, h) => telaExport(g, w, h, { p: Math.min(0.99, u / 2.1) }));
+      camera.position.set(0.9, 5.0, p.z + 13.5 - 1.2 * u / 2.3);
+      camera.lookAt(V(p.x, 2.6, p.z).lerp(card, 0.93));
+      return card;
+    };
+    break;
+  }
+  case 'F2': { // pronto! comemoração
+    const p = keyPos(2, 5); m.root.rotation.y = 0;
+    update = (u) => {
+      const jump = Math.sin(clamp((u - 0.25) / 0.5) * Math.PI) * 0.75;
+      m.root.position.set(p.x, p.y + jump, p.z);
+      pose(m, STAND, CHEER, seg(u, 0.2, 0.45));
+      m.armL.rotation.z += Math.sin(u * 14) * 0.2 * seg(u, 0.8, 1.0);
+      star(m, 1.4 - 0.3 * seg(u, 0.8, 1.6)); eyes(m, blink(u, 1.5));
+      m.head.rotation.z = 0.08 * Math.sin(u * 6);
+      const t = V(p.x, 2.5, p.z);
+      const ang = mix(-0.25, 0.15, u / 2.2);
+      camera.position.set(t.x + Math.sin(ang) * 8, 1.6, t.z + Math.cos(ang) * 8);
+      camera.lookAt(t);
+      return head();
+    };
+    break;
+  }
+  case 'G': { // encerramento
+    const p = keyPos(2, 5); m.root.position.set(p.x + 0.58, p.y, p.z);
+    const back = new THREE.SpotLight(0xff7a2a, 160, 20, 0.5, 0.7, 1.5);
+    back.position.set(m.root.position.x, 6.5, m.root.position.z - 4.5); back.target = m.root; scene.add(back);
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d'); const gr = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(255,140,60,0.9)'); gr.addColorStop(0.4, 'rgba(255,100,30,0.35)'); gr.addColorStop(1, 'rgba(255,80,20,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    const halo = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    halo.position.set(m.root.position.x, 2.6, m.root.position.z - 1.6); scene.add(halo);
+    studio.key.intensity = 25; studio.fill.intensity = 18;
+    update = (u) => {
+      const s = seg(u, 0.1, 1.0); sit(m, s); pose(m, STAND, SHOULDER, s);
+      const wave = seg(u, 2.6, 2.9) * (1 - seg(u, 4.0, 4.3));
+      m.armL.rotation.z = mix(-0.25, -2.25 + Math.sin((u - 2.9) * 10) * 0.3, wave);
+      m.head.rotation.z = 0.06 * Math.sin(u * 1.4);
+      eyes(m, blink(u, 1.8)); star(m, 1 + 0.1 * Math.sin(u * 3));
+      const glow = mix(0.8, 1.2, seg(u, 0.5, 3.0));
+      back.intensity = 160 * glow; halo.material.opacity = glow / 1.2;
+      const k = smooth(u / 3.2);
+      camera.position.set(0.3, mix(2.7, 3.4, k), mix(9.5, 15.4, k));
+      camera.lookAt(0.3, mix(3.0, 4.4, k), -2);
+      return m.root.position.clone().add(V(0, 1.3, 0));
+    };
+    break;
+  }
+}
+
+const f0 = update(0);
+const { composer, bokeh } = studio.makeComposer(camera, f0, { aperture: 0.0016, maxblur: 0.009, samples: 0 });
+window.frame = (u) => { const f = update(u); bokeh.uniforms['focus'].value = camera.position.distanceTo(f); composer.render(); };
+window.frame(0);
+window.__ready = true;
+</script>
+</body>
+</html>

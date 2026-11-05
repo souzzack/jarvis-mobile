@@ -1,0 +1,275 @@
+{
+ "dur": 100.0,
+ "falas": [
+  [
+   "D1",
+   1.0,
+   2.88,
+   "davi",
+   0.08,
+   1.96,
+   "Pai, o Senhor tá aí?"
+  ],
+  [
+   "G1",
+   3.38,
+   4.95,
+   "deus",
+   0.03,
+   1.6,
+   "Tô sempre aqui, Davi,"
+  ],
+  [
+   "D2",
+   5.55,
+   9.52,
+   "davi",
+   2.27,
+   6.24,
+   "Hoje no recreio escolheram os times, e sobrou eu."
+  ],
+  [
+   "D3",
+   10.12,
+   11.13,
+   "davi",
+   6.45,
+   7.46,
+   "De novo?"
+  ],
+  [
+   "G2",
+   11.93,
+   12.57,
+   "deus",
+   2.05,
+   2.69,
+   "eu vi,"
+  ],
+  [
+   "D4",
+   13.07,
+   14.8,
+   "davi",
+   7.59,
+   9.32,
+   "Viu e não fez nada?"
+  ],
+  [
+   "G3",
+   15.3,
+   19.6,
+   "deus",
+   3.18,
+   7.48,
+   "fiz. Fiquei sentado do seu lado no banco o recreio inteiro."
+  ],
+  [
+   "D5",
+   20.2,
+   21.4,
+   "davi",
+   9.56,
+   10.76,
+   "Eu não vi o Senhor lá."
+  ],
+  [
+   "G4",
+   21.9,
+   24.81,
+   "deus",
+   7.83,
+   10.74,
+   "Eu sou muito bom em ficar quietinho."
+  ],
+  [
+   "D6",
+   25.61,
+   29.14,
+   "davi",
+   11.03,
+   14.56,
+   "O Lucas tem um monte de amigo. Todo mundo quer sentar com Ele."
+  ],
+  [
+   "D7",
+   29.84,
+   31.07,
+   "davi",
+   14.79,
+   16.02,
+   "Acho que ninguém gosta de mim."
+  ],
+  [
+   "G5",
+   32.07,
+   34.05,
+   "deus",
+   11.1,
+   13.08,
+   "Davi, me mostra a sua mão."
+  ],
+  [
+   "G6",
+   34.55,
+   37.37,
+   "deus",
+   13.43,
+   16.25,
+   "Sabia que o seu nome tá escrito na palma da minha?"
+  ],
+  [
+   "D8",
+   37.87,
+   39.58,
+   "davi",
+   16.57,
+   18.28,
+   "Escrito? Tipo de caneta."
+  ],
+  [
+   "G7",
+   39.98,
+   42.19,
+   "deus",
+   16.54,
+   18.75,
+   "Não sai nem no banho."
+  ],
+  [
+   "D9",
+   43.09,
+   45.02,
+   "davi",
+   18.33,
+   20.26,
+   "O Senhor me escolheria pro time?"
+  ],
+  [
+   "G8",
+   45.62,
+   52.37,
+   "deus",
+   18.99,
+   25.74,
+   "Filho, eu te escolhi antes do time existir, antes da escola, antes do mundo,"
+  ],
+  [
+   "D10",
+   52.97,
+   54.17,
+   "davi",
+   20.3,
+   21.5,
+   "Antes do mundo?"
+  ],
+  [
+   "G9",
+   54.57,
+   58.3,
+   "deus",
+   25.99,
+   29.72,
+   "antes do mundo. E sabe o que eu faço quando penso em você?"
+  ],
+  [
+   "D11",
+   58.7,
+   59.21,
+   "davi",
+   21.59,
+   22.1,
+   "O quê?"
+  ],
+  [
+   "G10",
+   59.61,
+   60.5,
+   "deus",
+   29.92,
+   30.81,
+   "Eu canto,"
+  ],
+  [
+   "D12",
+   60.9,
+   63.17,
+   "davi",
+   22.18,
+   24.45,
+   "O Senhor canta? Que música?"
+  ],
+  [
+   "G11",
+   63.57,
+   64.81,
+   "deus",
+   30.94,
+   32.18,
+   "essa é segredo."
+  ],
+  [
+   "D13",
+   65.81,
+   68.53,
+   "davi",
+   24.53,
+   27.25,
+   "Pai, e se amanhã ninguém me escolher de novo?"
+  ],
+  [
+   "G12",
+   69.13,
+   72.57,
+   "deus",
+   32.38,
+   35.82,
+   "Então, olha pro banco. Talvez tenha mais alguém sozinho lá."
+  ],
+  [
+   "G13",
+   73.37,
+   79.74,
+   "deus",
+   36.08,
+   42.45,
+   "Eu também já fiquei sozinho, Davi. Meus amigos correram quando eu mais precisei. Eu sei como dói."
+  ],
+  [
+   "D14",
+   80.34,
+   81.76,
+   "davi",
+   27.45,
+   28.87,
+   "O Senhor sentiu isso também?"
+  ],
+  [
+   "G14",
+   82.26,
+   86.47,
+   "deus",
+   42.76,
+   46.97,
+   "Senti. Por isso, eu nunca vou deixar você sentir sozinho."
+  ],
+  [
+   "D15",
+   87.47,
+   91.05,
+   "davi",
+   28.87,
+   32.45,
+   "Amanhã eu vou sentar com um menino novo. Ele também fica sozinho."
+  ],
+  [
+   "G15",
+   91.65,
+   93.5,
+   "deus",
+   47.26,
+   49.11,
+   "Esse é o meu filho."
+  ]
+ ]
+}

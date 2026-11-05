@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 900; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// Pós-produção do "Deus cansa de mim?": legendas com quem fala, título, versículos, lembrança, contagem dos cachos, texto final.
+const W = 1080, H = 1920, FPS = 24;
+const ctx = document.getElementById('c').getContext('2d');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const outCubic = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// legendas: [início, fim, quem, texto]
+const SUBS = [[1.15, 3.1, "DAVI", "Pai... o Senhor tá acordado?"], [3.75, 5.62, "DEUS", "Eu nunca durmo, Davi."], [5.96, 8.29, "DAVI", "Ah, é. Esqueci."], [8.9, 11.47, "DAVI", "Posso te fazer uma pergunta meio vergonhosa?"], [12.05, 12.8, "DEUS", "Pode."], [13.09, 15.28, "DEUS", "Eu já sei qual é, mas pode."], [15.79, 18.72, "DAVI", "Sabe aquela coisa que eu prometi que nunca mais ia fazer?"], [19.76, 21.21, "DEUS", "Qual das vezes?"], [22.2, 23.51, "DAVI", "...Essa doeu."], [24.56, 26.67, "DAVI", "Eu fiz de novo, Pai. Hoje."], [27.06, 28.14, "DAVI", "O Lucas lá da igreja"], [28.16, 29.77, "DAVI", "nunca faz nada de errado."], [30.88, 32.53, "DAVI", "Por que eu sou assim?"], [33.3, 35.45, "DEUS", "Você não conhece o coração do Lucas."], [35.84, 36.99, "DEUS", "Eu conheço o seu."], [37.44, 40.31, "DEUS", "Sei quando você senta, quando levanta..."], [40.54, 43.47, "DEUS", "sei até quantos cachos tem no seu cabelo."], [43.94, 45.25, "DAVI", "Até os cachos?"], [45.66, 47.65, "DAVI", "Dá muito trabalho contar, hein."], [47.93, 49.24, "DEUS", "Eu gosto de contar."], [50.15, 52.58, "DAVI", "Então... o Senhor não cansa de mim?"], [53.33, 55.43, "DEUS", "Filho, as minhas misericórdias"], [55.45, 57.38, "DEUS", "se renovam a cada manhã."], [58.2, 59.47, "DAVI", "Toda manhã mesmo?"], [59.5, 60.91, "DAVI", "Até segunda-feira?"], [62.05, 63.74, "DEUS", "Principalmente segunda-feira."], [65.51, 67.24, "DAVI", "Eu queria ser um filho melhor."], [68.11, 68.9, "DEUS", "Davi..."], [69.29, 71.01, "DEUS", "eu não te amo porque você é bom."], [71.03, 73.88, "DEUS", "Eu te amo porque você é meu."], [73.93, 76.24, "DEUS", "E nada, nada mesmo,"], [76.41, 78.1, "DEUS", "vai te separar desse amor."], [79.08, 80.15, "DAVI", "Desculpa, Pai."], [80.51, 81.92, "DEUS", "Já está perdoado."], [82.07, 84.4, "DEUS", "Agora deixa eu cuidar do resto."], [85.93, 87.66, "DAVI", "O Senhor fica aqui até eu dormir?"], [88.8, 89.65, "DEUS", "Eu fico."], [89.96, 91.19, "DEUS", "Eu nunca saio."]];
+const RM = [[0, 0], [1.2, 1.2], [3.81, 3.3], [4.31, 3.8], [6.05, 5.6], [6.35, 5.9], [7.39, 8.35], [7.99, 8.85], [10.42, 11.55], [10.92, 12.05], [13.15, 15.25], [13.65, 15.75], [16.47, 18.75], [16.97, 19.25], [19.79, 21.3], [20.69, 22.1], [21.89, 23.47], [23.09, 24.57], [24.98, 26.57], [25.58, 27.07], [28.6, 30.69], [29.98, 32.49], [30.78, 33.29], [38.0, 40.39], [40.75, 43.34], [41.35, 43.94], [44.8, 47.51], [45.2, 47.91], [46.45, 49.26], [47.45, 50.16], [49.69, 52.51], [50.49, 53.31], [56.8, 57.31], [57.7, 58.21], [60.21, 60.91], [60.61, 61.31], [61.4, 62.1], [63.58, 63.86], [64.58, 64.76], [66.98, 67.26], [67.88, 68.06], [71.9, 71.08], [75.76, 78.11], [76.76, 79.01], [77.97, 79.96], [78.57, 80.46], [80.64, 84.36], [81.84, 85.46], [84.12, 87.83], [85.12, 88.73], [87.53, 91.26], [95.0, 98.76]];
+// tempo novo -> tempo antigo da animação (título, lembrança, cachos, final seguem a animação)
+const toOld = (tn) => { for (let i = 0; i < RM.length - 1; i++) { const [oa, na] = RM[i], [ob, nb] = RM[i + 1]; if (tn <= nb) return oa + (ob - oa) * Math.max(0, (tn - na) / (nb - na)); } return RM.at(-1)[0]; };
+const VERSES = [[3.75, 8.3, 'Salmos 121:4'], [33.29, 43.9, 'Salmos 139:1-2 · Mateus 10:30'], [53.31, 58.21, 'Lamentações 3:22-23'],
+  [68.06, 79.01, 'Romanos 8:38-39'], [80.46, 85.46, '1 João 1:9'], [88.73, 98.76, 'Hebreus 13:5']];
+
+const cache = new Map();
+function frame(i) {
+  i = Math.max(0, Math.min(2369, i));
+  if (!cache.has(i)) {
+    const im = new Image(); im.src = `video/frames/conv2/${String(i).padStart(5, '0')}.jpg`;
+    cache.set(i, im.decode().then(() => im).catch(() => null));
+    if (cache.size > 12) cache.delete(cache.keys().next().value);
+  }
+  return cache.get(i);
+}
+function txtStroke(t, x, y, size, color, weight = 900, sw = 12) {
+  ctx.font = `${weight} ${size}px Montserrat, DejaVu Sans, sans-serif`;
+  ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(8,6,12,0.95)'; ctx.lineWidth = sw; ctx.strokeText(t, x, y);
+  ctx.fillStyle = color; ctx.fillText(t, x, y);
+}
+function wrap(t, maxW) {
+  const words = t.split(' '); const lines = [''];
+  for (const w of words) { const test = (lines.at(-1) + ' ' + w).trim(); if (ctx.measureText(test).width > maxW && lines.at(-1)) lines.push(w); else lines[lines.length - 1] = test; }
+  return lines;
+}
+function drawSub(T) {
+  const s = SUBS.findLast(s => T >= s[0] - 0.05 && T < s[1] + 0.35);
+  if (!s) return;
+  const [a, b, who, text] = s;
+  const k = outCubic((T - a + 0.05) / 0.2), fade = clamp((b + 0.35 - T) / 0.2);
+  ctx.save(); ctx.globalAlpha = k * fade; ctx.translate(0, (1 - k) * 18);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = '800 54px Montserrat, DejaVu Sans, sans-serif';
+  const lines = wrap(text, 900);
+  const y0 = 1560 - (lines.length - 1) * 34;
+  // etiqueta de quem fala
+  const tagC = who === 'DEUS' ? '#f2c14e' : '#d9773f';
+  ctx.font = '900 30px Montserrat, DejaVu Sans, sans-serif';
+  const tw = ctx.measureText(who).width + 34;
+  ctx.fillStyle = tagC; ctx.beginPath(); ctx.roundRect(W / 2 - tw / 2, y0 - 92, tw, 46, 23); ctx.fill();
+  ctx.fillStyle = '#1a1008'; ctx.fillText(who, W / 2, y0 - 68);
+  lines.forEach((ln, i) => txtStroke(ln, W / 2, y0 + i * 68, 54, who === 'DEUS' ? '#fff3d6' : '#ffffff', 800, 12));
+  ctx.restore();
+}
+function drawTitle(T) {
+  if (T >= 88.4) return;
+  const a = clamp(T / 0.6) * (T > 50.2 && T < 57.9 ? 0.0 : 1) * (T > 25.9 && T < 28.7 ? 0 : 1);
+  if (a <= 0) return;
+  ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  txtStroke('DEUS CANSA', W / 2, 210, 92, '#ffffff', 900, 16);
+  txtStroke('DE MIM?', W / 2, 310, 92, '#f2c14e', 900, 16);
+  ctx.restore();
+}
+function drawVerse(T) {
+  const v = VERSES.find(v => T >= v[0] && T < v[1]);
+  if (!v) return;
+  const a = clamp((T - v[0]) / 0.3) * clamp((v[1] - T) / 0.3);
+  ctx.save(); ctx.globalAlpha = a; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = '800 34px Montserrat, DejaVu Sans, sans-serif';
+  const TO = toOld(T), w = ctx.measureText(v[2]).width + 44, y = TO > 50.2 && TO < 57.9 ? 300 : 400;
+  ctx.fillStyle = 'rgba(20,14,8,0.72)'; ctx.beginPath(); ctx.roundRect(W / 2 - w / 2, y - 28, w, 56, 28); ctx.fill();
+  ctx.strokeStyle = '#f2c14e'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = '#f7d98a'; ctx.fillText(v[2], W / 2, y + 2);
+  ctx.restore();
+}
+function drawCurls(T) { // "sei até quantos cachos tem no seu cabelo"
+  if (T < 38.6 || T >= 41.35) return;
+  const u = T - 38.6;
+  ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < 9; i++) {
+    const t0 = i * 0.18; if (u < t0) continue;
+    const k = clamp((u - t0) / 0.9);
+    const x = 300 + ((i * 197) % 480), y = 620 + ((i * 131) % 260) - k * 90;
+    ctx.globalAlpha = 1 - k; txtStroke(String(i + 1), x, y, 50, '#f7d98a', 900, 8);
+  }
+  const n = Math.round(1247 * outCubic(u / 2.0));
+  ctx.globalAlpha = clamp(u / 0.3);
+  txtStroke(`${n.toLocaleString('pt-BR')} cachos`, W / 2, 520, 78, '#f2c14e', 900, 14);
+  ctx.restore();
+}
+function drawEnd(T) {
+  if (T < 89.2) return;
+  ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const a1 = clamp((T - 89.2) / 0.8);
+  ctx.globalAlpha = a1;
+  txtStroke('Ele nunca saiu', W / 2, 760, 84, '#ffffff', 900, 14);
+  txtStroke('do seu quarto.', W / 2, 860, 84, '#f2c14e', 900, 14);
+  const a2 = clamp((T - 91.6) / 0.8);
+  ctx.globalAlpha = a2;
+  txtStroke('Manda pra alguém que', W / 2, 1460, 50, '#ffffff', 800, 10);
+  txtStroke('precisa ouvir isso hoje.', W / 2, 1525, 50, '#ffffff', 800, 10);
+  ctx.restore();
+}
+const grains = [...Array(4)].map(() => { const g = document.createElement('canvas'); g.width = 540; g.height = 960; const x = g.getContext('2d'); const d = x.createImageData(540, 960); for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; } x.putImageData(d, 0, 0); return g; });
+// transições suaves (escurecer/clarear) nas mudanças de cenário
+const DIPS = [[26.0, 0.35, '255,244,220'], [28.6, 0.3, '255,244,220'], [50.49, 0.5, '255,236,200'], [57.7, 0.4, '0,0,0'], [81.84, 0.5, '0,0,0'], [88.6, 0.6, '0,0,0']];
+
+window.draw = async (T) => {
+  const i = Math.round(T * FPS), TO = toOld(T);
+  const im = await frame(i); frame(i + 1);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  const flash = TO > 26.0 && TO < 28.6;
+  ctx.filter = flash ? 'sepia(0.75) contrast(0.95) brightness(1.08) blur(0.6px)' : 'contrast(1.06) saturate(1.1)';
+  if (im) ctx.drawImage(im, 0, 0, W, H);
+  ctx.filter = 'none';
+  const vg = ctx.createRadialGradient(W / 2, H * 0.47, H * 0.22, W / 2, H * 0.5, H * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, flash ? 'rgba(60,40,10,0.55)' : 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = flash ? 0.14 : 0.06;
+  ctx.drawImage(grains[i % 4], 0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  if (flash) { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.globalAlpha = clamp((TO - 26.1) / 0.4) * 0.85; txtStroke('lembrança', W / 2, 300, 46, '#f7e3b8', 800, 8); ctx.globalAlpha = 1; }
+  for (const [t, d, c] of DIPS) { const u = Math.abs(TO - t) / d; if (u < 1) { ctx.fillStyle = `rgba(${c},${(1 - u) * 0.9})`; ctx.fillRect(0, 0, W, H); } }
+  if (T < 0.8) { ctx.fillStyle = `rgba(0,0,0,${1 - T / 0.8})`; ctx.fillRect(0, 0, W, H); }
+  drawTitle(TO); drawVerse(T); drawCurls(TO); drawSub(T); drawEnd(TO);
+};
+document.fonts.load('900 84px Montserrat').then(() => document.fonts.load('800 54px Montserrat')).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

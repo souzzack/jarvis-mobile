@@ -1,0 +1,202 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Montserrat'; font-weight: 900; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Montserrat'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2') format('woff2'); }
+  html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+// Versão 3: montagem dos 11 planos + tipografia cinética. window.draw(T) desenha o instante T (s).
+const W = 1080, H = 1920, FPS = 30;
+const ctx = document.getElementById('c').getContext('2d');
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const outCubic = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const outBack = (x, c = 1.9) => { x = clamp(x); return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// ---------- planos
+const SHOTS = [['H1', 0, 3.0], ['R1', 3.0, 6.0], ['M1', 9.0, 6.0], ['C1', 15.0, 2.4], ['C2', 17.4, 3.6], ['B1', 21.0, 6.0], ['S1', 27.0, 6.0], ['W1', 33.0, 5.0]];
+const WHIPS = [3.0, 9.0, 15.0, 21.0, 27.0, 33.0];
+const CUTS = [7.4, 17.4, 24.6];
+const SCRATCH = [2.76, 3.0];
+function source(T) {
+  if (T >= SCRATCH[0] && T < SCRATCH[1]) return { name: 'H1', u: SCRATCH[0], freeze: true };
+  let s = SHOTS[0];
+  for (const x of SHOTS) if (T >= x[1] - 1e-6) s = x;
+  return { name: s[0], u: Math.min(T - s[1], s[2] - 1 / FPS) };
+}
+const cache = new Map();
+function frameImg(name, u) {
+  const idx = Math.max(0, Math.round(u * FPS));
+  const key = name + ':' + idx;
+  if (!cache.has(key)) {
+    const im = new Image();
+    im.src = `video/frames/v3/${name}/${String(idx).padStart(4, '0')}.jpg`;
+    cache.set(key, im.decode().then(() => im));
+    if (cache.size > 30) cache.delete(cache.keys().next().value);
+  }
+  return cache.get(key);
+}
+
+// ---------- câmera de pós-produção
+const SHAKES = [{ T: 1.85, a: 10, d: 0.25 }, { T: 3.1, a: 8, d: 0.2 }, { T: 7.36, a: 20, d: 0.32 }, { T: 11.6, a: 10, d: 0.22 }, { T: 24.2, a: 26, d: 0.45 }, { T: 34.4, a: 8, d: 0.3 }, { T: 35.3, a: 6, d: 0.15 }];
+const PUNCH = [{ T: 1.85, s: 1.1, back: 0.5 }, { T: 6.3, s: 1.06, back: 0.5 }, { T: 11.6, s: 1.12, back: 0.6 }, { T: 17.5, s: 1.08, back: 0.5 }, { T: 31.7, s: 1.08, back: 0.6 }, { T: 35.3, s: 1.08, back: 0.5 }];
+function camera(T) {
+  let s = 1, dx = 0, dy = 0, flash = 0, blur = 0;
+  for (const p of PUNCH) { const u = T - p.T; if (u >= 0 && u < p.back + 0.08) s *= u < 0.06 ? lerp(1, p.s, u / 0.06) : lerp(p.s, 1, outCubic((u - 0.06) / p.back)); }
+  for (const k of SHAKES) { const u = (T - k.T) / k.d; if (u >= 0 && u < 1) { const a = k.a * (1 - u); dx += Math.sin(T * 97) * a; dy += Math.cos(T * 83) * a; } }
+  for (const c of WHIPS) {
+    if (T >= c - 0.1 && T < c) { const u = (T - (c - 0.1)) / 0.1; s *= 1 + 0.45 * u * u; blur = Math.max(blur, u); }
+    if (T >= c && T < c + 0.18) { const u = outCubic((T - c) / 0.18); s *= lerp(1.4, 1, u); blur = Math.max(blur, 1 - u); }
+    const f = (T - c) / 0.16; if (f >= 0 && f < 1) flash = Math.max(flash, 0.3 * (1 - f));
+  }
+  for (const c of CUTS) { const f = (T - c) / 0.1; if (f >= 0 && f < 1) flash = Math.max(flash, 0.14 * (1 - f)); }
+  { const f = (T - 7.36) / 0.12; if (f >= 0 && f < 1) flash = Math.max(flash, 0.3 * (1 - f)); }
+  if (T >= 24.2 && T < 24.75) flash = Math.max(flash, T < 24.45 ? 1 : 1 - (T - 24.45) / 0.3);
+  return { s, dx, dy, flash, blur };
+}
+
+// ---------- tipografia cinética
+// estilos: 'w' texto com contorno; 'box' caixa laranja; 'under' sublinhado que se desenha; 'ghost' palavra de ligação; 'pill' chamada final
+const O = '#ff7a2a', Wt = '#ffffff', G = '#b3aca6';
+const CARDS = [
+  { t0: 0.15, t1: 2.74, y: 1450, lines: [['COISAS QUE', 104, 'w', Wt, 0.2, 'up'], ['NINGUÉM TE CONTA', 92, 'w', Wt, 0.7, 'up'], ['sobre ser uma', 64, 'ghost', Wt, 1.4, 'up'], ['IA', 220, 'box', O, 1.85, 'pop']] },
+  { t0: 3.05, t1: 5.0, y: 1450, lines: [['1.', 150, 'box', O, 3.1, 'pop'], ['ZERO MÃOS', 150, 'w', Wt, 3.45, 'drop']] },
+  { t0: 5.02, t1: 7.32, y: 1450, lines: [['essa régua aqui é', 62, 'ghost', Wt, 5.05, 'up'], ['puramente', 80, 'w', Wt, 5.6, 'up'], ['DECORATIVA', 140, 'box', O, 6.3, 'pop']] },
+  { t0: 7.36, t1: 8.95, y: 1300, lines: [['CLONC.', 170, 'w', Wt, 7.36, 'pop']] },
+  { t0: 9.05, t1: 11.02, y: 1450, lines: [['2.', 150, 'box', O, 9.1, 'pop'], ['FIZ A MÚSICA', 118, 'w', Wt, 9.5, 'left']] },
+  { t0: 11.05, t1: 12.6, y: 1450, lines: [['e nunca', 70, 'ghost', Wt, 11.1, 'up'], ['OUVI.', 200, 'box', O, 11.6, 'pop']] },
+  { t0: 12.65, t1: 13.58, y: 1450, lines: [['(silêncio)', 72, 'ghost', G, 12.7, 'up']] },
+  { t0: 13.6, t1: 14.95, y: 1450, lines: [['os fones também são', 58, 'ghost', Wt, 13.65, 'up'], ['DECORATIVOS', 118, 'w', O, 14.1, 'pop']] },
+  { t0: 15.05, t1: 17.35, y: 1500, lines: [['3.', 150, 'box', O, 15.1, 'pop'], ['900 QUADROS', 130, 'w', Wt, 15.5, 'left'], ['um por um', 70, 'ghost', Wt, 16.5, 'up']] },
+  { t0: 17.45, t1: 19.35, y: 1420, lines: [['0 CAFÉS', 170, 'box', O, 17.5, 'pop']] },
+  { t0: 19.4, t1: 20.95, y: 1420, lines: [['nem consigo segurar', 62, 'ghost', Wt, 19.5, 'up'], ['A CANECA', 150, 'w', O, 20.15, 'drop']] },
+  { t0: 21.05, t1: 22.72, y: 1450, lines: [['4.', 150, 'box', O, 21.1, 'pop'], ['"DEIXA MAIS', 96, 'w', Wt, 21.5, 'left'], ['PROFISSIONAL"', 100, 'w', Wt, 21.9, 'right']] },
+  { t0: 22.75, t1: 24.15, y: 1450, lines: [['minha primeira ideia', 62, 'ghost', Wt, 22.8, 'up'], ['é sempre...', 72, 'ghost', Wt, 23.4, 'up']] },
+  { t0: 24.6, t1: 26.95, y: 1450, lines: [['MAIS', 150, 'w', Wt, 24.6, 'pop'], ['BRILHO.', 190, 'box', O, 24.85, 'pop']] },
+  { t0: 27.1, t1: 29.62, y: 560, lines: [['mas a melhor parte?', 66, 'ghost', Wt, 27.2, 'up'], ['VER A SUA IDEIA', 100, 'w', Wt, 27.9, 'up'], ['GANHANDO FORMA', 104, 'under', O, 28.6, 'left']] },
+  { t0: 29.7, t1: 32.95, y: 560, lines: [['a régua é decorativa.', 60, 'ghost', Wt, 29.8, 'up'], ['A VONTADE DE AJUDAR,', 86, 'w', Wt, 30.8, 'up'], ['NÃO.', 210, 'box', O, 31.7, 'pop']] },
+  { t0: 33.05, t1: 34.65, y: 560, lines: [['me chama pro', 66, 'ghost', Wt, 33.1, 'up'], ['PRÓXIMO PROJETO', 104, 'w', Wt, 33.5, 'left']] },
+  { t0: 34.7, t1: 36.97, y: 600, lines: [['EU LEVO', 120, 'w', Wt, 34.8, 'up'], ['O BRILHO.', 170, 'box', O, 35.3, 'pop'], ['SIGA PARA MAIS', 50, 'pill', O, 36.0, 'up']] },
+];
+const fontOf = (size, style) => `${style === 'ghost' ? 800 : 900} ${size}px Montserrat, DejaVu Sans, sans-serif`;
+
+function drawLine(ln, x, y, T, exitK) {
+  const [text, size0, style, color, at, anim] = ln;
+  if (T < at) return;
+  ctx.font = fontOf(size0, style);
+  let wd = ctx.measureText(text).width;
+  const size = wd > 960 ? size0 * 960 / wd : size0;
+  ctx.font = fontOf(size, style); wd = ctx.measureText(text).width;
+  const u = (T - at) / 0.22;
+  const k = outBack(u), kc = outCubic(u);
+  ctx.save();
+  let ox = 0, oy = 0, sc = 1, rot = 0, alpha = clamp((T - at) / 0.07);
+  if (anim === 'up') { oy = lerp(50, 0, kc); }
+  if (anim === 'pop') { sc = lerp(0.3, 1, k); rot = lerp(-0.12, 0, kc); }
+  if (anim === 'left') { ox = lerp(-520, 0, kc); }
+  if (anim === 'right') { ox = lerp(520, 0, kc); }
+  if (anim === 'drop') { oy = lerp(-220, 0, outBack(u, 2.6)); }
+  if (style === 'box') rot += -0.035;
+  sc *= lerp(1, 1.12, exitK); alpha *= 1 - exitK;
+  ctx.translate(x + ox, y + oy); ctx.rotate(rot); ctx.scale(sc, sc);
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  if (style === 'box' || style === 'pill') {
+    const padX = style === 'pill' ? 40 : 28, h = size * (style === 'pill' ? 1.6 : 1.18);
+    ctx.shadowColor = 'rgba(255,100,20,0.55)'; ctx.shadowBlur = 40;
+    ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(-wd / 2 - padX, -h / 2, wd + padX * 2, h, style === 'pill' ? h / 2 : 22); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = style === 'pill' ? '#1a0d06' : '#ffffff';
+    ctx.fillText(text, 0, size * 0.04);
+  } else {
+    ctx.shadowColor = 'rgba(0,0,0,0.7)'; ctx.shadowBlur = 22; ctx.shadowOffsetY = 8;
+    ctx.strokeStyle = '#120804'; ctx.lineWidth = style === 'ghost' ? 10 : Math.max(12, size * 0.11); ctx.strokeText(text, 0, 0);
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = color; ctx.fillText(text, 0, 0);
+    if (style === 'under') {
+      const w = (wd + 20) * outCubic((T - at - 0.15) / 0.25);
+      ctx.fillStyle = O; ctx.beginPath(); ctx.roundRect(-wd / 2 - 10, size * 0.55, w, size * 0.13, size * 0.06); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+function drawCards(T) {
+  for (const c of CARDS) {
+    if (T < c.t0 || T >= c.t1) continue;
+    const exitK = clamp((T - (c.t1 - 0.12)) / 0.12);
+    const heights = c.lines.map(l => l[1] * (l[2] === 'ghost' ? 1.3 : l[2] === 'pill' ? 2.0 : l[2] === 'box' || l[2] === 'under' ? 1.42 : 1.2));
+    const total = heights.reduce((a, b) => a + b, 0);
+    let y = c.y - total / 2;
+    c.lines.forEach((ln, i) => { drawLine(ln, W / 2, y + heights[i] / 2, T, exitK); y += heights[i]; });
+  }
+}
+
+// grão de filme
+const grains = [...Array(4)].map(() => {
+  const g = document.createElement('canvas'); g.width = 540; g.height = 960;
+  const x = g.getContext('2d'); const d = x.createImageData(540, 960);
+  for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0); return g;
+});
+
+function fastForward(T) {
+  const k = clamp((T - 17.4) / 1.9), n = Math.round(3 + 897 * k * k);
+  ctx.save();
+  ctx.fillStyle = 'rgba(10,6,4,0.72)'; ctx.beginPath(); ctx.roundRect(140, 250, 800, 230, 36); ctx.fill();
+  ctx.fillStyle = O;
+  for (let i = 0; i < 2; i++) { ctx.beginPath(); ctx.moveTo(200 + i * 46, 300); ctx.lineTo(244 + i * 46, 330); ctx.lineTo(200 + i * 46, 360); ctx.fill(); }
+  ctx.font = '900 46px Montserrat, DejaVu Sans, sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillStyle = Wt; ctx.fillText('RENDERIZANDO  x64', 320, 332);
+  ctx.font = '900 92px Montserrat, DejaVu Sans, sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = n >= 900 ? '#5fd39a' : O; ctx.fillText(`${n}/900`, 540, 420);
+  ctx.restore();
+}
+function blooper(T) {
+  const a = clamp((T - 37.0) / 0.15);
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = '#0a0706'; ctx.fillRect(0, 0, W, H);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = '900 64px Montserrat, DejaVu Sans, sans-serif'; ctx.fillStyle = O; ctx.fillText('ERROS DE GRAVAÇÃO', 540, 900);
+  ctx.font = '800 54px Montserrat, DejaVu Sans, sans-serif'; ctx.fillStyle = Wt;
+  ctx.fillText('a régua caiu', 540, 1000); ctx.fillText(`${Math.min(14, Math.round(1 + 13 * clamp((T - 37.1) / 0.5)))} vezes.`, 540, 1070);
+  ctx.restore();
+}
+window.draw = async (T) => {
+  const src = source(T);
+  const im = await frameImg(src.name, src.u);
+  frameImg(src.name, src.u + 1 / FPS);
+  const cam = camera(T);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  ctx.filter = 'contrast(1.1) saturate(1.18) brightness(1.03)';
+  const s0 = cam.s * (cam.dx || cam.dy ? 1.035 : 1);
+  const drawAt = (s, a) => { ctx.globalAlpha = a; ctx.setTransform(s, 0, 0, s, W / 2 - W / 2 * s + cam.dx, H / 2 - H / 2 * s + cam.dy); ctx.drawImage(im, 0, 0, W, H); };
+  drawAt(s0, 1);
+  if (cam.blur > 0.02) for (let i = 1; i <= 6; i++) drawAt(s0 * (1 + 0.04 * i * cam.blur), 0.45 * cam.blur);
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.filter = 'none';
+  const vg = ctx.createRadialGradient(W / 2, H * 0.48, H * 0.25, W / 2, H * 0.5, H * 0.75);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = 0.07;
+  ctx.drawImage(grains[Math.floor(T * FPS) % 4], 0, 0, W, H);
+  ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+  if (src.freeze) { // disco arranhando: imagem congela, perde a cor e entorta
+    ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = 'rgba(128,128,128,0.85)'; ctx.fillRect(0, 0, W, H); ctx.restore();
+    ctx.fillStyle = 'rgba(0,0,0,0.25)'; ctx.fillRect(0, 0, W, H);
+  }
+  if (cam.flash > 0) { ctx.fillStyle = `rgba(255,236,214,${cam.flash})`; ctx.fillRect(0, 0, W, H); }
+  if (T >= 17.4 && T < 19.4) fastForward(T);
+  drawCards(T);
+  if (T >= 37.0) blooper(T);
+};
+document.fonts.load('900 84px Montserrat').then(() => document.fonts.load('800 64px Montserrat')).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

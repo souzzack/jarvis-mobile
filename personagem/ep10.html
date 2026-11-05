@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Episódio 10 — "Tenho vergonha de ser cristão". Uso: ep10.html?shot=SH05 ; window.frame(T)
+import { THREE, createDavi, setSitting, setFace, pray, clamp, smooth, seg, mix, V, rb, std, blink, headW, glowSprite, loadEnv, makeExpr,
+  addSmile, addLongHair, PALETTE, stand, setupRenderer, finish, quartoRig } from './serie.js';
+import { createCidade } from './cenarios.js';
+
+const SHOT = new URLSearchParams(location.search).get('shot');
+const ENV = await loadEnv('eps101112/ep10/envelopes.json');
+const SHOTS = {
+  SH01: [0, 5.1, 'banheiro'], SH02: [5.1, 10.6, 'quarto'], SH03: [10.6, 16.0, 'refeitorio'], SH04: [16.0, 24.0, 'quarto'],
+  SH05: [24.0, 33.8, 'quarto'], SH06: [33.8, 39.6, 'pedro'], SH07: [39.6, 47.4, 'quarto'], SH08: [47.4, 51.6, 'quarto'],
+  SH09: [51.6, 59.6, 'quarto'], SH10: [59.6, 66.6, 'cidade'], SH11: [66.6, 80.6, 'quarto'], SH12: [80.6, 84.5, 'quarto'],
+  SH13: [84.5, 89.3, 'quarto'], SH14: [89.3, 94.3, 'refeitorio'], SH15: [94.3, 100.23, 'refeitorio'],
+};
+const [T0, T1, CEN] = SHOTS[SHOT]; window.__range = [T0, T1]; window.__shots = SHOTS;
+const CAIO = { skin: 0xb98058, skinDark: 0xa36c48, hair: 0x2a1a12, shirt: 0x7a5ab8, shirtDark: 0x664a9c, pants: 0x2c3442, curls: true };
+const expr = makeExpr(
+  { hx: 0.25, hy: -0.2, hz: 0, lean: 0.08, brUp: 0.1, brSad: 0.7, eyes: 0.85, lx: 0, ly: -0.4, tear: 0, god: 0.3, lamp: 0.5, smile: 0 },
+  [[0, {}],
+   [5.3, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, smile: 1, brSad: 0.3 }], [8.5, { smile: 1 }], [10.8, { smile: 0 }],
+   [16.1, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0.05, brSad: 0.6, smile: 0 }], [19.3, { hx: 0.25, ly: -0.4, hy: -0.2, lx: 0, brSad: 0.9, eyes: 0.8 }],
+   [24.2, { hy: -0.6, lx: -0.8, ly: 0.4, hx: 0, brSad: 0.4, god: 0.45 }], [33.0, { brUp: 0.7 }],
+   [39.9, { brUp: 0.9, brSad: 0 }], [42.8, { brUp: 0.5, brSad: 0.2 }], [47.6, { god: 0.9, brUp: 0.6, eyes: 1, smile: 1 }], [51.0, { smile: 0 }],
+   [51.7, { brSad: 0.6, hx: 0.15, ly: -0.2 }], [54.4, { hx: 0, ly: 0.4, brSad: 0.3, god: 0.6 }],
+   [66.9, { brSad: 0.7, brUp: 0.3 }], [68.7, { god: 0.7, brSad: 0.3 }], [74.7, { god: 0.85, brUp: 0.6 }],
+   [80.8, { brUp: 0.9 }], [84.7, { brSad: -0.3, brUp: 0.3, hx: -0.05, god: 0.95 }], [89.4, { god: 1.15, smile: 1, brSad: 0 }], [110, {}]]);
+
+const R = setupRenderer(); const { scene, camera } = R;
+let update;
+const kid = (o) => { const k = addSmile(createDavi(o)); scene.add(k.root); return k; };
+const seat = (k, x, z, ry, y = 0.45) => { setSitting(k, 1); k.root.position.set(x, y, z); k.root.rotation.y = ry; k.arms.L.sh.rotation.set(-0.45, 0, -0.08); k.arms.R.sh.rotation.set(-0.45, 0, 0.08); k.arms.L.elbow.rotation.x = k.arms.R.elbow.rotation.x = -0.7; };
+
+if (CEN === 'quarto') {
+  const Q = quartoRig(scene, camera); const { q, d } = Q;
+  update = (T) => {
+    const e = expr(T), talk = ENV.davi(T), deus = ENV.deus(T), u = (T - T0) / (T1 - T0);
+    q.setGod(e.god + 0.45 * deus); q.lamp.intensity = 9 * e.lamp;
+    Q.pose('bed', e, T, talk);
+    const h = headW(d);
+    switch (SHOT) {
+      case 'SH02': Q.camMove('MED', 'MED', u, 0, 0.5); return h;
+      case 'SH04': return Q.camMove('CLOSE', 'CLOSE', u, 0, 0.35);
+      case 'SH05': Q.camMove('R3Q', 'R3Q', u, 0.2, 0.7); return h;
+      case 'SH07': Q.camMove('MED', 'MED', u, 0.3, 0.7); return h;
+      case 'SH08': return Q.camMove('CLOSE2', 'CLOSE', smooth(u), 0, 0.2);
+      case 'SH09': Q.camMove('WIDE', 'MED', smooth(u), 0.8, 0.3); return h;
+      case 'SH11': Q.camMove('R3Q', 'MED', smooth(u), 0.3, 0.4); return h;
+      case 'SH12': return Q.camMove('CLOSE', 'CLOSE', u, 0.1, 0.4);
+      case 'SH13': return Q.camMove('CLOSE2', 'CLOSE2', u, 0, 0.3);
+    }
+    return h;
+  };
+} else if (CEN === 'banheiro') {
+  // hoje: comendo escondido no banheiro, sentado na tampa do vaso
+  scene.background = new THREE.Color(0x1a1e24);
+  const tileTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); g.fillStyle = '#cfd8d4'; g.fillRect(0, 0, 256, 256); g.strokeStyle = '#a9b5b0'; g.lineWidth = 4; for (let i = 0; i <= 256; i += 64) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 256); g.moveTo(0, i); g.lineTo(256, i); g.stroke(); } const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(3, 3); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ map: tileTex, roughness: 0.6 })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wallM = std(0x6f8a9a, 0.7);
+  for (const [w, x, z, ry] of [[3.6, 0, -2.0, 0], [4.0, -1.8, 0, Math.PI / 2], [4.0, 1.8, 0, Math.PI / 2]]) { const m = rb(w, 3.6, 0.08, 0.02, wallM); m.position.set(x, 1.8, z); m.rotation.y = ry; scene.add(m); }
+  const white = std(0xf4f4f0, 0.3);
+  const bowl = rb(0.8, 0.6, 0.95, 0.2, white); bowl.position.set(0, 0.3, -1.0); scene.add(bowl);
+  const lid = rb(0.86, 0.08, 1.0, 0.1, white); lid.position.set(0, 0.64, -0.98); scene.add(lid);
+  const tank = rb(0.9, 0.8, 0.35, 0.08, white); tank.position.set(0, 1.0, -1.75); // atrás da cabeça, sem encostar scene.add(tank);
+  const d = addSmile(createDavi()); scene.add(d.root); seat(d, 0, -0.68, 0, 0.47);
+  const lunch = rb(0.5, 0.32, 0.34, 0.06, std(0xd64541, 0.6)); scene.add(lunch);
+  const sandwich = rb(0.28, 0.1, 0.22, 0.04, std(0xe8c48a, 0.7)); scene.add(sandwich);
+  scene.add(new THREE.HemisphereLight(0xdfeaff, 0x404850, 0.8));
+  const tube = new THREE.PointLight(0xe8f2ff, 14, 8, 2); tube.position.set(0, 3.4, 0.4); tube.castShadow = true; scene.add(tube);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0), talk = ENV.davi(T), bite = Math.max(0, Math.sin(T * 2.2)) * (T < 1.0 || T > 4.9 ? 1 : 0);
+    d.root.updateMatrixWorld(true);
+    d.head.rotation.set(0.3 - 0.1 * bite, 0, 0); setFace(d, { open: 0.8 * blink(T), talk, browSad: 0.8, look: [0, -0.5] }); d.setSmile(false);
+    d.arms.R.sh.rotation.set(mix(-0.9, -1.3, bite), 0, -0.1); d.arms.R.elbow.rotation.set(mix(-0.2, -0.8, bite), 0, 0);
+    d.arms.L.sh.rotation.set(-0.6, 0, -0.1); d.arms.L.elbow.rotation.set(-0.4, 0, 0);
+    const hr = d.arms.R.hand.getWorldPosition(new THREE.Vector3()), hl = d.arms.L.hand.getWorldPosition(new THREE.Vector3());
+    sandwich.position.copy(hr).add(V(0, 0.1, 0.12)); lunch.position.copy(hl).add(V(0.1, -0.05, 0.15));
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.5, 0.3, u), 2.4, mix(4.8, 4.1, smooth(u))); camera.lookAt(0, 1.6, -0.8);
+    return headW(d);
+  };
+} else if (CEN === 'refeitorio') {
+  // refeitório: mesa comprida, bancos dos dois lados, crianças com espaço entre si
+  scene.background = new THREE.Color(0xf2ead8);
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0xbfb6a2, 0.9)); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(40, 8, 0.2), std(0xe9dcc0, 0.95)); wall.position.set(0, 4, -5); scene.add(wall);
+  for (let x = -12; x <= 12; x += 4) { const w = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.6), new THREE.MeshStandardMaterial({ color: 0, emissive: 0xfff4dc, emissiveIntensity: 1.1 })); w.position.set(x, 3.6, -4.88); scene.add(w); }
+  const wood = std(0x9a6a42, 0.7), metal = std(0x7a808a, 0.5);
+  const table = rb(9, 0.1, 1.4, 0.03, wood); table.position.set(0, 1.15, 0); scene.add(table);
+  for (const x of [-4, 4]) for (const z of [-0.5, 0.5]) { const l = rb(0.1, 1.1, 0.1, 0.02, metal); l.position.set(x, 0.55, z); scene.add(l); }
+  for (const z of [-1.15, 1.15]) { const b = rb(9, 0.1, 0.5, 0.03, wood); b.position.set(0, 0.62, z); scene.add(b); for (const x of [-4, 4]) { const l = rb(0.1, 0.6, 0.1, 0.02, metal); l.position.set(x, 0.3, z); scene.add(l); } }
+  const trayM = std(0x5a8ab8, 0.5);
+  const d = kid(); const caio = kid(CAIO);
+  const others = [PALETTE.LUCAS, { ...PALETTE.THEO, shirt: 0xe74c3c, shirtDark: 0xc0392b }, { ...PALETTE.LUCAS, hair: 0x2a1a10, skin: 0xc68e62, shirt: 0x2ecc71, shirtDark: 0x27ae60 }, { ...PALETTE.THEO, shirt: 0xf1c40f, shirtDark: 0xd4ac0d }].map(kid);
+  // Davi de frente para a câmera (lado de trás da mesa); colegas espaçados 1,6
+  seat(d, 0, -1.15, 0); [[-1.6, -1.15, 0], [1.6, -1.15, 0], [-1.6, 1.15, Math.PI], [1.6, 1.15, Math.PI]].forEach(([x, z, ry], i) => seat(others[i], x, z, ry));
+  seat(caio, 0, 1.15, Math.PI);
+  for (const [x, z] of [[0, -0.35], [-1.6, -0.35], [1.6, -0.35], [-1.6, 0.35], [1.6, 0.35], [0, 0.35]]) { const t = rb(0.7, 0.05, 0.45, 0.02, trayM); t.position.set(x, 1.23, z); scene.add(t); }
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xc8b090, 1.1)); const sun = new THREE.DirectionalLight(0xfff0d8, 1.4); sun.position.set(3, 8, 6); sun.castShadow = true; scene.add(sun);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    caio.root.visible = SHOT === 'SH15';
+    others.forEach(k => { k.root.visible = !(SHOT === 'SH15' && k.root.position.z > 0); }); // no fim, os colegas da frente já saíram
+    // Davi orando de olhos fechados (no dia seguinte as mãos tremem)
+    const shake = SHOT === 'SH03' ? 0 : 0.04 * Math.sin(T * 38);
+    pray(d); d.arms.R.sh.rotation.x += shake; d.arms.L.sh.rotation.x -= shake;
+    const opened = SHOT === 'SH15' ? seg(T, 95.2, 95.8) : 0;
+    d.head.rotation.set(mix(0.35, 0.05, opened), 0, 0);
+    setFace(d, { open: mix(0.08, 1, opened) * (opened > 0.5 ? blink(T) : 1), browUp: mix(0.2, 0.8, opened), browSad: SHOT === 'SH14' ? 0.4 : 0, look: [0, 0] }); d.setSmile(SHOT === 'SH15' && T > 96.5);
+    // os colegas riem e apontam (lembrança e dia seguinte, no começo)
+    const laughing = SHOT === 'SH03' ? 1 : SHOT === 'SH14' ? 1 - seg(T, 92.0, 93.5) : 0;
+    others.forEach((k, i) => {
+      const lg = laughing * Math.abs(Math.sin(T * 12 + i));
+      k.body.position.y = -0.38 + lg * 0.04; k.head.rotation.set(-0.15 * laughing, (k.root.position.x > 0 ? -0.5 : 0.5) * laughing, 0.1 * lg);
+      setFace(k, { open: blink(T, i), talk: lg * 0.6, browUp: 0.6, look: [k.root.position.x > 0 ? -0.6 : 0.6, 0] }); k.setSmile(laughing > 0.3 && lg < 0.3);
+      if (i === 1) { k.arms.R.sh.rotation.set(-2.3 * laughing, 0, 0.35 * laughing); k.arms.R.elbow.rotation.x = 0; } // apontando, braço alto (por cima da mesa)
+    });
+    setFace(caio, { open: SHOT === 'SH15' && T > 97.0 ? blink(T) : 0.08, browUp: 0.4, look: [0, 0] }); caio.head.rotation.set(T > 97.0 ? 0.05 : 0.35, 0, 0);
+    pray(caio, T > 97.0 ? 1 - seg(T, 97.0, 97.6) : 1); caio.setSmile(T > 97.4);
+    camera.up.set(0, 1, 0);
+    if (SHOT === 'SH15') { // por trás do Caio, olhando o Davi
+      camera.position.set(mix(2.9, 2.5, u), 3.5, mix(6.2, 5.4, smooth(u))); camera.lookAt(0, 1.9, -0.6); // por cima do ombro do Caio
+    } else { camera.position.set(mix(0.4, 0.2, u), 2.9, mix(6.6, 5.6, smooth(u))); camera.lookAt(0, 1.8, -0.4); }
+    return headW(d);
+  };
+} else if (CEN === 'pedro') {
+  // Lucas 22: noite, pátio com fogueira; uma moça aponta; Pedro balança a cabeça: "Nem conheço esse homem"
+  scene.background = new THREE.Color(0x0d0a14);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), std(0x4a3e34, 1)); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(30, 6, 0.4), std(0x6a5a48, 0.95)); wall.position.set(0, 3, -4); scene.add(wall);
+  const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.7, 0.2, 12), std(0x2a1a14, 0.9, { emissive: 0xff4a1a, emissiveIntensity: 0.8 })); coals.position.set(0, 0.1, 0); scene.add(coals);
+  const flames = [...Array(14)].map(() => { const s = glowSprite(0.7, 0); s.material.color.set(0xff8a3a); scene.add(s); return s; });
+  const fireL = new THREE.PointLight(0xff8a3a, 22, 10, 2); fireL.position.set(0, 1, 0); fireL.castShadow = true; scene.add(fireL);
+  scene.add(new THREE.HemisphereLight(0x3a3a60, 0x1a1008, 0.35));
+  const pedro = addSmile(createDavi({ skin: 0xa8714b, skinDark: 0x8f5d3d, hair: 0x2a1a10, shirt: 0x8a7a5a, shirtDark: 0x7a6a4a, pants: 0x6a5a40, curls: true })); pedro.root.scale.setScalar(1.25); scene.add(pedro.root); stand(pedro);
+  const beard = rb(0.8, 0.45, 0.2, 0.1, std(0x2a1a10, 0.9)); beard.position.set(0, -0.42, 0.5); pedro.head.add(beard);
+  const moca = addSmile(createDavi({ skin: 0xc98d63, skinDark: 0xb27a52, hair: 0x1e1410, shirt: 0xb85a4a, shirtDark: 0xa04a3a, pants: 0x5a4a3a, curls: false })); addLongHair(moca, 0x1e1410); moca.root.scale.setScalar(1.1); scene.add(moca.root); stand(moca);
+  pedro.root.position.set(-1.6, 0, 0.4); pedro.root.rotation.y = 1.25; moca.root.position.set(1.9, 0, 0.6); moca.root.rotation.y = -1.3;
+  let rnd = 5; const R1 = () => { rnd = (rnd * 16807) % 2147483647; return rnd / 2147483647; }; const fd = flames.map(() => [R1() - 0.5, R1() - 0.5, R1()]);
+  update = (T) => {
+    const u = (T - T0) / (T1 - T0);
+    flames.forEach((s, i) => { const [x, z, p] = fd[i]; const life = (T * (0.8 + p) + p) % 1; s.position.set(x * 0.6, 0.2 + life * 1.3, z * 0.6); s.material.opacity = 0.85 * (1 - life); });
+    fireL.intensity = 20 + Math.sin(T * 17) * 3;
+    const point = seg(T, 34.6, 35.2), deny = seg(T, 37.0, 37.4);
+    moca.arms.R.sh.rotation.set(-1.4 * point, 0, 0); setFace(moca, { open: blink(T), browUp: 0.8, look: [0, 0] });
+    pedro.arms.R.sh.rotation.set(-0.9, 0, -0.1); pedro.arms.L.sh.rotation.set(-0.9, 0, 0.1); // mãos para o fogo
+    pedro.arms.R.elbow.rotation.x = pedro.arms.L.elbow.rotation.x = -0.2;
+    pedro.head.rotation.set(0, mix(0, 0.6, point) + Math.sin(T * 9) * 0.35 * deny * (1 - seg(T, 38.6, 39.2)), 0);
+    setFace(pedro, { open: blink(T), browSad: 0.6 * point, browUp: 0.5 * point, look: [0.5 * point, 0] });
+    camera.up.set(0, 1, 0); camera.position.set(mix(0.4, 0.1, u), 3.0, mix(11.5, 10.0, smooth(u))); camera.lookAt(0, 1.9, 0.3);
+    return V(0, 1.8, 0.4);
+  };
+} else if (CEN === 'cidade') {
+  // "uma cidade no alto de um monte não se esconde": a cidade à noite cheia de janelas acesas
+  const c = createCidade(scene, 'noite');
+  const glow = glowSprite(40, 0.35); glow.position.set(0, 12, -30); scene.add(glow);
+  update = (T) => {
+    const k = smooth((T - T0) / (T1 - T0)), w = c.homeWindow;
+    camera.up.set(0, 1, 0); camera.position.set(mix(w.x + 1, 0, k), mix(w.y + 0.5, 20, k), mix(w.z + 5, 52, k)); camera.lookAt(mix(w.x, 0, k), mix(w.y, 10, k), mix(w.z, -12, k));
+    return k > 0.5 ? V(0, 10, -12) : w;
+  };
+}
+finish(R, update, T0, CEN === 'quarto' || CEN === 'cidade' || CEN === 'pedro' ? 0.5 : 0.28);
+</script>
+</body>
+</html>

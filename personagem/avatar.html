@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>html, body { margin: 0; width: 1080px; height: 1080px; overflow: hidden; background: #000; } canvas { display: block; }</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+// Avatar de perfil: busto do Davi, olhando para a luz quente da janela, fundo azul-noite. Uso: avatar.html?v=luz|camera
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createDavi, setFace } from './davi.js';
+
+const S = 1080, VAR = new URLSearchParams(location.search).get('v') || 'luz';
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(S, S);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+// fundo: azul-noite com brilho dourado vindo do lado da janela
+const bg = document.createElement('canvas'); bg.width = bg.height = 1024;
+const g = bg.getContext('2d');
+g.fillStyle = '#0d1430'; g.fillRect(0, 0, 1024, 1024);
+const gx = VAR === 'luz' ? 260 : 512;
+let gr = g.createRadialGradient(gx, 300, 20, gx, 300, 760);
+gr.addColorStop(0, 'rgba(255,214,140,0.95)'); gr.addColorStop(0.25, 'rgba(242,170,80,0.55)'); gr.addColorStop(0.6, 'rgba(80,60,110,0.25)'); gr.addColorStop(1, 'rgba(13,20,48,0)');
+g.fillStyle = gr; g.fillRect(0, 0, 1024, 1024);
+let seed = 3; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+for (let i = 0; i < 70; i++) { // partículas de luz
+  const x = rnd() * 1024, y = rnd() * 1024, r = 1 + rnd() * 3.5;
+  g.fillStyle = `rgba(255,230,170,${0.15 + rnd() * 0.5})`; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+}
+const bgT = new THREE.CanvasTexture(bg); bgT.colorSpace = THREE.SRGBColorSpace; scene.background = bgT;
+
+const d = createDavi(); scene.add(d.root);
+// sorriso: troca o lábio reto por um arco
+const lips = d.mouth.children[1]; lips.visible = false; d.inner.visible = false;
+const smile = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.022, 10, 28, Math.PI * 0.7), new THREE.MeshStandardMaterial({ color: 0x5a2a20, roughness: 0.6 }));
+smile.rotation.z = Math.PI + Math.PI * 0.15; smile.position.set(0, 0.04, 0.01); d.mouth.add(smile);
+setFace(d, { open: 1, browUp: 0.55, look: VAR === 'luz' ? [-0.9, 0.6] : [0, 0.05] });
+d.head.rotation.set(VAR === 'luz' ? -0.18 : -0.04, VAR === 'luz' ? -0.38 : -0.12, VAR === 'luz' ? 0.05 : 0.03);
+d.arms.L.sh.rotation.z = -0.1; d.arms.R.sh.rotation.z = 0.1;
+d.root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+// luzes: janela quente (chave), preenchimento frio, contorno
+scene.add(new THREE.HemisphereLight(0x8fa0d8, 0x1a1420, 0.35));
+const key = new THREE.SpotLight(0xffc98a, 28, 20, 0.6, 0.7, 1.4);
+key.position.set(VAR === 'luz' ? -3.2 : -2.2, 4.6, 3.2); key.target.position.set(0, 2.2, 0); key.castShadow = true; scene.add(key, key.target);
+const fill = new THREE.PointLight(0x7f95ff, 6, 10, 2); fill.position.set(2.6, 2.4, 2.6); scene.add(fill);
+const rim = new THREE.PointLight(0xffd59a, 10, 8, 2); rim.position.set(-1.6, 3.4, -1.6); scene.add(rim);
+const face = new THREE.PointLight(0xffe2c8, 1.2, 4, 2); face.position.set(0, 2.4, 2.0); scene.add(face);
+
+const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+camera.position.set(0.35, 2.2, 5.3); camera.lookAt(0, 2.0, 0);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(S, S), 0.3, 0.5, 0.97));
+composer.addPass(new OutputPass());
+composer.render();
+window.__ready = true;
+</script>
+</body>
+</html>
