@@ -1,6 +1,6 @@
 ---
 name: novo-reel
-description: Produz um episódio novo de Davi & Deus (@davieopai) ou um corte curto - roteiro, vozes, animação em three.js, edição, capa e legenda. Use quando o usuário pedir um episódio, um Reels novo ou passar um tema.
+description: Produz um episódio novo de Davi & Deus (@davieopai) - roteiro, vozes, animação em three.js, edição, capa e legenda. Use quando o usuário pedir um episódio novo ou passar um tema.
 argument-hint: "<tema, número do episódio ou caminho de um roteiro pronto>"
 ---
 
@@ -13,5 +13,3 @@ argument-hint: "<tema, número do episódio ou caminho de um roteiro pronto>"
 5. Em paralelo, chame o `designer-de-capas` (etapa 10) e o `redator-legendas` (Instagram + TikTok + comentário fixado, CVV 188 se for tema sensível).
 6. Envie ao usuário o vídeo e a capa (SendUserFile), com a legenda pronta para copiar e o horário de postagem.
 7. Atualize a tabela de episódios em `marca/perfil.md` e o calendário, e faça commit e push (vídeos não vão para o git).
-
-Para um **corte curto**, pule as etapas 2 e 3: escolha o trecho mais forte de um episódio pronto, peça ao `editor-de-reels` o corte de 15–30 s com versículo e "assista o episódio completo".

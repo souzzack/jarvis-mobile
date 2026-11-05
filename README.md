@@ -10,7 +10,7 @@ Abra uma sessão do Claude Code com este repositório e peça em português, ou 
 |---|---|
 | `/planejar-semana` | Calendário da semana, roteiros dos Reels, tema dos stories, legendas e capas |
 | `/stories-do-dia` | Sequência de stories de hoje, pronta para postar |
-| `/novo-reel <tema>` | Episódio novo ou corte curto: roteiro, vozes, animação, capa e legenda |
+| `/novo-reel <tema>` | Episódio novo: roteiro, vozes, animação, capa e legenda |
 | `/relatorio-semanal` | Análise das métricas que você colar em `metricas/` |
 
 ## A equipe

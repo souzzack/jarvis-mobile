@@ -35,6 +35,12 @@
 | 10 | Tenho vergonha de ser cristão | zoação por causa da fé |
 | 11 | Eu não sou bom em nada | dons (pendente: render) |
 | 12 | Eu tenho raiva de mim | autoaceitação (pendente: vozes) |
+| 13 | Eu não consigo largar o celular | vício em celular (roteiro) |
+| 14 | Todo mundo tem alguém, menos eu | solidão (roteiro) |
+| 15 | Eu estudei tanto e travei na prova | pressão nos estudos (roteiro) |
+| 16 | Meu melhor amigo parou de falar comigo | amizade perdida (roteiro) |
+| 17 | Por que ela tem tudo e eu não? | inveja (roteiro) |
+| 18 | E se Deus não existir? | dúvida de fé (roteiro) |
 
 Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-claude/capas/`.
 
@@ -58,7 +64,7 @@ Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-clau
 
 1. **Episódios Davi & Deus:** uma dor real de adolescente, respondida por Deus com a Bíblia.
 2. **Histórias de seguidores:** relatos enviados pela caixinha viram episódio, sempre anonimizados e com permissão.
-3. **A Palavra do episódio:** versículo ou frase final em formatos curtos (stories, cortes, capas).
+3. **A Palavra do episódio:** versículo ou frase final nos stories e nas capas.
 4. **Conversa com quem assiste:** caixinha de perguntas, enquetes ("qual o próximo tema?"), respostas.
 
 ## A confirmar com o usuário

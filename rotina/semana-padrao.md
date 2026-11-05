@@ -9,7 +9,7 @@
 | 12h | Episódio (temas mais leves: amizade, escola, comparação, dons) |
 | 19h–20h | Episódio (temas mais profundos: ansiedade, luto, perdão, família) |
 
-Com esse volume não precisa de cortes curtos no feed; os trechos fortes viram stories. Revisar horários depois de 2 semanas de métricas.
+Só episódios novos no feed, nunca cortes de episódios antigos. Revisar horários depois de 2 semanas de métricas.
 
 ## Stories: todos os dias, 4 a 7
 

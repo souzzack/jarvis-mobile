@@ -41,12 +41,14 @@ Este repositório é o estúdio de conteúdo do Instagram **@davieopai**. Aqui f
 - `roteiros/reels/AAAA-MM-DD-slug.md` — roteiro de cada Reels, com legenda e capa no fim.
 - `roteiros/stories/AAAA-MM-DD.md` — stories do dia.
 - `personagem/` — a série: `serie.js`, `davi.js`, `quarto.js`, `cenarios.js`, `epNN.html`, `capa.html`, `compose_ep.html`, roteiros e capas em `mascote-claude/`, vozes e configs em `eps101112/epNN/`.
-- `animacoes/` — peças curtas novas (cortes, stories animados). Vídeos (`*.mp4`) não vão para o git; entregue ao usuário diretamente.
+- `animacoes/` — peças animadas para stories. Vídeos (`*.mp4`) não vão para o git; entregue ao usuário diretamente.
 - `metricas/AAAA-MM-DD.md` — números que o usuário copia do Instagram.
 - `relatorios/AAAA-Wnn.md` — análise semanal.
 - `rotina/semana-padrao.md` — dias, horários e formatos fixos.
 
 ## Regras da casa
+
+- **Nada de cortes de episódios antigos.** Isto não é podcast: o feed é feito só de episódios novos, com tema inédito. Quando faltar episódio, a resposta é um tema novo, não um corte.
 
 - Escreva tudo em português do Brasil, no tom de `marca/perfil.md`.
 - Use as habilidades instaladas de redes sociais (`social-media-skills:*`) em vez de improvisar o método. Para animar, siga o pipeline de `personagem/LEIA-ME-SERIE-DAVI.md` (three.js), não comece do zero.

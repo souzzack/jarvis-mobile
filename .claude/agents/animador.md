@@ -19,5 +19,5 @@ Como trabalhar:
 - Antes do render completo, gere quadros de teste dos planos principais e confira enquadramento, expressão e legibilidade.
 - Sirva a pasta localmente com `cd personagem && python3 -m http.server 8765`. Use scripts em arquivo para `pkill`/`pgrep`.
 - Renders e quadros ficam no scratchpad, fora do git. Entregue o vídeo ao usuário com SendUserFile.
-- Peças curtas (cortes de 15–30 s, stories animados) podem reaproveitar planos de episódios prontos.
+- Animações curtas para stories podem reaproveitar cenários e poses de episódios prontos. Nunca faça cortes de episódios antigos para o feed.
 - Atualize `marca/estilo-animacao.md` quando algo novo virar padrão.

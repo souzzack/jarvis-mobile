@@ -12,7 +12,7 @@ Siga as etapas 7 a 9 de `personagem/LEIA-ME-SERIE-DAVI.md`:
 - Pós: `compose.json` do episódio (título em 2 linhas, flash/sépia, versículos, dips, texto final) + `personagem/compose_ep.html`, renderizado com os scripts de `personagem/ferramentas/`.
 - Encode: `ffmpeg -preset veryfast -crf 21`, H.264 + AAC, 1080×1920, 30 fps.
 
-Use também `ffmpeg-llm:ffmpeg` e, para problemas difíceis, o agente `ffmpeg-llm:ffmpeg-expert`. Para cortes curtos a partir de episódios prontos, `it-reelsmaker:it-reelsmaker` ajuda com legendas e ritmo.
+Use também `ffmpeg-llm:ffmpeg` e, para problemas difíceis, o agente `ffmpeg-llm:ffmpeg-expert`.
 
 Checklist de entrega:
 - Legendas DAVI/DEUS sincronizadas e conferidas com a transcrição; versículos com referência.
