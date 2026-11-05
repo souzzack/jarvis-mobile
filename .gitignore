@@ -1,0 +1,6 @@
+node_modules/
+animacoes/**/out/
+animacoes/**/build/
+*.mp4
+*.mov
+.DS_Store
