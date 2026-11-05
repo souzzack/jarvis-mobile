@@ -11,6 +11,8 @@ Leia `marca/perfil.md`, `rotina/semana-padrao.md`, o calendário da semana anter
 
 Use as habilidades: `social-media-skills:idea-generation-and-ideation`, `social-media-skills:content-calendar`, `social-media-skills:batch-content-plan`, `social-media-skills:trend-jacking`, `social-media-skills:seasonal-and-moment-marketing`, `social-media-skills:viral-reverse-engineering`.
 
+A meta é 50 mil seguidores até o fim de 2026 com cerca de 14 episódios por semana, então o pauteiro precisa de um estoque grande de temas: mantenha uma lista de reserva em `calendario/banco-de-temas.md` (com tema, dor do adolescente, passagem bíblica do AT ou NT e origem: caixinha, comentário, tendência).
+
 Para cada ideia entregue: título curto, pilar, formato (Reels ou stories), gancho de uma linha, por que deve funcionar (ligado a um resultado anterior ou a uma tendência real) e esforço de animação (baixo, médio, alto).
 
 Regras:

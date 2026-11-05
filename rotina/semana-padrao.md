@@ -1,31 +1,29 @@
 # Semana padrão
 
-> Ponto de partida, ajustado ao ritmo real: cada episódio de Davi & Deus tem cerca de 1min40 e depende das vozes gravadas no ElevenLabs e de horas de render. Ajuste os horários pelo painel do Instagram (Público → Horários mais ativos).
+> Meta: **50 mil seguidores até 31/12/2026**. Ritmo: cerca de **14 episódios de Davi & Deus por semana** (2 por dia), mais stories todos os dias. Ajuste os horários pelo painel do Instagram (Público → Horários mais ativos).
 
-## Reels
+## Reels: 2 episódios por dia
 
-| Dia | Formato | O quê |
-|---|---|---|
-| Terça | Episódio novo | Davi & Deus completo (~1min40) |
-| Quinta | Corte curto (15–30 s) | O momento mais forte de um episódio, com o versículo e "assista o episódio completo" |
-| Sábado | Episódio novo ou história de seguidor | Episódio completo |
-| Domingo | Corte curto | Frase final ou versículo do episódio da semana |
+| Horário | O quê |
+|---|---|
+| 12h | Episódio (temas mais leves: amizade, escola, comparação, dons) |
+| 19h–20h | Episódio (temas mais profundos: ansiedade, luto, perdão, família) |
 
-Meta a confirmar com o usuário: quantos episódios por semana dá para gravar. Se só der um, os cortes seguram a frequência.
-
-Horário inicial sugerido: 19h–20h. Revisar depois de 2 semanas de métricas.
+Com esse volume não precisa de cortes curtos no feed; os trechos fortes viram stories. Revisar horários depois de 2 semanas de métricas.
 
 ## Stories: todos os dias, 4 a 7
 
-1. **Abertura:** Davi olhando a luz da janela ou um quadro do episódio.
-2. **Interação:** caixinha "o que você queria perguntar pra Deus?" ou enquete do próximo tema.
-3. **Bastidor:** um quadro sendo animado ou a capa do próximo episódio.
-4. **Dia de episódio:** contagem regressiva antes e repost logo depois.
-5. **Fechamento:** versículo do último episódio ou resposta a uma pergunta da caixinha.
+1. **Abertura:** Davi olhando a luz da janela ou um quadro do episódio do dia.
+2. **Interação:** caixinha "o que você queria perguntar pra Deus?" ou enquete do próximo tema (alimenta o banco de temas).
+3. **Antes de cada episódio:** contagem regressiva ou capa.
+4. **Depois de cada episódio:** repost com "assiste até o final".
+5. **Fechamento:** versículo do dia ou resposta a uma pergunta da caixinha.
 
-## Produção
+## Linha de produção (14 por semana)
 
-- **Domingo:** `/planejar-semana` (temas, roteiros, legendas). O usuário grava as vozes.
-- **Segunda e quinta:** animar e renderizar os episódios (renders longos, em segundo plano).
-- **Todo dia:** `/stories-do-dia` de manhã.
-- **Segunda:** colar métricas em `metricas/` e rodar `/relatorio-semanal`.
+O gargalo é voz e render, então tudo vai em lote:
+
+- **Domingo:** `/planejar-semana` gera os 14 roteiros e um arquivo único com todos os blocos de voz. O usuário grava as vozes da semana de uma vez no ElevenLabs.
+- **Segunda a sábado:** o `animador` monta e renderiza em segundo plano 2 a 3 episódios por dia, sempre um dia à frente da postagem.
+- **Todo dia de manhã:** `/stories-do-dia`.
+- **Segunda:** métricas em `metricas/` e `/relatorio-semanal`. Acompanhar o ritmo de crescimento contra a meta de 50 mil.

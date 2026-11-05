@@ -16,7 +16,8 @@
 ## Público e objetivo
 
 - **Público:** jovens e adolescentes que procuram a Deus.
-- **Objetivo:** crescer mais.
+- **Meta:** chegar a **50 mil seguidores até 31/12/2026**.
+- **Ritmo:** cerca de **14 episódios por semana** (2 por dia).
 
 ## Episódios
 
@@ -49,7 +50,7 @@ Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-clau
 
 - **Davi:** honesto, vulnerável, fala como adolescente de verdade.
 - **Deus:** acolhe antes de ensinar, tem humor gentil ("Não é o lugar mais cheiroso que eu já visitei"), nunca humilha nem dá sermão.
-- A resposta vem de passagens bíblicas reais, sempre com referência conferida (ex.: Lucas 22:57, Hebreus 2:11, Mateus 5:14-15).
+- A resposta vem de passagens bíblicas reais do **Antigo e do Novo Testamento**, sempre com referência conferida (ex.: Lucas 22:57, Hebreus 2:11, Mateus 5:14-15, Salmos, Provérbios, Isaías). Histórias do Antigo Testamento (o rei Davi, José, Elias, Rute) funcionam bem como paralelo da dor do Davi.
 - Frases finais curtas e compartilháveis: "Coragem não é não ter medo. É orar com a mão tremendo."
 
 ## Pilares de conteúdo
@@ -61,9 +62,10 @@ Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-clau
 
 ## A confirmar com o usuário
 
-- **Meta numérica:** quantos seguidores e até quando.
-- **Ritmo real de produção:** quantos episódios por semana dá para gravar as vozes (os créditos do ElevenLabs acabaram no ep11).
-- **Linha de fé:** igreja ou tradição, versão da Bíblia preferida para citações, temas que não entram.
+- **Seguidores hoje:** para calcular quantos por semana faltam até 50 mil.
+- **Tradução da Bíblia** para as citações (ex.: NVI, NTLH, ARA, ACF). Até lá, citar com fidelidade e sempre com a referência.
+- **Linha de fé:** igreja ou tradição, temas que não entram.
+- **Vozes:** plano do ElevenLabs que comporte 14 episódios por semana (os créditos acabaram no ep11).
 - **TikTok:** as legendas já saem também para TikTok; confirmar se a rotina vale para lá.
 
 ## Cuidados

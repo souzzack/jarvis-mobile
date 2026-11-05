@@ -7,7 +7,7 @@ Este repositório é o estúdio de conteúdo do Instagram **@davieopai**. Aqui f
 - Instagram: @davieopai
 - Série **Davi & Deus**: conversas sinceras do Davi (menino em 3D de blocos) com Deus, a quem ele chama de Pai (luz quente da janela). Feita pelo usuário com o Claude; trouxe 12 mil seguidores em uma semana.
 - Tudo da série (código three.js, roteiros, capas, vozes e o passo a passo de produção) está em `personagem/`. Comece por `personagem/LEIA-ME-SERIE-DAVI.md`.
-- Público: **jovens e adolescentes que procuram a Deus**. Objetivo: **crescer**.
+- Público: **jovens e adolescentes que procuram a Deus**. Meta: **50 mil seguidores até 31/12/2026**, com cerca de **14 episódios por semana** (2 por dia).
 - Rotina: **stories todos os dias** e **Reels**, sempre ligados às animações.
 - Detalhes da marca, público e tom de voz: `marca/perfil.md`. Leia antes de escrever qualquer coisa.
 - Estilo visual das animações: `marca/estilo-animacao.md`. Leia antes de animar.
