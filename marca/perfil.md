@@ -5,28 +5,36 @@
 ## O que já sabemos
 
 - **Conta:** @davieopai
+- **Quem são Davi e o Pai:** personagens animados, criados pelo dono da conta junto com o Claude. Toda a conta é feita de animações com esses dois personagens.
 - **Formato vencedor:** animações. Ganhamos 12 mil seguidores em uma semana com elas.
+- **Público principal:** jovens que procuram a Deus.
+- **Objetivo:** crescer mais.
 - **Rotina combinada:** stories diários e Reels, todos ligados às animações.
 
 ## A confirmar com o usuário
 
-- **Quem aparece:** quem são Davi e o pai, e como aparecem (personagens animados, vídeo real com animação por cima, voz)?
-- **Assunto principal:** humor do dia a dia de pai e filho, aprendizados, histórias? Quais temas nunca entram?
-- **Público:** quem mais segue hoje (pais, mães, jovens)? Faixa de idade e cidade, se o usuário souber pelo painel do Instagram.
-- **Objetivo para os próximos 90 dias:** crescer, monetizar com publicidade, vender algo próprio?
-- **Quais animações viralizaram:** links ou descrição dos 3 melhores Reels, com alcance se souber.
+- **Arquivo das animações:** o usuário vai enviar. Com ele, o `animador` preenche `marca/estilo-animacao.md` (traço, cores, ritmo, assinatura) e o estrategista confirma tom e temas.
+- **Quais animações viralizaram:** os 3 melhores Reels, com alcance se souber.
+- **Linha de fé:** alguma igreja ou tradição específica, versão da Bíblia preferida para citações, temas que não entram.
+- **Meta numérica:** quantos seguidores e até quando (ex.: 50 mil até março).
 - **Tom de voz:** 3 palavras que descrevem a conta.
-- **Limites:** o que não pode aparecer (rosto do Davi, escola, endereço, rotina com horário e lugar).
 
-## Pilares de conteúdo (rascunho, ajustar após confirmar)
+## Pilares de conteúdo (rascunho, ajustar depois do arquivo das animações)
 
-1. **Momentos de pai e filho animados:** situações do dia a dia transformadas em animação curta.
-2. **Bastidores da animação:** como uma cena nasce, do rascunho à versão final (bom para stories).
-3. **Interação com quem segue:** a audiência sugere situações, e as melhores viram animação.
-4. **Séries recorrentes:** um formato com nome e frequência fixa, que dá motivo para voltar.
+1. **Fé no dia a dia de pai e filho:** situações comuns em que o Pai mostra ao Davi um ensinamento de Deus.
+2. **Palavra animada:** um versículo ou uma história bíblica contada pelos dois personagens, curta e fácil de compartilhar.
+3. **Perguntas de quem busca a Deus:** dúvidas reais da audiência (caixinha, comentários) respondidas em animação.
+4. **Série recorrente:** um quadro com nome e dia fixo, que dá motivo para voltar.
+
+## Como falar com esse público
+
+- Jovens que estão procurando a Deus: acolher, não julgar. Linguagem simples, sem jargão de igreja que afaste quem está chegando.
+- Esperança e identificação primeiro; a mensagem vem pela história dos personagens, não por sermão.
+- Citação bíblica sempre com referência (livro, capítulo e versículo) e conferida.
+- Chamadas para ação que geram compartilhamento: "manda pra alguém que precisa ouvir isso", "salva para ler de novo".
 
 ## Cuidados com criança na internet
 
 - Nada de escola, uniforme, endereço, placa de carro ou horário e lugar da rotina.
-- Evitar expor o Davi em situações constrangedoras. A animação ajuda a manter a privacidade.
+- Davi e o Pai são personagens animados; se houver pessoas reais por trás, mantenha a privacidade delas.
 - Publicidade com a criança segue as regras do CONAR (identificar como publicidade).

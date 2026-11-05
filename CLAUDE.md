@@ -5,7 +5,8 @@ Este repositório é o estúdio de conteúdo do Instagram **@davieopai**. Aqui f
 ## A conta
 
 - Instagram: @davieopai
-- Formato que funciona: **animações**. Com elas a conta ganhou 12 mil seguidores em uma semana.
+- Davi e o Pai são **personagens animados** criados com o Claude. A conta inteira é feita dessas animações, que trouxeram 12 mil seguidores em uma semana.
+- Público: **jovens que procuram a Deus**. Objetivo: **crescer**.
 - Rotina: **stories todos os dias** e **Reels**, sempre ligados às animações.
 - Detalhes da marca, público e tom de voz: `marca/perfil.md`. Leia antes de escrever qualquer coisa.
 - Estilo visual das animações: `marca/estilo-animacao.md`. Leia antes de animar.
