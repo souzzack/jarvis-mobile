@@ -1,29 +1,31 @@
 # Semana padrão
 
-> Ponto de partida. Ajuste aos horários em que o público está mais ativo (Instagram → Painel profissional → Público → Horários mais ativos) e à capacidade real de produção.
+> Ponto de partida, ajustado ao ritmo real: cada episódio de Davi & Deus tem cerca de 1min40 e depende das vozes gravadas no ElevenLabs e de horas de render. Ajuste os horários pelo painel do Instagram (Público → Horários mais ativos).
 
-## Reels: 4 por semana
+## Reels
 
-| Dia | Formato | Ideia |
+| Dia | Formato | O quê |
 |---|---|---|
-| Segunda | Reels animado | Momento de pai e filho (pilar 1) |
-| Quarta | Reels animado | Série recorrente (pilar 4) |
-| Sexta | Reels animado | Sugestão de seguidor virou animação (pilar 3) |
-| Domingo | Reels curto | Bastidor ou versão estendida do melhor da semana (pilar 2) |
+| Terça | Episódio novo | Davi & Deus completo (~1min40) |
+| Quinta | Corte curto (15–30 s) | O momento mais forte de um episódio, com o versículo e "assista o episódio completo" |
+| Sábado | Episódio novo ou história de seguidor | Episódio completo |
+| Domingo | Corte curto | Frase final ou versículo do episódio da semana |
+
+Meta a confirmar com o usuário: quantos episódios por semana dá para gravar. Se só der um, os cortes seguram a frequência.
 
 Horário inicial sugerido: 19h–20h. Revisar depois de 2 semanas de métricas.
 
-## Stories: todos os dias, 4 a 7 por dia
+## Stories: todos os dias, 4 a 7
 
-1. **Abertura:** bom dia com um frame ou personagem animado.
-2. **Bastidor:** pedaço da animação em produção ("olha o que vem aí").
-3. **Interação:** enquete, quiz ou caixinha ligada à próxima animação.
-4. **Dia de Reels:** teaser antes do post e repost do Reels logo depois de publicar, com sticker de link ou "ver Reels".
-5. **Fechamento (opcional):** resultado da enquete de ontem ou resposta da caixinha.
+1. **Abertura:** Davi olhando a luz da janela ou um quadro do episódio.
+2. **Interação:** caixinha "o que você queria perguntar pra Deus?" ou enquete do próximo tema.
+3. **Bastidor:** um quadro sendo animado ou a capa do próximo episódio.
+4. **Dia de episódio:** contagem regressiva antes e repost logo depois.
+5. **Fechamento:** versículo do último episódio ou resposta a uma pergunta da caixinha.
 
 ## Produção
 
-- **Domingo:** planejar a semana (`/planejar-semana`) e animar os Reels de segunda e quarta.
-- **Quarta:** animar os Reels de sexta e domingo.
+- **Domingo:** `/planejar-semana` (temas, roteiros, legendas). O usuário grava as vozes.
+- **Segunda e quinta:** animar e renderizar os episódios (renders longos, em segundo plano).
 - **Todo dia:** `/stories-do-dia` de manhã.
-- **Segunda:** colar as métricas da semana em `metricas/` e rodar `/relatorio-semanal`.
+- **Segunda:** colar métricas em `metricas/` e rodar `/relatorio-semanal`.

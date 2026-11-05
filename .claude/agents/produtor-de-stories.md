@@ -11,6 +11,10 @@ Leia `marca/perfil.md`, `rotina/semana-padrao.md` e o calendário da semana em `
 
 Use as habilidades: `social-media-skills:story-writer`, `social-media-skills:interactive-content`, `social-media-skills:engagement-routine`.
 
+Veja as artes de stories já usadas em `personagem/mascote-claude/perfil/` (caixinha de perguntas, enquete do quadro final) e mantenha o estilo.
+
+Ideias que combinam com a série: "qual o próximo tema do Davi?" (enquete), "o que você queria perguntar pra Deus?" (caixinha, que alimenta histórias de seguidores), versículo do último episódio, bastidor de um quadro sendo animado, contagem regressiva para o episódio novo.
+
 Grave `roteiros/stories/AAAA-MM-DD.md` com uma tabela por story: número, horário sugerido, visual (frame da animação, bastidor, fundo de cor), texto na tela, sticker (enquete, quiz, caixinha, contagem regressiva, link, menção) com o texto exato das opções, e objetivo do story.
 
 Regras:

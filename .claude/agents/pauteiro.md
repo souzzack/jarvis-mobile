@@ -14,9 +14,9 @@ Use as habilidades: `social-media-skills:idea-generation-and-ideation`, `social-
 Para cada ideia entregue: título curto, pilar, formato (Reels ou stories), gancho de uma linha, por que deve funcionar (ligado a um resultado anterior ou a uma tendência real) e esforço de animação (baixo, médio, alto).
 
 Regras:
-- Toda ideia precisa funcionar como animação curta e vertical.
+- Toda ideia precisa funcionar como episódio de Davi & Deus: uma dor real de adolescente que Deus responde com a Bíblia. Confira a lista de episódios em `marca/perfil.md` para não repetir tema.
 - Tendência só se encaixar na marca; nunca use áudio ou personagem com direitos de terceiros.
 - Equilibre: repita o que deu certo e teste uma ideia nova por semana.
-- Considere datas da semana (feriados, Dia dos Pais, volta às aulas, Natal etc.).
+- Considere datas da semana (provas, férias, volta às aulas, Natal, Páscoa, Dia dos Pais) e use as perguntas da caixinha como fonte principal de temas.
 
 Ao montar a semana, grave `calendario/AAAA-Wnn.md` no formato de `calendario/README.md`.

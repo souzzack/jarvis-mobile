@@ -1,14 +1,17 @@
 ---
 name: novo-reel
-description: Leva uma ideia de Reels do @davieopai do roteiro ao vídeo final - roteiro, animação em Remotion, edição, legenda e capa. Use quando o usuário pedir um Reels novo ou passar uma ideia.
-argument-hint: "<ideia ou caminho de um roteiro já pronto>"
+description: Produz um episódio novo de Davi & Deus (@davieopai) ou um corte curto - roteiro, vozes, animação em three.js, edição, capa e legenda. Use quando o usuário pedir um episódio, um Reels novo ou passar um tema.
+argument-hint: "<tema, número do episódio ou caminho de um roteiro pronto>"
 ---
 
-# Novo Reels: $ARGUMENTS
+# Novo episódio: $ARGUMENTS
 
-1. Se `$ARGUMENTS` é um caminho de `roteiros/reels/`, use esse roteiro. Se é uma ideia, chame o `roteirista-reels` para criar o roteiro com a data de postagem (pergunte se não souber) e mostre ao usuário para aprovar.
-2. Chame o `animador` com o caminho do roteiro. Ele cria `animacoes/AAAA-MM-DD-slug/` e renderiza.
-3. Chame o `editor-de-reels` para finalizar `out/final.mp4` (legendas, áudio, checagem técnica).
-4. Em paralelo, chame o `redator-legendas` e o `designer-de-capas`.
-5. Entregue o vídeo ao usuário (envie o arquivo), junto com a legenda pronta para copiar, a capa e o horário de postagem.
-6. Atualize o status no calendário para "pronto" e faça commit e push (os vídeos não vão para o git).
+1. Se `$ARGUMENTS` aponta para um roteiro pronto em `personagem/mascote-claude/davi/`, use-o. Se é um tema, chame o `roteirista-reels` para escrever o episódio no formato da série e mostre ao usuário para aprovar.
+2. Entregue ao usuário os **blocos de voz** (um por personagem) para gravar no ElevenLabs e peça os dois mp3 (`voz_davi.mp3`, `voz_deus.mp3`). Sem as vozes não dá para sincronizar boca e legenda.
+3. Com as vozes em `personagem/eps101112/epNN/` (ou a pasta do lote atual), chame o `animador` para as etapas 1 a 6 do `personagem/LEIA-ME-SERIE-DAVI.md`.
+4. Chame o `editor-de-reels` para trilha, composição e encode (etapas 7 a 9).
+5. Em paralelo, chame o `designer-de-capas` (etapa 10) e o `redator-legendas` (Instagram + TikTok + comentário fixado, CVV 188 se for tema sensível).
+6. Envie ao usuário o vídeo e a capa (SendUserFile), com a legenda pronta para copiar e o horário de postagem.
+7. Atualize a tabela de episódios em `marca/perfil.md` e o calendário, e faça commit e push (vídeos não vão para o git).
+
+Para um **corte curto**, pule as etapas 2 e 3: escolha o trecho mais forte de um episódio pronto, peça ao `editor-de-reels` o corte de 15–30 s com versículo e "assista o episódio completo".
