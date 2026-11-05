@@ -35,12 +35,12 @@
 | 10 | Tenho vergonha de ser cristão | zoação por causa da fé |
 | 11 | Eu não sou bom em nada | dons (pendente: render) |
 | 12 | Eu tenho raiva de mim | autoaceitação (pendente: vozes) |
-| 13 | Eu não consigo largar o celular | vício em celular (roteiro) |
-| 14 | Todo mundo tem alguém, menos eu | solidão (roteiro) |
-| 15 | Eu estudei tanto e travei na prova | pressão nos estudos (roteiro) |
-| 16 | Meu melhor amigo parou de falar comigo | amizade perdida (roteiro) |
-| 17 | Por que ela tem tudo e eu não? | inveja (roteiro) |
-| 18 | E se Deus não existir? | dúvida de fé (roteiro) |
+| 13 | Parece que Deus prefere os outros | se sentir esquecido (roteiro) |
+| 14 | Eu me acho feio | autoimagem (roteiro) |
+| 15 | Tenho medo do futuro | ansiedade com o amanhã (roteiro) |
+| 16 | Meus amigos querem que eu faça coisa errada | pressão do grupo (roteiro) |
+| 17 | Eu menti pra todo mundo | mentira (roteiro) |
+| 18 | Eu quero desistir de tudo | cansaço extremo (roteiro) |
 
 Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-claude/capas/`.
 
