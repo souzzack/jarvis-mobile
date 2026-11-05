@@ -11,7 +11,7 @@
 - **Deus:** presença de luz quente que entra pela janela. Não aparece como pessoa.
 - **Cenário principal:** o quarto do Davi à noite. Cenários extras: escola, refeitório, cidade, igreja (`personagem/cenarios.js`).
 - **Criação:** o usuário cria as animações com o Claude; as vozes são dele, no ElevenLabs (Davi = "Davi Andrei", Deus = "Spuds Oxley - Grandpa").
-- **Resultado:** 12 mil seguidores em uma semana.
+- **Resultado:** 12 mil seguidores em uma semana. Em 05/11/2026: **12,2 mil seguidores**, ganhando em média **2 a 3 mil por dia** (informado pelo usuário).
 
 ## Público e objetivo
 
@@ -51,6 +51,7 @@ Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-clau
 - **Davi:** honesto, vulnerável, fala como adolescente de verdade.
 - **Deus:** acolhe antes de ensinar, tem humor gentil ("Não é o lugar mais cheiroso que eu já visitei"), nunca humilha nem dá sermão.
 - A resposta vem de passagens bíblicas reais do **Antigo e do Novo Testamento**, sempre com referência conferida (ex.: Lucas 22:57, Hebreus 2:11, Mateus 5:14-15, Salmos, Provérbios, Isaías). Histórias do Antigo Testamento (o rei Davi, José, Elias, Rute) funcionam bem como paralelo da dor do Davi.
+- **Tradução:** nas falas, Deus parafraseia a passagem com fidelidade, em linguagem natural, sempre com a referência. No **versículo na tela**, use a **NVI (Nova Versão Internacional)**, a tradução moderna mais usada por jovens evangélicos no Brasil. Se o usuário pedir outra, troque aqui.
 - Frases finais curtas e compartilháveis: "Coragem não é não ter medo. É orar com a mão tremendo."
 
 ## Pilares de conteúdo
@@ -62,8 +63,7 @@ Roteiros em `personagem/mascote-claude/davi/`. Capas em `personagem/mascote-clau
 
 ## A confirmar com o usuário
 
-- **Seguidores hoje:** para calcular quantos por semana faltam até 50 mil.
-- **Tradução da Bíblia** para as citações (ex.: NVI, NTLH, ARA, ACF). Até lá, citar com fidelidade e sempre com a referência.
+- **Meta mais ousada:** no ritmo atual, 50 mil chega por volta de 18 a 24/11/2026. Confirmar com o usuário se a meta do fim do ano sobe (ex.: 100 mil).
 - **Linha de fé:** igreja ou tradição, temas que não entram.
 - **Vozes:** plano do ElevenLabs que comporte 14 episódios por semana (os créditos acabaram no ep11).
 - **TikTok:** as legendas já saem também para TikTok; confirmar se a rotina vale para lá.

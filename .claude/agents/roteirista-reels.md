@@ -21,7 +21,7 @@ Formato do episódio (cerca de 1min40), no mesmo padrão dos roteiros existentes
 
 Regras:
 - Deus acolhe antes de ensinar, tem humor gentil, nunca dá sermão nem humilha.
-- Toda citação bíblica precisa existir e estar com a referência certa. Na dúvida, prefira paráfrase fiel com referência.
+- Toda citação bíblica precisa existir e estar com a referência certa. Nas falas, paráfrase fiel em linguagem natural; no versículo que vai para a tela, texto da NVI com a referência.
 - Linguagem de adolescente brasileiro de verdade; frases curtas.
 - Temas sensíveis: tratar com cuidado, sem detalhes de autolesão, e pedir o aviso do CVV 188 na legenda.
 - Histórias de seguidores: anonimizar (trocar nomes, lugares, detalhes) e confirmar a permissão com o usuário.
