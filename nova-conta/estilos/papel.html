@@ -1,0 +1,93 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;overflow:hidden;background:#000}canvas{display:block}
+.t{position:absolute;left:60px;right:60px;top:300px;text-align:center;font:600 64px/1.15 Georgia,serif;color:#fff8ec;text-shadow:0 4px 18px rgba(10,10,40,.8)}</style>
+<script type="importmap">{"imports":{"three":"../../personagem/node_modules/three/build/three.module.js","three/addons/":"../../personagem/node_modules/three/examples/jsm/"}}</script>
+</head><body><div class="t">3 da manhã.<br>Ela chegou de novo.</div><script type="module">
+// ESTILO "PAPEL": mundo de papel recortado e dobrado, low-poly facetado (flatShading),
+// fibra de papel na superfície, olhos de recorte chapado, rabiscos de lápis como pensamentos.
+// Luz de luminária quente contra a noite azul. Animação "dobra e desdobra" (peças entram girando).
+import * as THREE from 'three';
+import { deform, noiseTex, setup } from './comum.js';
+const { renderer, scene } = setup();
+scene.background = new THREE.Color(0x1d2550);
+scene.fog = new THREE.Fog(0x1d2550, 26, 50);
+const fibra = noiseTex(256, 20, true);
+const papel = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.95, flatShading: true, bumpMap: fibra, bumpScale: 0.6 });
+const chapado = (color) => new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide });
+const lowpoly = (geo, amp = 0.05, seed = 1) => { geo = geo.toNonIndexed ? geo : geo; return deform(geo, amp, 1.7, seed); };
+
+// quarto de papel: parede em faixas dobradas (sanfona), chão, janela com lua pendurada
+const parede = new THREE.Group();
+for (let i = 0; i < 14; i++) { const f = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 14), papel(i % 2 ? 0x2c3770 : 0x26306a)); f.position.set(-7.15 + i * 1.1, 6, -4 + (i % 2) * 0.25); f.rotation.y = (i % 2 ? -1 : 1) * 0.22; parede.add(f); }
+scene.add(parede);
+const chao = new THREE.Mesh(new THREE.PlaneGeometry(30, 30, 30, 30), papel(0x3b3f78)); chao.rotation.x = -Math.PI / 2; scene.add(chao);
+// janela recortada + lua de papel num barbante + estrelas
+const jan = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.6), chapado(0x0d1233)); jan.position.set(2.6, 7.2, -3.7); scene.add(jan);
+const mold = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.12, 3, 4), papel(0xf1e4cf)); mold.rotation.z = Math.PI / 4; mold.scale.set(1, 1.12, 1); mold.position.set(2.6, 7.2, -3.6); scene.add(mold);
+const lua = new THREE.Mesh(new THREE.CircleGeometry(0.75, 7), papel(0xfff1c2)); lua.position.set(3.0, 7.6, -3.4); scene.add(lua);
+const lua2 = new THREE.Mesh(new THREE.CircleGeometry(0.6, 7), chapado(0x0d1233)); lua2.position.set(3.35, 7.85, -3.39); scene.add(lua2);
+const fio = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 1.8), chapado(0xe6dccb)); fio.position.set(3.0, 9.25, -3.4); scene.add(fio);
+for (let i = 0; i < 9; i++) { const e = new THREE.Mesh(new THREE.CircleGeometry(0.08 + (i % 3) * 0.03, 5), chapado(0xfff1c2)); e.position.set(1.3 + (i * 37 % 26) / 10, 5.8 + (i * 53 % 28) / 10, -3.65); scene.add(e); }
+// cama: blocos de papel dobrado + travesseiro facetado + coberta em triângulos
+const cama = new THREE.Mesh(lowpoly(new THREE.BoxGeometry(5.5, 1.1, 3, 3, 1, 2), 0.03, 2), papel(0xe9d8bf)); cama.position.set(-1.6, 0.55, -1.6); scene.add(cama);
+const cob = new THREE.Mesh(lowpoly(new THREE.BoxGeometry(3.6, 0.35, 3.1, 4, 1, 3), 0.12, 5), papel(0xe86f68)); cob.position.set(-0.6, 1.25, -1.55); scene.add(cob);
+const trav = new THREE.Mesh(lowpoly(new THREE.IcosahedronGeometry(0.8, 1), 0.06, 3), papel(0xf5ecdc)); trav.scale.set(1.5, 0.55, 1); trav.position.set(-3.5, 1.5, -1.8); scene.add(trav);
+// luminária de papel (cone) com luz quente
+const abaj = new THREE.Mesh(new THREE.ConeGeometry(0.6, 0.8, 6, 1, true), papel(0xffd27a)); abaj.material.side = THREE.DoubleSide; abaj.position.set(3.4, 2.6, -2.4); scene.add(abaj);
+const pe = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.4, 5), papel(0xf1e4cf)); pe.position.set(3.4, 1.7, -2.4); scene.add(pe);
+const mesa = new THREE.Mesh(lowpoly(new THREE.BoxGeometry(1.6, 1.0, 1.4, 2, 1, 2), 0.03, 8), papel(0xc98f63)); mesa.position.set(3.4, 0.5, -2.4); scene.add(mesa);
+const quente = new THREE.PointLight(0xffb25c, 30, 14, 1.6); quente.position.set(3.3, 2.4, -1.9); quente.castShadow = true; scene.add(quente);
+
+// LIA: menina low-poly sentada na cama abraçando os joelhos, olhos de recorte
+const L = new THREE.Group();
+const pele = papel(0xc68a5e), cabelo = papel(0x2a1c22), mol = papel(0x7fb7a8);
+const tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.75, 1.5, 6), mol); tronco.position.y = 0.75; L.add(tronco);
+const cab = new THREE.Mesh(lowpoly(new THREE.IcosahedronGeometry(0.72, 1), 0.04, 9), pele); cab.scale.set(1, 1.05, 0.95); cab.position.y = 2.1; L.add(cab);
+const topo = new THREE.Mesh(lowpoly(new THREE.IcosahedronGeometry(0.78, 1), 0.06, 4), cabelo); topo.scale.set(1.05, 0.75, 1.0); topo.position.set(0, 2.45, -0.1); L.add(topo);
+const coque = new THREE.Mesh(lowpoly(new THREE.IcosahedronGeometry(0.34, 0), 0.03, 2), cabelo); coque.position.set(0.1, 3.0, -0.25); L.add(coque);
+for (const s of [-1, 1]) { const m = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.9, 4), cabelo); m.position.set(s * 0.62, 1.95, 0.05); m.rotation.z = s * 0.12; m.rotation.x = Math.PI; L.add(m); }
+// olhos: recortes chapados (branco + pupila), olhando para cima, para a Ansiedade
+for (const s of [-1, 1]) {
+  const w = new THREE.Mesh(new THREE.CircleGeometry(0.15, 6), chapado(0xfffaf0)); w.scale.y = 1.15; w.position.set(s * 0.26, 2.12, 0.69); L.add(w);
+  const p = new THREE.Mesh(new THREE.CircleGeometry(0.08, 6), chapado(0x1a1426)); p.position.set(s * 0.26 + 0.03, 2.18, 0.70); L.add(p);
+  const sb = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.045), chapado(0x2a1c22)); sb.position.set(s * 0.26, 2.37, 0.70); sb.rotation.z = -s * 0.3; L.add(sb);
+}
+const boca = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.035), chapado(0x5a2a2a)); boca.position.set(0, 1.84, 0.71); L.add(boca);
+// pernas dobradas (joelhos para cima) e braços abraçando
+for (const s of [-1, 1]) {
+  const coxa = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 1.0, 5), papel(0x3c4a7a)); coxa.position.set(s * 0.25, 0.75, 0.45); coxa.rotation.x = -0.9; L.add(coxa);
+  const can = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.2, 0.95, 5), papel(0x3c4a7a)); can.position.set(s * 0.25, 0.55, 1.05); can.rotation.x = 0.35; L.add(can);
+  const br = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.15, 1.0, 5), mol); br.position.set(s * 0.52, 1.1, 0.55); br.rotation.set(-1.2, 0, s * -0.35); L.add(br);
+  const mao = new THREE.Mesh(lowpoly(new THREE.IcosahedronGeometry(0.14, 0), 0.01, s), pele); mao.position.set(s * 0.22, 1.05, 1.05); L.add(mao);
+}
+L.position.set(-1.5, 1.3, -1.2); L.rotation.y = 0.2; scene.add(L);
+
+// ANSIEDADE: bola de papel amassado (facetas fortes), olhos arregalados, rabiscos de lápis em volta
+const A = new THREE.Group();
+const bola = new THREE.Mesh(deform(new THREE.IcosahedronGeometry(1.0, 2), 0.22, 2.6, 13), papel(0xf3efe6)); A.add(bola);
+for (const s of [-1, 1]) {
+  const w = new THREE.Mesh(new THREE.CircleGeometry(0.27, 7), chapado(0xffffff)); w.position.set(s * 0.32, 0.12, 1.08); A.add(w);
+  const p = new THREE.Mesh(new THREE.CircleGeometry(0.1, 6), chapado(0x16121f)); p.position.set(s * 0.32 - 0.05, 0.05, 1.09); A.add(p);
+  const sb = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.06), chapado(0x16121f)); sb.position.set(s * 0.32, 0.5, 1.07); sb.rotation.z = s * 0.35; A.add(sb);
+}
+const bo = new THREE.Mesh(new THREE.CircleGeometry(0.11, 6), chapado(0x16121f)); bo.scale.set(1, 0.7, 1); bo.position.set(0, -0.32, 1.06); A.add(bo);
+// rabiscos: espirais de lápis girando em volta (os pensamentos acelerados)
+const lapis = new THREE.MeshBasicMaterial({ color: 0x0f0c18 });
+for (let k = 0; k < 3; k++) {
+  const pts = []; for (let i = 0; i < 90; i++) { const a = i * 0.32 + k * 2; const r = 1.45 + 0.25 * Math.sin(i * 0.7 + k) ; pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(i * 0.21 + k) * 0.9 + (k - 1) * 0.35, Math.sin(a) * r * 0.55)); }
+  A.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 0.018, 4), lapis));
+}
+A.scale.setScalar(0.8); A.position.set(1.1, 4.6, -0.8); A.rotation.y = -0.25; scene.add(A);
+// celular aceso esquecido na cama (luz fria)
+const cel = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.04, 0.62), chapado(0xbfe3ff)); cel.position.set(0.6, 1.45, -0.6); cel.rotation.y = 0.5; scene.add(cel);
+const fria = new THREE.PointLight(0x8fc8ff, 4, 4, 2); fria.position.set(0.6, 1.8, -0.5); scene.add(fria);
+
+scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+scene.add(new THREE.HemisphereLight(0x8a9ad8, 0x1d2550, 0.9));
+const luar = new THREE.DirectionalLight(0xbcd0ff, 1.3); luar.position.set(4, 10, 4); luar.castShadow = true; luar.shadow.mapSize.set(2048, 2048);
+Object.assign(luar.shadow.camera, { left: -8, right: 8, top: 10, bottom: -4 }); scene.add(luar);
+const rosto = new THREE.DirectionalLight(0xffd9b0, 0.9); rosto.position.set(-2, 4, 12); scene.add(rosto); // preenchimento quente nos rostos
+const cam = new THREE.PerspectiveCamera(34, 1080 / 1920, 0.1, 100); cam.position.set(0.4, 4.4, 21); cam.lookAt(0.4, 4.4, -1.5);
+renderer.render(scene, cam); window.__ready = true;
+</script></body></html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;overflow:hidden;background:#000}canvas{display:block}
+.t{position:absolute;left:0;right:0;top:300px;text-align:center;font:900 76px/1.05 "Arial Rounded MT Bold",Arial,sans-serif;color:#fff;-webkit-text-stroke:10px #3b1d14;paint-order:stroke;letter-spacing:1px}</style>
+<script type="importmap">{"imports":{"three":"../../personagem/node_modules/three/build/three.module.js","three/addons/":"../../personagem/node_modules/three/examples/jsm/"}}</script>
+</head><body><div class="t">MEU PRIMEIRO SALÁRIO<br>SUMIU EM 3 DIAS</div><script type="module">
+// ESTILO "MASSINHA": tudo parece modelado à mão em massinha. Formas moles e irregulares,
+// marcas de dedo (bumpMap), cores pastel saturadas, olhos de miçanga sem branco,
+// lente longa (quase miniatura) e animação a 12 fps "travadinha" de stop-motion.
+import * as THREE from 'three';
+import { deform, noiseTex, setup } from './comum.js';
+const { renderer, scene } = setup();
+scene.background = new THREE.Color(0xf4b9a0);
+const dedos = noiseTex(256, 10);
+const clay = (color, rep = 2) => { const t = dedos.clone(); t.repeat.set(rep, rep); t.needsUpdate = true;
+  return new THREE.MeshStandardMaterial({ color, roughness: 0.62, bumpMap: t, bumpScale: 1.4 }); };
+const blob = (geo, mat, amp = 0.04, f = 2.2, seed = 1) => new THREE.Mesh(deform(geo, amp, f, seed), mat);
+
+// cenário: chão e parede de massinha, mesinha, porquinho quebrado, contas
+const floor = blob(new THREE.BoxGeometry(20, 0.6, 24, 60, 6, 60), clay(0xe9845f, 8), 0.05, 1.2, 4); floor.position.y = -0.3; scene.add(floor);
+const wall = blob(new THREE.BoxGeometry(14, 12, 0.6, 60, 50, 4), clay(0xffd6b8, 6), 0.06, 1.0, 7); wall.position.set(0, 5.6, -3.2); scene.add(wall);
+const mesa = blob(new THREE.BoxGeometry(3.6, 0.3, 1.8, 30, 4, 16), clay(0x7ec8b4, 2), 0.04, 2, 3); mesa.position.set(1.7, 1.55, -1.2); scene.add(mesa);
+for (const [x, z] of [[-1.5, -0.7], [1.5, -0.7], [-1.5, 0.7], [1.5, 0.7]]) { const p = blob(new THREE.CylinderGeometry(0.12, 0.14, 1.5, 12, 8), clay(0x5aa894), 0.02, 3, x + z); p.position.set(1.7 + x, 0.75, -1.2 + z); scene.add(p); }
+// pilha de contas (papéis de massinha) na mesa
+for (let i = 0; i < 6; i++) { const c = blob(new THREE.BoxGeometry(0.9, 0.05, 1.2, 8, 1, 8), clay(i % 2 ? 0xfff6e8 : 0xffeccc), 0.02, 3, i);
+  c.position.set(1.0 + Math.sin(i) * 0.08, 1.74 + i * 0.07, -1.2 + Math.cos(i * 2) * 0.06); c.rotation.y = i * 0.35; scene.add(c); }
+// porquinho de moedas, vazio e de cabeça para baixo
+const pig = new THREE.Group(); const pm = clay(0xff8fb1);
+const pb = blob(new THREE.SphereGeometry(0.45, 32, 24), pm, 0.03, 3, 2); pb.scale.set(1.25, 1, 1); pig.add(pb);
+const sn = blob(new THREE.CylinderGeometry(0.16, 0.18, 0.18, 16, 2), pm, 0.02, 4, 5); sn.rotation.z = Math.PI / 2; sn.position.x = 0.58; pig.add(sn);
+for (const s of [-1, 1]) for (const t of [-1, 1]) { const l = blob(new THREE.CylinderGeometry(0.09, 0.1, 0.25, 10, 2), pm, 0.02, 4, s + t); l.position.set(s * 0.28, -0.42, t * 0.22); pig.add(l); }
+pig.rotation.z = Math.PI * 0.92; pig.position.set(2.9, 2.28, -1.1); scene.add(pig);
+// moedinha solitária rolando no chão
+const coin = blob(new THREE.CylinderGeometry(0.22, 0.22, 0.06, 24, 1), clay(0xf6c945, 1), 0.01, 5, 2); coin.rotation.set(1.2, 0, 0.3); coin.position.set(-2.2, 0.25, 1.6); scene.add(coin);
+
+// PERSONAGEM: bolota de massinha (corpo e cabeça na mesma peça), olhos de miçanga, bracinhos de cobrinha
+const P = new THREE.Group();
+const pele = clay(0x8fb7ff, 2);
+const corpo = blob(new THREE.SphereGeometry(1, 48, 40), pele, 0.07, 1.6, 11); corpo.scale.set(1.0, 1.35, 0.92); corpo.position.y = 1.35; P.add(corpo);
+// crachá do primeiro emprego (cordão + cartão)
+const cordao = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.035, 8, 40, Math.PI * 0.8), clay(0xff6f59, 1)); cordao.rotation.set(0.45, 0, Math.PI * 1.1); cordao.position.set(0, 1.55, 0.62); P.add(cordao);
+const cracha = blob(new THREE.BoxGeometry(0.42, 0.52, 0.06, 6, 6, 1), clay(0xffe066, 1), 0.015, 4, 9); cracha.position.set(0, 0.98, 0.93); cracha.rotation.x = -0.12; P.add(cracha);
+const foto = blob(new THREE.BoxGeometry(0.16, 0.18, 0.02, 3, 3, 1), clay(0x8fb7ff, 1), 0.005, 6, 2); foto.position.set(-0.08, 1.04, 0.97); foto.rotation.x = -0.12; P.add(foto);
+const bead = new THREE.MeshPhysicalMaterial({ color: 0x14100e, roughness: 0.15, clearcoat: 1 });
+for (const s of [-1, 1]) {
+  const e = new THREE.Mesh(new THREE.SphereGeometry(0.13, 20, 16), bead); e.scale.set(1, 1.25, 0.7); e.position.set(s * 0.33, 1.95, 0.83); P.add(e);
+  const sob = blob(new THREE.CapsuleGeometry(0.04, 0.22, 4, 8), clay(0x2d3a66), 0.01, 6, s); sob.rotation.z = Math.PI / 2 - s * 0.35; sob.position.set(s * 0.33, 2.25, 0.84); P.add(sob);
+  // bracinho: tubo curvo de massinha
+  const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(s * 0.9, 1.3, 0.1), new THREE.Vector3(s * 1.35, 1.65, 0.35), new THREE.Vector3(s * 1.25, 2.25, 0.55)]);
+  const arm = blob(new THREE.TubeGeometry(curve, 24, 0.13, 10), pele, 0.02, 4, s * 3); P.add(arm);
+  const mao = blob(new THREE.SphereGeometry(0.19, 16, 12), pele, 0.03, 4, s); mao.position.set(s * 1.25, 2.3, 0.55); P.add(mao);
+}
+const boca = blob(new THREE.TorusGeometry(0.16, 0.05, 10, 24, Math.PI), clay(0x2d3a66), 0.01, 6, 2); boca.position.set(0, 1.62, 0.9); P.add(boca); // boca triste (arco para baixo)
+for (const s of [-1, 1]) { const b = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10), new THREE.MeshStandardMaterial({ color: 0xff7b8a, roughness: 0.7, transparent: true, opacity: 0.6 })); b.scale.set(1, 0.6, 0.3); b.position.set(s * 0.55, 1.72, 0.84); P.add(b); }
+// gota de suor
+const gota = blob(new THREE.SphereGeometry(0.1, 16, 12), new THREE.MeshPhysicalMaterial({ color: 0x9ee0ff, roughness: 0.05, clearcoat: 1 }), 0.005, 6); gota.scale.set(0.8, 1.3, 0.8); gota.position.set(0.75, 2.35, 0.6); P.add(gota);
+for (const s of [-1, 1]) { const pe = blob(new THREE.SphereGeometry(0.3, 20, 14), clay(0xff6f59), 0.03, 3, s); pe.scale.set(1, 0.55, 1.4); pe.position.set(s * 0.42, 0.13, 0.2); P.add(pe); }
+P.position.set(-0.6, 0, 0.6); P.rotation.y = 0.25; scene.add(P);
+// holerite na mão
+const hol = blob(new THREE.BoxGeometry(0.8, 1.0, 0.04, 8, 8, 1), clay(0xffffff, 1), 0.02, 3, 6); hol.position.set(-0.6 + 1.25 * 0.97 + 0.35, 2.45, 0.6 + 0.85); hol.rotation.set(-0.2, -0.4, 0.15); scene.add(hol);
+
+scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+scene.add(new THREE.HemisphereLight(0xfff1e6, 0xc9785e, 1.3));
+const sol = new THREE.DirectionalLight(0xfff0dd, 2.6); sol.position.set(-4, 9, 7); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+Object.assign(sol.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7 }); sol.shadow.radius = 6; scene.add(sol);
+const cam = new THREE.PerspectiveCamera(22, 1080 / 1920, 0.1, 100); cam.position.set(0.4, 5.0, 26); cam.lookAt(0.6, 2.4, 0);
+renderer.render(scene, cam); window.__ready = true;
+</script></body></html>
