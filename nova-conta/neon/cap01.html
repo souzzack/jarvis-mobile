@@ -278,7 +278,7 @@ const SHOTS = [
    fill.color.set(0xffb070); fill.intensity = 2.2; rim = 0.3; }],
  [30, 35, (k, t) => { // 9. o portão abre sozinho; Kai entra (câmera baixa, do pátio)
    portao.rotation.y = -1.6 * seg(t, 30.3, 32.0); poeMoto(61.8, 1.2, Math.PI);
-   const p = seg(t, 31.6, 34.8); aPe(KAI, 60.4, mix(0.4, -2.7, p), Math.PI, { walk: p > 0 && p < 1 ? 1 : 0, ph: t * 6.5, cab: [0, -0.05], franze: 0.3 }, t);
+   const p = seg(t, 31.6, 34.8); aPe(KAI, 60.4, mix(0.6, -1.9, p), Math.PI, { walk: p > 0 && p < 1 ? 1 : 0, ph: t * 6.5, cab: [0, -0.05], franze: 0.3 }, t);
    setCam(V(59.0, 1.25, -5.4), V(60.3, 2.3, -0.5), 42); fill.intensity = 0.8; }],
  [35, 38.6, (k, t) => { // 10. escada de emergência, luz rosa piscando
    escada(KAI, mix(6, 14.6, seg(t, 35, 38.3)), t);
