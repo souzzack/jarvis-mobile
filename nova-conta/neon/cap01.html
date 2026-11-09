@@ -1,0 +1,318 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;overflow:hidden;background:#000}canvas{display:block}
+#ov{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0;pointer-events:none}
+.tit{position:absolute;left:70px;right:70px;top:300px;font:700 62px/1.15 "Courier New",monospace;color:#ff4fd8;text-shadow:0 0 12px #ff4fd8,0 0 30px #ff2fa0;opacity:0}
+.tit b{display:block;color:#7af3ff;text-shadow:0 0 12px #3ae0ff;font-size:46px;margin-bottom:14px}
+.leg{position:absolute;left:80px;right:80px;bottom:330px;text-align:center;font:700 50px/1.25 "Courier New",monospace;color:#fff;text-shadow:0 0 10px #000,0 0 22px #000,0 3px 4px #000}
+.leg i{display:block;font-style:normal;font-size:34px;color:#7af3ff;text-shadow:0 0 10px #3ae0ff;margin-bottom:8px}
+.leg i.luna{color:#ff7fe0;text-shadow:0 0 10px #ff3fb4}
+.fim{position:absolute;left:0;right:0;top:820px;text-align:center;font:700 120px "Courier New",monospace;color:#ff4fd8;text-shadow:0 0 18px #ff4fd8,0 0 50px #ff2fa0;opacity:0}
+.fim small{display:block;font-size:40px;color:#7af3ff;text-shadow:0 0 12px #3ae0ff;margin-top:30px}
+</style>
+<script type="importmap">{"imports":{"three":"../../personagem/node_modules/three/build/three.module.js","three/addons/":"../../personagem/node_modules/three/examples/jsm/"}}</script>
+</head><body>
+<div id="ov">
+  <div class="tit" id="tit"><b>CAPÍTULO 1</b>O pedido chegou<br>no meu nome.</div>
+  <div class="leg" id="leg"></div>
+  <div class="fim" id="fim">PARTE 2<small>segue pra não perder</small></div>
+</div>
+<script type="module">
+// ENTREGA 23:47 — Capítulo 1. Tudo é função do tempo: window.frame(t) desenha o instante t (segundos).
+// ?w=540 renderiza prévia em meia resolução. Tempos das falas PROVISÓRIOS até chegarem as vozes do ElevenLabs.
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { createPessoa, pose, luz } from './pessoa.js';
+
+const W = +(new URLSearchParams(location.search).get('w') || 1080), H = Math.round(W * 16 / 9);
+document.getElementById('ov').style.transform = `scale(${W / 1080})`;
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(W, H); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x05040d); scene.fog = new THREE.FogExp2(0x0a0618, 0.04);
+const cam = new THREE.PerspectiveCamera(36, W / H, 0.05, 200);
+const comp = new EffectComposer(renderer); comp.addPass(new RenderPass(scene, cam));
+comp.addPass(new UnrealBloomPass(new THREE.Vector2(W, H), 0.7, 0.5, 0.72)); comp.addPass(new OutputPass());
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x)), sm = x => { x = clamp(x); return x * x * (3 - 2 * x); };
+const seg = (t, a, b) => sm((t - a) / (b - a)), mix = (a, b, k) => a + (b - a) * k;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const rb = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 4, r), m);
+const escuro = new THREE.MeshStandardMaterial({ color: 0x0e0d18, roughness: 0.35, metalness: 0.2 });
+const std = (c, r = 0.7) => new THREE.MeshStandardMaterial({ color: c, roughness: r });
+let sd = 3; const rnd = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+const textTex = (w, h, draw) => { const c = document.createElement('canvas'); c.width = w; c.height = h; const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.redraw = (...a) => { draw(c.getContext('2d'), w, h, ...a); t.needsUpdate = true; }; t.redraw(); return t; };
+const placa = (txt, c, w, h, size = 84) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ transparent: true, toneMapped: false, map: textTex(512, Math.round(512 * h / w), (g, W2, H2) => {
+  g.clearRect(0, 0, W2, H2); g.font = `bold ${size}px "Courier New", monospace`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = c; g.shadowBlur = 20; g.fillStyle = c; g.fillText(txt, W2 / 2, H2 / 2); }) }));
+
+// ---------------- chão molhado (vale para a rua e para o Aurora)
+const espelho = new Reflector(new THREE.PlaneGeometry(220, 220), { textureWidth: Math.round(W / 2), textureHeight: Math.round(H / 2), color: 0x777788 });
+espelho.rotation.x = -Math.PI / 2; espelho.position.x = 40; scene.add(espelho);
+const asf = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: 0x08070f, roughness: 0.2, transparent: true, opacity: 0.55 }));
+asf.rotation.x = -Math.PI / 2; asf.position.set(40, 0.01, 0); scene.add(asf);
+
+// ---------------- LOCAÇÃO 1: a avenida (x=0), moto anda no sentido +z
+const RUA = new THREE.Group(); scene.add(RUA);
+for (let i = 0; i < 36; i++) {
+  const side = i % 2 ? 1 : -1, w = 2.5 + rnd() * 2, h = 6 + rnd() * 16, z = 20 - Math.floor(i / 2) * 5;
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 4), escuro); b.position.set(side * (5.5 + rnd() * 2), h / 2, z); RUA.add(b);
+  for (let k = 0; k < 12; k++) { if (rnd() < 0.55) continue; const j = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.5), luz(rnd() < 0.5 ? 0xffb347 : 0x6ad7ff, 1.2));
+    j.position.set(b.position.x - side * (w / 2 + 0.01), 1 + rnd() * (h - 2), z - 1.5 + rnd() * 3); j.rotation.y = -side * Math.PI / 2; RUA.add(j); }
+}
+[['FARMÁCIA 24H', '#3ae0ff', -1, 5, -6], ['HOTEL', '#ff3fb4', 1, 7.5, -16], ['LANCHES', '#ffb347', -1, 4.4, -28], ['23:47', '#ff3fb4', 1, 3.4, -36], ['BAR', '#3ae0ff', 1, 5, -2], ['OFICINA', '#ff3fb4', -1, 4, -44]]
+  .forEach(([t, c, s, y, z]) => { const p = placa(t, c, 4, 1); p.position.set(s * 3.6, y, z); p.rotation.y = -s * 0.9; RUA.add(p); });
+const lRosa = new THREE.PointLight(0xff3fb4, 60, 18, 1.6); scene.add(lRosa);
+const lCiano = new THREE.PointLight(0x3ae0ff, 55, 18, 1.6); scene.add(lCiano);
+for (let z = 12; z > -60; z -= 12) { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 6, 8), escuro); p.position.set(3.3, 3, z); RUA.add(p);
+  const l = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), luz(0xffc070, 6)); l.position.set(3.3, 6, z); RUA.add(l); }
+
+// ---------------- a moto (frente para +z) com celular no guidão
+const MOTO = new THREE.Group(); scene.add(MOTO);
+const rodas = [];
+for (const z of [-0.9, 0.9]) { const g = new THREE.Group(); g.position.set(0, 0.45, z); const rd = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.12, 12, 28), escuro); rd.rotation.y = Math.PI / 2; g.add(rd);
+  const raio = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.7, 0.06), luz(0x3ae0ff, 1.5)); g.add(raio); MOTO.add(g); rodas.push(g); }
+const qd = rb(0.16, 0.5, 1.7, 0.07, escuro); qd.position.y = 0.95; MOTO.add(qd);
+const banco = rb(0.42, 0.14, 0.8, 0.06, escuro); banco.position.set(0, 1.18, -0.3); MOTO.add(banco);
+const guid = rb(1.0, 0.08, 0.08, 0.03, escuro); guid.position.set(0, 1.75, 0.72); MOTO.add(guid);
+const farol = new THREE.Mesh(new THREE.CircleGeometry(0.14, 20), luz(0xfff2c0, 6)); farol.position.set(0, 1.25, 0.96); MOTO.add(farol);
+const lFarol = new THREE.SpotLight(0xfff2c0, 40, 18, 0.5, 0.6, 1.2); lFarol.position.set(0, 1.25, 1.0); MOTO.add(lFarol); MOTO.add(lFarol.target); lFarol.target.position.set(0, 0, 8);
+// celular (tela é textura redesenhada conforme o plano)
+const telaTex = textTex(360, 640, (g, w, h, modo = 'notif', hora = '23:47') => {
+  g.fillStyle = '#0b0a14'; g.fillRect(0, 0, w, h);
+  g.strokeStyle = 'rgba(255,255,255,.35)'; g.lineWidth = 2; g.beginPath(); g.moveTo(40, 0); g.lineTo(140, 230); g.lineTo(120, 420); g.stroke(); // rachadura
+  g.textAlign = 'center'; g.font = 'bold 96px "Courier New"'; g.fillStyle = '#fff'; g.shadowColor = '#3ae0ff'; g.shadowBlur = 12;
+  if (modo === 'hora') { g.font = 'bold 120px "Courier New"'; g.fillStyle = hora === '00:00' ? '#ff4fd8' : '#fff'; g.shadowColor = hora === '00:00' ? '#ff3fb4' : '#3ae0ff'; g.fillText(hora, w / 2, h / 2 + 30); return; }
+  g.fillText('23:47', w / 2, 130); g.shadowBlur = 0;
+  g.fillStyle = '#ff3fb4'; g.fillRect(24, 200, w - 48, modo === 'pedido' ? 380 : 180);
+  g.fillStyle = '#fff'; g.font = 'bold 30px "Courier New"'; g.fillText('NOVO PEDIDO', w / 2, 248);
+  g.font = 'bold 24px "Courier New"'; g.fillText('Cliente:', w / 2, 300); g.font = 'bold 32px "Courier New"'; g.fillText('KAI MOREIRA', w / 2, 342);
+  if (modo === 'pedido') { g.font = 'bold 22px "Courier New"'; ['Rua das Acácias, 47', 'Edifício Aurora', 'apto 304'].forEach((s, i) => g.fillText(s, w / 2, 420 + i * 44)); }
+});
+const cel = new THREE.Group(); cel.position.set(0, 1.98, 0.74); cel.rotation.x = -0.35; MOTO.add(cel);
+cel.add(rb(0.2, 0.36, 0.03, 0.02, escuro));
+const tela = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.32), new THREE.MeshBasicMaterial({ map: telaTex, color: 0x9a9a9a, toneMapped: false })); tela.position.z = 0.017; cel.add(tela);
+
+// ---------------- LOCAÇÃO 2: Edifício Aurora (x=60), portão em z=-3
+const AUR = new THREE.Group(); AUR.position.x = 60; scene.add(AUR);
+const pred = new THREE.Mesh(new THREE.BoxGeometry(12, 18, 6), escuro); pred.position.set(0, 9, -9); AUR.add(pred);
+for (let a = 0; a < 5; a++) for (let c = 0; c < 4; c++) { const acesa = a === 2 && c === 1;
+  const j = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.6), acesa ? luz(0xffb85c, 1.3) : std(0x14131f, 0.3)); j.position.set(-4.2 + c * 2.8, 4.2 + a * 3, -5.99); AUR.add(j); }
+const janela304 = new THREE.PointLight(0xffb85c, 9, 8, 1.5); janela304.position.set(-1.4, 10.2, -5.2); AUR.add(janela304);
+for (let i = 0; i < 7; i++) { const t = rb(1.6, 2.4, 0.08, 0.02, std(0x2a2433, 0.9)); t.position.set(-5 + i * 1.65, 1.2, -5.9); t.rotation.z = (rnd() - 0.5) * 0.08; AUR.add(t); }
+const letreiro = placa('EDIFÍCIO AURORA', '#ff3fb4', 7, 1.2, 64); letreiro.position.set(0, 3.2, -5.85); AUR.add(letreiro);
+const muro = [-1, 1].map(s => { const m = rb(4.4, 1.6, 0.3, 0.05, escuro); m.position.set(s * 3.4, 0.8, -3); AUR.add(m); return m; });
+const portao = new THREE.Group(); portao.position.set(-1.2, 0, -3); AUR.add(portao);
+for (let i = 0; i < 9; i++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.2, 6), escuro); b.position.set(0.15 + i * 0.27, 1.1, 0); portao.add(b); }
+const travessa = rb(2.4, 0.08, 0.08, 0.02, escuro); travessa.position.set(1.2, 1.9, 0); portao.add(travessa);
+const lPortao = new THREE.PointLight(0xff3fb4, 20, 10, 1.5); lPortao.position.set(0, 3, -4.5); AUR.add(lPortao);
+
+// ---------------- LOCAÇÃO 3: escada de emergência (x=120), sobe no sentido -z
+const ESC = new THREE.Group(); ESC.position.x = 120; scene.add(ESC);
+for (let i = 0; i < 14; i++) { const d = rb(2.2, 0.25, 0.6, 0.03, escuro); d.position.set(0, 0.125 + i * 0.3, -i * 0.5); ESC.add(d); }
+const paredeE = new THREE.Mesh(new THREE.PlaneGeometry(14, 12), std(0x121022, 0.8)); paredeE.position.set(-1.3, 5, -3); paredeE.rotation.y = Math.PI / 2; ESC.add(paredeE);
+const patamar = rb(3, 0.25, 3, 0.03, escuro); patamar.position.set(0, 4.2, -8.3); ESC.add(patamar);
+const portaE = rb(1.3, 2.4, 0.1, 0.03, std(0x1c1a2c, 0.5)); portaE.position.set(0, 5.5, -9.6); ESC.add(portaE);
+const n304 = placa('304', '#3ae0ff', 1.0, 0.4, 110); n304.position.set(0, 7.0, -9.5); ESC.add(n304);
+const lEsc = new THREE.PointLight(0xff3fb4, 30, 12, 1.4); lEsc.position.set(0.8, 6.5, -4); ESC.add(lEsc);
+
+// ---------------- LOCAÇÃO 4: apartamento 304 (x=200), como há 10 anos. Porta em z=+3.5, olhando para -z
+const AP = new THREE.Group(); AP.position.x = 200; scene.add(AP);
+const piso = new THREE.Mesh(new THREE.PlaneGeometry(9, 8), std(0x2a1d1a, 0.8)); piso.rotation.x = -Math.PI / 2; piso.position.y = 0.02; AP.add(piso);
+const papel = std(0x2d3150, 0.9);
+[[0, 3, -4, 0], [-4.5, 3, 0, Math.PI / 2], [4.5, 3, 0, -Math.PI / 2]].forEach(([x, y, z, ry]) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(9, 6), papel); p.position.set(x, y, z); p.rotation.y = ry; AP.add(p); });
+const frente = new THREE.Group(); AP.add(frente); // parede da porta (com vão)
+[[-2.9, 3.2], [2.9, 3.2]].forEach(([x, w]) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(w, 6), papel); p.position.set(x, 3, 4); p.rotation.y = Math.PI; frente.add(p); });
+const verga = new THREE.Mesh(new THREE.PlaneGeometry(2.6, 3.4), papel); verga.position.set(0, 4.3, 4); verga.rotation.y = Math.PI; frente.add(verga);
+const portaAp = new THREE.Group(); portaAp.position.set(-1.25, 0, 3.98); AP.add(portaAp);
+const pAp = rb(2.4, 2.6, 0.1, 0.02, std(0x3a2b24, 0.6)); pAp.position.set(1.2, 1.3, 0); portaAp.add(pAp);
+const corredor = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), luz(0x2a0a24, 0.6)); corredor.position.set(0, 1.5, 6.5); corredor.rotation.y = Math.PI; AP.add(corredor);
+const lCorr = new THREE.PointLight(0xff3fb4, 8, 6, 1.5); lCorr.position.set(0, 2.4, 5.6); AP.add(lCorr);
+// sofá, TV de tubo, tapete, mesa com bolo e vela, bilhete, porta-retrato
+const sofa = new THREE.Group(); sofa.position.set(-3, 0, -2.8); AP.add(sofa);
+sofa.add(Object.assign(rb(2.8, 0.6, 1.0, 0.15, std(0x6b3a3a)), {})); sofa.children[0].position.y = 0.55;
+const enc = rb(2.8, 0.9, 0.3, 0.12, std(0x6b3a3a)); enc.position.set(0, 1.0, -0.4); sofa.add(enc);
+const tv = new THREE.Group(); tv.position.set(3.2, 0, -2.9); tv.rotation.y = -0.5; AP.add(tv);
+const rack = rb(1.6, 0.7, 0.8, 0.05, std(0x4a3426)); rack.position.y = 0.35; tv.add(rack);
+const caixaTv = rb(1.1, 0.9, 0.9, 0.12, std(0x2c2a2e, 0.5)); caixaTv.position.y = 1.15; tv.add(caixaTv);
+const telaTv = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.65), luz(0x6a8bb0, 0.5)); telaTv.position.set(0, 1.15, 0.46); tv.add(telaTv);
+const tapete = new THREE.Mesh(new THREE.CircleGeometry(1.6, 6), std(0x7a5a2a, 0.95)); tapete.rotation.x = -Math.PI / 2; tapete.position.set(0, 0.03, 0.2); AP.add(tapete);
+const tapete2 = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.25, 6), std(0xb58a3a, 0.95)); tapete2.rotation.x = -Math.PI / 2; tapete2.position.set(0, 0.035, 0.2); AP.add(tapete2);
+const mesa = new THREE.Group(); mesa.position.set(0.6, 0, -1.6); AP.add(mesa);
+const tampo = rb(1.8, 0.1, 1.1, 0.03, std(0x5a3a26, 0.5)); tampo.position.y = 1.0; mesa.add(tampo);
+for (const [x, z] of [[-0.8, -0.45], [0.8, -0.45], [-0.8, 0.45], [0.8, 0.45]]) { const p = rb(0.08, 1.0, 0.08, 0.02, std(0x5a3a26)); p.position.set(x, 0.5, z); mesa.add(p); }
+const bolo = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.28, 28), std(0xf3e6e0, 0.6)); bolo.position.set(-0.2, 1.19, 0); mesa.add(bolo);
+const cob = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.06, 28), std(0xff7fb8, 0.5)); cob.position.set(-0.2, 1.32, 0); mesa.add(cob);
+const vela = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.2, 8), std(0x7af3ff)); vela.position.set(-0.2, 1.45, 0); mesa.add(vela);
+const chama = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 8), luz(0xffc070, 4)); chama.scale.y = 1.8; chama.position.set(-0.2, 1.6, 0); mesa.add(chama);
+const lVela = new THREE.PointLight(0xffa64a, 3, 6, 1.4); lVela.position.set(-0.2, 1.75, 0.1); mesa.add(lVela);
+const bilheteTex = textTex(512, 360, (g, w, h) => { g.fillStyle = '#efe6d2'; g.fillRect(0, 0, w, h); g.strokeStyle = '#b9c6e8'; for (let y = 70; y < h; y += 52) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
+  g.fillStyle = '#0c1440'; g.font = 'bold 44px "Comic Sans MS", cursive'; let s = 7;
+  const esc = (t, x, y) => { for (const ch of t) { s = (s * 16807) % 2147483647; g.save(); g.translate(x, y + (s % 7) - 3); g.rotate(((s % 11) - 5) * 0.02); g.fillText(ch, 0, 0); g.restore(); x += g.measureText(ch).width + 1; } };
+  esc('Feliz aniversário,', 30, 110); esc('Kai.', 30, 165); esc('Você chegou', 30, 250); esc('atrasado.', 30, 305); });
+const bilhete = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.35), new THREE.MeshStandardMaterial({ map: bilheteTex, color: 0x9c9488, roughness: 0.9 })); bilhete.rotation.set(-Math.PI / 2, 0, 0.25); bilhete.position.set(0.45, 1.06, 0.1); mesa.add(bilhete);
+const quadro = rb(0.9, 0.7, 0.05, 0.02, std(0xc9a46a, 0.4)); quadro.position.set(-1.0, 2.6, -3.97); AP.add(quadro);
+const foto = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.55), std(0x3b3446, 0.8)); foto.position.set(-1.0, 2.6, -3.94); AP.add(foto);
+const abaj = new THREE.PointLight(0xffb070, 30, 12, 1.4); abaj.position.set(-3.5, 2.8, -2); AP.add(abaj); const ambAp = new THREE.PointLight(0x8a7ab8, 12, 14, 1.2); ambAp.position.set(0, 4.5, 1); AP.add(ambAp);
+const cupula = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.4, 16, 1, true), luz(0xffc68a, 1.2)); cupula.position.set(-4.0, 2.4, -3.6); AP.add(cupula);
+
+// ---------------- personagens
+const KAI = createPessoa({ faixa: 0x3ae0ff }); scene.add(KAI.root);
+const LUNA = createPessoa({ faixa: 0xff3fb4, rabo: true, capacete: false }); scene.add(LUNA.root);
+LUNA.eyeMat.color.set(0xff7fe0); LUNA.eyeMat.emissive.set(0xff3fb4);
+
+// ---------------- chuva (posição é função do tempo)
+const chuva = new THREE.Group(); scene.add(chuva); const rm = new THREE.MeshBasicMaterial({ color: 0x9fb8ff, transparent: true, opacity: 0.2 });
+const gotas = []; for (let i = 0; i < 700; i++) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.012, 0.6 + rnd() * 0.5), rm); gotas.push([l, (rnd() - 0.5) * 18, rnd() * 14, (rnd() - 0.5) * 22]); chuva.add(l); }
+scene.add(new THREE.HemisphereLight(0x2a2050, 0x000000, 0.3));
+
+// ---------------- falas (tempos provisórios) e planos
+const FALAS = [
+ [3.6, 9.4, 'KAI', 'Toda noite eu faço a última entrega às 23:47. É a que paga melhor.'],
+ [10.0, 16.0, 'KAI', 'Naquela noite, o pedido veio no meu nome. Kai Moreira. E o endereço… eu conhecia.'],
+ [16.6, 22.6, 'KAI', 'Rua das Acácias, 47. O Edifício Aurora. Eu morei lá até os nove anos.'],
+ [23.2, 29.7, 'KAI', 'Ele tá fechado faz dez anos. Ninguém mora lá. Mas tinha uma janela acesa. No terceiro andar.'],
+ [30.3, 34.3, 'KAI', 'O portão não tava trancado. Parecia que tava me esperando.'],
+ [35.0, 38.2, 'KAI', 'Apartamento 304. O meu.'],
+ [39.0, 44.0, 'KAI', 'Tava tudo igual. O sofá, a TV velha, o tapete que a minha mãe odiava.'],
+ [44.8, 48.0, 'KAI', 'E na mesa, um bolo. Com uma vela acesa.'],
+ [48.8, 52.8, 'KAI', 'O bilhete tinha a minha letra. A letra de quando eu era criança.'],
+ [53.5, 57.0, 'KAI', '“Feliz aniversário, Kai. Você chegou atrasado.”'],
+ [57.8, 61.8, 'KAI', 'Aí eu olhei a hora. Meia-noite. Meu aniversário.'],
+ [62.5, 65.5, 'KAI', 'E alguém atrás de mim disse o meu nome.'],
+ [66.3, 67.3, 'LUNA', 'Kai?'],
+];
+const DUR = 72;
+// cada plano: [início, fim, função(t local 0..1, t absoluto)]
+const motoZ = t => mix(-48, -14, seg(t, 3.6, 10));
+const SHOTS = [
+ [0, 2.6, (k) => { // celular no guidão, chuva
+   at(MOTO, 0, 0, -20); estado({ moto: true, tela: 'notif' }); naMoto({ guidao: 0 });
+   setCam(V(0.75, 2.45, -18.1), V(0, 2.12, -19.26), 36 - 6 * k); }],
+ [2.6, 3.6, (k) => { // olhos do Kai se apertando
+   at(MOTO, 0, 0, -20); naMoto({ olhos: mix(1, 0.35, seg(k, 0.3, 0.8)) });
+   KAI.eyeMat.emissiveIntensity = 0.7; setCam(V(0.15, 3.05, -17.5), V(0, 2.98, -20.3), 24); }],
+ [3.6, 10, (k, t) => { // travelling pela avenida
+   const z = motoZ(t); at(MOTO, 0, 0, z); naMoto({ cab: [0.15 * Math.sin(t * 0.7), 0] });
+   rodas.forEach(r => r.rotation.x = t * 14);
+   setCam(V(mix(3.2, 2.2, k), mix(1.6, 2.4, k), z + mix(7, 5, k)), V(0, 2.2, z - 1), 38); }],
+ [10, 16.3, (k, t) => { // close no app: nome dele e o endereço
+   at(MOTO, 0, 0, -14); naMoto({ guidao: 0, cab: [0, -0.5] }); estado({ tela: t < 13 ? 'notif' : 'pedido' }); rodas.forEach(r => r.rotation.x = 0);
+   setCam(V(0.02, 2.2, -12.62 - 0.1 * k), V(0, 1.9, -13.26), mix(38, 33, k)); }],
+ [16.3, 22.8, (k, t) => { // chegada no Aurora
+   const z = mix(10, 1.2, seg(t, 16.3, 19.5)); at(MOTO, 61.8, 0, z); MOTO.rotation.y = Math.PI;
+   if (t < 19.8) naMoto(); else aPe(KAI, 62.9, 0.9, Math.PI * 0.95, { cab: [0, -0.35 * seg(t, 20.5, 22)] });
+   rodas.forEach(r => r.rotation.x = -t * 10 * (1 - seg(t, 18.5, 19.5)));
+   setCam(V(mix(60.2, 59.6, k), mix(2.0, 2.6, k), mix(14.5, 12.5, k)), V(61.2, mix(2.6, 4.2, k), -2), 40); }],
+ [22.8, 30, (k) => { // a janela acesa no 3º andar
+   at(MOTO, 61.8, 0, 1.2); MOTO.rotation.y = Math.PI; aPe(KAI, 62.9, 0.9, Math.PI * 0.95, { cab: [0, -0.45] });
+   janela304.intensity = 9 + 2 * Math.sin(k * 40) * Math.sin(k * 7);
+   setCam(V(60.4, 1.0, 5.5), V(mix(59.6, 58.6, k), mix(3.5, 10.2, sm(k)), -6), mix(40, 30, k)); }],
+ [30, 35, (k, t) => { // o portão abre sozinho; ele entra
+   portao.rotation.y = -1.6 * seg(t, 30.3, 32.0); at(MOTO, 61.8, 0, 1.2); MOTO.rotation.y = Math.PI;
+   const p = seg(t, 31.5, 35); aPe(KAI, mix(60.8, 59.8, p), mix(-0.6, -5.0, p), Math.PI, { walk: p > 0 && p < 1 ? 1 : 0, ph: t * 7 });
+   setCam(V(59.0, 1.7, 3.2), V(60.4, 1.6, -3.5), 40); }],
+ [35, 38.6, (k, t) => { // escada de emergência, luz rosa piscando, chega no 304
+   escada(KAI, mix(6, 14.6, seg(t, 35, 38.3)));
+   lEsc.intensity = 30 * (0.35 + 0.65 * (Math.sin(t * 9) > 0 ? 1 : 0.2));
+   const kp = KAI.root.position; setCam(V(121.0, kp.y + 4.4, kp.z + 8.5), V(120.1, kp.y + 2.3, kp.z - 2), 40); }],
+ [38.6, 48.4, (k, t) => { // dentro do 304: porta abre, travelling pelo apartamento até o bolo
+   portaAp.rotation.y = 1.5 * seg(t, 38.8, 40.2);
+   const p = seg(t, 40, 43.5); aPe(KAI, 200, mix(5.2, 2.2, p), Math.PI + 0.001, { walk: p > 0 && p < 1 ? 1 : 0, ph: t * 6, cab: [mix(0, -0.5, seg(t, 43, 44.5)) + mix(0, 0.7, seg(t, 45, 46.5)), 0] });
+   const c1 = V(199.2, 2.4, -3.2), c2 = V(197.4, 2.2, -0.6), c3 = V(199.7, 2.0, -0.2);
+   const pos = t < 44.5 ? c1.clone().lerp(c2, seg(t, 41, 44.5)) : c2.clone().lerp(c3, seg(t, 44.5, 47.5));
+   const alvo = t < 44.5 ? V(200, 1.8, 4).lerp(V(203, 1.2, -2.9), seg(t, 42.5, 44.5)) : V(203, 1.2, -2.9).lerp(V(200.4, 1.4, -1.6), seg(t, 44.5, 46.5));
+   setCam(pos, alvo, 40); }],
+ [48.4, 57.4, (k) => { // close no bilhete e na vela
+   aPe(KAI, 200.3, 0.1, Math.PI, { cab: [0, -0.6] });
+   setCam(V(200.9 + 0.1 * k, 1.75 - 0.15 * k, -1.05 - 0.05 * k), V(201.05, 1.06, -1.5), mix(34, 26, k)); }],
+ [57.4, 62.2, (k, t) => { // a hora vira 00:00
+   estado({ tela: 'hora', hora: t < 59.6 ? '23:59' : '00:00' }); MOTO.visible = true; at(MOTO, 0, -50, 0);
+   aPe(KAI, 200.3, 0.1, Math.PI, { cab: [0, -0.5] }); const { c, h } = celNaMao();
+   setCam(c.clone().lerp(h, 0.42).add(V(0.06, 0.08, 0)), c, mix(30, 24, k)); }],
+ [62.2, 67.4, (k, t) => { // alguém atrás dele: olhos rosa no corredor
+   aPe(KAI, 200.3, 0.1, Math.PI, { arregala: seg(t, 66.4, 66.8), cab: [0, 0] });
+   aPe(LUNA, 199.3, 5.4, Math.PI); LUNA.root.visible = t > 65.6;
+   LUNA.eyes.forEach(e => e.scale.y = seg(t, 65.6, 66.0));
+   portaAp.rotation.y = 1.5;
+   KAI.eyeMat.emissiveIntensity = 1.1; setCam(V(200.7, 2.5, -3.7 + 0.7 * k), V(200.0, 2.6, 3), 30); }],
+ [67.4, DUR, () => { setCam(V(0, -50, 0), V(0, -60, 0), 30); }],
+];
+function at(o, x, y, z) { o.position.set(x, y, z); o.rotation.set(0, 0, 0); o.visible = true; }
+function setCam(p, l, fov) { cam.position.copy(p); cam.lookAt(l); cam.fov = fov; cam.updateProjectionMatrix(); }
+function naMoto({ olhos = 1, cab = [0, 0], guidao = 1 } = {}) {
+  cel.parent !== MOTO && MOTO.add(cel); cel.position.set(0, 1.98, 0.74); cel.rotation.set(-0.35, 0, 0);
+  KAI.root.visible = true; MOTO.add(KAI.root); KAI.root.position.set(0, 0.25, -0.3); KAI.root.rotation.set(0, 0, 0);
+  pose(KAI, { sit: 1, guidao, olhos, cabeca: cab });
+}
+// subida de escada com os pés pousando em cada degrau (IK de duas barras: coxa 0,68, canela até a sola 0,69).
+// s = posição do corpo em degraus; degrau i: centro z = -0,5·i, topo y = 0,25 + 0,3·i (i ≥ 14: patamar 4,33)
+const degrauY = i => i < 0 ? 0 : i >= 14 ? 4.33 : 0.25 + 0.3 * i;
+function escada(p, s) {
+  scene.add(p.root); p.root.visible = true; pose(p, { walk: 0.6, ph: s * Math.PI });
+  const pes = [0, 1].map(j => { const u = (s - j) / 2 + 0.5, n = Math.floor(u), f = u - n, sw = sm(clamp((f - 0.5) * 2));
+    const a = 2 * n + j - 1, idx = a + 2 * sw; // vai do degrau a para a+2
+    const y = mix(degrauY(Math.min(a, 14)), degrauY(Math.min(a + 2, 14)), sw) + 0.3 * Math.sin(Math.PI * sw);
+    return { z: -0.5 * Math.min(idx, 14.6) + 0.2, y, // sola recuada: o pé é mais comprido que o degrau
+      base: mix(degrauY(Math.min(a, 14)), degrauY(Math.min(a + 2, 14)), sw) }; });
+  const rootY = Math.min(pes[0].base, pes[1].base) + 0.02, rootZ = -0.5 * s + 0.05;
+  p.root.position.set(120, rootY, rootZ); p.root.rotation.set(0, Math.PI, 0); p.body.position.y = 0;
+  const L1 = 0.68, L2 = 0.69;
+  p.legs.forEach(({ hip, knee }, j) => {
+    const Tz = -(pes[j].z - rootZ), Ty = pes[j].y - (rootY + hip.position.y); // no referencial do Kai (frente = +z local)
+    let d = Math.hypot(Tz, Ty); const dd = Math.min(d, L1 + L2 - 0.002);
+    const b = Math.acos(clamp((dd * dd - L1 * L1 - L2 * L2) / (2 * L1 * L2), -1, 1));
+    const phi = Math.atan2(-Tz, -Ty);
+    hip.rotation.x = phi - Math.atan2(L2 * Math.sin(b), L1 + L2 * Math.cos(b)); knee.rotation.x = b;
+  });
+}
+function aPe(p, x, z, ry, o = {}) {
+  scene.add(p.root); p.root.visible = true; p.root.position.set(x, 0, z); p.root.rotation.set(0, ry, 0);
+  pose(p, { walk: o.walk || 0, ph: o.ph || 0, arregala: o.arregala || 0, cabeca: o.cab || [0, 0] });
+}
+// celular na mão direita do Kai, com a tela virada para o rosto dele
+function celNaMao() {
+  KAI.arms[1].so.rotation.x = -1.15; KAI.arms[1].el.rotation.x = -0.75; KAI.root.updateMatrixWorld(true);
+  const m = KAI.arms[1].hand.getWorldPosition(V(0, 0, 0)), h = KAI.head.getWorldPosition(V(0, 0, 0));
+  scene.add(cel); cel.position.copy(m).add(V(0, 0.12, 0).add(m.clone().sub(h).setY(0).normalize().multiplyScalar(0.12))); cel.lookAt(h);
+  return { c: cel.position.clone(), h };
+}
+let telaAtual = '';
+function estado({ moto, tela: tm, hora } = {}) { if (tm) { const key = tm + (hora || ''); if (key !== telaAtual) { telaAtual = key; telaTex.redraw(tm, hora); } } }
+
+const tit = document.getElementById('tit'), leg = document.getElementById('leg'), fim = document.getElementById('fim');
+window.__dur = DUR; window.__dbg = { cel, cam, tela, KAI, LUNA, MOTO, THREE, SET: { muro0: muro[0], muro1: muro[1], portao, pred, ESC, mesa, sofa, tv, portaAp, quadro, MOTO } };
+window.frame = (t) => {
+  // reset por quadro
+  MOTO.visible = false; KAI.root.visible = false; KAI.eyeMat.emissiveIntensity = 2; LUNA.root.visible = false; MOTO.rotation.set(0, 0, 0);
+  portao.rotation.y = 0; portaAp.rotation.y = 0; LUNA.eyes.forEach(e => e.scale.y = 1);
+  const sh = SHOTS.find(s => t >= s[0] && t < s[1]) || SHOTS[SHOTS.length - 1];
+  sh[2]((t - sh[0]) / (sh[1] - sh[0]), t);
+  // luzes de borda acompanham a câmera (recorte rosa à direita, ciano à esquerda)
+  const r = V(1, 0, 0).applyQuaternion(cam.quaternion), f = V(0, 0, -1).applyQuaternion(cam.quaternion);
+  const alvo = cam.position.clone().add(f.clone().multiplyScalar(5));
+  lRosa.position.copy(alvo).add(r.clone().multiplyScalar(3.5)).add(f.clone().multiplyScalar(2.5)).add(V(0, 1.5, 0));
+  lCiano.position.copy(alvo).add(r.clone().multiplyScalar(-3.5)).add(f.clone().multiplyScalar(-1.5)).add(V(0, 1, 0));
+  const interior = cam.position.x > 150; if (interior && KAI.eyeMat.emissiveIntensity > 1.2) KAI.eyeMat.emissiveIntensity = 1.2; lRosa.intensity = interior ? 6 : 60; lCiano.intensity = interior ? 5 : 55;
+  scene.fog.density = interior ? 0.01 : 0.04; espelho.visible = asf.visible = !interior && cam.position.x < 100;
+  // chuva só na rua e no Aurora
+  chuva.visible = !interior && cam.position.x < 100 && cam.position.y > -10;
+  if (chuva.visible) gotas.forEach(([l, x, y, z]) => { l.position.set(cam.position.x + x, ((y - t * 18) % 14 + 14) % 14, cam.position.z - 6 + z); l.lookAt(cam.position.x, l.position.y, cam.position.z); });
+  chama.scale.set(1 + 0.15 * Math.sin(t * 23), 1.8 + 0.3 * Math.sin(t * 17), 1); lVela.intensity = 3 + Math.sin(t * 19) * 0.6;
+  letreiro.material.opacity = Math.sin(t * 13) * Math.sin(t * 3.1) > 0.6 ? 0.25 : 1; // letreiro falhando
+  // textos
+  tit.style.opacity = clamp(Math.min((t - 0.2) / 0.4, (3.4 - t) / 0.4));
+  const fl = FALAS.find(([a, b]) => t >= a && t < b + 0.25);
+  leg.innerHTML = fl ? `<i class="${fl[2] === 'LUNA' ? 'luna' : ''}">${fl[2]}</i>${fl[3]}` : '';
+  leg.style.display = t < 67.4 ? 'block' : 'none';
+  const g = t > 67.9 ? (Math.sin(t * 40) > 0.3 || t > 68.6 ? 1 : 0.2) : 0; fim.style.opacity = g;
+  comp.render();
+};
+window.frame(0); window.__ready = true;
+</script></body></html>
