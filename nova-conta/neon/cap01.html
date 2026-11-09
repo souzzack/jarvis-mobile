@@ -231,7 +231,7 @@ const SHOTS = [
    setCam(pos, alvo, 40); }],
  [48.4, 57.4, (k) => { // close no bilhete e na vela
    aPe(KAI, 200.3, 0.1, Math.PI, { cab: [0, -0.6] });
-   setCam(V(200.9 + 0.1 * k, 1.75 - 0.15 * k, -1.05 - 0.05 * k), V(201.05, 1.06, -1.5), mix(34, 26, k)); }],
+   setCam(V(201.0, mix(2.25, 2.05, k), mix(-0.75, -0.95, k)), V(201.05, 1.06, -1.5), mix(36, 33, k)); }],
  [57.4, 62.2, (k, t) => { // a hora vira 00:00
    estado({ tela: 'hora', hora: t < 59.6 ? '23:59' : '00:00' }); MOTO.visible = true; at(MOTO, 0, -50, 0);
    aPe(KAI, 200.3, 0.1, Math.PI, { cab: [0, -0.5] }); const { c, h } = celNaMao();
