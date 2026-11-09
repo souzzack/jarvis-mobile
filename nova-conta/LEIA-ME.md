@@ -30,7 +30,7 @@
 | F | **Miniaturas da História** (30s sobre um fato histórico) | **Diorama tilt-shift**: maquete vista de cima | Curiosidade com vídeo longo: bom para as Recompensas | Recompensas do TikTok, afiliados de livros |
 | G | **Micronovela 3D** (drama em capítulos de 30s com gancho no fim) | **Neon noturno**: cidade escura, luz rosa e azul | "Parte 2" obriga a seguir pra ver o resto | Recompensas, presentes em live de estreia |
 
-**Recomendação:** as séries A e B, que você escolheu, são as mais fortes para monetizar. **A** atrai as marcas que mais pagam. **B** gera a comunidade mais fiel. **C** e **G** são as melhores apostas de viral, se quiser uma terceira depois.
+**Em produção:** A, B, **C** e **G**. As séries C e G são as melhores apostas de viral e já saem com **mais de 1 minuto (65–75s)** para entrar no Programa de Recompensas do TikTok.
 
 ---
 
@@ -61,11 +61,35 @@ Teste de estilo: `estilos/papel.html` → `estilos/papel.png`
 
 ---
 
+## Série C — "A casa fala" · estilo BRINQUEDO DE VINIL
+
+Teste de estilo: `estilos/vinil.html` → `estilos/vinil.png`
+
+- **Elenco:** a **Geladeira** (menta, seca e irônica, "eu vejo tudo"), o **Micro-ondas** (amarelo, fofoqueiro, narra tudo como jogo de futebol), a **Torradeira** (rosa, sempre dormindo), o **Despertador** (galã dramático de novela) e o **Dudu**, o dono, de pijama listrado, que quase não fala.
+- **Visual:** art toys de plástico brilhante com verniz e reflexo forte, cores chapadas, chão xadrez de plástico e rostos de botão preto com sobrancelha grossa.
+- **Movimento:** "boing". Mola, pulinho, squash & stretch exagerado, 30 fps lisos.
+- **Texto na tela:** Impact branco com contorno preto e palavra-chave em amarelo.
+- **Fórmula (65–75s):** uma situação de casa que todo mundo vive → os objetos comentam em 6 a 8 batidas rápidas → virada no fim → "Segue pra ver o que a casa fala amanhã".
+- **Monetização:** Recompensas do TikTok (vídeos acima de 1 minuto) e publi de casa, delivery e eletro, onde o produto vira personagem.
+
+## Série G — Micronovela "Entrega 23:47" · estilo NEON
+
+Teste de estilo: `estilos/neon.html` → `estilos/neon.png`
+
+- **Elenco:** o **Kai**, entregador de moto de 19 anos, narrador em primeira pessoa, com faixa ciano na mochila, e a **Luna**, entregadora de 19 anos, com faixa rosa.
+- **Visual:** cidade noturna molhada de chuva, silhuetas escuras e lisas recortadas por luz rosa e ciano, olhos de traço de luz, chão espelhado, letreiros com brilho (bloom).
+- **Movimento:** câmera de cinema. Travelling lento, corte seco e tela piscando no gancho.
+- **Texto na tela:** monoespaçado neon, título em ciano e frase em rosa.
+- **Fórmula (65–75s):** recap de 3s → um mistério novo → gancho final + "PARTE N" na tela. Uma resposta pequena a cada três capítulos.
+- **Monetização:** Recompensas do TikTok, live de estreia de capítulo (presentes) e, mais pra frente, temporada inteira para assinantes.
+
+---
+
 ## A confirmar com o usuário
 
 - **Uma conta ou duas?** As séries falam com humores diferentes (riso × acolhimento). Duas contas cuidam melhor de cada público e de cada marca. Uma conta só dá metade do trabalho.
 - **Nome e @** de cada conta.
-- **Vozes** no ElevenLabs. Os créditos acabaram no ep11 do Davi, então ver plano que comporte a produção.
+- **Vozes** no ElevenLabs: Tuco; Lia e Ansiedade; Geladeira, Micro-ondas, Torradeira, Despertador e Dudu; Kai e Luna. Os créditos acabaram no ep11 do Davi, então ver plano que comporte a produção.
 - **Ritmo:** quantos vídeos por semana além dos 14 do Davi.
 
 Roteiros: `roteiros/`.

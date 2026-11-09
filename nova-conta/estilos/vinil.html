@@ -1,0 +1,84 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;overflow:hidden;background:#000}canvas{display:block}
+.t{position:absolute;left:40px;right:40px;top:300px;text-align:center;font:900 74px/1.04 Impact,"Arial Black",sans-serif;color:#fff;letter-spacing:2px;-webkit-text-stroke:12px #111;paint-order:stroke}
+.t span{color:#ffe14d}</style>
+<script type="importmap">{"imports":{"three":"../../personagem/node_modules/three/build/three.module.js","three/addons/":"../../personagem/node_modules/three/examples/jsm/"}}</script>
+</head><body><div class="t">A GELADEIRA <span>VIU TUDO</span><br>ÀS 2 DA MANHÃ</div><script type="module">
+// ESTILO "BRINQUEDO DE VINIL": objetos da casa como art toys de plástico brilhante.
+// Cores chapadas e saturadas, verniz (clearcoat) com reflexo forte, cantos bem arredondados,
+// rostos minimalistas: olhos de botão preto brilhante + sobrancelha grossa. Animação "boing":
+// molas, pulinhos, squash & stretch exagerado, 30 fps lisos.
+import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { setup } from './comum.js';
+const { renderer, scene } = setup();
+renderer.toneMappingExposure = 1.0;
+const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.background = new THREE.Color(0x10123a);
+const vinil = (color) => new THREE.MeshPhysicalMaterial({ color, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.08, envMapIntensity: 0.3 });
+const rb = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 6, r), m);
+const botao = vinil(0x0b0b10);
+function rosto(g, x, y, z, s = 1, humor = 'julga') {
+  for (const k of [-1, 1]) {
+    const e = new THREE.Mesh(new THREE.SphereGeometry(0.16 * s, 24, 16), botao); e.scale.z = 0.5;
+    e.position.set(x + k * 0.32 * s, y, z); g.add(e);
+    const hl = new THREE.Mesh(new THREE.SphereGeometry(0.045 * s, 12, 8), new THREE.MeshBasicMaterial({ color: 0xffffff })); hl.position.set(x + k * 0.32 * s + 0.05 * s, y + 0.06 * s, z + 0.07 * s); g.add(hl);
+    const sb = rb(0.34 * s, 0.09 * s, 0.08 * s, 0.04 * s, botao);
+    // julga: sobrancelhas inclinadas para dentro e uma levantada (desconfiada)
+    sb.position.set(x + k * 0.32 * s, y + 0.27 * s + (humor === 'julga' && k > 0 ? 0.08 * s : 0), z);
+    sb.rotation.z = humor === 'julga' ? (k > 0 ? 0.25 : -0.35) : k * 0.3; g.add(sb);
+  }
+  const boca = rb(0.28 * s, 0.06 * s, 0.06 * s, 0.03 * s, botao); boca.position.set(x + 0.04 * s, y - 0.32 * s, z); boca.rotation.z = humor === 'julga' ? -0.12 : 0; g.add(boca);
+}
+// cozinha: chão xadrez de plástico, parede lisa, bancada
+const chao = new THREE.Group();
+for (let i = -6; i < 6; i++) for (let j = -6; j < 9; j++) { const t = rb(0.98, 0.2, 0.98, 0.08, vinil((i + j) & 1 ? 0xf4f1ff : 0x8d8ce0)); t.position.set(i + 0.5, -0.1, j + 0.5); chao.add(t); }
+scene.add(chao);
+const parede = rb(14, 10, 0.4, 0.15, vinil(0x3c3f9e)); parede.position.set(0, 5, -3.6); scene.add(parede);
+const banc = rb(5, 2.4, 1.8, 0.2, vinil(0xff7a59)); banc.position.set(2.6, 1.2, -2.4); scene.add(banc);
+const tampo = rb(5.2, 0.25, 2.0, 0.1, vinil(0xfff4e0)); tampo.position.set(2.6, 2.5, -2.4); scene.add(tampo);
+// GELADEIRA: menta, porta aberta, luz fria de dentro; rosto na porta de cima
+const G = new THREE.Group();
+const corpoG = rb(2.2, 4.6, 1.8, 0.35, vinil(0x6fe3c4)); corpoG.position.y = 2.3; G.add(corpoG);
+const portaC = rb(2.2, 1.7, 0.3, 0.14, vinil(0x8ff0d4)); portaC.position.set(0, 3.7, 1.0); G.add(portaC);
+const portaB = new THREE.Group(); portaB.position.set(-1.1, 1.45, 1.0); G.add(portaB);
+const pb = rb(2.2, 2.6, 0.3, 0.14, vinil(0x8ff0d4)); pb.position.x = 1.1; portaB.add(pb); portaB.rotation.y = -1.35;
+const interno = rb(1.9, 2.4, 0.2, 0.1, new THREE.MeshBasicMaterial({ color: 0xdff6ff })); interno.position.set(0, 1.45, 0.82); G.add(interno);
+// pote de pudim pela metade na prateleira (a prova do crime)
+const pudim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.38, 0.35, 32), vinil(0xffc24a)); pudim.position.set(0.3, 1.5, 1.05); G.add(pudim);
+const calda = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.06, 32), vinil(0x8a3b12)); calda.position.set(0.3, 1.7, 1.05); G.add(calda);
+rosto(G, 0, 3.75, 1.2, 1.15, 'julga');
+const luzG = new THREE.PointLight(0xbfefff, 60, 9, 1.4); luzG.position.set(0.2, 1.6, 2.0); G.add(luzG);
+G.position.set(-2.2, 0, -2.2); G.rotation.y = 0.25; scene.add(G);
+// MICRO-ONDAS na bancada: amarelo, rosto de "fofoqueiro" (boca aberta)
+const M = new THREE.Group();
+M.add(rb(1.7, 1.05, 1.1, 0.22, vinil(0xffd84d)));
+const vid = rb(0.85, 0.65, 0.05, 0.08, vinil(0x223)); vid.position.set(-0.3, 0, 0.56); M.add(vid);
+rosto(M, -0.3, 0.06, 0.6, 0.55, 'fofoca');
+for (let i = 0; i < 2; i++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.08, 16), vinil(0xff5a7a)); b.rotation.x = Math.PI / 2; b.position.set(0.55, 0.2 - i * 0.3, 0.57); M.add(b); }
+M.position.set(3.0, 3.15, -2.3); M.rotation.y = -0.35; scene.add(M);
+// TORRADEIRA: rosa, cochilando (olhos fechados)
+const T = new THREE.Group(); T.add(rb(0.9, 0.75, 0.6, 0.2, vinil(0xff8fc4)));
+for (const k of [-1, 1]) { const f = rb(0.2, 0.05, 0.05, 0.02, botao); f.position.set(k * 0.18, 0.05, 0.31); T.add(f); }
+T.position.set(1.4, 3.0, -2.1); T.rotation.y = 0.3; scene.add(T);
+// CULPADO: o dono, toy de vinil, de pijama listrado, com a colher na mão, paralisado
+const D = new THREE.Group();
+const pele = vinil(0xc98a62), pij = vinil(0x58b7ff), pij2 = vinil(0xffffff);
+for (let i = 0; i < 5; i++) { const f = rb(1.2, 0.26, 0.8, 0.12, i % 2 ? pij2 : pij); f.position.y = 1.0 + i * 0.25; D.add(f); }
+const cab = new THREE.Mesh(new THREE.SphereGeometry(0.72, 40, 30), pele); cab.scale.set(1, 0.95, 0.9); cab.position.y = 2.75; D.add(cab);
+const cabelo = new THREE.Mesh(new THREE.SphereGeometry(0.76, 40, 20, 0, Math.PI * 2, 0, Math.PI * 0.42), vinil(0x2a1a14)); cabelo.scale.set(1, 0.95, 0.92); cabelo.position.y = 2.78; D.add(cabelo);
+for (const k of [-1, 1]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 12), botao); e.scale.set(1, 1.4, 0.5); e.position.set(k * 0.25, 2.85, 0.62); D.add(e); }
+const bo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.04, 8, 20), botao); bo.position.set(0, 2.5, 0.64); D.add(bo);
+for (const k of [-1, 1]) { const p = rb(0.42, 0.9, 0.5, 0.18, pij); p.position.set(k * 0.3, 0.45, 0); D.add(p); }
+const braco = rb(0.32, 0.9, 0.32, 0.15, pij); braco.position.set(0.8, 2.0, 0.3); braco.rotation.z = 0.9; D.add(braco);
+const colher = rb(0.08, 0.6, 0.04, 0.03, vinil(0xd8dde8)); colher.position.set(0.42, 2.45, 0.55); colher.rotation.z = 0.5; D.add(colher);
+D.position.set(0.6, 0, 0.8); D.rotation.y = -0.5; scene.add(D);
+scene.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+scene.add(new THREE.HemisphereLight(0x8c9cff, 0x2a2060, 0.35));
+const lua = new THREE.DirectionalLight(0x9fb0ff, 0.7); lua.position.set(5, 9, 6); lua.castShadow = true; lua.shadow.mapSize.set(2048, 2048);
+Object.assign(lua.shadow.camera, { left: -8, right: 8, top: 8, bottom: -4 }); scene.add(lua);
+const cam = new THREE.PerspectiveCamera(33, 1080 / 1920, 0.1, 100); cam.position.set(-0.2, 5.0, 18); cam.lookAt(-0.2, 3.0, -1);
+renderer.render(scene, cam); window.__ready = true;
+</script></body></html>

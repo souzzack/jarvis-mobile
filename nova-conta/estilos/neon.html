@@ -1,0 +1,84 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;overflow:hidden;background:#000}canvas{display:block}
+.t{position:absolute;left:60px;right:60px;top:300px;text-align:left;font:700 60px/1.15 "Courier New",monospace;color:#ff4fd8;text-shadow:0 0 12px #ff4fd8,0 0 30px #ff2fa0}
+.t b{display:block;color:#7af3ff;text-shadow:0 0 12px #3ae0ff;font-size:46px;margin-bottom:14px}</style>
+<script type="importmap">{"imports":{"three":"../../personagem/node_modules/three/build/three.module.js","three/addons/":"../../personagem/node_modules/three/examples/jsm/"}}</script>
+</head><body><div class="t"><b>CAPÍTULO 1</b>O pedido chegou<br>no meu nome.</div><script type="module">
+// ESTILO "NEON": cidade noturna molhada de chuva. Personagens são silhuetas escuras e lisas
+// (sem rosto detalhado), recortadas por luz de borda rosa e ciano; olhos são dois traços de luz.
+// Chão espelhado, letreiros emissivos com bloom, chuva em riscos. Câmera de cinema:
+// travellings lentos, cortes secos, tela piscando nos ganchos.
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { setup } from './comum.js';
+const { renderer, scene } = setup();
+renderer.toneMappingExposure = 1.1;
+scene.background = new THREE.Color(0x05040d); scene.fog = new THREE.FogExp2(0x0a0618, 0.045);
+const escuro = new THREE.MeshStandardMaterial({ color: 0x0e0d18, roughness: 0.35, metalness: 0.2 });
+const luz = (c, i = 3) => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: i });
+const rb = (w, h, d, r, m) => new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 5, r), m);
+// chão molhado espelhado + asfalto por cima levemente transparente
+const espelho = new Reflector(new THREE.PlaneGeometry(60, 60), { textureWidth: 540, textureHeight: 960, color: 0x777788 });
+espelho.rotation.x = -Math.PI / 2; scene.add(espelho);
+const asfalto = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0x08070f, roughness: 0.2, transparent: true, opacity: 0.55 }));
+asfalto.rotation.x = -Math.PI / 2; asfalto.position.y = 0.01; scene.add(asfalto);
+// prédios em silhueta com janelas acesas
+let sd = 3; const r = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+for (let i = 0; i < 16; i++) {
+  const side = i % 2 ? 1 : -1, w = 2.5 + r() * 2, h = 6 + r() * 14, z = -4 - Math.floor(i / 2) * 4.5;
+  const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 3), escuro); b.position.set(side * (5 + r() * 2), h / 2, z); scene.add(b);
+  for (let k = 0; k < 10; k++) { if (r() < 0.55) continue; const j = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.5), luz(r() < 0.5 ? 0xffb347 : 0x6ad7ff, 1.2));
+    j.position.set(b.position.x - side * (w / 2 + 0.01), 1 + r() * (h - 2), z - 1 + r() * 2); j.rotation.y = -side * Math.PI / 2; scene.add(j); }
+}
+// letreiros neon
+const placa = (txt, c, x, y, z, ry, s = 1) => {
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; const g = cv.getContext('2d');
+  g.font = 'bold 84px "Courier New", monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = c; g.shadowBlur = 20; g.fillStyle = c; g.fillText(txt, 256, 64);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(4 * s, 1 * s), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, toneMapped: false }));
+  m.position.set(x, y, z); m.rotation.y = ry; scene.add(m);
+};
+placa('FARMÁCIA 24H', '#3ae0ff', -3.2, 5.2, -6, 0.9, 0.9);
+placa('HOTEL', '#ff3fb4', 3.6, 7.5, -10, -0.9, 1.1);
+placa('23:47', '#ff3fb4', 3.1, 3.4, -4.5, -0.9, 0.7);
+// luzes de borda
+const rosa = new THREE.PointLight(0xff3fb4, 60, 16, 1.6); rosa.position.set(3, 3.5, -2); scene.add(rosa);
+const ciano = new THREE.PointLight(0x3ae0ff, 55, 16, 1.6); ciano.position.set(-3.5, 3, 1.5); scene.add(ciano);
+// poste com luz âmbar
+const poste = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 6, 8), escuro); poste.position.set(2.4, 3, 1); scene.add(poste);
+const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 12), luz(0xffc070, 6)); lamp.position.set(2.4, 6, 1); scene.add(lamp);
+// KAI: entregador, silhueta lisa, capacete, mochila de entrega com faixa ciano; olhos = 2 traços de luz
+const K = new THREE.Group(); const pele = new THREE.MeshStandardMaterial({ color: 0x15131f, roughness: 0.45, metalness: 0.1 });
+const tr = rb(0.9, 1.3, 0.55, 0.22, pele); tr.position.y = 2.0; K.add(tr);
+for (const s of [-1, 1]) { const p = rb(0.34, 1.35, 0.38, 0.15, pele); p.position.set(s * 0.24, 0.68, 0); K.add(p); const b = rb(0.26, 1.15, 0.28, 0.12, pele); b.position.set(s * 0.6, 1.95, 0.05); b.rotation.z = s * 0.08; K.add(b); }
+const cab = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 24), pele); cab.position.y = 3.0; cab.scale.set(1, 1.08, 1); K.add(cab);
+const visor = new THREE.Mesh(new THREE.SphereGeometry(0.44, 32, 16, -0.9, 1.8, 1.0, 0.75), new THREE.MeshStandardMaterial({ color: 0x202034, roughness: 0.1, metalness: 0.8 })); visor.position.y = 3.02; K.add(visor);
+for (const s of [-1, 1]) { const o = rb(0.13, 0.035, 0.02, 0.01, luz(0xffffff, 2)); o.position.set(s * 0.14, 3.02, 0.43); K.add(o); }
+const moch = rb(0.95, 0.95, 0.7, 0.1, pele); moch.position.set(0, 2.2, -0.62); K.add(moch);
+const faixa = rb(0.97, 0.08, 0.72, 0.03, luz(0x3ae0ff, 4)); faixa.position.set(0, 2.25, -0.62); K.add(faixa);
+// a caixa misteriosa na mão, brilhando por dentro
+const cx = rb(0.6, 0.45, 0.45, 0.05, pele); cx.position.set(0.55, 1.55, 0.45); K.add(cx);
+const etiq = new THREE.Mesh(new THREE.PlaneGeometry(0.38, 0.18), luz(0xff3fb4, 3)); etiq.position.set(0.55, 1.6, 0.68); K.add(etiq);
+K.position.set(-0.3, 0, 2.5); K.rotation.y = 0.35; scene.add(K);
+// moto estacionada (formas simples)
+const moto = new THREE.Group();
+for (const z of [-0.9, 0.9]) { const rd = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.12, 12, 28), pele); rd.rotation.y = Math.PI / 2; rd.position.set(0, 0.45, z); moto.add(rd); }
+const qd = rb(0.4, 0.5, 1.7, 0.15, pele); qd.position.y = 0.95; moto.add(qd);
+const farol = new THREE.Mesh(new THREE.CircleGeometry(0.14, 20), luz(0xfff2c0, 6)); farol.position.set(0, 1.25, 0.95); moto.add(farol);
+moto.position.set(-2.6, 0, 0.2); moto.rotation.y = 0.5; scene.add(moto);
+// chuva em riscos
+const chuva = new THREE.Group(); const rm = new THREE.MeshBasicMaterial({ color: 0x9fb8ff, transparent: true, opacity: 0.18 });
+for (let i = 0; i < 700; i++) { const l = new THREE.Mesh(new THREE.PlaneGeometry(0.012, 0.5 + r() * 0.5), rm); l.position.set((r() - 0.5) * 18, r() * 14, -14 + r() * 17); chuva.add(l); }
+scene.add(chuva);
+scene.add(new THREE.HemisphereLight(0x2a2050, 0x000000, 0.3));
+const cam = new THREE.PerspectiveCamera(36, 1080 / 1920, 0.1, 100); cam.position.set(0.8, 2.6, 15.5); cam.lookAt(0, 3.6, -3);
+const comp = new EffectComposer(renderer); comp.addPass(new RenderPass(scene, cam));
+comp.addPass(new UnrealBloomPass(new THREE.Vector2(1080, 1920), 0.9, 0.6, 0.55)); comp.addPass(new OutputPass());
+comp.render(); window.__ready = true;
+</script></body></html>
