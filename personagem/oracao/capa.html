@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'M'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2'); }
+@font-face { font-family: 'M'; font-weight: 900; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-900-normal.woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #0b0f2e; font-family: 'M', sans-serif; }
+#img { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.grad { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,15,46,.85) 0%, rgba(11,15,46,0) 30%, rgba(11,15,46,0) 58%, rgba(11,15,46,.92) 100%); }
+#marca { position: absolute; top: 290px; left: 0; right: 0; text-align: center; color: #fff; font-weight: 800; font-size: 40px; letter-spacing: 6px; }
+#marca span { color: #ffd27a; }
+#titulo { position: absolute; bottom: 330px; left: 60px; right: 60px; text-align: center; font-weight: 900; font-size: 104px; line-height: 1.02; color: #fff; -webkit-text-stroke: 12px #140f30; paint-order: stroke fill; }
+#titulo .l2 { color: #ffd23f; }
+#tag { position: absolute; bottom: 270px; left: 0; right: 0; text-align: center; color: #fff; font-weight: 800; font-size: 34px; letter-spacing: 3px; opacity: .9; }
+</style></head>
+<body>
+<!-- Capa dos vídeos do @oracaodogael. Uso: capa.html?img=<quadro>&l1=posso orar pela&l2=sua ansiedade? -->
+<div id="img"></div><div class="grad"></div>
+<div id="marca">🙏 ORAÇÃO DO <span>GAEL</span></div>
+<div id="titulo"><div id="l1"></div><div class="l2" id="l2"></div></div>
+<div id="tag">FECHA OS OLHOS COMIGO</div>
+<script>
+const q = new URLSearchParams(location.search);
+document.getElementById('img').style.backgroundImage = `url('${q.get('img')}')`;
+document.getElementById('l1').textContent = q.get('l1') || ''; document.getElementById('l2').textContent = q.get('l2') || '';
+if (q.get('tag')) document.getElementById('tag').textContent = q.get('tag');
+const im = new Image(); im.onload = () => document.fonts.ready.then(() => { window.__ready = true; }); im.src = q.get('img');
+</script>
+</body></html>

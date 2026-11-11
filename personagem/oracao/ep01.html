@@ -166,6 +166,7 @@ function update(T) {
   document.getElementById('gancho').style.opacity = 1 - smooth((T - K.assistiu + 0.2) / 0.4);
   document.getElementById('cta').style.opacity = smooth((T - K.assistiu) / 0.5);
   legenda(T); verso(T);
+  if (qs.get('limpo')) ['gancho', 'cta', 'leg', 'verso'].forEach(id => { document.getElementById(id).style.display = 'none'; });
   return P.head.getWorldPosition(new THREE.Vector3());
 }
 window.__range = [0, DUR]; window.__shots = { SH01: [0, DUR] };
