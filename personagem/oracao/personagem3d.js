@@ -2,6 +2,7 @@
 // olhos com íris/córnea e pálpebras, mechas de cabelo esculpidas, moletom com brilho de tecido).
 // Diferente do Davi (blocos): aqui tudo é orgânico e liso. Escala em metros; ele olha para +z.
 import * as THREE from 'three';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
 const ss = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 const gauss = (p, c, s) => Math.exp(-p.distanceToSquared(c) / (2 * s * s));
@@ -10,9 +11,11 @@ let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return see
 
 export const CORES = { skin: 0xc98863, hair: 0x2a1b15, hoodie: 0xd9a23a, iris: [0x2a160c, 0x6b3d1e, 0xb07a3c] };
 
-// ---------- cabeça esculpida (unidades da cabeça: raio ≈ 1)
+// ---------- cabeça esculpida (unidades da cabeça: raio ≈ 1). QUAD > 0 deixa a cabeça em forma de cubo arredondado
+let QUAD = 0;
+const squircle = (n) => { if (!QUAD) return n; const k = Math.pow(n.x ** 4 + n.y ** 4 + n.z ** 4, 0.25); return n.clone().lerp(n.clone().divideScalar(k).multiplyScalar(0.92), QUAD); };
 function headSurface(p) {
-  const n = p.clone().normalize(); let x = n.x * 0.9, y = n.y * 1.06, z = n.z * 0.95;
+  const n0 = p.clone().normalize(), n = n0; let x = n.x * 0.9, y = n.y * 1.06, z = n.z * 0.95;
   const j = ss(-0.25, -0.95, n.y); x *= (1 - 0.16 * j) * (1 + 0.04 * Math.exp(-((n.y + 0.3) ** 2) / 0.05)); z *= 1 - 0.08 * j;
   if (n.y < 0) y *= 1 - 0.1 * ss(0, -1, n.y);
   z += 0.07 * ss(-0.55, -1, n.y) * Math.max(0, n.z);
@@ -25,7 +28,9 @@ function headSurface(p) {
     d -= 0.03 * gauss(n, V(s * 0.85, 0.25, 0.35), 0.2);     // têmporas
   }
   d -= 0.02 * gauss(n, V(0, -0.62, 0.78), 0.12);            // vinco acima do queixo
-  const r = V(x, y, z); return r.addScaledVector(n, d);
+  const r = V(x, y, z).multiplyScalar(1);
+  if (QUAD) { const q = squircle(n0); r.x *= Math.abs(q.x) / Math.max(1e-4, Math.abs(n0.x)) || 1; r.y *= Math.abs(q.y) / Math.max(1e-4, Math.abs(n0.y)) || 1; r.z *= Math.abs(q.z) / Math.max(1e-4, Math.abs(n0.z)) || 1; }
+  return r.addScaledVector(n, d);
 }
 function sculptSphere(radius = 1, wS = 160, hS = 120, f = headSurface, k = 1) {
   const g = new THREE.SphereGeometry(radius, wS, hS); const pos = g.attributes.position, v = new THREE.Vector3();
@@ -38,7 +43,7 @@ const hairlineY = (n) => { // acima disso é cabelo
 };
 
 export function createPersonagem(opts = {}) {
-  const C = { ...CORES, ...opts };
+  const C = { ...CORES, ...opts }; QUAD = opts.quadrado ? 0.85 : 0;
   const skin = new THREE.MeshPhysicalMaterial({ color: C.skin, roughness: 0.52, sheen: 0.5, sheenRoughness: 0.5, sheenColor: new THREE.Color(0xff9a7a), clearcoat: 0.08, clearcoatRoughness: 0.6 });
   const skinDark = skin.clone(); skinDark.color.set(new THREE.Color(C.skin).multiplyScalar(0.78));
   const hairM = new THREE.MeshPhysicalMaterial({ color: C.hair, roughness: 0.42, sheen: 0.6, sheenColor: new THREE.Color(0x7a5a48), clearcoat: 0.25, clearcoatRoughness: 0.4 });
@@ -133,7 +138,8 @@ export function createPersonagem(opts = {}) {
   // ---------- pescoço e moletom
   const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.12, 32), skin); neck.position.y = 1.44; body.add(neck);
   const prof = [[0.0, 0.7], [0.19, 0.72], [0.215, 0.85], [0.22, 1.05], [0.215, 1.2], [0.2, 1.3], [0.17, 1.37], [0.11, 1.415], [0.06, 1.43], [0.0, 1.43]].map(([r, y]) => new THREE.Vector2(r, y));
-  const torsoG = new THREE.LatheGeometry(prof, 64); torsoG.scale(1.08, 1, 0.68); torsoG.computeVertexNormals();
+  let torsoG = new THREE.LatheGeometry(prof, 64); torsoG.scale(1.08, 1, 0.68); torsoG.computeVertexNormals();
+  if (opts.quadrado) { torsoG = new RoundedBoxGeometry(0.42, 0.7, 0.26, 6, 0.07); torsoG.translate(0, 1.07, 0); }
   const torso = new THREE.Mesh(torsoG, cloth); body.add(torso);
   const hood = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.012, 16, 48), clothDark); hood.rotation.x = Math.PI / 2; hood.position.set(0, 1.425, 0); body.add(hood);
   const cordM = new THREE.MeshPhysicalMaterial({ color: 0xf6f1e8, roughness: 0.7, sheen: 1 });
@@ -149,8 +155,8 @@ export function createPersonagem(opts = {}) {
   // ---------- braços (IK) e mãos
   const arms = {};
   for (const s of [-1, 1]) {
-    const upper = new THREE.Mesh(new THREE.CapsuleGeometry(0.046, 0.2, 12, 24), cloth); body.add(upper);
-    const fore = new THREE.Mesh(new THREE.CapsuleGeometry(0.041, 0.17, 12, 24), cloth); body.add(fore);
+    const upper = new THREE.Mesh(opts.quadrado ? new RoundedBoxGeometry(0.095, 0.29, 0.095, 4, 0.03) : new THREE.CapsuleGeometry(0.046, 0.2, 12, 24), cloth); body.add(upper);
+    const fore = new THREE.Mesh(opts.quadrado ? new RoundedBoxGeometry(0.085, 0.25, 0.085, 4, 0.028) : new THREE.CapsuleGeometry(0.041, 0.17, 12, 24), cloth); body.add(fore);
     const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.04, 0.012, 12, 32), clothDark); body.add(cuff);
     const hand = makeHand(skin, s); body.add(hand.g);
     arms[s < 0 ? 'R' : 'L'] = { s, upper, fore, cuff, hand, sh: V(s * 0.18, 1.34, -0.01) };

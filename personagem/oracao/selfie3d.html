@@ -24,7 +24,8 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { createPersonagem, setFace, setArm, setFingers } from './personagem3d.js';
+const FORMA = new URLSearchParams(location.search).get('forma');
+const { createPersonagem, setFace, setArm, setFingers } = await import(FORMA === 'voxel' ? './voxel.js' : './personagem3d.js');
 
 const W = 1080, H = 1920, qs = new URLSearchParams(location.search), Q = +(qs.get('q') || 0.75), POSE = qs.get('pose') || 'fala';
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
@@ -59,20 +60,20 @@ const fill = new THREE.PointLight(0xdfe8ff, 0.5, 2, 1.5); fill.position.set(0.1,
 scene.add(new THREE.HemisphereLight(0x7a74a8, 0x2a1a20, 0.35));
 
 // ---------- personagem e poses
-const P = createPersonagem(); scene.add(P.root);
+const P = createPersonagem({ quadrado: qs.get('forma') === 'quadrado' }); scene.add(P.root);
 const ARMS = {
   baixo: { R: [V(-0.25, 0.92, 0.12), V(0.2, 0.3, 1), V(0.6, 0, -0.2), V(-1, -0.4, -0.3), { curl: 0.5 }], L: [V(0.25, 0.92, 0.12), V(-0.2, 0.3, 1), V(-0.6, 0, -0.2), V(1, -0.4, -0.3), { curl: 0.5 }] },
   ora: { R: [V(-0.024, 1.3, 0.2), V(0, 1, 0.3), V(1, 0, 0), V(-1, -0.7, -0.2), { curl: 0.05, spread: 0 }], L: [V(0.024, 1.3, 0.2), V(0, 1, 0.3), V(-1, 0, 0), V(1, -0.7, -0.2), { curl: 0.05, spread: 0 }] },
 };
 function pose(name, T = 0) {
-  for (const s of ['R', 'L']) { const [w, f, p, pl, fg] = ARMS[name][s]; setArm(P, s, w, f, p, pl); setFingers(P.arms[s].hand, fg); }
+  for (const s of ['R', 'L']) { const [w, f, p, pl, fg] = ARMS[name][s]; setArm(P, s, FORMA === 'voxel' ? w.clone().add(V(0, -0.1, 0.03)) : w, f, p, pl); setFingers(P.arms[s].hand, fg); }
 }
 function update(T) {
   const ora = POSE === 'ora';
   pose(ora ? 'ora' : 'baixo', T);
-  setFace(P, ora ? { open: 0, talk: 0.25, browUp: 0.4, browSad: 0.6 } : { open: 1, talk: 0.45, smile: 0.5, browUp: 0.25, look: [0, 0] });
+  setFace(P, ora ? { open: 0, talk: 0.1, browUp: 0.4, browSad: 0.6 } : { open: 1, talk: 0.45, smile: 0.5, browUp: 0.25, look: [0, 0] });
   P.head.rotation.set(ora ? 0.18 : 0.02, ora ? 0 : -0.06, ora ? 0.06 : 0.03);
-  camera.position.set(0, 1.55, 1.0); camera.lookAt(0, 1.5, 0);
+  camera.position.set(0, 1.55, FORMA === 'voxel' ? 1.15 : 1.0); camera.lookAt(0, 1.5, 0);
   return P.head.getWorldPosition(new THREE.Vector3());
 }
 const rt = new THREE.WebGLRenderTarget(W * Q, H * Q, { type: THREE.HalfFloatType, samples: 4 });
