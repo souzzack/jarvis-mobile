@@ -116,7 +116,7 @@ E se a ansiedade tá pesada demais, conversa com alguém. Você pode ligar no 18
 ## Legenda do post
 
 ```
-Se a sua cabeça não desliga e o coração acelera do nada, essa oração é pra você. 🙏
+Oração pela ansiedade 🙏 Se a sua cabeça não desliga e o coração acelera do nada, essa oração é pra você.
 
 Fecha os olhos comigo um minuto. Você não precisa carregar tudo sozinho.
 
@@ -127,8 +127,12 @@ E me conta: pelo que você quer que eu ore no próximo vídeo?
 
 Se a ansiedade estiver pesada demais, você não precisa passar por isso sozinho: ligue 188 (CVV), de graça, 24 horas, ou acesse cvv.org.br.
 
-#oração #ansiedade #oracaoporvoce #fé #jesus #deus #cristao #jovenscristaos #paz #saudemental
+#ansiedade #oraçãopelaansiedade #jovenscristãos #oraçãodanoite #oraçãodogael
 ```
+
+**TikTok** (mesma legenda, com estas tags): `#oração #ansiedade #oraçãopelaansiedade #jovenscristãos #oraçãodogael`
+
+Regras das tags: `../hashtags.md`.
 
 **Comentário fixado:**
 ```
