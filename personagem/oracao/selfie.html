@@ -1,0 +1,275 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: 'M'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2'); }
+@font-face { font-family: 'M'; font-weight: 700; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #140f1f; font-family: 'M', sans-serif; }
+svg { position: absolute; left: 0; top: 0; }
+#gancho { position: absolute; top: 290px; left: 90px; right: 90px; text-align: center; color: #fff; font-weight: 700; font-size: 58px; line-height: 1.22;
+  text-shadow: 0 3px 14px rgba(0,0,0,.7), 0 0 2px rgba(0,0,0,.9); }
+#gancho .c { color: #ff4d5e; }
+#cta { position: absolute; top: 290px; left: 60px; right: 60px; text-align: center; color: #fff; font-weight: 800; font-size: 52px; line-height: 1.2; opacity: 0;
+  text-shadow: 0 3px 16px rgba(0,0,0,.85), 0 0 3px rgba(0,0,0,.9); }
+#cta b { color: #ffd27a; }
+</style>
+</head>
+<body>
+<!-- Estilo "oração em selfie": ilustração 2D com contorno, câmera frontal parada, fundo de quarto desfocado.
+     Uso: selfie.html?t=4.5 ; window.frame(T) desenha o quadro do tempo T (s). -->
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
+  <radialGradient id="lamp" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffb867" stop-opacity=".9"/><stop offset=".45" stop-color="#ff9a4a" stop-opacity=".35"/><stop offset="1" stop-color="#ff8a3a" stop-opacity="0"/></radialGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16122a"/><stop offset=".6" stop-color="#2a1f3d"/><stop offset="1" stop-color="#1c1426"/></linearGradient>
+  <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b4b8f"/><stop offset="1" stop-color="#4a3f8f"/></linearGradient>
+  <clipPath id="faceClip"><path id="faceShapeC" d="M330 760 C325 640 400 560 540 555 C680 560 755 640 750 760 C752 900 722 995 645 1075 C605 1112 572 1128 540 1128 C508 1128 475 1112 435 1075 C358 995 328 900 330 760 Z"/></clipPath>
+  <clipPath id="eyeClipL"><path d="M-62 0 C-40 -40 40 -42 62 -4 C42 32 -40 34 -62 0 Z"/></clipPath>
+  <clipPath id="eyeClipR"><path d="M-62 -4 C-40 -42 40 -40 62 0 C40 34 -42 32 -62 -4 Z"/></clipPath>
+  <clipPath id="mouthClip"><path id="mouthClipP" d=""/></clipPath>
+</defs>
+
+<!-- fundo: quarto à noite desfocado -->
+<g id="fundo">
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <g filter="url(#blur)">
+    <rect x="800" y="420" width="300" height="560" rx="18" fill="url(#win)"/>
+    <rect x="808" y="690" width="290" height="16" fill="#1a1530"/>
+    <circle cx="960" cy="520" r="34" fill="#f2eee0" opacity=".85"/>
+    <rect x="-40" y="1120" width="1160" height="900" fill="#3a2430"/>
+    <rect x="-40" y="1080" width="1160" height="70" rx="30" fill="#5a3a35"/>
+    <ellipse cx="200" cy="1210" rx="230" ry="90" fill="#5d6fa0"/>
+  </g>
+  <circle cx="110" cy="1040" r="380" fill="url(#lamp)"/>
+  <g id="luzinhas"></g>
+</g>
+
+<g id="cam">
+<g id="corpo">
+  <!-- moletom -->
+  <path id="hood" d="M330 1300 C330 1200 420 1160 540 1160 C660 1160 750 1200 750 1300 C700 1260 620 1245 540 1245 C460 1245 380 1260 330 1300 Z" fill="#62805c" stroke="#2a1712" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M-30 1920 L-30 1470 C0 1360 140 1300 300 1275 C360 1268 420 1262 470 1262 L610 1262 C660 1262 720 1268 780 1275 C940 1300 1080 1360 1110 1470 L1110 1920 Z" fill="#7f9c78" stroke="#2a1712" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M780 1275 C940 1300 1080 1360 1110 1470 L1110 1920 L820 1920 C860 1700 860 1450 780 1275 Z" fill="#6a8564"/>
+  <path d="M300 1275 C230 1420 220 1650 250 1920" fill="none" stroke="#2a1712" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+  <path d="M780 1275 C850 1420 860 1650 830 1920" fill="none" stroke="#2a1712" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+  <!-- gola em V -->
+  <path d="M455 1262 C470 1320 510 1350 540 1352 C570 1350 610 1320 625 1262" fill="#4f6a4a" stroke="#2a1712" stroke-width="7" stroke-linejoin="round"/>
+  <!-- pescoço -->
+  <path d="M478 1060 L478 1250 C500 1300 580 1300 602 1250 L602 1060 Z" fill="#b57852" stroke="#2a1712" stroke-width="7"/>
+  <path d="M478 1120 C510 1160 570 1160 602 1120 L602 1060 L478 1060 Z" fill="#9c6444"/>
+  <!-- cordões -->
+  <g stroke="#2a1712" stroke-width="5" fill="#f4efe6">
+    <path d="M500 1330 C498 1400 496 1460 494 1520 L510 1520 C512 1460 514 1400 514 1335 Z"/>
+    <path d="M580 1330 C582 1400 584 1460 586 1520 L570 1520 C568 1460 566 1400 566 1335 Z"/>
+    <rect x="490" y="1515" width="24" height="34" rx="8" fill="#cfc6b5"/><rect x="566" y="1515" width="24" height="34" rx="8" fill="#cfc6b5"/>
+  </g>
+  <!-- fone no pescoço -->
+  <path d="M392 1262 C400 1205 470 1190 540 1190 C610 1190 680 1205 688 1262" fill="none" stroke="#1d1b22" stroke-width="20" stroke-linecap="round"/>
+  <g stroke="#2a1712" stroke-width="6">
+    <rect x="350" y="1235" width="96" height="118" rx="40" fill="#1d1b22" transform="rotate(-18 398 1294)"/>
+    <rect x="368" y="1257" width="60" height="74" rx="26" fill="#ff6a3d" stroke="none" transform="rotate(-18 398 1294)"/>
+    <rect x="634" y="1235" width="96" height="118" rx="40" fill="#1d1b22" transform="rotate(18 682 1294)"/>
+    <rect x="652" y="1257" width="60" height="74" rx="26" fill="#ff6a3d" stroke="none" transform="rotate(18 682 1294)"/>
+  </g>
+</g>
+
+<g id="cabeca">
+  <!-- orelhas -->
+  <g stroke="#2a1712" stroke-width="7" fill="#c98b62">
+    <ellipse cx="326" cy="850" rx="36" ry="56"/><ellipse cx="754" cy="850" rx="36" ry="56"/>
+  </g>
+  <path d="M320 830 C334 845 334 870 322 885" fill="none" stroke="#9c6444" stroke-width="6" stroke-linecap="round"/>
+  <path d="M760 830 C746 845 746 870 758 885" fill="none" stroke="#9c6444" stroke-width="6" stroke-linecap="round"/>
+  <!-- rosto -->
+  <path id="face" d="M330 760 C325 640 400 560 540 555 C680 560 755 640 750 760 C752 900 722 995 645 1075 C605 1112 572 1128 540 1128 C508 1128 475 1112 435 1075 C358 995 328 900 330 760 Z" fill="#c98b62"/>
+  <g clip-path="url(#faceClip)">
+    <path d="M700 600 C800 760 790 1000 600 1140 L820 1140 L820 560 Z" fill="#b07350"/>
+    <path d="M345 700 C330 800 350 930 420 1010" fill="none" stroke="#ffc58a" stroke-width="10" stroke-linecap="round" opacity=".45"/>
+  </g>
+  <use href="#faceShapeC" fill="none" stroke="#2a1712" stroke-width="8"/>
+  <!-- traços do rosto (descem um pouco quando ele inclina a cabeça) -->
+  <g id="feicoes">
+    <ellipse cx="415" cy="955" rx="46" ry="24" fill="#e0796b" opacity=".35"/>
+    <ellipse cx="665" cy="955" rx="46" ry="24" fill="#e0796b" opacity=".35"/>
+    <!-- olhos -->
+    <g id="olhoL" transform="translate(445 850)">
+      <g class="aberto">
+        <path d="M-62 0 C-40 -40 40 -42 62 -4 C42 32 -40 34 -62 0 Z" fill="#fbf7f0"/>
+        <g clip-path="url(#eyeClipL)"><g class="iris"><circle r="31" cy="2" fill="#5a341d"/><circle r="31" cy="2" fill="none" stroke="#3a1f10" stroke-width="5"/><circle r="15" cy="2" fill="#120a06"/><circle cx="10" cy="-9" r="9" fill="#fff"/><circle cx="-9" cy="12" r="4" fill="#fff" opacity=".8"/></g>
+          <rect class="palp" x="-70" y="-60" width="140" height="0" fill="#c98b62"/></g>
+        <path class="linha" d="M-68 4 C-44 -46 44 -48 68 -6" fill="none" stroke="#2a1712" stroke-width="10" stroke-linecap="round"/>
+        <path d="M-60 6 C-40 30 40 30 58 0" fill="none" stroke="#2a1712" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+      </g>
+      <g class="fechado"><path d="M-58 -4 C-30 24 30 24 58 -4" fill="none" stroke="#2a1712" stroke-width="9" stroke-linecap="round"/>
+        <path d="M-50 8 L-62 20 M-30 16 L-36 30" stroke="#2a1712" stroke-width="6" stroke-linecap="round"/></g>
+    </g>
+    <g id="olhoR" transform="translate(635 850)">
+      <g class="aberto">
+        <path d="M-62 -4 C-40 -42 40 -40 62 0 C40 34 -42 32 -62 -4 Z" fill="#fbf7f0"/>
+        <g clip-path="url(#eyeClipR)"><g class="iris"><circle r="31" cy="2" fill="#5a341d"/><circle r="31" cy="2" fill="none" stroke="#3a1f10" stroke-width="5"/><circle r="15" cy="2" fill="#120a06"/><circle cx="10" cy="-9" r="9" fill="#fff"/><circle cx="-9" cy="12" r="4" fill="#fff" opacity=".8"/></g>
+          <rect class="palp" x="-70" y="-60" width="140" height="0" fill="#c98b62"/></g>
+        <path class="linha" d="M-68 -6 C-44 -48 44 -46 68 4" fill="none" stroke="#2a1712" stroke-width="10" stroke-linecap="round"/>
+        <path d="M-58 0 C-40 30 40 30 60 6" fill="none" stroke="#2a1712" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+      </g>
+      <g class="fechado"><path d="M-58 -4 C-30 24 30 24 58 -4" fill="none" stroke="#2a1712" stroke-width="9" stroke-linecap="round"/>
+        <path d="M50 8 L62 20 M30 16 L36 30" stroke="#2a1712" stroke-width="6" stroke-linecap="round"/></g>
+    </g>
+    <!-- sobrancelhas -->
+    <path id="sobL" d="M385 775 C410 748 470 742 505 758" fill="none" stroke="#2a1a14" stroke-width="20" stroke-linecap="round"/>
+    <path id="sobR" d="M575 758 C610 742 670 748 695 775" fill="none" stroke="#2a1a14" stroke-width="20" stroke-linecap="round"/>
+    <!-- nariz -->
+    <path d="M548 895 C566 930 566 952 536 960" fill="none" stroke="#2a1712" stroke-width="7" stroke-linecap="round"/>
+    <path d="M520 958 C528 966 540 968 548 962" fill="none" stroke="#9c6444" stroke-width="6" stroke-linecap="round"/>
+    <!-- boca -->
+    <g id="boca" transform="translate(540 1030)">
+      <path id="bocaAberta" d="" fill="#4a1820" stroke="#2a1712" stroke-width="7" stroke-linejoin="round"/>
+      <g clip-path="url(#mouthClip)"><rect id="dentes" x="-60" y="-40" width="120" height="0" fill="#fffaf2"/><ellipse id="lingua" cx="0" cy="40" rx="40" ry="20" fill="#c0505a"/></g>
+      <path id="bocaFechada" d="" fill="none" stroke="#2a1712" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- cabelo -->
+  <path d="M312 845 C288 700 318 562 420 505 C500 460 622 455 702 500 C784 548 792 690 768 845 C762 770 748 728 738 706 C705 728 655 712 622 694 C600 724 558 740 518 724 C486 746 440 750 408 726 C378 748 352 768 342 798 C334 816 320 828 312 845 Z" fill="#2a1a14" stroke="#1a0f0b" stroke-width="7" stroke-linejoin="round"/>
+  <g fill="none" stroke="#4a3328" stroke-width="7" stroke-linecap="round">
+    <path d="M420 560 C470 530 540 525 600 540"/><path d="M380 640 C420 600 470 590 520 600"/><path d="M560 610 C620 590 680 610 720 650"/><path d="M460 680 C500 650 560 650 600 670"/>
+  </g>
+</g>
+
+<!-- mãos (cada uma com a manga até fora do quadro) -->
+<g id="maoLev"><!-- mão levantada, palma para a câmera -->
+  <g stroke="#2a1712" stroke-width="7" stroke-linejoin="round">
+    <path d="M-80 140 C-90 300 -100 520 -110 760 L110 760 C100 520 90 300 80 140 Z" fill="#7f9c78"/>
+    <rect x="-86" y="110" width="172" height="62" rx="26" fill="#6a8564"/>
+    <path d="M-78 -40 C-82 40 -70 100 -50 118 L56 118 C80 96 86 40 80 -40 Z" fill="#c98b62"/>
+    <rect x="-82" y="-170" width="40" height="150" rx="20" fill="#c98b62"/>
+    <rect x="-40" y="-196" width="40" height="176" rx="20" fill="#c98b62"/>
+    <rect x="2" y="-188" width="40" height="168" rx="20" fill="#c98b62"/>
+    <rect x="44" y="-150" width="38" height="130" rx="19" fill="#c98b62"/>
+    <rect x="-96" y="-34" width="42" height="112" rx="21" fill="#c98b62" transform="rotate(-32 -75 70)"/>
+  </g>
+  <path d="M-40 40 C-10 60 20 60 40 40" fill="none" stroke="#9c6444" stroke-width="6" stroke-linecap="round"/>
+</g>
+<g id="maoOra"><!-- mãos juntas -->
+  <g stroke="#2a1712" stroke-width="7" stroke-linejoin="round">
+    <path d="M-40 160 C-120 300 -260 480 -330 700 L-120 700 C-60 520 -10 360 10 200 Z" fill="#7f9c78"/>
+    <path d="M40 160 C120 300 260 480 330 700 L120 700 C60 520 10 360 -10 200 Z" fill="#6a8564"/>
+    <path d="M-6 -200 C-40 -196 -78 -120 -84 -20 C-88 60 -70 140 -40 190 L0 190 Z" fill="#c98b62"/>
+    <path d="M6 -200 C40 -196 78 -120 84 -20 C88 60 70 140 40 190 L0 190 Z" fill="#b57852"/>
+    <path d="M-62 30 C-70 -10 -78 -40 -76 -70" fill="none" stroke="#2a1712" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="#9c6444" stroke-width="5" stroke-linecap="round"><path d="M-34 -150 L-24 -170"/><path d="M-50 -90 L-30 -100"/><path d="M34 -150 L24 -170"/><path d="M50 -90 L30 -100"/></g>
+</g>
+<g id="maoAponta"><!-- aponta para baixo (comentários) -->
+  <g stroke="#2a1712" stroke-width="7" stroke-linejoin="round">
+    <path d="M60 -60 C200 -120 380 -150 560 -160 L560 60 C400 60 230 80 100 120 Z" fill="#6a8564"/>
+    <rect x="40" y="-90" width="62" height="200" rx="26" fill="#5c7556" transform="rotate(-8 70 10)"/>
+    <rect x="-28" y="80" width="46" height="170" rx="23" fill="#c98b62"/>
+    <path d="M-90 -80 C-100 -10 -80 80 -40 110 L40 110 C70 70 70 -40 50 -90 Z" fill="#c98b62"/>
+    <path d="M-80 -60 C-60 -40 -20 -40 10 -60 M-82 -10 C-60 10 -20 10 10 -10 M-78 40 C-60 60 -30 60 -10 50" fill="none" stroke-width="5"/>
+    <rect x="-108" y="-40" width="44" height="100" rx="22" fill="#c98b62" transform="rotate(25 -86 10)"/>
+  </g>
+</g>
+<g id="maoFala"><!-- mão que gesticula enquanto ele fala -->
+  <g stroke="#2a1712" stroke-width="7" stroke-linejoin="round">
+    <path d="M-70 120 C-60 300 -40 500 -20 760 L200 760 C170 500 120 300 80 120 Z" fill="#6a8564"/>
+    <rect x="-80" y="90" width="166" height="60" rx="26" fill="#5c7556"/>
+    <path d="M-74 -30 C-80 40 -66 90 -46 100 L54 100 C78 80 82 30 76 -30 Z" fill="#c98b62"/>
+    <rect x="-78" y="-140" width="38" height="120" rx="19" fill="#c98b62" transform="rotate(-10 -59 -20)"/>
+    <rect x="-38" y="-160" width="38" height="140" rx="19" fill="#c98b62" transform="rotate(-4 -19 -20)"/>
+    <rect x="2" y="-152" width="38" height="132" rx="19" fill="#c98b62" transform="rotate(4 21 -20)"/>
+    <rect x="42" y="-120" width="36" height="100" rx="18" fill="#c98b62" transform="rotate(12 60 -20)"/>
+    <rect x="-92" y="-30" width="40" height="104" rx="20" fill="#c98b62" transform="rotate(-36 -72 66)"/>
+  </g>
+</g>
+</g>
+</svg>
+<div id="gancho">posso orar pela sua ansiedade? <span class="c">♥</span></div>
+<div id="cta">assistiu até o fim?<br>comenta <b>pelo que você quer<br>que eu ore</b> no próximo vídeo ↓</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const smooth = (x) => { x = clamp(x); return x * x * (3 - 2 * x); };
+const back = (x) => { x = clamp(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }; // entra com leve passada
+
+// luzinhas (bokeh)
+(() => { let h = ''; for (let i = 0; i < 16; i++) { const x = -30 + i * 76, y = 230 + 70 * Math.sin(i / 15 * Math.PI) * -1 + 120 + (i % 2) * 14;
+  h += `<circle class="lz" cx="${x}" cy="${y}" r="${20 + (i % 3) * 5}" fill="#ffd28a" opacity=".9" filter="url(#glow)"/><circle cx="${x}" cy="${y}" r="${9 + (i % 3) * 2}" fill="#fff4dc" opacity=".9"/>`; }
+  $('luzinhas').innerHTML = h; })();
+
+// boca: talk 0..1 (abertura), smile 0..1
+function setMouth(talk, smile) {
+  const w = 62 + 14 * smile - 10 * talk, cy = -10 * smile;
+  if (talk < 0.06) {
+    $('bocaFechada').setAttribute('d', `M${-w} ${cy} Q0 ${8 + 26 * smile} ${w} ${cy}`);
+    $('bocaAberta').setAttribute('d', ''); $('mouthClipP').setAttribute('d', ''); return;
+  }
+  const top = -10 - 6 * talk + 6 * smile, bot = 14 + 70 * talk + 14 * smile;
+  const d = `M${-w} ${cy} C${-w * 0.6} ${top} ${w * 0.6} ${top} ${w} ${cy} C${w * 0.8} ${bot} ${-w * 0.8} ${bot} ${-w} ${cy} Z`;
+  $('bocaAberta').setAttribute('d', d); $('mouthClipP').setAttribute('d', d); $('bocaFechada').setAttribute('d', '');
+  $('dentes').setAttribute('height', 26 + 6 * talk); $('dentes').setAttribute('y', top - 6);
+  $('lingua').setAttribute('cy', bot - 4);
+}
+// olhos: open 0..1 (pálpebra desce), fechado (< 0.1) mostra o arco tranquilo da oração
+function setEyes(open, look = [0, 0]) {
+  for (const id of ['olhoL', 'olhoR']) {
+    const g = $(id), shut = open < 0.1;
+    g.querySelector('.aberto').style.display = shut ? 'none' : ''; g.querySelector('.fechado').style.display = shut ? '' : 'none';
+    g.querySelector('.palp').setAttribute('height', 22 + 60 * (1 - open) * 0.95);
+    g.querySelector('.iris').setAttribute('transform', `translate(${look[0] * 14} ${look[1] * 10})`);
+  }
+}
+function setBrows(up, sad) { // up: levanta; sad: pontas internas sobem (compaixão)
+  $('sobL').setAttribute('transform', `translate(0 ${-14 * up}) rotate(${-10 * sad} 505 758)`);
+  $('sobR').setAttribute('transform', `translate(0 ${-14 * up}) rotate(${10 * sad} 575 758)`);
+}
+// mãos: cada pose é [x, y, rotação, escala]; fora = abaixo do quadro
+const HANDS = {
+  maoLev: { on: [235, 820, -8, 1.0], off: [180, 1750, 10, 1.0] },
+  maoOra: { on: [540, 1445, 0, 1.0], off: [540, 2150, 0, 1.0] },
+  maoAponta: { on: [740, 1470, 0, 1.2], off: [1000, 2150, -20, 0.95] },
+  maoFala: { on: [830, 1460, 14, 0.95], off: [900, 2100, 20, 0.95] },
+};
+function hand(id, k, T) {
+  const a = HANDS[id].off, b = HANDS[id].on, e = back(k), m = (i) => a[i] + (b[i] - a[i]) * e;
+  let x = m(0), y = m(1), r = m(2);
+  if (id === 'maoFala') { x += Math.sin(T * 2.6) * 18; y += Math.sin(T * 3.4) * 22; r += Math.sin(T * 2.1) * 6; }
+  if (id === 'maoLev') { r += Math.sin(T * 1.3) * 2.5; }
+  if (id === 'maoAponta') { y += Math.abs(Math.sin(T * 4.2)) * 26; }
+  $(id).setAttribute('transform', `translate(${x} ${y}) rotate(${r}) scale(${m(3)})`);
+  $(id).style.display = k <= 0.001 ? 'none' : '';
+}
+
+// roteiro do teste (12 s): fala → olhos fechados com a mão levantada → mãos juntas → chamada para comentar
+const KEYS = [ // [tempo, {mãos ligadas}, olhos, sorriso, inclinação, fala, compaixão]
+  [0, { maoFala: 1 }, 1, 0.35, 0, 1, 0.3], [3, { maoLev: 1 }, 0, 0, 0.6, 1, 0.8], [6, { maoOra: 1 }, 0, 0.1, 1, 0.75, 0.7], [9, { maoAponta: 1 }, 1, 1, 0, 1, 0],
+];
+const TR = 0.6;
+window.frame = (T) => {
+  let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= T) i++;
+  const cur = KEYS[i], prev = KEYS[Math.max(0, i - 1)], k = i === 0 ? 1 : smooth((T - cur[0]) / TR);
+  const dt = T - cur[0]; // a mão que sai desce primeiro (0,4 s); a que entra sobe depois
+  for (const id in HANDS) hand(id, i === 0 ? (cur[1][id] || 0) : Math.max((cur[1][id] || 0) * clamp((dt - 0.35) / 0.6), (prev[1][id] || 0) * (1 - smooth(dt / 0.4))), T);
+  const L = (j) => prev[j] + (cur[j] - prev[j]) * k;
+  const eyes = L(2), smile = L(3), nod = L(4), sad = L(6);
+  // fala sintética (no episódio vem do envelope da voz gravada)
+  const syl = Math.max(0, Math.sin(T * 10.5) * 0.55 + Math.sin(T * 6.7 + 1) * 0.35 + 0.1), pause = ((T * 0.8) % 1) < 0.82 ? 1 : 0;
+  setMouth(cur[5] * syl * pause, smile);
+  const blink = eyes > 0.5 && ((T * 0.31 + 0.2) % 1) > 0.965 ? 0.05 : eyes;
+  setEyes(blink < 0.1 ? 0 : Math.min(1, 0.82 + 0.18 * blink), [Math.sin(T * 0.7) * 0.15, 0.05]);
+  setBrows(eyes < 0.5 ? 0.35 : 0.15 + 0.35 * smile, sad);
+  $('feicoes').setAttribute('transform', `translate(0 ${14 * nod})`);
+  const tilt = Math.sin(T * 1.1) * 2.2 + (eyes < 0.5 ? 3 : 0), bob = Math.sin(T * 1.7) * 5 + 8 * nod;
+  $('cabeca').setAttribute('transform', `translate(0 ${bob}) rotate(${tilt} 540 1150)`);
+  $('corpo').setAttribute('transform', `translate(0 ${Math.sin(T * 1.2) * 4})`);
+  // celular apoiado: balanço bem leve
+  $('cam').setAttribute('transform', `translate(${Math.sin(T * 0.7) * 6} ${Math.sin(T * 0.9) * 5}) rotate(${Math.sin(T * 0.5) * 0.5} 540 960)`);
+  document.querySelectorAll('.lz').forEach((c, j) => c.setAttribute('opacity', 0.65 + 0.3 * Math.sin(T * 1.8 + j)));
+  $('cta').style.opacity = smooth((T - 9.3) / 0.5); $('gancho').style.opacity = 1 - smooth((T - 9) / 0.4);
+};
+window.__range = [0, 12];
+window.frame(+(new URLSearchParams(location.search).get('t') || 0));
+document.fonts.ready.then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

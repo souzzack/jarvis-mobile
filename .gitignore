@@ -7,3 +7,4 @@ animacoes/**/build/
 personagem/video/frames/
 *.wav
 personagem/**/whisper/
+personagem/oracao/node_modules
