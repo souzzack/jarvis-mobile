@@ -99,7 +99,7 @@ const lerpA = (side, A, B, k, T) => {
 const KEYS = [ // [t, braço direito, braço esquerdo, olhos, sorriso, inclinação, fala, tristeza/compaixão]
   [0, 'baixo', 'fala', 1, 0.2, 0, 1, 0.6], [3, 'mao', 'baixo', 0, 0, 0.5, 1, 0.4], [6, 'ora', 'ora', 0, 0.1, 1, 0.7, 0.2], [9, 'baixo', 'aponta', 1, 1, 0, 1, 0], [11.2, 'baixo', 'aponta', 0, 1, 0, 0, 0],
 ];
-const FIXO = { fala: 1.5, mao: 4.5, ora: 7.5, cta: 10.5, feliz: 11.8 };
+const FIXO = { fala: 1.5, mao: 4.5, ora: 7.5, cta: 10.5, feliz: 11.8, perfil: 1.5 };
 function update(T) {
   if (POSE) T = FIXO[POSE] ?? 1.5;
   let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= T) i++;
@@ -115,6 +115,13 @@ function update(T) {
   camera.position.set(Math.sin(T * 0.7) * 0.01, 2.2 + Math.sin(T * 1.1) * 0.006, 4.3); camera.lookAt(0, 2.5, 0); /* celular apoiado na mesa, de baixo para cima */ camera.rotation.z += Math.sin(T * 0.5) * 0.006;
   bulbs.forEach((b, j) => { b.material.opacity = 0.6 + 0.3 * Math.sin(T * 1.6 + j); });
   document.getElementById('cta').style.opacity = smooth((T - 9.3) / 0.5); document.getElementById('gancho').style.opacity = 1 - smooth((T - 9) / 0.4);
+  if (POSE === 'perfil') { // foto de perfil: close do rosto, sorriso calmo, mãos apoiadas, sem textos
+    lerpA('R', 'baixo', 'baixo', 1, 0); lerpA('L', 'baixo', 'baixo', 1, 0);
+    setFace(P, { open: 1, talk: 0, smile: 0.9, look: [0, 0.1], browUp: 0.45, browSad: 0.35 });
+    P.head.rotation.set(0.02, -0.12, 0.05); P.body.rotation.set(0, 0, 0);
+    camera.position.set(0.35, 2.95, 4.9); camera.lookAt(0.02, 2.6, 0); camera.rotation.z = 0;
+    document.getElementById('cta').style.opacity = 0; document.getElementById('gancho').style.opacity = 0;
+  }
   return P.head.getWorldPosition(new THREE.Vector3());
 }
 window.__range = [0, 12]; window.__shots = { SH01: [0, 12] };
