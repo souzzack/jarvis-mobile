@@ -13,7 +13,7 @@ export function createPersonagem(opts = {}) {
   const C = { ...CORES, ...opts };
   const M = (color, r = 0.75, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: r, ...extra });
   const skin = M(C.skin, 0.6), skinDark = M(C.skinDark, 0.6), hair = M(C.hair, 0.8), hood = M(C.hoodie, 0.85), hoodD = M(C.hoodieDark, 0.85);
-  const white = M(0xcfc9be, 0.6), black = new THREE.MeshBasicMaterial({ color: 0x050404 }), mouthIn = M(0x1e0c0c, 0.9), teethM = M(0xf2eee6, 0.5), shine = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const white = M(0xcfc9be, 0.6), black = new THREE.MeshBasicMaterial({ color: 0x050404 }), mouthIn = M(0x1e0c0c, 0.9), teethM = M(0xcfc8bc, 0.7), shine = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
   const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
   const hipY = 1.18;
