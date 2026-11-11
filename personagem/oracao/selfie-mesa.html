@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: 'M'; font-weight: 700; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2'); }
+@font-face { font-family: 'M'; font-weight: 800; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-800-normal.woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; font-family: 'M', sans-serif; }
+canvas { display: block; }
+#gancho { position: absolute; top: 290px; left: 90px; right: 90px; text-align: center; color: #fff; font-weight: 700; font-size: 58px; line-height: 1.22; text-shadow: 0 3px 14px rgba(0,0,0,.75); }
+#gancho .c { color: #ff5c7a; }
+#cta { position: absolute; top: 290px; left: 60px; right: 60px; text-align: center; color: #fff; font-weight: 800; font-size: 52px; line-height: 1.2; opacity: 0; text-shadow: 0 3px 16px rgba(0,0,0,.85); }
+#cta b { color: #ffd27a; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="gancho">posso orar pela sua ansiedade? <span class="c">♥</span></div>
+<div id="cta">assistiu até o fim?<br>comenta <b>pelo que você quer<br>que eu ore</b> no próximo vídeo ↓</div>
+<script type="module">
+// Série de orações: boneco na escrivaninha, celular apoiado na mesa, luminária apontada para ele. Uso: selfie-mesa.html?pose=fala|mao|ora|cta  ou  ?t=4.5 ; window.frame(T)
+import { THREE, V, rb, std, smooth, mix, setupRenderer, finish } from '../serie.js';
+import { createPersonagem, setFace, setArm, setFingers } from './boneco.js';
+
+const qs = new URLSearchParams(location.search), POSE = qs.get('pose');
+const ctx = setupRenderer(), { scene, camera } = ctx;
+
+// ---------- quarto à noite com escrivaninha
+const M = (c, r = 0.8, e = {}) => new THREE.MeshStandardMaterial({ color: c, roughness: r, ...e });
+scene.background = new THREE.Color(0x0b0f2e);
+const wall = rb(12, 7, 0.2, 0.02, M(0x1c2350, 0.95)); wall.position.set(0, 3.2, -1.9); scene.add(wall);
+const sideW = rb(0.2, 7, 8, 0.02, M(0x161c44, 0.95)); sideW.position.set(3.4, 3.2, 1); scene.add(sideW);
+// janela com a noite (à direita, atrás)
+const winF = rb(1.7, 1.9, 0.12, 0.03, M(0x0d1028)); winF.position.set(1.9, 3.6, -1.78); scene.add(winF);
+const winG = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.7), new THREE.MeshBasicMaterial({ color: 0x2c3f86 })); winG.position.set(1.9, 3.6, -1.71); scene.add(winG);
+const moon = new THREE.Mesh(new THREE.CircleGeometry(0.13, 24), new THREE.MeshBasicMaterial({ color: new THREE.Color(0xf4f0dc).multiplyScalar(1.4) })); moon.position.set(2.3, 4.1, -1.7); scene.add(moon);
+const mull = rb(0.06, 1.7, 0.05, 0.01, M(0x0d1028)); mull.position.set(1.9, 3.6, -1.7); scene.add(mull);
+// prateleira com livros e plantinha (à esquerda, atrás)
+const shelf = rb(1.8, 0.08, 0.4, 0.01, M(0x6a4632, 0.6)); shelf.position.set(-1.7, 3.5, -1.6); scene.add(shelf);
+[[0xd9534f, 0.5], [0x4f8fd9, 0.42], [0xf0c05a, 0.55], [0x6cc28a, 0.46], [0xb48ad9, 0.5], [0xe0e0e0, 0.4]].forEach(([c, h], i) => { const bk = rb(0.13, h, 0.3, 0.01, M(c, 0.7)); bk.position.set(-2.45 + i * 0.15, 3.54 + h / 2, -1.6); bk.rotation.z = i === 5 ? 0.25 : 0; scene.add(bk); });
+const pot = rb(0.22, 0.2, 0.22, 0.02, M(0xc0603a)); pot.position.set(-1.1, 3.64, -1.6); scene.add(pot);
+for (let i = 0; i < 4; i++) { const lf = rb(0.08, 0.26, 0.04, 0.02, M(0x4caf6e)); lf.position.set(-1.1 + (i - 1.5) * 0.06, 3.86, -1.6); lf.rotation.z = (i - 1.5) * 0.35; scene.add(lf); }
+// quadro na parede
+const frame = rb(0.8, 1.0, 0.06, 0.01, M(0x0d0d14)); frame.position.set(-1.6, 2.45, -1.78); scene.add(frame);
+const art = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.86), new THREE.MeshBasicMaterial({ color: 0x3b2d6b })); art.position.set(-1.6, 2.45, -1.74); scene.add(art);
+const cross = rb(0.06, 0.4, 0.02, 0.005, new THREE.MeshBasicMaterial({ color: 0xffd27a })); cross.position.set(-1.6, 2.5, -1.72); scene.add(cross);
+const crossH = rb(0.24, 0.06, 0.02, 0.005, new THREE.MeshBasicMaterial({ color: 0xffd27a })); crossH.position.set(-1.6, 2.58, -1.72); scene.add(crossH);
+// pontinhos de luz desfocados (varal) atrás
+const glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.35, 'rgba(255,255,255,0.5)'); r.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+const bulbs = [];
+for (let i = 0; i < 24; i++) { const x = -3.2 + i * 0.28, y = 4.75 - 0.3 * Math.sin((i / 23) * Math.PI);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: [0xffd27a, 0xff9ab8, 0x9fc0ff][i % 3], transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending })); sp.position.set(x, y, -1.75); sp.scale.setScalar(0.22); scene.add(sp); bulbs.push(sp); }
+// escrivaninha (tampo de madeira na frente dele) e objetos
+const wood = M(0x8a5a3c, 0.55);
+const desk = rb(4.4, 0.12, 3.8, 0.02, wood); desk.position.set(0, 1.44, 2.3); scene.add(desk);
+const bible = new THREE.Group(); bible.position.set(0.05, 1.52, 1.45); bible.rotation.y = 0.05; scene.add(bible);
+for (const s of [-1, 1]) { const pg = rb(0.36, 0.05, 0.48, 0.01, M(0xf2ead8, 0.8)); pg.position.set(s * 0.19, 0.0, 0); pg.rotation.z = -s * 0.06; bible.add(pg); const cv = rb(0.38, 0.03, 0.5, 0.01, M(0x5a1e1e, 0.6)); cv.position.set(s * 0.19, -0.035, 0); cv.rotation.z = -s * 0.06; bible.add(cv); }
+const ribbon = rb(0.03, 0.01, 0.3, 0.004, M(0xd9a23a)); ribbon.position.set(0.05, 0.03, 0.2); bible.add(ribbon);
+const mug = rb(0.2, 0.24, 0.2, 0.04, M(0xf0ece4, 0.5)); mug.position.set(0.95, 1.62, 1.7); scene.add(mug);
+const handle = rb(0.06, 0.14, 0.04, 0.02, M(0xf0ece4, 0.5)); handle.position.set(1.07, 1.62, 1.7); scene.add(handle);
+const pencil = rb(0.04, 0.04, 0.4, 0.01, M(0xf0c05a)); pencil.position.set(-0.4, 1.53, 1.5); pencil.rotation.y = 0.6; scene.add(pencil);
+// luminária de mesa articulada, apontada direto para ele (luz principal)
+const lampM = M(0x20243a, 0.4, { metalness: 0.3 });
+const lbase = rb(0.4, 0.06, 0.4, 0.02, lampM); lbase.position.set(-1.55, 1.53, 1.4); scene.add(lbase);
+const arm1 = rb(0.06, 0.7, 0.06, 0.02, lampM); arm1.position.set(-1.55, 1.85, 1.3); arm1.rotation.x = -0.35; scene.add(arm1);
+const arm2 = rb(0.06, 0.6, 0.06, 0.02, lampM); arm2.position.set(-1.42, 2.35, 1.32); arm2.rotation.set(0.6, 0, -0.5); scene.add(arm2);
+const lhead = new THREE.Group(); lhead.position.set(-1.25, 2.6, 1.45); scene.add(lhead);
+const shadeG = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.2, 0.3, 4, 1, true), new THREE.MeshStandardMaterial({ color: 0x20243a, roughness: 0.4, side: THREE.DoubleSide })); shadeG.rotation.y = Math.PI / 4; lhead.add(shadeG);
+const bulbL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 12), new THREE.MeshBasicMaterial({ color: new THREE.Color(0xffe2b0).multiplyScalar(3) })); bulbL.position.y = -0.1; lhead.add(bulbL);
+lhead.lookAt(0, 2.8, 0); lhead.rotateX(-Math.PI / 2);
+const key = new THREE.SpotLight(0xffd6a0, 16, 8, 0.6, 0.7, 1.4); key.position.set(-1.25, 2.55, 1.45); key.target.position.set(0, 2.75, 0); key.castShadow = true; key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; scene.add(key, key.target);
+const deskGlow = new THREE.PointLight(0xffc890, 2, 2.5, 1.5); deskGlow.position.set(-1.0, 1.9, 1.6); scene.add(deskGlow);
+const rim = new THREE.SpotLight(0x7f8cff, 30, 10, 0.6, 0.8, 1.4); rim.position.set(2.4, 4.0, -1.4); rim.target.position.set(0, 2.8, 0); scene.add(rim, rim.target);
+const rim2 = new THREE.SpotLight(0xb07fff, 14, 10, 0.6, 0.8, 1.4); rim2.position.set(-2.6, 3.6, -1.4); rim2.target.position.set(0, 2.6, 0); scene.add(rim2, rim2.target);
+const fill = new THREE.PointLight(0xdfe8ff, 2.5, 4, 1.5); fill.position.set(0.2, 2.1, 2.8); scene.add(fill); // tela do celular
+scene.add(new THREE.HemisphereLight(0x5a64b8, 0x1a1530, 0.55));
+
+// ---------- personagem (sentado na cama; só aparece do peito para cima)
+const P = createPersonagem(); scene.add(P.root);
+// poses dos braços: [punho, direção dos dedos, direção da palma, polo do cotovelo, dedos]
+const ARMS = {
+  R: { baixo: [V(-0.36, 1.6, 0.72), V(0.15, 0, 1), V(0, -1, 0), V(-1, -0.3, -0.6), { curl: 0.35 }],
+       mao: [V(-0.66, 2.7, 0.62), V(0.08, 1, 0.1), V(0.1, 0, 1), V(-1, -1.2, 0.2), { curl: 0 }],
+       ora: [V(-0.075, 1.82, 0.66), V(0, 1, 0.3), V(1, 0, 0), V(-1, -0.3, -0.6), { curl: 0 }] },
+  L: { baixo: [V(0.36, 1.6, 0.72), V(-0.15, 0, 1), V(0, -1, 0), V(1, -0.3, -0.6), { curl: 0.35 }],
+       fala: [V(0.42, 2.15, 0.7), V(-0.3, 0.8, 0.4), V(-0.3, 0.3, 0.9), V(1, -0.8, -0.2), { curl: 0.15 }],
+       ora: [V(0.075, 1.82, 0.66), V(0, 1, 0.3), V(-1, 0, 0), V(1, -0.3, -0.6), { curl: 0 }],
+       aponta: [V(0.3, 2.15, 0.7), V(-0.1, -1, 0.3), V(-0.3, 0, 1), V(1, -0.5, -0.4), { curl: 0.9 }] },
+};
+const lerpA = (side, A, B, k, T) => {
+  const a = ARMS[side][A], b = ARMS[side][B], L = (i) => a[i].clone().lerp(b[i], k);
+  const w = L(0).add(V(0, Math.sin(k * Math.PI) * 0.08, Math.sin(k * Math.PI) * 0.6)); // arco pela frente: a mão nunca atravessa o rosto
+  if (A === 'fala' || B === 'fala') w.add(V(Math.sin(T * 2.3) * 0.05, Math.sin(T * 3.1) * 0.04, 0));
+  setArm(P, side, w, L(1), L(2), L(3)); setFingers(P.arms[side].hand, { curl: mix(a[4].curl, b[4].curl, k) });
+};
+// roteiro do teste (12 s): fala → mão levantada (olhos fechados) → mãos juntas → chamada para comentar
+const KEYS = [ // [t, braço direito, braço esquerdo, olhos, sorriso, inclinação, fala, tristeza/compaixão]
+  [0, 'baixo', 'fala', 1, 0.2, 0, 1, 0.6], [3, 'mao', 'baixo', 0, 0, 0.5, 1, 0.4], [6, 'ora', 'ora', 0, 0.1, 1, 0.7, 0.2], [9, 'baixo', 'aponta', 1, 1, 0, 1, 0], [11.2, 'baixo', 'aponta', 0, 1, 0, 0, 0],
+];
+const FIXO = { fala: 1.5, mao: 4.5, ora: 7.5, cta: 10.5, feliz: 11.8 };
+function update(T) {
+  if (POSE) T = FIXO[POSE] ?? 1.5;
+  let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= T) i++;
+  const cur = KEYS[i], prev = KEYS[Math.max(0, i - 1)], k = i === 0 ? 1 : smooth((T - cur[0]) / 0.7), L = (j) => mix(prev[j], cur[j], k);
+  lerpA('R', prev[1], cur[1], k, T); lerpA('L', prev[2], cur[2], k, T);
+  const eyes = L(3), sm = L(4), nod = L(5), sad = L(7);
+  const talk = cur[6] * Math.max(0, Math.sin(T * 10.5) * 0.55 + Math.sin(T * 6.7 + 1) * 0.35 + 0.1) * (((T * 0.8) % 1) < 0.82 ? 1 : 0);
+  const blink = eyes > 0.5 && ((T * 0.31 + 0.2) % 1) > 0.965 ? 0 : eyes;
+  setFace(P, { open: blink, talk: POSE === 'ora' ? 0 : talk, smile: sm, sad, look: [0, 0.15], browUp: eyes < 0.5 ? 0.4 : 0.2 + 0.4 * sm + 0.3 * sad, browSad: eyes < 0.5 ? 0.7 : sad });
+  P.head.rotation.set(0.04 + 0.2 * nod + Math.sin(T * 1.7) * 0.03, Math.sin(T * 0.8) * 0.06, Math.sin(T * 1.1) * 0.04 + (eyes < 0.5 ? 0.06 : 0));
+  P.body.rotation.set(Math.sin(T * 1.2) * 0.01, Math.sin(T * 0.6) * 0.02, 0);
+  // celular apoiado: balanço leve
+  camera.position.set(Math.sin(T * 0.7) * 0.01, 2.2 + Math.sin(T * 1.1) * 0.006, 4.3); camera.lookAt(0, 2.5, 0); /* celular apoiado na mesa, de baixo para cima */ camera.rotation.z += Math.sin(T * 0.5) * 0.006;
+  bulbs.forEach((b, j) => { b.material.opacity = 0.6 + 0.3 * Math.sin(T * 1.6 + j); });
+  document.getElementById('cta').style.opacity = smooth((T - 9.3) / 0.5); document.getElementById('gancho').style.opacity = 1 - smooth((T - 9) / 0.4);
+  return P.head.getWorldPosition(new THREE.Vector3());
+}
+window.__range = [0, 12]; window.__shots = { SH01: [0, 12] };
+finish(ctx, update, +(qs.get('t') || 0), 0.45);
+await document.fonts.ready;
+</script>
+</body>
+</html>
