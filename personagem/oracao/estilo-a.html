@@ -1,0 +1,115 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'M'; font-weight: 700; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #120e1c; font-family: 'M', sans-serif; }
+svg { position: absolute; inset: 0; }
+#gancho { position: absolute; top: 290px; left: 90px; right: 90px; text-align: center; color: #fff; font-weight: 700; font-size: 58px; line-height: 1.22; text-shadow: 0 3px 14px rgba(0,0,0,.7); }
+#gancho .c { color: #ff5c7a; }
+</style></head>
+<body>
+<!-- Estilo A: anime suave. ?pose=fala | ora -->
+<svg viewBox="0 0 1080 1920" width="1080" height="1920">
+<defs>
+  <filter id="b20"><feGaussianBlur stdDeviation="20"/></filter>
+  <filter id="b8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+  <filter id="b3"><feGaussianBlur stdDeviation="3"/></filter>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1638"/><stop offset=".55" stop-color="#3b2a4f"/><stop offset="1" stop-color="#5a3a45"/></linearGradient>
+  <radialGradient id="lamp" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffd9a0" stop-opacity="1"/><stop offset=".3" stop-color="#ffaa60" stop-opacity=".55"/><stop offset="1" stop-color="#ff8a50" stop-opacity="0"/></radialGradient>
+  <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffdcbf"/><stop offset=".6" stop-color="#f2bf98"/><stop offset="1" stop-color="#d99a78"/></linearGradient>
+  <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3560"/><stop offset=".5" stop-color="#1e1a33"/><stop offset="1" stop-color="#120f20"/></linearGradient>
+  <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e120c"/><stop offset=".55" stop-color="#5a3420"/><stop offset="1" stop-color="#c98a4a"/></linearGradient>
+  <linearGradient id="hood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a5878"/><stop offset=".55" stop-color="#2f3a56"/><stop offset="1" stop-color="#1f2740"/></linearGradient>
+  <clipPath id="faceC"><path id="faceP" d="M362 760 C358 648 430 588 540 586 C650 588 722 648 718 760 C716 872 694 958 642 1030 C602 1084 572 1108 540 1110 C508 1108 478 1084 438 1030 C386 958 364 872 362 760 Z"/></clipPath>
+</defs>
+<!-- fundo pintado -->
+<rect width="1080" height="1920" fill="url(#sky)"/>
+<g filter="url(#b20)">
+  <rect x="760" y="380" width="360" height="620" rx="10" fill="#2c3f7a"/><circle cx="930" cy="520" r="60" fill="#e8ecff" opacity=".8"/>
+  <rect x="-50" y="1150" width="1180" height="800" fill="#4a2e38"/>
+  <rect x="40" y="980" width="200" height="40" rx="10" fill="#6a4030"/>
+</g>
+<circle cx="140" cy="900" r="420" fill="url(#lamp)"/>
+<g id="bokeh"></g>
+<!-- raios suaves da luz -->
+<path d="M140 880 L1080 640 L1080 1100 Z" fill="#ffcf9a" opacity=".07" filter="url(#b20)"/>
+
+<!-- corpo -->
+<path d="M-20 1920 L-20 1500 C30 1380 180 1320 340 1290 C400 1280 450 1272 490 1270 L590 1270 C630 1272 680 1280 740 1290 C900 1320 1050 1380 1100 1500 L1100 1920 Z" fill="url(#hood)" stroke="#141a2c" stroke-width="3"/>
+<path d="M340 1290 C300 1420 290 1650 300 1920" stroke="#1a2136" stroke-width="5" fill="none" opacity=".7"/>
+<path d="M740 1290 C780 1420 790 1650 780 1920" stroke="#1a2136" stroke-width="5" fill="none" opacity=".7"/>
+<path d="M400 1290 C430 1220 480 1200 540 1200 C600 1200 650 1220 680 1290 C640 1270 600 1262 540 1262 C480 1262 440 1270 400 1290 Z" fill="#3a4766" stroke="#141a2c" stroke-width="3"/>
+<path d="M488 1060 L488 1240 C510 1290 570 1290 592 1240 L592 1060 Z" fill="#e8b08a" stroke="#7a4a38" stroke-width="3"/>
+<path d="M488 1080 C510 1150 570 1150 592 1080 L592 1060 L488 1060 Z" fill="#c98a6a" opacity=".8"/>
+<path d="M470 1270 C490 1320 515 1345 540 1348 C565 1345 590 1320 610 1270" fill="#1f2740" stroke="#141a2c" stroke-width="3"/>
+<g stroke="#d8dbe8" stroke-width="7" stroke-linecap="round" fill="none"><path d="M505 1330 C503 1400 500 1460 498 1520"/><path d="M575 1330 C577 1400 580 1460 582 1520"/></g>
+<!-- luz de recorte no ombro -->
+<path d="M-20 1500 C30 1380 180 1320 340 1290" stroke="#ffc58a" stroke-width="6" fill="none" opacity=".5" filter="url(#b3)"/>
+
+<!-- cabeça -->
+<g id="cab" transform="translate(0 70)">
+  <ellipse cx="364" cy="850" rx="28" ry="48" fill="#f0bf98" stroke="#7a4a38" stroke-width="3"/>
+  <ellipse cx="716" cy="850" rx="28" ry="48" fill="#e3ad88" stroke="#7a4a38" stroke-width="3"/>
+  <use href="#faceP" fill="url(#skin)"/>
+  <g clip-path="url(#faceC)">
+    <path d="M330 600 C420 700 660 700 760 600 L760 760 C700 740 600 720 540 720 C470 720 400 740 330 770 Z" fill="#c98a6a" opacity=".45"/>
+    <path d="M690 700 C740 860 700 1000 600 1120 L760 1120 L760 700 Z" fill="#d18f6d" opacity=".55"/>
+  </g>
+  <use href="#faceP" fill="none" stroke="#7a4a38" stroke-width="3"/>
+  <ellipse cx="430" cy="950" rx="40" ry="18" fill="#ff8f8f" opacity=".35" filter="url(#b8)"/>
+  <ellipse cx="650" cy="950" rx="40" ry="18" fill="#ff8f8f" opacity=".35" filter="url(#b8)"/>
+  <g id="olhosAbertos">
+    <g transform="translate(458 870)">
+      <path d="M-58 -6 C-40 -40 40 -44 56 -14 C50 22 -40 30 -58 -6 Z" fill="#fffaf6"/>
+      <ellipse cx="2" cy="-2" rx="30" ry="38" fill="url(#iris)" stroke="#20120a" stroke-width="3"/>
+      <ellipse cx="2" cy="-4" rx="14" ry="20" fill="#120806"/>
+      <ellipse cx="12" cy="-18" rx="10" ry="12" fill="#fff"/><circle cx="-10" cy="16" r="5" fill="#fff" opacity=".85"/>
+      <path d="M-66 -2 C-50 -44 40 -56 64 -14" fill="none" stroke="#1a0f0c" stroke-width="11" stroke-linecap="round"/>
+      <path d="M58 -14 L72 -24" stroke="#1a0f0c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M-50 22 C-20 34 20 34 44 22" fill="none" stroke="#7a4a38" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(622 870) scale(-1 1)">
+      <path d="M-58 -6 C-40 -40 40 -44 56 -14 C50 22 -40 30 -58 -6 Z" fill="#fffaf6"/>
+      <ellipse cx="2" cy="-2" rx="30" ry="38" fill="url(#iris)" stroke="#20120a" stroke-width="3"/>
+      <ellipse cx="2" cy="-4" rx="14" ry="20" fill="#120806"/>
+      <ellipse cx="-8" cy="-18" rx="10" ry="12" fill="#fff"/><circle cx="12" cy="16" r="5" fill="#fff" opacity=".85"/>
+      <path d="M-66 -2 C-50 -44 40 -56 64 -14" fill="none" stroke="#1a0f0c" stroke-width="11" stroke-linecap="round"/>
+      <path d="M58 -14 L72 -24" stroke="#1a0f0c" stroke-width="7" stroke-linecap="round"/>
+      <path d="M-50 22 C-20 34 20 34 44 22" fill="none" stroke="#7a4a38" stroke-width="3" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g id="olhosFechados" fill="none" stroke="#1a0f0c" stroke-linecap="round">
+    <path d="M404 868 C430 896 488 898 512 870" stroke-width="9"/><path d="M412 880 L398 894 M430 890 L422 906" stroke-width="5"/>
+    <path d="M568 870 C592 898 650 896 676 868" stroke-width="9"/><path d="M668 880 L682 894 M650 890 L658 906" stroke-width="5"/>
+  </g>
+  <path id="sobA" d="M400 790 C430 772 480 770 508 782" fill="none" stroke="#2a2040" stroke-width="9" stroke-linecap="round"/>
+  <path id="sobB" d="M572 782 C600 770 650 772 680 790" fill="none" stroke="#2a2040" stroke-width="9" stroke-linecap="round"/>
+  <path d="M546 930 C552 950 548 962 536 966" fill="none" stroke="#b07058" stroke-width="4" stroke-linecap="round"/>
+  <g id="bocaFala"><path d="M512 1018 C520 1040 560 1040 568 1018 C556 1024 524 1024 512 1018 Z" fill="#6a2a2a" stroke="#5a2a20" stroke-width="3"/><path d="M518 1020 C530 1026 550 1026 562 1020 L560 1026 C548 1030 532 1030 520 1026 Z" fill="#fff"/></g>
+  <path id="bocaOra" d="M516 1024 C530 1032 550 1032 564 1024" fill="none" stroke="#7a3a30" stroke-width="5" stroke-linecap="round"/>
+  <!-- cabelo em mechas -->
+  <path d="M340 860 C320 760 330 640 390 580 C450 520 560 500 640 530 C730 560 770 650 750 780 L742 860 C736 800 724 760 712 740 L700 800 C690 760 676 730 660 712 L650 790 C632 740 610 712 592 700 L560 806 C548 750 530 716 512 706 L470 800 C470 750 470 720 476 700 C440 724 410 760 400 800 L390 740 C370 770 352 810 340 860 Z" fill="url(#hair)" stroke="#0c0a16" stroke-width="3" stroke-linejoin="round"/>
+  <g fill="none" stroke="#7a78b8" stroke-width="6" stroke-linecap="round" opacity=".55"><path d="M430 600 C470 580 520 575 560 585"/><path d="M590 600 C630 600 670 615 700 650"/><path d="M420 650 C440 640 460 638 480 640"/></g>
+</g>
+
+<!-- mãos juntas (pose de oração) -->
+<g id="maosOra" transform="translate(540 1480)">
+  <path d="M-40 150 C-120 280 -240 460 -300 700 L-90 700 C-40 520 0 360 14 210 Z" fill="#2f3a56" stroke="#141a2c" stroke-width="3"/>
+  <path d="M40 150 C120 280 240 460 300 700 L90 700 C40 520 0 360 -14 210 Z" fill="#26304a" stroke="#141a2c" stroke-width="3"/>
+  <path d="M-4 -220 C-34 -214 -66 -140 -72 -40 C-76 50 -60 140 -34 196 L0 196 Z" fill="#f3c6a2" stroke="#7a4a38" stroke-width="3"/>
+  <path d="M4 -220 C34 -214 66 -140 72 -40 C76 50 60 140 34 196 L0 196 Z" fill="#dda07c" stroke="#7a4a38" stroke-width="3"/>
+  <g stroke="#b07058" stroke-width="3" fill="none" stroke-linecap="round"><path d="M-40 -150 L-26 -168"/><path d="M-56 -80 L-34 -92"/><path d="M40 -150 L26 -168"/><path d="M56 -80 L34 -92"/><path d="M-56 30 C-62 -10 -66 -40 -64 -70"/></g>
+</g>
+</svg>
+<div id="gancho">posso orar pela sua ansiedade? <span class="c">♥</span></div>
+<script>
+const pose = new URLSearchParams(location.search).get('pose') || 'fala', ora = pose === 'ora';
+const show = (id, on) => document.getElementById(id).style.display = on ? '' : 'none';
+show('olhosAbertos', !ora); show('olhosFechados', ora); show('bocaFala', !ora); show('bocaOra', ora); show('maosOra', ora);
+if (ora) { document.getElementById('cab').setAttribute('transform', 'translate(0 80) rotate(3 540 1220)'); document.getElementById('sobA').setAttribute('transform', 'rotate(-6 508 782)'); document.getElementById('sobB').setAttribute('transform', 'rotate(6 572 782)'); }
+let h = ''; [[60,180,30],[200,140,22],[330,200,36],[470,150,20],[620,190,28],[760,140,24],[900,200,34],[1030,160,22],[120,1080,40],[980,1100,36],[60,1250,26]].forEach(([x,y,r],i) => {
+  h += `<circle cx="${x}" cy="${y + 40}" r="${r}" fill="${i % 3 ? '#ffd28a' : '#ffb0c8'}" opacity=".55" filter="url(#b8)"/>`; });
+document.getElementById('bokeh').innerHTML = h;
+document.fonts.ready.then(() => { window.__ready = true; });
+</script>
+</body></html>

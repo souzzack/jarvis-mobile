@@ -1,0 +1,86 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'M'; font-weight: 700; src: url('node_modules/@fontsource/montserrat/files/montserrat-latin-700-normal.woff2'); }
+html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; font-family: 'M', sans-serif; }
+canvas { position: absolute; inset: 0; width: 1080px; height: 1920px; image-rendering: pixelated; }
+#gancho { position: absolute; top: 290px; left: 90px; right: 90px; text-align: center; color: #fff; font-weight: 700; font-size: 58px; line-height: 1.22; text-shadow: 4px 4px 0 #1a1030; }
+#gancho .c { color: #ff6b8a; }
+</style></head>
+<body>
+<!-- Estilo C: pixel art lo-fi (desenhado em 180×320 e ampliado 6×). ?pose=fala | ora -->
+<canvas id="c" width="180" height="320"></canvas>
+<div id="gancho">posso orar pela sua ansiedade? <span class="c">♥</span></div>
+<script>
+const ora = (new URLSearchParams(location.search).get('pose') || 'fala') === 'ora';
+const g = document.getElementById('c').getContext('2d');
+const R = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+const P = (x, y, c) => R(x, y, 1, 1, c);
+// elipse cheia em pixels
+const E = (cx, cy, rx, ry, c) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) P(cx + x, cy + y, c); };
+let s = 5; const rnd = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
+
+// ----- quarto à noite
+R(0, 0, 180, 320, '#241c3d');
+for (let y = 0; y < 200; y += 2) R(0, y, 180, 1, y % 4 ? '#261e40' : '#241c3d');
+// janela com chuva e lua
+R(118, 70, 54, 80, '#140f26'); R(121, 73, 48, 74, '#2d3f7a'); R(144, 73, 2, 74, '#140f26'); R(121, 108, 48, 2, '#140f26');
+E(158, 84, 5, 5, '#f4f0d8'); E(160, 83, 4, 4, '#2d3f7a');
+for (let i = 0; i < 26; i++) { const x = 122 + Math.floor(rnd() * 46), y = 74 + Math.floor(rnd() * 66); if (x !== 144 && x !== 145) { P(x, y, '#7f9be0'); P(x, y + 1, '#5a74c0'); } }
+// prateleira, livros e planta
+R(8, 92, 50, 3, '#5a3a40'); ['#e0605e', '#5ab0a0', '#f0c060', '#8a70d0', '#e0605e'].forEach((c, i) => R(12 + i * 6, 80, 5, 12, c));
+R(46, 84, 8, 8, '#c06050'); E(50, 80, 5, 4, '#60b080'); P(47, 76, '#80d0a0'); P(53, 76, '#80d0a0');
+// varal de luzinhas
+for (let x = 2; x < 178; x += 9) { const y = 40 + Math.round(6 * Math.sin(x / 178 * Math.PI)); P(x, y - 1, '#3a3050'); E(x, y + 1, 1, 1, ['#ffd27a', '#ff8fb0', '#a0e0ff'][(x / 9 | 0) % 3]); }
+// abajur e brilho
+for (let r = 34; r > 0; r -= 2) { g.globalAlpha = 0.05; E(20, 150, r, r, '#ffb060'); } g.globalAlpha = 1;
+R(12, 140, 16, 9, '#ffd27a'); R(14, 138, 12, 2, '#ffe2a0'); R(19, 149, 2, 14, '#4a3a40'); R(14, 163, 12, 3, '#4a3a40');
+// cabeceira da cama
+R(0, 186, 180, 134, '#3a2840'); R(0, 182, 180, 6, '#4e3450');
+
+// ----- personagem
+const SK = '#e8a878', SKD = '#c98458', SKL = '#f6c49a', HR = '#2a1830', HRL = '#4a3060', HD = '#d35d6e', HDD = '#a8445a', HDL = '#ec8090', OUT = '#1a1030';
+// corpo (moletom)
+for (let y = 214; y < 320; y++) { const w = Math.min(86, 46 + (y - 214) * 1.4) | 0; R(90 - w, y, w * 2, 1, HD); R(90 + (w * 0.35 | 0), y, (w * 0.65) | 0, 1, HDD); P(90 - w, y, OUT); P(90 + w - 1, y, OUT); }
+R(44, 213, 92, 2, OUT);
+R(82, 196, 16, 20, SK); R(90, 196, 8, 20, SKD); R(81, 196, 1, 20, OUT); R(98, 196, 1, 20, OUT);
+// capuz/gola
+for (let x = -24; x <= 24; x++) { const y = 212 - Math.round(Math.sqrt(Math.max(0, 576 - x * x)) * 0.3); R(90 + x, y, 1, 4, x > 6 ? HDD : HDL); }
+R(84, 214, 12, 6, HDD); R(86, 220, 2, 22, '#f4efe6'); R(93, 220, 2, 22, '#f4efe6');
+// fone no pescoço
+R(70, 204, 40, 3, '#222'); R(66, 206, 9, 12, '#222'); R(105, 206, 9, 12, '#222'); R(68, 208, 5, 8, '#ff7a40'); R(107, 208, 5, 8, '#ff7a40');
+// cabeça
+const hy = (ora ? 2 : 0) + 10;
+E(90, 160 + hy, 26, 32, OUT); E(90, 160 + hy, 25, 31, SK);
+for (let y = 128; y < 194; y++) for (let x = 99; x < 116; x++) { const d = ((x - 90) ** 2) / 625 + ((y - 160) ** 2) / 961; if (d <= 1 && x > 100 + (y - 150) * 0.1) P(x, y + hy, SKD); }
+E(64, 162 + hy, 4, 7, OUT); E(64, 162 + hy, 3, 6, SK); E(116, 162 + hy, 4, 7, OUT); E(116, 162 + hy, 3, 6, SKD);
+// cabelo
+for (let y = 124; y < 152; y++) for (let x = 62; x < 119; x++) { const d = ((x - 90) ** 2) / 841 + ((y - 150) ** 2) / 676; if (d <= 1 && y < 142 + Math.round(4 * Math.sin(x * 0.9)) + (x < 74 || x > 106 ? 8 : 0)) P(x, y + hy, HR); }
+[[72, 132], [80, 128], [90, 127], [100, 129], [108, 133]].forEach(([x, y]) => { R(x, y + hy, 5, 1, HRL); });
+// sobrancelhas
+R(73, 148 + hy, 9, 2, HR); R(98, 148 + hy, 9, 2, HR); if (ora) { P(81, 147 + hy, HR); P(98, 147 + hy, HR); }
+g.save(); g.translate(0, hy); // olhos e boca acompanham a cabeça
+if (!ora) {
+  // olhos abertos
+  for (const ex of [77, 103]) { R(ex - 3, 154, 7, 7, '#fff8f0'); R(ex - 2, 155, 4, 6, '#3a2018'); R(ex - 1, 156, 2, 4, '#120806'); P(ex - 2, 155, '#fff'); P(ex - 1, 155, '#fff'); R(ex - 4, 153, 9, 1, OUT); }
+  // boca aberta falando
+  R(85, 177, 10, 1, OUT); R(85, 178, 10, 4, '#6a1e28'); R(86, 178, 8, 1, '#fff'); R(87, 181, 6, 1, '#c05060');
+} else {
+  for (const ex of [77, 103]) { R(ex - 4, 157, 2, 1, OUT); R(ex - 2, 158, 5, 1, OUT); R(ex + 3, 157, 2, 1, OUT); }
+  R(87, 179, 6, 1, OUT);
+}
+g.restore();
+P(90, 168 + hy, SKD); P(91, 169 + hy, SKD); R(89, 170 + hy, 3, 1, SKD);
+E(72, 170 + hy, 4, 2, '#f08080'); E(108, 170 + hy, 4, 2, '#e07070');
+if (ora) {
+  // mãos juntas
+  R(56, 270, 30, 50, HD); R(94, 270, 30, 50, HDD); R(56, 270, 1, 50, OUT); R(123, 270, 1, 50, OUT);
+  R(78, 236, 12, 40, SK); R(90, 236, 12, 40, SKD); R(77, 236, 1, 40, OUT); R(102, 236, 1, 40, OUT); R(78, 234, 24, 2, OUT); R(89, 236, 2, 40, OUT);
+  R(78, 236, 2, 2, OUT); R(100, 236, 2, 2, OUT); R(80, 250, 4, 1, SKD); R(96, 250, 4, 1, SKL);
+  R(70, 266, 40, 8, HDD); R(70, 266, 40, 1, OUT);
+}
+// vinheta suave
+const gr = g.createRadialGradient(90, 170, 60, 90, 170, 200); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(10,5,25,0.55)'); g.fillStyle = gr; g.fillRect(0, 0, 180, 320);
+document.fonts.ready.then(() => { window.__ready = true; });
+</script>
+</body></html>
