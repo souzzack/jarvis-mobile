@@ -1,0 +1,163 @@
+{
+ "dur": 77.3,
+ "gancho": "posso orar pelo seu futuro?",
+ "respira": "Abre a mão",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "Vestibular faculdade",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.5
+  ],
+  [
+   "E de noite",
+   "baixo",
+   "baixo",
+   0.7,
+   0,
+   0.25,
+   0.85
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Abre a mão",
+   "solta",
+   "baixo",
+   0.6,
+   0.1,
+   0.2,
+   0.2
+  ],
+  [
+   "Pronto agora",
+   "solta",
+   "baixo",
+   1,
+   0.45,
+   0,
+   0
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Tira dela",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se o medo",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "Planos de dar",
+   [
+    "Tira dela",
+    -0.3
+   ],
+   "“Porque sou eu que conheço os planos que tenho para vocês”, diz o Senhor, “planos de fazê-los prosperar e não de causar dano, planos de dar a vocês esperança e um futuro.”",
+   "JEREMIAS 29:11"
+  ],
+  [
+   "Ensina ela",
+   [
+    "Quando ela não",
+    -0.2
+   ],
+   "“Portanto, não se preocupem com o amanhã, pois o amanhã trará as suas próprias preocupações.”",
+   "MATEUS 6:34"
+  ],
+  [
+   "Endireita os passos",
+   [
+    "E quando alguma",
+    1.2
+   ],
+   "“Confie no Senhor de todo o seu coração e não se apoie em seu próprio entendimento; reconheça o Senhor em todos os seus caminhos, e ele endireitará as suas veredas.”",
+   "PROVÉRBIOS 3:5-6"
+  ]
+ ]
+}

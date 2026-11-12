@@ -1,0 +1,160 @@
+{
+ "dur": 74.2,
+ "gancho": "posso orar pela sua família?",
+ "respira": "pensa no nome",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "Porta batendo",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.8
+  ],
+  [
+   "mas por dentro",
+   "baixo",
+   "baixo",
+   0.7,
+   0,
+   0.25,
+   0.9
+  ],
+  [
+   "Não é",
+   "baixo",
+   "baixo",
+   1,
+   0.3,
+   0,
+   0.2
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "pensa no nome",
+   "peito",
+   "baixo",
+   0.6,
+   0.1,
+   0.15,
+   0.2
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Onde tem mágoa",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se você não",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "Mesmo quando",
+   [
+    "Seja o refúgio",
+    -0.2
+   ],
+   "“Ainda que me abandonem pai e mãe, o Senhor me acolherá.”",
+   "SALMOS 27:10"
+  ],
+  [
+   "Seja o refúgio",
+   [
+    "E hoje deixa",
+    -0.2
+   ],
+   "“Deus é o nosso refúgio e a nossa fortaleza, auxílio sempre presente na adversidade.”",
+   "SALMOS 46:1"
+  ],
+  [
+   "E hoje deixa",
+   "Em nome de",
+   "“Em paz me deito e logo adormeço, pois só tu, Senhor, me fazes viver em segurança.”",
+   "SALMOS 4:8"
+  ]
+ ]
+}
