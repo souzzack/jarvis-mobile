@@ -1,0 +1,25 @@
+{
+  "dur": 80.5,
+  "gancho": "posso orar pela sua ansiedade?",
+  "respira": "Se der",
+  "cta": "E se você assistiu",
+  "poses": [
+    [0, "baixo", "fala", 1, 0.25, 0, 0.5],
+    ["Eu sei como", "baixo", "fala", 1, 0, 0.1, 0.85],
+    ["Parece que tudo", "baixo", "baixo", 0.75, 0, 0.25, 0.9],
+    ["Então deixa eu", "baixo", "fala", 1, 0.35, 0, 0.3],
+    ["Se der", "baixo", "baixo", 0.5, 0.1, 0.15, 0],
+    [["Pai eu te", -0.3], "mao", "baixo", 0, 0, 0.5, 0.5],
+    ["Entrega a prova", "ora", "ora", 0, 0, 1, 0.4],
+    [["Em nome de", 1.5], "baixo", "baixo", 1, 0.6, 0, 0],
+    ["Se você disse", "baixo", "fala", 1, 0.7, 0, 0],
+    ["E se a ansiedade", "baixo", "fala", 1, 0.15, 0.1, 0.55],
+    ["E se você assistiu", "baixo", "aponta", 1, 1, 0, 0],
+    [["fim", 0.25], "baixo", "baixo", 0, 1, 0, 0]
+  ],
+  "versos": [
+    ["lançar", ["Entrega a prova", -0.3], "“Lancem sobre ele toda a sua ansiedade, porque ele tem cuidado de vocês.”", "1 PEDRO 5:7"],
+    ["Guarda o coração", ["E quando a madrugada", -0.2], "“E a paz de Deus, que excede todo o entendimento, guardará o coração e a mente de vocês em Cristo Jesus.”", "FILIPENSES 4:7"],
+    [["E quando a madrugada", 3.2], "Em nome de", "“Não tenha medo, pois sou o seu Deus… eu o segurarei com a minha mão direita vitoriosa.”", "ISAÍAS 41:10"]
+  ]
+}
