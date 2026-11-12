@@ -13,7 +13,7 @@ html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; backgro
 #tag { position: absolute; bottom: 270px; left: 0; right: 0; text-align: center; color: #fff; font-weight: 800; font-size: 34px; letter-spacing: 3px; opacity: .9; }
 </style></head>
 <body>
-<!-- Capa dos vídeos do @oracaodogael. Uso: capa.html?img=<quadro>&l1=posso orar pela&l2=sua ansiedade? -->
+<!-- Capa dos vídeos do @oracaodogael. Uso: capa.html?img=<quadro>&l1=posso orar pela&l2=sua ansiedade?[&tag=...&fs=84] -->
 <div id="img"></div><div class="grad"></div>
 <div id="marca">🙏 ORAÇÃO DO <span>GAEL</span></div>
 <div id="titulo"><div id="l1"></div><div class="l2" id="l2"></div></div>
@@ -23,6 +23,7 @@ const q = new URLSearchParams(location.search);
 document.getElementById('img').style.backgroundImage = `url('${q.get('img')}')`;
 document.getElementById('l1').textContent = q.get('l1') || ''; document.getElementById('l2').textContent = q.get('l2') || '';
 if (q.get('tag')) document.getElementById('tag').textContent = q.get('tag');
+if (q.get('fs')) document.getElementById('titulo').style.fontSize = q.get('fs') + 'px';
 const im = new Image(); im.onload = () => document.fonts.ready.then(() => { window.__ready = true; }); im.src = q.get('img');
 </script>
 </body></html>

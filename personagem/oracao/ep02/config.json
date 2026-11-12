@@ -1,26 +1,160 @@
 {
-  "dur": "PREENCHER: fim da fala + 2,7 s",
-  "gancho": "posso orar por você que se sente sozinho?",
-  "respira": "Coloca a mão",
-  "cta": "E se você assistiu",
-  "poses": [
-    [0, "baixo", "fala", 1, 0.2, 0, 0.6],
-    ["Sabe quando você", "baixo", "fala", 1, 0, 0.1, 0.8],
-    ["O celular cheio", "baixo", "baixo", 0.7, 0, 0.25, 0.9],
-    ["Deixa eu orar", "baixo", "fala", 1, 0.35, 0, 0.3],
-    ["Coloca a mão", "peito", "baixo", 0.6, 0.1, 0.15, 0.2],
-    ["Você tá aqui", "peito", "baixo", 1, 0.5, 0, 0],
-    [["Pai eu te", -0.3], "mao", "baixo", 0, 0, 0.5, 0.5],
-    ["Onde ela se", "ora", "ora", 0, 0, 1, 0.4],
-    [["Em nome de", 1.5], "baixo", "baixo", 1, 0.6, 0, 0],
-    ["Se você disse", "baixo", "fala", 1, 0.7, 0, 0],
-    ["E se a solidão", "baixo", "fala", 1, 0.15, 0.1, 0.55],
-    ["E se você assistiu", "baixo", "aponta", 1, 1, 0, 0],
-    [["fim", 0.25], "baixo", "baixo", 0, 1, 0, 0]
+ "dur": 75.8,
+ "gancho": "posso orar por você que se sente sozinho?",
+ "respira": "Coloca a mão",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
   ],
-  "versos": [
-    ["perto de quem", ["Onde ela se", -0.3], "“O Senhor está perto dos que têm o coração quebrantado e salva os de espírito abatido.”", "SALMOS 34:18"],
-    ["E mesmo que", ["Manda pessoas", -0.2], "“O próprio Senhor irá à sua frente e estará com você; ele nunca o deixará, nunca o abandonará.”", "DEUTERONÔMIO 31:8"],
-    ["Ela não tá", "Em nome de", "“E eu estarei sempre com vocês, até o fim dos tempos.”", "MATEUS 28:20"]
+  [
+   "Sabe quando você",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.1,
+   0.8
+  ],
+  [
+   "O celular cheio",
+   "baixo",
+   "baixo",
+   0.7,
+   0,
+   0.25,
+   0.9
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Coloca a mão",
+   "peito",
+   "baixo",
+   0.6,
+   0.1,
+   0.15,
+   0.2
+  ],
+  [
+   "Você tá aqui",
+   "peito",
+   "baixo",
+   1,
+   0.5,
+   0,
+   0
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Onde ela se",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se a solidão",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
   ]
+ ],
+ "versos": [
+  [
+   "perto de quem",
+   [
+    "Onde ela se",
+    -0.3
+   ],
+   "“O Senhor está perto dos que têm o coração quebrantado e salva os de espírito abatido.”",
+   "SALMOS 34:18"
+  ],
+  [
+   "E mesmo que",
+   [
+    "Manda pessoas",
+    -0.2
+   ],
+   "“O próprio Senhor irá à sua frente e estará com você; ele nunca o deixará, nunca o abandonará.”",
+   "DEUTERONÔMIO 31:8"
+  ],
+  [
+   "Ela não tá",
+   "Em nome de",
+   "“E eu estarei sempre com vocês, até o fim dos tempos.”",
+   "MATEUS 28:20"
+  ]
+ ]
 }
