@@ -1,0 +1,160 @@
+{
+ "dur": 70.6,
+ "gancho": "posso orar pelo seu coração partido?",
+ "respira": "Respira fundo",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "Relê as mensagens",
+   "baixo",
+   "baixo",
+   0.6,
+   0,
+   0.3,
+   0.8
+  ],
+  [
+   "e todo mundo",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.7
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Respira fundo",
+   "baixo",
+   "baixo",
+   0.6,
+   0.1,
+   0.15,
+   0.2
+  ],
+  [
+   "Tudo bem doer",
+   "baixo",
+   "baixo",
+   1,
+   0.45,
+   0,
+   0.3
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Tira a culpa",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se a dor",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "tu cura os",
+   [
+    "Tira a culpa",
+    -0.3
+   ],
+   "“Só ele cura os de coração quebrantado e cuida das suas feridas.”",
+   "SALMOS 147:3"
+  ],
+  [
+   "Tu disse que",
+   [
+    "E enquanto doer",
+    -0.2
+   ],
+   "“Esqueçam o que se foi; não vivam no passado. Vejam, estou fazendo uma coisa nova!”",
+   "ISAÍAS 43:18-19"
+  ],
+  [
+   "E enquanto doer",
+   "Em nome de",
+   "“Venham a mim, todos os que estão cansados e sobrecarregados, e eu darei descanso a vocês.”",
+   "MATEUS 11:28"
+  ]
+ ]
+}

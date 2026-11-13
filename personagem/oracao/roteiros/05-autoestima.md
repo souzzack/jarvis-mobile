@@ -2,7 +2,7 @@
 
 - **Duração:** cerca de 1min20
 - **Cena:** escrivaninha à noite (`episodio.html?ep=05`), com a luminária de luz quente direta nele.
-- **Gancho fixo no topo:** `posso orar por você que não gosta do que vê no espelho? ♥`
+- **Gancho fixo no topo:** `posso orar pela sua autoestima? ♥`
 - **Momento-chave:** "Olha pra câmera um segundo…". O Gael fica parado, olhando fundo para a câmera, com um sorriso pequeno.
 
 ## Cenas

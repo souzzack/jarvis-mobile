@@ -1,0 +1,160 @@
+{
+ "dur": 72.8,
+ "gancho": "posso orar pela sua autoestima?",
+ "respira": "Olha para a",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "Se comparar",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.6
+  ],
+  [
+   "e aquela voz",
+   "baixo",
+   "baixo",
+   0.7,
+   0,
+   0.25,
+   0.9
+  ],
+  [
+   "deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Olha para a",
+   "baixo",
+   "baixo",
+   1,
+   0.25,
+   0,
+   0.1
+  ],
+  [
+   "é você que",
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Cala as vozes",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se esses",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "feita de um",
+   [
+    "Cala as vozes",
+    -0.2
+   ],
+   "“Eu te louvo porque me fizeste de modo especial e admirável. Tuas obras são maravilhosas! Digo isso com convicção.”",
+   "SALMOS 139:14"
+  ],
+  [
+   "tu não olha",
+   [
+    "E lembra ela",
+    -0.2
+   ],
+   "“O Senhor não vê como o homem: o homem vê a aparência, mas o Senhor vê o coração.”",
+   "1 SAMUEL 16:7"
+  ],
+  [
+   "E lembra ela",
+   "Em nome de",
+   "“Visto que você é precioso e honrado à minha vista, e porque eu o amo…”",
+   "ISAÍAS 43:4"
+  ]
+ ]
+}
