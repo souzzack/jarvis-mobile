@@ -1,0 +1,154 @@
+{
+ "dur": 71.8,
+ "gancho": "posso orar pra você dormir em paz?",
+ "respira": "Respira fundo",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "A conversa de",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.6
+  ],
+  [
+   "E o celular",
+   "baixo",
+   "baixo",
+   0.6,
+   0,
+   0.3,
+   0.8
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Respira fundo",
+   "baixo",
+   "baixo",
+   0.6,
+   0.1,
+   0.15,
+   0.2
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Desliga os",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se a insônia",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "Tu não cochila",
+   [
+    "A tua palavra",
+    -0.2
+   ],
+   "“Ele não permitirá que você tropece; o seu protetor se manterá alerta. Sim, o protetor de Israel não dormirá; ele está sempre alerta!”",
+   "SALMOS 121:3-4"
+  ],
+  [
+   "A tua palavra",
+   [
+    "Tira o medo",
+    -0.2
+   ],
+   "“O Senhor concede o sono àqueles a quem ele ama.”",
+   "SALMOS 127:2"
+  ],
+  [
+   "Quando ela deitar",
+   [
+    "Agora pode",
+    0.6
+   ],
+   "“Quando você se deitar, não terá medo; e, deitado, o seu sono será tranquilo.”",
+   "PROVÉRBIOS 3:24"
+  ]
+ ]
+}

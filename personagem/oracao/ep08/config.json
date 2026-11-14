@@ -1,0 +1,163 @@
+{
+ "dur": 70.1,
+ "gancho": "posso orar por você que não consegue perdoar?",
+ "respira": "Fecha a mão",
+ "cta": "E se você assistiu",
+ "poses": [
+  [
+   0,
+   "baixo",
+   "fala",
+   1,
+   0.2,
+   0,
+   0.6
+  ],
+  [
+   "Uma traição",
+   "baixo",
+   "fala",
+   1,
+   0,
+   0.05,
+   0.7
+  ],
+  [
+   "Você tenta esquecer",
+   "baixo",
+   "baixo",
+   0.7,
+   0,
+   0.25,
+   0.9
+  ],
+  [
+   "Deixa eu orar",
+   "baixo",
+   "fala",
+   1,
+   0.35,
+   0,
+   0.3
+  ],
+  [
+   "Fecha a mão",
+   "punho",
+   "baixo",
+   0.6,
+   0,
+   0.2,
+   0.5
+  ],
+  [
+   "e agora abre",
+   "solta",
+   "baixo",
+   1,
+   0.45,
+   0,
+   0
+  ],
+  [
+   [
+    "Pai eu te",
+    -0.3
+   ],
+   "mao",
+   "baixo",
+   0,
+   0,
+   0.5,
+   0.5
+  ],
+  [
+   "Então ajuda ela",
+   "ora",
+   "ora",
+   0,
+   0,
+   1,
+   0.4
+  ],
+  [
+   [
+    "Em nome de",
+    1.5
+   ],
+   "baixo",
+   "baixo",
+   1,
+   0.6,
+   0,
+   0
+  ],
+  [
+   "Se você disse",
+   "baixo",
+   "fala",
+   1,
+   0.7,
+   0,
+   0
+  ],
+  [
+   "E se essa dor",
+   "baixo",
+   "fala",
+   1,
+   0.15,
+   0.1,
+   0.55
+  ],
+  [
+   "E se você assistiu",
+   "baixo",
+   "aponta",
+   1,
+   1,
+   0,
+   0
+  ],
+  [
+   [
+    "fim",
+    0.25
+   ],
+   "baixo",
+   "baixo",
+   0,
+   1,
+   0,
+   0
+  ]
+ ],
+ "versos": [
+  [
+   "Nem voltar pra",
+   [
+    "Então ajuda",
+    -0.2
+   ],
+   "“Amados, nunca procurem vingar-se, mas deixem com Deus a ira, pois está escrito: ‘Minha é a vingança; eu retribuirei’, diz o Senhor.”",
+   "ROMANOS 12:19"
+  ],
+  [
+   "Como tu perdoou",
+   [
+    "E tira a",
+    -0.2
+   ],
+   "“Suportem-se uns aos outros e perdoem as queixas que tiverem uns contra os outros. Perdoem como o Senhor lhes perdoou.”",
+   "COLOSSENSES 3:13"
+  ],
+  [
+   "E tira a",
+   [
+    "Em nome de",
+    -0.2
+   ],
+   "“Livrem-se de toda amargura, indignação e ira, gritaria e calúnia, bem como de toda maldade.”",
+   "EFÉSIOS 4:31"
+  ]
+ ]
+}
