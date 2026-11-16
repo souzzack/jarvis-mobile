@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-120 -120 240 240" width="480" height="480">
+  <title>Constelação das Sete Estrelas</title>
+  <desc>Símbolo do Paradoxo das Seis Dimensões. Seis estrelas (uma por mundo) em dois triângulos de raios diferentes, em volta da Sétima Estrela. Usar em ruínas, templos, portais, artefatos e páginas de livros.</desc>
+  <defs>
+    <radialGradient id="g"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="-120" y="-120" width="240" height="240" fill="#0b0716"/>
+  <!-- triângulo maior: Tempestades (topo), Vulcões, Costas do Gigante -->
+  <polygon points="0,-90 -77.9,45 77.9,45" fill="none" stroke="#ffe2a8" stroke-width="1.6"/>
+  <!-- triângulo menor: Campo das Bolhas, Cidade Congelada, Achados e Perdidos -->
+  <polygon points="-62.4,-36 0,72 62.4,-36" fill="none" stroke="#ffe2a8" stroke-width="1.6"/>
+  <!-- raios até a Sétima Estrela -->
+  <g stroke="#c9b4ff" stroke-width=".8" opacity=".7">
+    <line x1="0" y1="0" x2="0" y2="-90"/><line x1="0" y1="0" x2="-62.4" y2="-36"/><line x1="0" y1="0" x2="-77.9" y2="45"/>
+    <line x1="0" y1="0" x2="0" y2="72"/><line x1="0" y1="0" x2="77.9" y2="45"/><line x1="0" y1="0" x2="62.4" y2="-36"/>
+  </g>
+  <g>
+    <circle cx="0" cy="-90" r="6" fill="#3B82F6"/><circle cx="-62.4" cy="-36" r="5" fill="#2DD4BF"/><circle cx="-77.9" cy="45" r="6" fill="#EF4444"/>
+    <circle cx="0" cy="72" r="5" fill="#BAE6FD"/><circle cx="77.9" cy="45" r="6" fill="#F5C76B"/><circle cx="62.4" cy="-36" r="5" fill="#A855F7"/>
+    <circle cx="0" cy="0" r="22" fill="url(#g)" opacity=".7"/><circle cx="0" cy="0" r="8" fill="#FFF4D6"/>
+  </g>
+</svg>
