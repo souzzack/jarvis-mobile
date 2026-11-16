@@ -122,7 +122,7 @@ function seeded(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646;};}
 /* ruído suave 1D para variações orgânicas (não senoide pura) */
 const N1=(()=>{const r=seeded(91),v=[];for(let i=0;i<512;i++)v.push(r()*2-1);return x=>{const i=Math.floor(x),f=x-i,s=f*f*(3-2*f);return lerp(v[i&511],v[(i+1)&511],s);};})();
 const noise=(x,seed)=>N1(x+seed*37.1)*.65+N1(x*2.3+seed*11.7)*.35;
-const PAL={deep:'#31146B',violet:'#8B5CF6',blue:'#2563EB',mag:'#EC4899',cyan:'#67E8F9',gold:'#F5C76B',lav:'#C9B8FF',pearl:'#EDE7FF'};
+const PAL={deep:'#31146B',violet:'#8B5CF6',blue:'#2563EB',mag:'#EC4899',cyan:'#67E8F9',gold:'#F5C76B',lav:'#A994F2',pearl:'#EDE7FF'};
 const glsl=h=>{const c=C(h);return 'vec3('+c.r.toFixed(4)+','+c.g.toFixed(4)+','+c.b.toFixed(4)+')';};
 
 /* ================= 1. ESCULTURA (anatomia aprovada na v4) ================= */
@@ -213,13 +213,13 @@ function nebulaMat(o){const m=new T.MeshStandardMaterial({color:0xffffff,roughne
       col=mix(col,${glsl(PAL.mag)},smoothstep(.55,.8,n*m2*1.7)*.7);
       ${o.mem?`col=mix(col,${glsl(PAL.mag)},.35);col=mix(col,${glsl(PAL.cyan)},smoothstep(.62,.85,m2)*.45);`:
        `float belly=smoothstep(.47,.3,vObj.y)*(1.-smoothstep(-.9,-1.4,vObj.z));float face=smoothstep(.85,1.1,vObj.z)*smoothstep(.75,.5,vObj.y);
-        col=mix(col,${glsl(PAL.lav)},clamp(belly*.85+face*.55,0.,.9));col=mix(col,${glsl(PAL.mag)},smoothstep(-1.2,-2.,vObj.z)*.45);`}
+        col=mix(col,${glsl(PAL.lav)},clamp(belly*.75+face*.35,0.,.8));col=mix(col,${glsl(PAL.mag)},smoothstep(-1.2,-2.,vObj.z)*.45);`}
       vec4 diffuseColor=vec4(col*.85,opacity${o.mem?'*(.55+.45*n)':''});`)
      .replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
       float s1=starL(vObj,${o.mem?'26.':'19.'},${o.mem?'.88':'.9'},uTime),s2=starL(vObj+3.1,44.,.9,uTime*1.3)*.6;
       float fres=pow(1.-abs(dot(normalize(vViewPosition),normal)),2.4);
-      totalEmissiveRadiance+=diffuseColor.rgb*.32*uGlow+${glsl(PAL.pearl)}*(s1+s2)*2.4*uStar+mix(${glsl(PAL.violet)},${glsl(PAL.cyan)},.35)*fres*${o.mem?'.9':'.55'}*uGlow;
-      totalEmissiveRadiance+=${glsl(PAL.violet)}*exp(-pow((vObj.z-uPulse)*5.,2.))*uPulseAmp*2.2;`);};
+      totalEmissiveRadiance+=diffuseColor.rgb*.32*uGlow+${glsl(PAL.pearl)}*(s1+s2)*1.9*uStar+mix(${glsl(PAL.violet)},${glsl(PAL.cyan)},.35)*fres*${o.mem?'.9':'.55'}*uGlow;
+      totalEmissiveRadiance+=${glsl(PAL.violet)}*exp(-pow((vObj.z-uPulse)*5.,2.))*uPulseAmp*1.1;`);};
   return m;}
 
 /* ================= 4. CONSTRUÇÃO ================= */
@@ -324,7 +324,7 @@ function buildCreature(opts={}){
   /* dois anéis orbitais elípticos (como os de Saturno), presos à coluna; os símbolos e fragmentos correm pelo anel */
   if(!TEX.gold){TEX.gold=bandTex('gold');TEX.blue=bandTex('blue');}
   const rings=[];
-  [{ax:1.32,az:1.6,w:.13,tex:'gold',rep:4,edge:PAL.gold,tilt:[.17,.12,.1],speed:.035,frag:0,z:-.28},{ax:1.17,az:1.38,w:.06,tex:'blue',rep:3,edge:'#9fb4ff',tilt:[.2,-.3,-.1],speed:-.055,frag:12,z:-.2}].forEach((R,i)=>{
+  [{ax:1.32,az:1.6,w:.13,tex:'gold',rep:4,edge:PAL.gold,tilt:[.17,.12,.1],speed:.035,frag:0,z:-.28},{ax:1.17,az:1.47,w:.06,tex:'blue',rep:3,edge:'#9fb4ff',tilt:[.2,-.3,-.1],speed:-.055,frag:12,z:-.2}].forEach((R,i)=>{
     const tiltG=new T.Group();tiltG.name='ring'+i;tiltG.position.set(0,0,R.z);bones.spine.add(tiltG);const spin=new T.Group();tiltG.add(spin);
     const t=TEX[R.tex].clone();t.needsUpdate=true;t.repeat.set(R.rep,1);
     const band=new T.Mesh(ellipseBand(R.ax,R.az,R.w,180),new T.MeshBasicMaterial({map:t,transparent:true,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide,color:new T.Color(2.1,2.0,2.2)}));spin.add(band);
@@ -456,13 +456,13 @@ function updateCreature(c,dt,t){const P=c.P,X=c.X,s=c.state;c.st+=dt;const st=c.
   if(s==='cele'){const D=2.6,k=st/D;
     const dip=st<.35?ease.sine(st/.35):0,up=st>=.35&&st<1.15?ease.out((st-.35)/.8):0,down=st>=1.15&&st<2.1?1-ease.io((st-1.15)/.95):0;
     tg.lift=-.07*dip+.42*(up||down)-.05*Math.max(0,Math.sin(clamp((st-1.95)/.45,0,1)*PI));tg.crouch=dip*.6;
-    tg.spin=st<.4?0:st<2.0?ease.io((st-.4)/1.6)*TAU:TAU;tg.ringMul=1+3.2*sstep(.3,.7,st)*(1-sstep(1.4,2.2,st));tg.star=1+1.6*sstep(.4,.9,st)*(1-sstep(1.6,2.5,st));
+    tg.spin=st<.4?0:st<2.0?ease.io((st-.4)/1.6)*TAU:TAU;tg.ringMul=1+3.2*sstep(.3,.7,st)*(1-sstep(1.4,2.2,st));tg.star=1+.8*sstep(.4,.9,st)*(1-sstep(1.6,2.5,st));
     tg.flare=.45*sstep(.35,.7,st)*(1-sstep(1.8,2.4,st));tg.tailAmp=.13+.25*sstep(.6,1.,st)*(1-sstep(1.8,2.5,st));tg.tailFreq=2.4;tg.mouth=sstep(.4,.7,st)*(1-sstep(1.8,2.4,st));tg.headX=-.18*(up||down);tg.legTuck=.35+.4*(up||down);
     if(st>D){c.P.spin=0;c.set('idle');}}
   if(s==='rare'){const I=+$('rarity').value;const D=3.4;
     tg.headX=-.32*sstep(.15,.45,st)*(1-sstep(2.6,3.3,st));tg.lift=.12*sstep(.2,.6,st)*(1-sstep(2.6,3.3,st));tg.crouch=st<.2?ease.sine(st/.2)*.3:0;
     tg.flare=.55*sstep(.2,.5,st)*(1-sstep(2.5,3.2,st));tg.align=sstep(.6,1.3,st)*(1-sstep(2.4,3.2,st));tg.glow=1+(.28*I)*sstep(.5,1.,st)*(1-sstep(2.6,3.4,st));tg.mouth=sstep(.2,.4,st)*(1-sstep(1.4,2,st));
-    tg.star=1+.9*I*sstep(.8,1.4,st)*(1-sstep(2.6,3.4,st));tg.ringMul=1+1.5*sstep(.6,1.,st)*(1-sstep(2.4,3.,st));
+    tg.star=1+.45*I*sstep(.8,1.4,st)*(1-sstep(2.6,3.4,st));tg.ringMul=1+1.5*sstep(.6,1.,st)*(1-sstep(2.4,3.,st));
     if(st>D)c.set('idle');}
   /* ---- suavização: transições e interrupções sem saltos ---- */
   const kf=s==='cele'||s==='rare'?18:5;for(const k in tg){if(k==='spin'){P.spin=tg.spin;continue;}P[k]+=(tg[k]-P[k])*Math.min(1,dt*kf);}
@@ -484,7 +484,7 @@ function updateCreature(c,dt,t){const P=c.P,X=c.X,s=c.state;c.st+=dt;const st=c.
   X.lids.forEach(l=>l.rotation.x=lerp(-PI*.5-.35-(s==='rare'?.25*P.mouth:0),PI*.5-.25,bl));X.mouth.scale.set(1-.25*P.mouth,1+1.2*P.mouth,1);
   /* anéis: rotação independente, alinhamento na descoberta */
   X.rings.forEach((R,i)=>{R.angle+=dt*R.speed*P.ringMul;R.tex.offset.x=-R.angle*(i?3:4);R.frags.forEach((f,j)=>{const a=f.userData.a+R.angle*TAU*.5+Math.sin(t*.7+j)*.03;f.position.set(Math.cos(a)*R.ax,Math.sin(t*1.3+j)*.02,Math.sin(a)*R.az);f.rotation.y=t+j;});
-    const al=P.align;R.tiltG.rotation.set(lerp(R.base.x,.04,al),lerp(R.base.y,0,al),lerp(R.base.z,0,al));R.band.visible=lod<2;R.lo.visible=lod>=2;R.frags.forEach(f=>f.visible=lod<1);});
+    const al=P.align,B0=X.rings[0].base;R.tiltG.rotation.set(lerp(R.base.x,B0.x,al),lerp(R.base.y,B0.y,al),lerp(R.base.z,B0.z,al));R.band.visible=lod<2;R.lo.visible=lod>=2;R.frags.forEach(f=>f.visible=lod<1);});
   /* materiais */
   const U=[X.skinM.userData.u,X.finM.userData.u,X.memM.userData.u];U.forEach(u=>{u.uTime.value=t;u.uGlow.value=P.glow;u.uStar.value=P.star;});
   const ou=X.overM.userData.u;ou.uTime.value=t;ou.uBase.value=.75+.25*(P.star-1)+.15;X.stalkM.emissiveIntensity=.5*P.glow;
@@ -521,8 +521,8 @@ function effects(c,dt,t,st,spd){const X=c.X,s=c.state,b=FX.budget;
   if(s==='rare'){const I=+$('rarity').value;if(!c.events.flash&&st>.8){c.events.flash=1;const ctr=X.group.localToWorld(new T.Vector3(0,.6,0));
       pulse(ctr,X.group.quaternion.clone().multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),-PI/2+.12)),PC.blue,.4,1.4+.4*I,1.2);
       const n=Math.round((6+4*I)*b);for(let i=0;i<n;i++){const a0=i/n*TAU,r0=.95+Math.random()*.25,h=(Math.random()-.5)*.5;FX.star.spawn({p:ctr.clone(),c:i%2?PC.violet:PC.blue,size:.055,life:1.8+Math.random()*.4,a:.95,fn:(q,dt2,k)=>{const a=a0+k*2.6;const rr=r0*(.6+.4*Math.min(1,k*4))*(1+k*.2);q.p.set(ctr.x+Math.cos(a)*rr,ctr.y+h+Math.sin(k*PI)*.1,ctr.z+Math.sin(a)*rr);}});}}
-    if(c.isMain)coreL.intensity=1.2+3.5*(+$('rarity').value)*sstep(.8,1.1,st)*(1-sstep(1.4,2.6,st));}
-  else if(c.isMain)coreL.intensity=1.2*(c.P.glow);}
+    if(c.isMain)coreL.intensity=.5+.5*(+$('rarity').value)*sstep(.8,1.1,st)*(1-sstep(1.4,2.6,st));}
+  else if(c.isMain)coreL.intensity=.5+.3*(c.P.glow-1);}
 
 /* ================= 8. INICIALIZAÇÃO, INTERFACE E TESTES ================= */
 statusEl.textContent='Esculpindo o Axolote Nebular…';
@@ -548,7 +548,7 @@ function start(){
     if(on){[[-2.4,0,-1.6],[2.5,0,-1.8],[-4,0,-4.5],[4.2,0,-4.8],[0,0,-6.5],[-6,0,-1]].forEach(([x,,z],i)=>{const c=Creature(new T.Vector3(x,H+(i%3)*.15,z),false,i+7);c.yaw=Math.random()*TAU;creatures.push(c);extras.push(c);setTimeout(()=>c.set(i%2?'move':'idle'),i*400);});}
     else{extras.forEach(c=>{scene.remove(c.X.group);creatures.splice(creatures.indexOf(c),1);});extras.length=0;}};
   /* testes automáticos ao vivo */
-  const QA=[['ring','Anéis sem tocar no corpo (folga mínima)'],['tail','Cauda acima do chão'],['jump','Movimento mais brusco (velocidade de giro da cabeça)'],['fx','Partículas ativas'],['stray','Efeitos presos após o fim da ação'],['fps','Quadros por segundo']];
+  const QA=[['ring','Anéis sem tocar no corpo (folga mínima)'],['tail','Cauda acima do chão'],['jump','Movimento mais brusco (cabeça em relação ao corpo)'],['fx','Partículas ativas'],['stray','Efeitos presos após o fim da ação'],['fps','Quadros por segundo']];
   $('qa').innerHTML=QA.map(([k,n])=>'<li><span>'+n+'</span><b id="qa-'+k+'" class="wait">medindo…</b></li>').join('');
   const qa={ringMin:9,tailMin:9,jump:0,fx:0,stray:0,fps:0};window.__qa=qa;window.__main=main;
   const prevHead=new T.Quaternion();let jumpWin=[];const frameT=[];
@@ -558,28 +558,28 @@ function start(){
     main.X.gills.forEach(g=>{[1,.6].forEach(f=>{const tip=g.pv.localToWorld(g.tipPos.clone().multiplyScalar(f));main.X.rings.forEach(R=>{const loc=R.spin.worldToLocal(tip.clone());const e=Math.hypot(loc.x/R.ax,loc.z/R.az);const dd=Math.hypot(Math.max(0,Math.abs(e-1)*Math.min(R.ax,R.az)-R.w/2),loc.y);if(dd<mn)mn=dd;});});});return mn;}
   function setQA(id,txt,good){const e=$('qa-'+id);e.textContent=txt;e.className=good===null?'wait':good?'ok':'bad';}
   let qaT=0,endT=-1;
-  const clock=new T.Clock();
-  (function loop(){requestAnimationFrame(loop);const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTime;
+  renderer.info.autoReset=false;const lastInfo={calls:0,tris:0};window.__info=lastInfo;const clock=new T.Clock();
+  (function loop(){requestAnimationFrame(loop);renderer.info.reset();const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTime;
     frameT.push(dt);if(frameT.length>60)frameT.shift();
     skyMat.uniforms.uTime.value=t;rocks.children.forEach(r=>{r.position.y+=Math.sin(t*.5+r.userData.ph)*.0015;r.rotation.y+=dt*.05;});
     const camPos=cam.position;creatures.forEach(c=>{const d=camPos.distanceTo(c.pos);c.lod=quality.low?(d>5?2:1):(d>9?2:d>5.5?1:0);if(c.isMain)c.lod=quality.low?1:0;
       c.frameSkip=(c.frameSkip+1)%(c.lod===2?3:1);c.acc+=dt;if(c.frameSkip===0){updateCreature(c,c.acc,t);c.acc=0;}});
     if(main.state!==lastState){lastState=main.state;renderStates();if(main.state!=='work'&&main.state!=='rare'){}endT=t;}
     RES.visible=main.state==='work'||(RES.visible&&main.state!=='move'&&t-endT<.1)||main.state==='work';
-    rune.position.x=main.pos.x;rune.position.z=main.pos.z;rune.rotation.z=t*.05;runeM.opacity=.55+.25*Math.sin(t*1.2);underGlow.position.set(main.pos.x,.01,main.pos.z);coreL.position.copy(main.X.group.position).add(new T.Vector3(0,.6,0));
+    rune.position.x=main.pos.x;rune.position.z=main.pos.z;rune.rotation.z=t*.05;runeM.opacity=.55+.25*Math.sin(t*1.2);underGlow.position.set(main.pos.x,.01,main.pos.z);coreL.position.copy(main.X.group.position).add(new T.Vector3(0,-.15,-.3));
     const fx1=FX.dust.update(dt),fx2=FX.star.update(dt);
     pulses.forEach(m=>{const u=m.userData;u.t+=dt;const k=u.t/u.dur;m.material.opacity=k<1?(1-k)*(1-k)*.9:0;m.scale.setScalar(lerp(u.s0,u.s1,ease.out(Math.min(1,k))));});
     /* testes */
-    const hq=main.X.bones.head.getWorldQuaternion(new T.Quaternion());const jump=prevHead.angleTo(hq)/Math.max(dt,.001);prevHead.copy(hq);jumpWin.push(jump);if(jumpWin.length>120)jumpWin.shift();
+    const hq=main.X.group.getWorldQuaternion(new T.Quaternion()).invert().multiply(main.X.bones.head.getWorldQuaternion(new T.Quaternion()));const jump=prevHead.angleTo(hq)/Math.max(dt,.001);prevHead.copy(hq);jumpWin.push(jump);if(jumpWin.length>120)jumpWin.shift();
     qaT+=dt;if(qaT>.5){qaT=0;const rc=ringClearance();qa.ringMin=Math.min(qa.ringMin,rc);setQA('ring',(rc*100).toFixed(1)+' cm agora · '+(qa.ringMin*100).toFixed(1)+' cm mín.',qa.ringMin>0);
       let tmin=9;['tail2','tail3','tail4'].forEach(n=>{const p=main.X.bones[n].getWorldPosition(new T.Vector3());tmin=Math.min(tmin,p.y-.18);});const tip=main.X.bones.tail4.localToWorld(new T.Vector3(0,-.25,-.6));tmin=Math.min(tmin,tip.y);qa.tailMin=Math.min(qa.tailMin,tmin);setQA('tail',(qa.tailMin*100).toFixed(1)+' cm de folga mínima',qa.tailMin>0);
       const mj=Math.max(...jumpWin)*180/PI;qa.jump=mj;setQA('jump',Math.round(mj)+'°/s de giro da cabeça',mj<540);
       qa.fx=fx1+fx2;setQA('fx',qa.fx+' de '+(FX.dust.n+FX.star.n),qa.fx<200);
       const strayIdle=main.state==='idle'&&main.st>3.5?(beam.material.opacity>.01?1:0)+(RES.userData.l.intensity>.01?1:0)+(main.X.overM.userData.u.uWaveAmp.value>.01?1:0):0;qa.stray=strayIdle;setQA('stray',main.state==='idle'&&main.st>3.5?(strayIdle?strayIdle+' ativo(s)':'nenhum'):'aguardando fim da ação',main.state==='idle'&&main.st>3.5?!strayIdle:null);
       const fps=Math.round(frameT.length/frameT.reduce((a,b)=>a+b,0));qa.fps=fps;setQA('fps',fps+' fps · '+creatures.length+' ajudante(s)',fps>=30);
-      if(!$('hud').hidden)$('hud').textContent='chamadas de desenho: '+renderer.info.render.calls+'\ntriângulos: '+renderer.info.render.triangles.toLocaleString('pt-BR')+'\npartículas: '+qa.fx+'\nestado: '+STATES[main.state].n+(main.state==='work'?' · '+main.workPhase:'');}
+      if(!$('hud').hidden)$('hud').textContent='chamadas de desenho: '+lastInfo.calls+'\ntriângulos: '+lastInfo.tris.toLocaleString('pt-BR')+'\npartículas: '+qa.fx+'\nestado: '+STATES[main.state].n+(main.state==='work'?' · '+main.workPhase:'');}
     controls.update();
-    if(composer&&!quality.low&&!sil)composer.render();else renderer.render(scene,cam);})();
+    if(composer&&!quality.low&&!sil)composer.render();else renderer.render(scene,cam);lastInfo.calls=renderer.info.render.calls;lastInfo.tris=renderer.info.render.triangles;})();
 }
 })();
 </script>
