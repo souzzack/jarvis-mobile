@@ -1,0 +1,339 @@
+<title>Guardião Nebular · Três Conceitos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: prancha de comparação (linhas = conceitos, colunas = vistas) num único canvas; abaixo, uma ficha por conceito com medidas e a prova de geometria nova. Visual único escuro. */
+:root{
+  --bg:#07060f; --panel:#110e1f; --panel2:#181430; --line:#2a2350;
+  --fg:#efeaff; --muted:#a39cc8;
+  --violet:#8b5cf6; --mag:#ec4899; --cyan:#67e8f9; --gold:#f5c76b;
+  --display:'Cinzel','Trajan Pro',Georgia,serif;
+  --body:'Nunito Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:15px;line-height:1.55}
+.wrap{max-width:1320px;margin:0 auto;padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+.eyebrow{font:500 11.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,46px);line-height:1.05;margin:6px 0 8px;letter-spacing:.03em;text-wrap:balance;
+  background:linear-gradient(100deg,#fff4dc 0%,var(--gold) 25%,#c4b5fd 55%,var(--mag) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);max-width:76ch;margin:0}
+.board{position:relative;border:1px solid var(--line);border-radius:16px;overflow:auto;background:#0b0918}
+.board-inner{position:relative;min-width:880px}
+.board canvas{display:block;width:100%}
+.status{padding:60px 24px;text-align:center;color:var(--muted)}
+.cols,.rows{position:absolute;pointer-events:none;font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#d8d2ff}
+.cols{left:150px;right:0;top:8px;display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+.rows{left:0;top:0;bottom:0;width:150px;display:grid}
+.cols div:last-child{color:#3a3360}
+.rows div{display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-right:1px solid var(--line)}
+.rows b{font-family:var(--display);font-size:20px;letter-spacing:.02em;text-transform:none;color:var(--gold)}
+.rows span{text-transform:none;letter-spacing:0;font-family:var(--body);font-size:12.5px;color:#d8d2ff;line-height:1.3}
+.rows .old b{color:#8f88b8}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:700 12.5px var(--body);background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+.btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:980px){.cards{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card h2{font-family:var(--display);font-size:20px;margin:0}
+.card .tag{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--violet)}
+.card p{margin:0;font-size:13.5px;color:#ddd8f2}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.card dt{color:var(--muted)}.card dd{margin:0;color:#ece8ff}
+.meas{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.meas div{background:var(--panel2);border-radius:8px;padding:6px 9px}
+.meas b{display:block;font:500 15px var(--mono);font-variant-numeric:tabular-nums}
+.meas span{font-size:11px;color:var(--muted)}
+.ok{color:#7ef0b8}.bad{color:#ff8a9a}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:13.5px;color:#d8d2f2}
+.note b{color:var(--gold)}
+.note code{font-family:var(--mono);font-size:12px;color:var(--cyan)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Magnata do Multiverso · Axolote Nebular v8 · etapa de aprovação</div>
+    <h1>Guardião Nebular · Três Conceitos</h1>
+    <p class="lead">Três personagens novos, cada um esculpido por uma função própria, sem reaproveitar a cabeça, o tronco, as patas, a cauda nem as brânquias da v7. A última linha mostra a v7 só para comparação. Escolha um conceito; animações e efeitos ficam para depois da sua aprovação.</p>
+  </header>
+
+  <div class="tools">
+    <button class="btn" id="tRot" type="button" aria-pressed="false">Girar três quartos</button>
+    <button class="btn" id="tMat" type="button" aria-pressed="true">Materiais de nebulosa</button>
+  </div>
+
+  <div class="board" id="board"><div class="board-inner" id="inner"><div class="status" id="status">Esculpindo os três conceitos…</div></div></div>
+
+  <section class="cards" id="cards"></section>
+
+  <div class="note" id="tech"><b>Verificação técnica.</b> Da v3 à v7, o corpo do axolote sempre saiu da mesma função de escultura (<code>sdf()</code>, com o objeto de anatomia <code>A</code>): cabeça, focinho, mandíbula, bochechas, tronco, quadril, cauda e patas. Cada versão mexia em poucos números dela e trocava materiais e efeitos, por isso o personagem continuava o mesmo. Aqui cada conceito tem a sua própria função (<code>sdfA</code>, <code>sdfB</code>, <code>sdfC</code>), com volumes, proporções e pose diferentes, e brânquias, caudas e anéis feitos do zero. A v7 aparece só como referência. As medidas de sobreposição abaixo comparam a silhueta do corpo de cada conceito com a da v7: quanto menor o número, mais diferente.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const statusEl=document.getElementById('status');
+if(!window.THREE){statusEl.textContent='Não consegui carregar o motor 3D. Recarregue a página.';return;}
+const T=THREE,PI=Math.PI,TAU=PI*2;
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),lerp=(a,b,t)=>a+(b-a)*t,sstep=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
+const C=h=>new T.Color(h).convertSRGBToLinear();
+function seeded(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646;};}
+const glsl=h=>{const c=C(h);return 'vec3('+c.r.toFixed(4)+','+c.g.toFixed(4)+','+c.b.toFixed(4)+')';};
+const PAL={deep:'#31146B',violet:'#8B5CF6',blue:'#2563EB',mag:'#EC4899',cyan:'#67E8F9',gold:'#F5C76B',lav:'#A994F2',pearl:'#EDE7FF'};
+
+/* ---------- primitivas de escultura ---------- */
+function sdE(px,py,pz,c,r){const x=(px-c[0])/r[0],y=(py-c[1])/r[1],z=(pz-c[2])/r[2];const k0=Math.sqrt(x*x+y*y+z*z);const k1=Math.sqrt(x*x/(r[0]*r[0])+y*y/(r[1]*r[1])+z*z/(r[2]*r[2]));return k1>1e-6?k0*(k0-1)/k1:-Math.min(r[0],r[1],r[2]);}
+function sdC(px,py,pz,a,b,ra,rb){const bx=b[0]-a[0],by=b[1]-a[1],bz=b[2]-a[2],qx=px-a[0],qy=py-a[1],qz=pz-a[2];const h=clamp((qx*bx+qy*by+qz*bz)/(bx*bx+by*by+bz*bz),0,1);
+  const dx=qx-bx*h,dy=qy-by*h,dz=qz-bz*h;return Math.sqrt(dx*dx+dy*dy+dz*dz)-lerp(ra,rb,h);}
+const smin=(a,b,k)=>{const h=clamp(.5+.5*(b-a)/k,0,1);return lerp(b,a,h)-k*h*(1-h);};
+const smax=(a,b,k)=>-smin(-a,-b,k);
+function chain(px,py,pz,pts,k,sx=1){let d=9;for(let i=0;i<pts.length-1;i++){const a=pts[i],b=pts[i+1];d=smin(d,sdC(px*sx,py,pz,[a[0]*sx,a[1],a[2]],[b[0]*sx,b[1],b[2]],a[3],b[3]),k);}return d;}
+function limb(px,py,pz,L,fingers,fl,fr){/* membro: ombro → cotovelo → pulso + mão achatada com dedos */
+  let d=sdC(px,py,pz,L.sh,L.el,L.r[0],L.r[1]);d=smin(d,sdC(px,py,pz,L.el,L.wr,L.r[1],L.r[2]),.05);
+  d=smin(d,sdE(px,py,pz,L.wr,[L.r[2]*1.4,L.r[2]*.55,L.r[2]*1.4]),.04);
+  const ex=L.wr[0]-L.el[0],ez=L.wr[2]-L.el[2],base=Math.atan2(ex,ez);
+  for(let k=0;k<fingers;k++){const a=base+(-1+2*k/(fingers-1))*.7;const tp=[L.wr[0]+Math.sin(a)*fl,L.wr[1]-.02,L.wr[2]+Math.cos(a)*fl];d=smin(d,sdC(px,py,pz,L.wr,tp,fr,fr*.55),.02);}
+  return d;}
+const mirror=(L)=>({sh:[-L.sh[0],L.sh[1],L.sh[2]],el:[-L.el[0],L.el[1],L.el[2]],wr:[-L.wr[0],L.wr[1],L.wr[2]],r:L.r});
+
+/* ================= CONCEITO A · Guardião Nebular: longo, sereno, brânquias ornamentais ================= */
+const AA={eye:[.25,.745,.8],eyeR:.07,
+  legs:[{sh:[.22,.5,-.02],el:[.5,.43,.12],wr:[.72,.37,.27],r:[.085,.066,.05]},{sh:[.19,.5,-1.0],el:[.46,.43,-1.1],wr:[.66,.38,-1.0],r:[.08,.062,.048]}],
+  tail:[[0,.56,-1.15,.17],[0,.6,-1.6,.115],[0,.7,-2.05,.075],[0,.8,-2.5,.04],[0,.85,-2.85,.012]]};
+function sdfA(x,y,z){const ax=Math.abs(x);
+  let d=sdE(x,y,z,[0,.66,.6],[.33,.26,.5]);
+  d=smin(d,sdC(x,y,z,[0,.64,.92],[0,.6,1.18],.19,.12),.1);
+  d=smin(d,sdE(x,y,z,[0,.54,.74],[.29,.12,.42]),.08);
+  d=smin(d,sdC(ax,y,z,[.16,.83,.42],[.11,.76,.97],.05,.03),.05);
+  d=smin(d,sdE(ax,y,z,[.31,.62,.42],[.05,.11,.18]),.04);
+  d=smin(d,sdC(x,y,z,[0,.64,.25],[0,.59,-.02],.23,.26),.1);
+  d=smin(d,sdE(x,y,z,[0,.57,-.06],[.31,.29,.34]),.12);
+  d=smin(d,sdC(x,y,z,[0,.565,-.25],[0,.56,-.95],.27,.2),.12);
+  d=smin(d,sdE(x,y,z,[0,.56,-1.05],[.22,.2,.25]),.1);
+  d=smin(d,chain(x,y,z,AA.tail,.1,1.4),.1);
+  for(const L of AA.legs){const LL=x>=0?L:mirror(L);d=smin(d,limb(x,y,z,LL,4,.12,.018),.07);}
+  const ex=ax-AA.eye[0],ey=y-AA.eye[1],ez=z-AA.eye[2];d=smax(d,AA.eyeR+.004-Math.sqrt(ex*ex*.65+ey*ey*1.4+ez*ez),.03);
+  return d;}
+
+/* ================= CONCEITO B · Dragão das Constelações: pescoço erguido, peito forte, cauda em S ================= */
+const BB={eye:[.2,1.13,.85],eyeR:.068,
+  legs:[{sh:[.25,.5,-.04],el:[.46,.36,.26],wr:[.5,.26,.56],r:[.105,.082,.06]},{sh:[.22,.54,-.95],el:[.47,.4,-1.18],wr:[.52,.32,-1.46],r:[.105,.082,.058]}],
+  tail:[[0,.6,-1.05,.2],[.3,.58,-1.5,.15],[-.28,.56,-1.98,.1],[.25,.62,-2.45,.06],[-.05,.75,-2.85,.03],[-.2,.9,-3.15,.01]]};
+function sdfB(x,y,z){const ax=Math.abs(x);
+  let d=sdE(x,y,z,[0,1.06,.58],[.3,.25,.42]);
+  d=smin(d,sdC(x,y,z,[0,1.05,.86],[0,.99,1.13],.18,.13),.09);
+  d=smin(d,sdE(x,y,z,[0,.93,.72],[.25,.11,.38]),.07);
+  d=smin(d,sdC(ax,y,z,[.15,1.2,.5],[.1,1.13,.98],.06,.032),.05);
+  d=smin(d,sdC(ax,y,z,[.21,1.18,.36],[.34,1.42,-.05],.055,.008),.03);
+  d=smin(d,sdC(x,y,z,[0,1.04,.38],[0,.9,.16],.2,.22),.1);
+  d=smin(d,sdC(x,y,z,[0,.9,.16],[0,.7,-.08],.22,.27),.1);
+  d=smin(d,sdE(x,y,z,[0,.62,-.14],[.35,.37,.38]),.13);
+  d=smin(d,sdC(x,y,z,[0,.61,-.34],[0,.6,-.85],.29,.21),.12);
+  d=smin(d,sdE(x,y,z,[0,.6,-.95],[.23,.21,.25]),.1);
+  for(let i=0;i<7;i++){if(i>=3&&i<=5)continue;const zz=.05-i*.17,yy=(i<2?1.0-i*.12:.94-i*.03);d=smin(d,sdC(x,y,z,[0,yy-.08,zz],[0,yy+.13-i*.012,zz-.13],.055,.006),.025);}
+  d=smin(d,chain(x,y,z,BB.tail,.12),.1);
+  for(const L of BB.legs){const LL=x>=0?L:mirror(L);d=smin(d,limb(x,y,z,LL,4,.12,.024),.07);}
+  const ex=ax-BB.eye[0],ey=y-BB.eye[1],ez=z-BB.eye[2];d=smax(d,BB.eyeR+.004-Math.sqrt(ex*ex*.6+ey*ey*1.6+ez*ez),.03);
+  return d;}
+
+/* ================= CONCEITO C · Espírito de Saturno: corpo-planeta compacto, coroa de filamentos, cauda de cometa ================= */
+const CC={eye:[.19,.87,.62],eyeR:.068,
+  legs:[{sh:[.28,.5,.12],el:[.4,.38,.2],wr:[.46,.3,.26],r:[.07,.05,.035]},{sh:[.27,.5,-.4],el:[.39,.38,-.52],wr:[.44,.31,-.62],r:[.07,.05,.035]}],
+  tail:[[0,.7,-.62,.13],[0,.74,-1.0,.065],[0,.85,-1.5,.035],[0,1.0,-1.98,.018],[0,1.15,-2.38,.007]]};
+function sdfC(x,y,z){const ax=Math.abs(x);
+  let d=sdE(x,y,z,[0,.7,-.15],[.44,.42,.5]);
+  d=smin(d,sdE(x,y,z,[0,.79,.38],[.35,.3,.33]),.18);
+  d=smin(d,sdE(x,y,z,[0,.74,.65],[.21,.15,.12]),.08);
+  d=smin(d,chain(x,y,z,CC.tail,.08),.1);
+  for(const L of CC.legs){const LL=x>=0?L:mirror(L);d=smin(d,limb(x,y,z,LL,3,.07,.014),.06);}
+  const ex=ax-CC.eye[0],ey=y-CC.eye[1],ez=z-CC.eye[2];d=smax(d,CC.eyeR+.004-Math.sqrt(ex*ex+ey*ey+ez*ez),.03);
+  return d;}
+
+/* ================= v7 reprovada (somente para comparação) ================= */
+const OLD={head:[0,.62,.5],headR:[.6,.36,.47],snout:[0,.565,.865],snoutR:[.39,.25,.27],jaw:[0,.48,.58],jawR:[.48,.17,.4],cheek:[.43,.63,.3],cheekR:[.22,.25,.22],brow:[.28,.8,.64],browR:[.15,.095,.14],
+  chest:[0,.54,.03],chestR:[.43,.33,.33],trunk:[0,.54,-.3],trunkR:[.41,.33,.4],hips:[0,.535,-.6],hipsR:[.35,.3,.27],
+  tail:[[0,.55,-.68,.25],[0,.565,-.95,.18],[0,.585,-1.21,.125],[0,.6,-1.45,.085],[0,.61,-1.67,.055],[0,.615,-1.87,.032],[0,.62,-2.08,.012]],
+  legs:[{sh:[.3,.47,.12],el:[.49,.24,.25],wr:[.52,.075,.31],r:[.135,.112,.095]},{sh:[.28,.46,-.6],el:[.5,.25,-.68],wr:[.53,.075,-.6],r:[.135,.112,.095]}]};
+function sdfOld(x,y,z){const ax=Math.abs(x);let d=sdE(x,y,z,OLD.head,OLD.headR);d=smin(d,sdE(x,y,z,OLD.snout,OLD.snoutR),.13);d=smin(d,sdE(x,y,z,OLD.jaw,OLD.jawR),.1);
+  d=smin(d,sdE(ax,y,z,OLD.cheek,OLD.cheekR),.1);d=smin(d,sdE(ax,y,z,OLD.brow,OLD.browR),.07);d=smin(d,sdE(x,y,z,OLD.chest,OLD.chestR),.17);d=smin(d,sdE(x,y,z,OLD.trunk,OLD.trunkR),.13);d=smin(d,sdE(x,y,z,OLD.hips,OLD.hipsR),.11);
+  d=smin(d,chain(x,y,z,OLD.tail,.16,1.55),.16);for(const L of OLD.legs){const LL=x>=0?L:mirror(L);d=smin(d,limb(x,y,z,LL,4,.13,.04),.12);}return d;}
+
+/* ---------- surface nets ---------- */
+function sculpt(sdf,min,max,h){const nx=Math.ceil((max[0]-min[0])/h)+1,ny=Math.ceil((max[1]-min[1])/h)+1,nz=Math.ceil((max[2]-min[2])/h)+1;
+  const F=new Float32Array(nx*ny*nz);const id=(i,j,k)=>i+nx*(j+ny*k);
+  for(let k=0;k<nz;k++){const z=min[2]+k*h;for(let j=0;j<ny;j++){const y=min[1]+j*h;for(let i=0;i<nx;i++)F[id(i,j,k)]=sdf(min[0]+i*h,y,z);}}
+  const cv=new Int32Array(nx*ny*nz).fill(-1);const P=[];const co=[[0,0,0],[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]];const ed=[[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];const v=new Float32Array(8);
+  for(let k=0;k<nz-1;k++)for(let j=0;j<ny-1;j++)for(let i=0;i<nx-1;i++){let m=0;for(let c=0;c<8;c++){v[c]=F[id(i+co[c][0],j+co[c][1],k+co[c][2])];if(v[c]<0)m|=1<<c;}if(m===0||m===255)continue;
+    let sx=0,sy=0,sz=0,n=0;for(const [a,b] of ed){if((v[a]<0)!==(v[b]<0)){const t=v[a]/(v[a]-v[b]);sx+=co[a][0]+(co[b][0]-co[a][0])*t;sy+=co[a][1]+(co[b][1]-co[a][1])*t;sz+=co[a][2]+(co[b][2]-co[a][2])*t;n++;}}
+    cv[id(i,j,k)]=P.length/3;P.push(min[0]+(i+sx/n)*h,min[1]+(j+sy/n)*h,min[2]+(k+sz/n)*h);}
+  const I=[];const quad=(a,b,c,d,f)=>{if(a<0||b<0||c<0||d<0)return;if(f)I.push(a,b,c,a,c,d);else I.push(a,c,b,a,d,c);};
+  for(let k=1;k<nz-1;k++)for(let j=1;j<ny-1;j++)for(let i=1;i<nx-1;i++){const neg=F[id(i,j,k)]<0;
+    if((F[id(i+1,j,k)]<0)!==neg)quad(cv[id(i,j,k)],cv[id(i,j-1,k)],cv[id(i,j-1,k-1)],cv[id(i,j,k-1)],neg);
+    if((F[id(i,j+1,k)]<0)!==neg)quad(cv[id(i,j,k)],cv[id(i,j,k-1)],cv[id(i-1,j,k-1)],cv[id(i-1,j,k)],neg);
+    if((F[id(i,j,k+1)]<0)!==neg)quad(cv[id(i,j,k)],cv[id(i-1,j,k)],cv[id(i-1,j-1,k)],cv[id(i,j-1,k)],neg);}
+  const N=new Float32Array(P.length),e=.004;for(let q=0;q<P.length;q+=3){const x=P[q],y=P[q+1],z=P[q+2];const gx=sdf(x+e,y,z)-sdf(x-e,y,z),gy=sdf(x,y+e,z)-sdf(x,y-e,z),gz=sdf(x,y,z+e)-sdf(x,y,z-e);const l=Math.hypot(gx,gy,gz)||1;N[q]=gx/l;N[q+1]=gy/l;N[q+2]=gz/l;}
+  let flip=0;for(let t=0;t<Math.min(I.length,3000);t+=3){const a=I[t]*3,b=I[t+1]*3,c=I[t+2]*3;const ux=P[b]-P[a],uy=P[b+1]-P[a+1],uz=P[b+2]-P[a+2],wx=P[c]-P[a],wy=P[c+1]-P[a+1],wz=P[c+2]-P[a+2];
+    flip+=((uy*wz-uz*wy)*N[a]+(uz*wx-ux*wz)*N[a+1]+(ux*wy-uy*wx)*N[a+2])<0?1:-1;}
+  if(flip>0)for(let t=0;t<I.length;t+=3){const s=I[t+1];I[t+1]=I[t+2];I[t+2]=s;}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(P,3));g.setAttribute('normal',new T.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
+function project(sdf,p,out=.006){let q=p.slice();for(let i=0;i<8;i++){const d=sdf(...q),e=.003;const gx=sdf(q[0]+e,q[1],q[2])-sdf(q[0]-e,q[1],q[2]),gy=sdf(q[0],q[1]+e,q[2])-sdf(q[0],q[1]-e,q[2]),gz=sdf(q[0],q[1],q[2]+e)-sdf(q[0],q[1],q[2]-e);const l=Math.hypot(gx,gy,gz)||1;q=[q[0]-gx/l*d,q[1]-gy/l*d,q[2]-gz/l*d];if(i===7)return{p:[q[0]+gx/l*out,q[1]+gy/l*out,q[2]+gz/l*out],n:[gx/l,gy/l,gz/l]};}}
+
+/* ---------- materiais ---------- */
+const NOISE=`float h3(vec3 p){p=fract(p*0.3183099+.1);p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float vn(vec3 x){vec3 i=floor(x);vec3 f=fract(x);f=f*f*(3.0-2.0*f);return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm(vec3 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return s;}
+vec3 hh(vec3 p){p=vec3(dot(p,vec3(127.1,311.7,74.7)),dot(p,vec3(269.5,183.3,246.1)),dot(p,vec3(113.5,271.9,124.6)));return fract(sin(p)*43758.5453);}
+float starL(vec3 p,float sc,float th){vec3 c=floor(p*sc);vec3 f=fract(p*sc);vec3 h=hh(c);if(h.x<th)return 0.;vec3 sp=.25+.5*hh(c+11.);return smoothstep(.2,.0,length(f-sp));}`;
+function neb(mem,seed){const m=new T.MeshStandardMaterial({color:0xffffff,roughness:mem?.35:.6,metalness:0,envMapIntensity:.4,transparent:!!mem,side:mem?T.DoubleSide:T.FrontSide,depthWrite:!mem,opacity:mem?.8:1});
+  m.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vO;').replace('#include <begin_vertex>','#include <begin_vertex>\nvO=position;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vO;'+NOISE).replace('vec4 diffuseColor = vec4( diffuse, opacity );',`
+      vec3 q=vO*${mem?'1.7':'1.0'}+vec3(${seed}.);float n=fbm(q*2.3),m2=fbm(q*4.2+5.);
+      vec3 col=mix(${glsl(PAL.deep)},${glsl(PAL.violet)},smoothstep(.32,.68,n));col=mix(col,${glsl(PAL.blue)},smoothstep(.5,.78,m2)*.75);col=mix(col,${glsl(PAL.mag)},smoothstep(.55,.8,n*m2*1.7)*.7);
+      ${mem?`col=mix(col,${glsl(PAL.mag)},.3);col=mix(col,${glsl(PAL.cyan)},smoothstep(.6,.85,m2)*.5);`:`col=mix(col,${glsl(PAL.lav)},smoothstep(.5,.34,vO.y)*.6);`}
+      vec4 diffuseColor=vec4(col*.85,opacity${mem?'*(.5+.5*n)':''});`).replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>
+      float s1=starL(vO,20.,.9),s2=starL(vO+3.1,46.,.9)*.6;float fres=pow(1.-abs(dot(normalize(vViewPosition),normal)),2.4);
+      totalEmissiveRadiance+=diffuseColor.rgb*.3+${glsl(PAL.pearl)}*(s1+s2)*1.8+mix(${glsl(PAL.violet)},${glsl(PAL.cyan)},.35)*fres*${mem?'.9':'.5'};`);};
+  m.userData.neb=true;return m;}
+const clay=new T.MeshStandardMaterial({color:C('#9a98ab'),roughness:.7});
+const clayMem=new T.MeshStandardMaterial({color:C('#b3b1c4'),roughness:.6,side:T.DoubleSide});
+const goldGlow=new T.MeshBasicMaterial({color:C(PAL.gold).multiplyScalar(1.8)});
+const veinM=new T.LineBasicMaterial({color:C('#bff4ff').multiplyScalar(1.4),transparent:true,opacity:.5,blending:T.AdditiveBlending,depthWrite:false});
+
+/* ---------- brânquias (três estilos) ---------- */
+function curvePts(root,dir,L,curl,sweep){const d=new T.Vector3(...dir).normalize();const r=new T.Vector3(...root);
+  return[r.clone().addScaledVector(d,-.04),r.clone(),r.clone().addScaledVector(d,.33*L).add(new T.Vector3(0,curl*.3,-sweep*.1*L)),r.clone().addScaledVector(d,.66*L).add(new T.Vector3(0,curl,-sweep*.3*L)),r.clone().addScaledVector(d,L).add(new T.Vector3(0,curl*2.2,-sweep*.55*L))];}
+function membrane(cur,side,w0,lobes,shape,twist){const MP=[],MI=[];const M=56;
+  for(const s2 of [1,-1]){const base=MP.length/3;for(let i=0;i<=M;i++){const t=.04+.96*i/M,P=cur.getPointAt(t),tg=cur.getTangentAt(t);
+      const ref=new T.Vector3(side*.55,.15,-.8);const m=ref.clone().sub(tg.clone().multiplyScalar(ref.dot(tg)));if(m.lengthSq()<.01)m.set(0,-1,0);m.normalize();m.applyAxisAngle(tg,(twist||.5)*Math.sin(t*PI)*s2);
+      const lb=shape==='flame'?(.55+.45*Math.pow(Math.abs(Math.sin(t*PI*lobes)),.8))*(1+.35*Math.sin(t*PI)):.4+.6*Math.pow(Math.abs(Math.sin(t*PI*lobes)),.45);
+      const w=(s2>0?w0:w0*.55)*Math.pow(Math.sin(PI*Math.min(1,t*1.02)),shape==='flame'?.55:.7)*lb;const Q=P.clone().addScaledVector(m,w*s2).addScaledVector(tg,w*(shape==='flame'?.6:.35));
+      MP.push(P.x,P.y,P.z,Q.x,Q.y,Q.z);}
+    for(let i=0;i<M;i++){const a=base+i*2;MI.push(a,a+2,a+1,a+1,a+2,a+3);}}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(MP,3));g.setIndex(MI);g.computeVertexNormals();
+  const VP=[];for(let i=2;i<MP.length/3-1;i+=4){const a=i*3;VP.push(MP[a],MP[a+1],MP[a+2],lerp(MP[a],MP[a+3],.85),lerp(MP[a+1],MP[a+4],.85),lerp(MP[a+2],MP[a+5],.85));}
+  const vg=new T.BufferGeometry();vg.setAttribute('position',new T.Float32BufferAttribute(VP,3));return{g,vg};}
+function gillSet(model,list,style,stalkR){const grp=new T.Group();
+  list.forEach(G=>[-1,1].forEach(s=>{const root=[G.r[0]*s,G.r[1],G.r[2]],dir=[G.d[0]*s,G.d[1],G.d[2]];
+    if(style==='wisp'){for(let k=0;k<5;k++){const off=(k-2)*.09;const dd=new T.Vector3(...dir).applyAxisAngle(new T.Vector3(0,0,1),off*s).applyAxisAngle(new T.Vector3(0,1,0),off*.5);const cur=new T.CatmullRomCurve3(curvePts(root,[dd.x,dd.y,dd.z],G.L*(1-Math.abs(k-2)*.12),G.curl,G.sweep));
+        grp.add(model.reg(new T.Mesh(new T.TubeGeometry(cur,24,.007,5,false),'stalk')));const tip=new T.Mesh(new T.SphereGeometry(.016,8,6),goldGlow);tip.position.copy(cur.getPointAt(1));grp.add(tip);model.fx.push(tip);}}
+    else{const cur=new T.CatmullRomCurve3(curvePts(root,dir,G.L,G.curl,G.sweep));
+      if(style==='flame'){/* ponta enrolada em espiral */const pts=cur.getPoints(20);const end=pts[pts.length-1],tgE=cur.getTangentAt(1);for(let k=1;k<=6;k++){const a=k*.6;pts.push(end.clone().addScaledVector(tgE,.04*Math.sin(a)*k*.4).add(new T.Vector3(0,.035*(1-Math.cos(a))*k*.35,0)));}cur.points=pts;cur.updateArcLengths&&cur.updateArcLengths();}
+      grp.add(model.reg(new T.Mesh(new T.TubeGeometry(cur,40,stalkR,7,false),'stalk')));
+      const mm=membrane(cur,s,G.w,G.lobes,style,G.twist);grp.add(model.reg(new T.Mesh(mm.g,'mem')));const veins=new T.LineSegments(mm.vg,veinM);grp.add(veins);model.fx.push(veins);}}));
+  return grp;}
+
+/* ---------- nadadeira ao longo de uma curva ---------- */
+function finAlong(model,pts,hTop,hBot,n){const cur=new T.CatmullRomCurve3(pts.map(p=>new T.Vector3(p[0],p[1],p[2])));const P=[],I=[];
+  const strip=(hf,sgn)=>{const base=P.length/3;for(let i=0;i<=n;i++){const t=i/n,Q=cur.getPointAt(t);const h=hf(t);if(h<=0&&false)continue;P.push(Q.x,Q.y,Q.z,Q.x,Q.y+sgn*h,Q.z+(-.02*h));}for(let i=0;i<n;i++){const a=base+i*2;I.push(a,a+2,a+1,a+1,a+2,a+3);}};
+  strip(hTop,1);if(hBot)strip(hBot,-1);const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(P,3));g.setIndex(I);g.computeVertexNormals();return model.reg(new T.Mesh(g,'mem'));}
+
+/* ---------- anel elíptico sólido ---------- */
+function ellipseSolid(ax,az,w,h,seg){const P=[],N=[],I=[];const prof=[[-w/2,h/2,0,1],[w/2,h/2,0,1],[w/2,h/2,1,0],[w/2,-h/2,1,0],[w/2,-h/2,0,-1],[-w/2,-h/2,0,-1],[-w/2,-h/2,-1,0],[-w/2,h/2,-1,0]];
+  for(let i=0;i<=seg;i++){const a=i/seg*TAU,c=Math.cos(a),s=Math.sin(a);const nx=c/ax,nz=s/az,nl=Math.hypot(nx,nz),ox=nx/nl,oz=nz/nl;prof.forEach(([r,y,nr,ny])=>{P.push(c*ax+ox*r,y,s*az+oz*r);N.push(ox*nr,ny,oz*nr);});}
+  for(let i=0;i<seg;i++)for(let f=0;f<4;f++){const a=i*8+f*2,b=a+1,c2=a+8,d=b+8;I.push(a,c2,b,b,c2,d);}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(P,3));g.setAttribute('normal',new T.Float32BufferAttribute(N,3));g.setIndex(I);return g;}
+const ringGold=new T.MeshStandardMaterial({color:C('#c79a48'),metalness:.95,roughness:.28,emissive:C('#8a5a10'),emissiveIntensity:.5,envMapIntensity:1.5,side:T.DoubleSide});
+const ringBlue=new T.MeshStandardMaterial({color:C('#5a4fd0'),metalness:.75,roughness:.3,emissive:C('#3a3ab8'),emissiveIntensity:.6,envMapIntensity:1.5,side:T.DoubleSide});
+function ringPair(model,defs){const out=[];defs.forEach((R,i)=>{const g=new T.Group();g.position.set(...R.c);g.rotation.set(...R.rot);const m=model.reg(new T.Mesh(ellipseSolid(R.ax,R.az,R.w,R.h,160),i?'ringB':'ringG'));g.add(m);
+    if(i===0){for(let k=0;k<8;k++){const a=k/8*TAU;const og=new T.OctahedronGeometry(.026,0);og.scale(1,1.8,1);const c=new T.Mesh(og,goldGlow);c.position.set(Math.cos(a)*R.ax,R.h/2+.03,Math.sin(a)*R.az);g.add(c);model.fx.push(c);}}
+    else{for(let k=0;k<14;k++){const a=k/14*TAU+.2;const c=new T.Mesh(new T.OctahedronGeometry(.014,0),new T.MeshBasicMaterial({color:C(k%2?PAL.cyan:'#c9d6ff').multiplyScalar(1.6)}));c.position.set(Math.cos(a)*(R.ax+.05),Math.sin(k)*.02,Math.sin(a)*(R.az+.05));g.add(c);model.fx.push(c);}}
+    model.group.add(g);out.push({g,mesh:m,R});});return out;}
+
+/* ---------- olhos e estrela da testa ---------- */
+const eyeTex=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');const gr=g.createRadialGradient(128,128,0,128,128,128);
+  gr.addColorStop(0,'#05030f');gr.addColorStop(.3,'#120828');gr.addColorStop(.36,'#4c22b8');gr.addColorStop(.62,'#9f6cff');gr.addColorStop(.84,'#ec4899');gr.addColorStop(.95,'#1f0b45');gr.addColorStop(1,'#0e0620');g.fillStyle=gr;g.fillRect(0,0,256,256);
+  const r=seeded(3);for(let i=0;i<60;i++){const a=r()*TAU,d=40+r()*70;g.fillStyle='rgba(255,240,255,'+(.2+r()*.6)+')';g.fillRect(128+Math.cos(a)*d,128+Math.sin(a)*d,1.5,1.5);}
+  const t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;return t;})();
+function eyes(model,E,scale,slant,outDir){[-1,1].forEach(s=>{const g=new T.Group();g.position.set(E.eye[0]*s,E.eye[1],E.eye[2]);g.lookAt(g.position.clone().add(new T.Vector3(outDir[0]*s,outDir[1],outDir[2]).normalize()));
+    const inner=new T.Group();inner.rotation.z=slant*s;inner.scale.set(scale[0],scale[1],1);g.add(inner);const r=E.eyeR-.004;
+    const geo=new T.SphereGeometry(r,28,20);{const uv=geo.attributes.uv,p=geo.attributes.position;for(let i=0;i<uv.count;i++)uv.setXY(i,p.getX(i)/(2*r)+.5,p.getY(i)/(2*r)+.5);}
+    inner.add(model.reg(new T.Mesh(geo,new T.MeshStandardMaterial({map:eyeTex,roughness:.3,emissiveMap:eyeTex,emissive:new T.Color(.35,.3,.45)})),'eye'));
+    const gl=new T.Mesh(new T.CircleGeometry(r*.18,10),new T.MeshBasicMaterial({color:new T.Color(2.2,2.2,2.4)}));gl.position.set(r*.35,r*.35,r*.98);inner.add(gl);model.fx.push(gl);model.group.add(g);});}
+function foreheadStar(model,sdf,at,size){const f=project(sdf,at,.006);const sh=new T.Shape();for(let i=0;i<8;i++){const a=i/8*TAU+PI/2,r=i%2?size*.26:size;i?sh.lineTo(Math.cos(a)*r,Math.sin(a)*r):sh.moveTo(Math.cos(a)*r,Math.sin(a)*r);}
+  const m=new T.Mesh(new T.ShapeGeometry(sh),goldGlow);m.position.set(...f.p);m.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),new T.Vector3(...f.n));model.group.add(m);model.fx.push(m);}
+
+/* ---------- montagem de cada conceito ---------- */
+function Model(id,seed){const group=new T.Group();const parts=[];const fx=[];const M={body:neb(false,seed),mem:neb(true,seed+3),stalk:new T.MeshStandardMaterial({color:C('#7b4fe0'),roughness:.45,emissive:C('#4a1fa0'),emissiveIntensity:.6}),ringG:ringGold,ringB:ringBlue};
+  const model={id,group,parts,fx,M,reg(mesh,role){if(typeof mesh.material==='string'){role=mesh.material;}mesh.userData.role=role;mesh.material=role==='eye'?mesh.material:M[role]||mesh.material;mesh.castShadow=true;parts.push(mesh);return mesh;},rings:[]};return model;}
+const MODELS={};
+function buildA(){const m=Model('A',1);const g=sculpt(sdfA,[-1.0,.15,-2.95],[1.0,1.15,1.35],.022);m.body=m.reg(new T.Mesh(g,'body'));m.group.add(m.body);m.sdf=sdfA;
+  eyes(m,AA,[1.3,.78],-.22,[.75,.25,.6]);foreheadStar(m,sdfA,[0,.95,.82],.075);
+  m.group.add(gillSet(m,[{r:[.27,.74,.32],d:[.42,.42,-.8],L:.95,curl:.05,sweep:.4,w:.14,lobes:12,twist:.45},{r:[.31,.64,.28],d:[.62,.05,-.78],L:.8,curl:.02,sweep:.5,w:.13,lobes:11,twist:.45},{r:[.27,.55,.32],d:[.45,-.33,-.8],L:.62,curl:-.03,sweep:.4,w:.11,lobes:9,twist:.45}],'plume',.018));
+  m.group.add(finAlong(m,[[0,.84,-.35],[0,.8,-.9],[0,.78,-1.4],[0,.86,-2.0],[0,.93,-2.5],[0,.95,-2.95]],t=>.04+.32*sstep(.45,.9,t)*(1-sstep(.97,1,t)*.6),t=>.24*sstep(.55,.9,t)*(1-sstep(.97,1,t)*.6),120));
+  m.rings=ringPair(m,[{c:[0,.56,-.5],rot:[1.25,0,.25],ax:.52,az:.52,w:.06,h:.026},{c:[0,.56,-.68],rot:[1.85,0,-.35],ax:.47,az:.47,w:.04,h:.02}]);return m;}
+function buildB(){const m=Model('B',7);const g=sculpt(sdfB,[-.85,.1,-3.3],[.85,1.5,1.3],.022);m.body=m.reg(new T.Mesh(g,'body'));m.group.add(m.body);m.sdf=sdfB;
+  eyes(m,BB,[1.4,.66],-.32,[.7,.2,.65]);foreheadStar(m,sdfB,[0,1.33,.8],.08);
+  m.group.add(gillSet(m,[{r:[.25,1.15,.36],d:[.3,.9,-.3],L:.62,curl:.1,sweep:.15,w:.24,lobes:2.5,twist:.8},{r:[.29,1.05,.32],d:[.75,.5,-.45],L:.74,curl:.08,sweep:.2,w:.26,lobes:2.5,twist:.8},{r:[.26,.95,.36],d:[.7,.05,-.55],L:.5,curl:.05,sweep:.2,w:.2,lobes:2,twist:.8}],'flame',.04));
+  const tp=BB.tail.map(p=>[p[0],p[1]+p[3]*.6,p[2]]);m.group.add(finAlong(m,[[0,.86,-.75]].concat(tp),t=>.03+.55*sstep(.4,.95,t),t=>.34*sstep(.5,.95,t),160));
+  m.rings=ringPair(m,[{c:[0,.61,-.6],rot:[1.2,.3,.55],ax:.64,az:.6,w:.065,h:.028},{c:[0,.61,-.6],rot:[1.5,-.45,-.5],ax:.58,az:.54,w:.042,h:.02}]);return m;}
+function buildC(){const m=Model('C',13);const g=sculpt(sdfC,[-.62,.18,-2.5],[.62,1.25,.85],.02);m.body=m.reg(new T.Mesh(g,'body'));m.group.add(m.body);m.sdf=sdfC;
+  eyes(m,CC,[1,1],0,[.6,.3,.75]);foreheadStar(m,sdfC,[0,1.07,.5],.08);
+  m.group.add(gillSet(m,[{r:[.24,.98,.3],d:[.35,.9,-.25],L:.45,curl:.03,sweep:.2},{r:[.31,.86,.24],d:[.8,.45,-.35],L:.4,curl:.02,sweep:.25},{r:[.3,.74,.25],d:[.8,-.1,-.4],L:.32,curl:0,sweep:.25}],'wisp',.01));
+  m.group.add(finAlong(m,[[0,.86,-.55],[0,.86,-1.0],[0,.95,-1.5],[0,1.08,-1.98],[0,1.2,-2.38],[0,1.28,-2.6]],t=>.05+.4*sstep(.25,.9,t),t=>.08+.36*sstep(.2,.9,t),110));
+  m.rings=ringPair(m,[{c:[0,.7,-.15],rot:[.42,0,.18],ax:1.05,az:1.12,w:.1,h:.03},{c:[0,.7,-.15],rot:[-.38,.5,-.2],ax:.86,az:.92,w:.05,h:.022}]);return m;}
+function buildOld(){const m=Model('V7',1);const g=sculpt(sdfOld,[-.82,-.02,-2.2],[.82,1.1,1.2],.024);m.body=m.reg(new T.Mesh(g,'body'));m.group.add(m.body);m.sdf=sdfOld;return m;}
+
+/* ---------- prancha: 4 linhas × 4 vistas num único canvas ---------- */
+const inner=document.getElementById('inner');const renderer=new T.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.toneMapping=T.ACESFilmicToneMapping;renderer.outputEncoding=T.sRGBEncoding;renderer.physicallyCorrectLights=true;renderer.setScissorTest(true);
+const cols=document.createElement('div');cols.className='cols';cols.innerHTML='<div>Frente</div><div>Lado</div><div>Três quartos</div><div>Silhueta (sem material)</div>';
+const rows=document.createElement('div');rows.className='rows';
+const ROWS=[['A','Guardião Nebular','longo e sereno'],['B','Dragão das Constelações','dinâmico e imponente'],['C','Espírito de Saturno','compacto e etéreo'],['V7','v7 reprovada','só para comparação']];
+rows.innerHTML=ROWS.map(r=>'<div class="'+(r[0]==='V7'?'old':'')+'"><b>'+(r[0]==='V7'?'v7':'Conceito '+r[0])+'</b><span>'+r[1]+'<br>'+r[2]+'</span></div>').join('');
+function scene0(){const s=new T.Scene();s.add(new T.HemisphereLight(C('#c9bcff'),C('#120a24'),1.1));const k=new T.DirectionalLight(C('#f0e8ff'),2.6);k.position.set(3,5,4);s.add(k);const r1=new T.DirectionalLight(C('#67e8f9'),1.6);r1.position.set(-4,2,-4);s.add(r1);const r2=new T.DirectionalLight(C('#ec4899'),.9);r2.position.set(4,1,-4);s.add(r2);
+  const pm=new T.PMREMGenerator(renderer);const cv=document.createElement('canvas');cv.width=128;cv.height=64;const x=cv.getContext('2d');const gr=x.createLinearGradient(0,0,0,64);gr.addColorStop(0,'#05030d');gr.addColorStop(.5,'#2a1650');gr.addColorStop(1,'#0a0716');x.fillStyle=gr;x.fillRect(0,0,128,64);x.fillStyle='#d8ccff';x.beginPath();x.arc(30,18,10,0,TAU);x.fill();x.fillStyle='#67e8f9';x.beginPath();x.arc(95,22,9,0,TAU);x.fill();
+  const et=new T.CanvasTexture(cv);et.mapping=T.EquirectangularReflectionMapping;et.encoding=T.sRGBEncoding;s.environment=pm.fromEquirectangular(et).texture;return s;}
+const silMat=new T.MeshBasicMaterial({color:0x0b0a12,side:T.DoubleSide});
+let built=[],useMat=true,rot=false;
+function frame(m){const b=new T.Box3().setFromObject(m.body);const c=b.getCenter(new T.Vector3());const sz=b.getSize(new T.Vector3());return{c,sz};}
+function camFor(m,view,aspect,t){if(!m._box){m._box=new T.Box3().setFromObject(m.group);}const b=m._box,c=b.getCenter(new T.Vector3()),sz=b.getSize(new T.Vector3());const fov=30,cam=new T.PerspectiveCamera(fov,aspect,.05,100);
+  const tv=Math.tan(fov*PI/360),th=tv*aspect;const ang=view==='front'?0:view==='side'||view==='sil'?PI/2:(PI/4+(rot?t*.4:0));const el=view==='tq'?.32:view==='front'?.1:.04;
+  const wSpan=view==='front'?sz.x:view==='tq'?(sz.z*.75+sz.x*.6):sz.z,depth=view==='front'?sz.z:sz.x;const R=Math.max(wSpan/2/th,sz.y/2/tv)*1.08+depth/2;
+  cam.position.set(c.x+Math.sin(ang)*R*Math.cos(el),c.y+Math.sin(el)*R,c.z+Math.cos(ang)*R*Math.cos(el));cam.lookAt(c);return cam;}
+function layout(){const W=inner.clientWidth,rowH=Math.round(W*.2);renderer.setSize(W,rowH*ROWS.length,false);renderer.domElement.style.height=(rowH*ROWS.length)+'px';rows.style.gridTemplateRows='repeat('+ROWS.length+','+rowH+'px)';return{W,rowH};}
+function setMaterials(){built.forEach(({m})=>m.parts.forEach(p=>{const r=p.userData.role;if(r==='eye')return;p.material=useMat?m.M[r]:(r==='mem'?clayMem:r==='ringG'||r==='ringB'?clay:clay);}));built.forEach(({m})=>m.fx.forEach(f=>f.visible=useMat));}
+function render(t){const {W,rowH}=lay;const left=150*(W/inner.clientWidth);const cw=(W-150)/4;renderer.setClearColor(0x0b0918,1);renderer.setScissor(0,0,W,rowH*ROWS.length);renderer.setViewport(0,0,W,rowH*ROWS.length);renderer.clear();
+  built.forEach(({m,s},ri)=>{const y=rowH*(ROWS.length-1-ri);['front','side','tq','sil'].forEach((v,ci)=>{const x=150+ci*cw;renderer.setViewport(x,y,cw,rowH);renderer.setScissor(x,y,cw,rowH);
+      if(v==='sil'){renderer.setClearColor(0xd8d4e6,1);renderer.clear();s.overrideMaterial=silMat;m.fx.forEach(f=>f.visible=false);}else{renderer.setClearColor(ci%2?0x0d0b1c:0x100d22,1);renderer.clear();s.overrideMaterial=null;m.fx.forEach(f=>f.visible=useMat);}
+      renderer.render(s,camFor(m,v,cw/rowH,t));});});
+  s0reset();}
+function s0reset(){built.forEach(({s,m})=>{s.overrideMaterial=null;m.fx.forEach(f=>f.visible=useMat);});}
+/* ---------- prova numérica: sobreposição de silhueta do corpo com a v7 ---------- */
+function silhouetteIoU(a,b,view){const rt=new T.WebGLRenderTarget(160,160);const px=n=>new Uint8Array(160*160*4);const sc=new T.Scene();const mat=new T.MeshBasicMaterial({color:0xffffff,side:T.DoubleSide});
+  const grab=(sdfMesh)=>{const m=new T.Mesh(sdfMesh.geometry,mat);sc.clear?sc.clear():0;while(sc.children.length)sc.remove(sc.children[0]);sc.add(m);const cam=new T.OrthographicCamera(-1.9,1.9,1.9,-1.9,.1,20);
+    if(view==='side'){cam.position.set(6,.65,-.7);cam.lookAt(0,.65,-.7);}else{cam.position.set(0,.65,6);cam.lookAt(0,.65,0);}
+    renderer.setRenderTarget(rt);renderer.setScissorTest(false);renderer.setViewport(0,0,160,160);renderer.setClearColor(0x000000,1);renderer.clear();renderer.render(sc,cam);const out=px();renderer.readRenderTargetPixels(rt,0,0,160,160,out);renderer.setRenderTarget(null);renderer.setScissorTest(true);return out;};
+  const A1=grab(a),B1=grab(b);let inter=0,uni=0;for(let i=0;i<A1.length;i+=4){const x=A1[i]>128,y=B1[i]>128;if(x&&y)inter++;if(x||y)uni++;}rt.dispose();return uni?inter/uni:0;}
+function ringClearance(m){let mn=9;m.rings.forEach(({g,mesh})=>{g.updateMatrixWorld(true);const p=mesh.geometry.attributes.position;for(let i=0;i<p.count;i+=3){const v=new T.Vector3().fromBufferAttribute(p,i);mesh.localToWorld(v);mn=Math.min(mn,m.sdf(v.x,v.y,v.z));}});return mn;}
+let lay;
+setTimeout(()=>{try{
+  const t0=performance.now();const list=[buildA(),buildB(),buildC(),buildOld()];
+  built=list.map(m=>{const s=scene0();s.add(m.group);return{m,s};});
+  statusEl.remove();inner.appendChild(renderer.domElement);inner.appendChild(cols);inner.appendChild(rows);lay=layout();
+  const old=list[3];const info={A:{},B:{},C:{}};
+  list.slice(0,3).forEach(m=>{const g=m.body.geometry;const b=new T.Box3().setFromObject(m.group);const sz=b.getSize(new T.Vector3());
+    info[m.id]={tris:g.index.count/3,len:sz.z,h:sz.y,w:sz.x,side:silhouetteIoU(m.body,old.body,'side'),front:silhouetteIoU(m.body,old.body,'front'),ring:ringClearance(m)};});
+  window.__v8=info;window.__ringAt=(i)=>{const m=list[i];let mn=9,at=null;m.rings.forEach(({g,mesh},ri)=>{g.updateMatrixWorld(true);const p=mesh.geometry.attributes.position;for(let k=0;k<p.count;k+=3){const v=new T.Vector3().fromBufferAttribute(p,k);mesh.localToWorld(v);const d=m.sdf(v.x,v.y,v.z);if(d<mn){mn=d;at=[ri,+v.x.toFixed(2),+v.y.toFixed(2),+v.z.toFixed(2)];}}});return JSON.stringify({mn,at});};renderCards(info);
+  const clock=new T.Clock();(function loop(){requestAnimationFrame(loop);render(clock.elapsedTime);})();
+  new ResizeObserver(()=>{lay=layout();}).observe(inner);
+}catch(e){statusEl.textContent='Erro ao esculpir: '+e.message;console.error(e);}},40);
+document.getElementById('tRot').onclick=e=>{rot=!rot;e.currentTarget.setAttribute('aria-pressed',rot);};
+document.getElementById('tMat').onclick=e=>{useMat=!useMat;e.currentTarget.setAttribute('aria-pressed',useMat);setMaterials();};
+const DESC={
+ A:{t:'Conceito A',n:'Guardião Nebular',p:'Uma criatura ancestral e serena. Cabeça alongada em cunha suave, com cristas ósseas sobre os olhos e placas cristalinas nas laterais; olhos amendoados e inclinados. Pescoço definido, corpo longo e esguio, membros finos abertos como quem nada no espaço. Três pares de plumas ornamentais longas e varridas para trás, de tamanhos diferentes. Cauda muito longa e fina, que sobe em curva e termina numa nadadeira que se abre em leque. Os dois anéis são aros finos em volta do tronco, entre as patas da frente e as de trás.',
+   dif:[['Cabeça','alongada, em cunha, com cristas'],['Corpo','longo e esguio'],['Brânquias','plumas longas, varridas para trás'],['Cauda','longa, sobe e abre em leque'],['Silhueta','horizontal e alongada']]},
+ B:{t:'Conceito B',n:'Dragão das Constelações',p:'O mais imponente. Cabeça erguida por um pescoço em S, com focinho firme, cristas marcadas e duas pequenas cristas de cristal nas têmporas; olhos estreitos e inclinados. Peito profundo e forte, uma fileira de placas cristalinas no dorso e patas robustas em pose dinâmica: as da frente estendidas e as de trás para trás. Brânquias como chamas de energia, com pontas que se enrolam. Cauda grossa na base, em S lateral, com uma grande membrana que termina em nebulosa. Anéis inclinados na diagonal em volta do peito.',
+   dif:[['Cabeça','erguida, angulosa, cristas nas têmporas'],['Corpo','peito forte, placas no dorso'],['Brânquias','chamas com ponta enrolada'],['Cauda','em S, grande membrana'],['Silhueta','diagonal e dinâmica']]},
+ C:{t:'Conceito C',n:'Espírito de Saturno',p:'Uma criatura etérea em que os anéis são o centro. Corpo compacto e redondo como um planeta, com a cabeça fundida a ele e um focinho pequeno; olhos redondos e calmos. Patinhas pequenas e recolhidas. As brânquias são uma coroa de filamentos finos com pontas douradas. Cauda fina como a de um cometa, subindo para trás com um véu translúcido. Dois anéis grandes de Saturno em volta do corpo-planeta, com inclinações bem diferentes.',
+   dif:[['Cabeça','fundida ao corpo, focinho pequeno'],['Corpo','compacto, redondo como um planeta'],['Brânquias','coroa de filamentos'],['Cauda','cauda de cometa com véu'],['Silhueta','orbe com anéis grandes']]}};
+function renderCards(info){document.getElementById('cards').innerHTML=['A','B','C'].map(k=>{const d=DESC[k],i=info[k];const pc=v=>Math.round(v*100)+'%';
+  return '<article class="card"><div class="tag">'+d.t+'</div><h2>'+d.n+'</h2><p>'+d.p+'</p><dl>'+d.dif.map(([a,b])=>'<dt>'+a+'</dt><dd>'+b+'</dd>').join('')+'</dl>'+
+   '<div class="meas"><div><b>'+pc(i.side)+'</b><span>sobreposição com a v7 (lado)</span></div><div><b>'+pc(i.front)+'</b><span>sobreposição com a v7 (frente)</span></div>'+
+   '<div><b>'+(i.len*2).toFixed(1).replace('.',',')+' × '+(i.h*2).toFixed(1).replace('.',',')+'</b><span>comprimento × altura (studs)</span></div><div><b class="'+(i.ring>0?'ok':'bad')+'">'+(i.ring*100).toFixed(1).replace('.',',')+' cm</b><span>folga dos anéis com o corpo</span></div>'+
+   '<div><b>'+Math.round(i.tris).toLocaleString('pt-BR')+'</b><span>triângulos do corpo (prévia)</span></div></div></article>';}).join('');}
+})();
+</script>
