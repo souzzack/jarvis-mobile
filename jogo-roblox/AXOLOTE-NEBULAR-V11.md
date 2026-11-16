@@ -75,7 +75,37 @@ STATE_DEF[estado] = { prio, kf (transição), enter(c), steer(c,dt,alvo), update
 
 ## 6. Testes executados
 
-RESULTADOS
+Rodados no Chromium (Playwright, WebGL por software, entre 3 e 20 fps conforme a carga da máquina), na página real. Os testes ficam ao vivo no painel da prévia, e o botão **Depuração** mostra o estado e permite câmera lenta.
+
+### Sequências pedidas (versão publicada)
+
+| Sequência | Voltou ao Idle | Vel. máx. | Giro máx. | Anéis | Boca × pele | Efeitos soltos | Conflitos de articulação | Rosto coberto | Margem mín. na tela |
+|---|---|---|---|---|---|---|---|---|---|
+| Idle → Deslocamento → Idle | sim | 0,90 m/s | 105°/s | 14,6 cm | 1,4 mm | 0 | 0 | 6/111 (só brânquia) | 3,0% |
+| Idle → Trabalho → Idle | sim | 0,72 m/s | 110°/s | 14,6 cm | 2,3 mm | 0 | 0 | 0/117 | 6,6% |
+| Idle → Comemoração → Idle | sim | 0,90 m/s | 384°/s (o giro) | 14,6 cm | 1,5 mm | 0 | 0 | 2/99 (só brânquia) | 9,2% |
+| Idle → Contemplação → Deslocamento | sim | 0,90 m/s | 106°/s | 14,6 cm | 1,6 mm | 0 | 0 | 2/129 (só brânquia) | 5,9% |
+| Despertar → Idle | sim | 2,16 m/s* | 0°/s | 14,6 cm | 1,4 mm | 0 | 0 | 0/102 | 8,6% |
+| Deslocamento → Descoberta Rara → Idle | sim | 0,91 m/s | 106°/s | 14,6 cm | 2,6 mm | 0 | 0 | 3/120 (só brânquia) | 6,8% |
+
+\* Primeiro quadro do Despertar, com o corpo ainda invisível.
+
+- **Os anéis nunca cobriram o rosto** em nenhuma amostra. As poucas coberturas (até 5%) são as próprias brânquias, em certos ângulos.
+- **Câmera:** o deslocamento da câmera que não vem do alvo ficou em até 1,7 m/s, e a mudança de distância em até 28% por segundo (quando o personagem vira). Não há mais o "respirar" visto na gravação da v10.
+- **Taxas de quadros:** a mesma sequência de 22,5 s simulada a 20 fps e a 120 fps termina a 3,8 cm e 3,4° de diferença.
+- **Exportação:** GLB gerado, reimportado e renderizado numa cena vazia, independente da prévia (`referencias/axolote-v11-glb.png`).
+- **Celular (390 × 844):** personagem inteiro nas vistas Três quartos e Lateral, inclusive em movimento; botões abaixo da imagem; gráfico reduzido ativado automaticamente.
+
+### Falhas encontradas pelos testes e corrigidas nesta versão
+1. Extração errada dos blocos de estado (locomoção no lugar da pose). O teste da exportação acusou.
+2. Teste de enquadramento contando as Sete Estrelas antes de acenderem (falso positivo de −28%). Agora só conta as estrelas visíveis.
+3. Atraso da câmera em movimento: o focinho encostava na borda (−0,9%). Agora a câmera mira à frente, compensando a suavização.
+
+### O que continua em aberto
+- A gravação mencionada no pedido não chegou; se houver algum defeito específico nela, preciso vê-la.
+- Desempenho num celular de verdade não foi medido.
+- A boca e o olhar dependem de morph e shader, que não existem no Roblox; é preciso adaptar (seção 8).
+- As cores do GLB são uma aproximação da nebulosa (mais claras que na prévia).
 
 ## 7. Desempenho
 
