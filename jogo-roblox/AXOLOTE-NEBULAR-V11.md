@@ -2,7 +2,7 @@
 
 Prévia: `jogo-roblox/pilotos/axolote-nebular-v11.html`
 Cópia funcional preservada: a v10 (`axolote-nebular-v10.html`) não foi alterada.
-Exportação: `jogo-roblox/exportacao/axolote-nebular-v11.glb` (gerado pela própria página, botão **Exportar GLB**).
+Exportação: `jogo-roblox/exportacao/axolote-nebular-v11.glb` (gerado pela própria página, botão **Exportar GLB**; dentro do visualizador de artifacts o arquivo sai num `.zip`, porque `.glb` não está na lista de downloads permitidos).
 
 > A gravação citada no pedido **não chegou a este ambiente**. Os únicos vídeos da sessão são os quatro clipes de referência do início. Por isso, a auditoria foi feita gravando a própria prévia v10: um quadro a cada ~0,4 s, passando por todos os estados.
 

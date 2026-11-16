@@ -894,7 +894,18 @@ function start(){
   $('tFx').onclick=()=>{FX.on=!FX.on;$('tFx').setAttribute('aria-pressed',FX.on);if(!FX.on){FX.dust.clear();FX.star.clear();beam.material.opacity=0;}};
   $('tLow').onclick=()=>{quality.low=!quality.low;$('tLow').setAttribute('aria-pressed',quality.low);applyQuality();};
   $('tSil').onclick=()=>{sil=!sil;$('tSil').setAttribute('aria-pressed',sil);scene.overrideMaterial=sil?silM:null;sky.visible=floor.visible=rune.visible=rocks.visible=!sil;underGlow.visible=!sil;FX.dust.pts.visible=FX.star.pts.visible=!sil;beam.visible=!sil;scene.background=sil?new T.Color(0xc9c4dc):null;pulses.forEach(p=>p.visible=!sil);creatures.forEach(c=>c.X.group.traverse(o=>{if(o.isSprite)o.visible=!sil;}));};
-  $('tGlb').onclick=async()=>{const b=$('tGlb');b.textContent='Exportando…';try{const r=await window.__exportGLB();const url=URL.createObjectURL(new Blob([r.buf],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download='axolote-nebular-v11.glb';a.click();b.textContent='GLB exportado';}catch(e){b.textContent='Falhou: '+e.message;}};
+  /* zip sem compressão (o visualizador de artifacts só entrega extensões da lista; .glb não está nela, .zip está) */
+  function zipStore(name,u8){const crcT=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;crcT[n]=c>>>0;}let crc=0xFFFFFFFF;for(let i=0;i<u8.length;i++)crc=crcT[(crc^u8[i])&255]^(crc>>>8);crc=(crc^0xFFFFFFFF)>>>0;
+    const nm=new TextEncoder().encode(name),L=new DataView(new ArrayBuffer(30)),Cd=new DataView(new ArrayBuffer(46)),E=new DataView(new ArrayBuffer(22));
+    L.setUint32(0,0x04034b50,true);L.setUint16(4,20,true);L.setUint32(14,crc,true);L.setUint32(18,u8.length,true);L.setUint32(22,u8.length,true);L.setUint16(26,nm.length,true);
+    Cd.setUint32(0,0x02014b50,true);Cd.setUint16(4,20,true);Cd.setUint16(6,20,true);Cd.setUint32(16,crc,true);Cd.setUint32(20,u8.length,true);Cd.setUint32(24,u8.length,true);Cd.setUint16(28,nm.length,true);Cd.setUint32(42,0,true);
+    const cdOff=30+nm.length+u8.length;E.setUint32(0,0x06054b50,true);E.setUint16(8,1,true);E.setUint16(10,1,true);E.setUint32(12,46+nm.length,true);E.setUint32(16,cdOff,true);
+    return new Blob([L.buffer,nm,u8,Cd.buffer,nm,E.buffer]);}
+  $('tGlb').onclick=async()=>{const b=$('tGlb');b.textContent='Exportando…';try{const r=await window.__exportGLB();const u8=new Uint8Array(r.buf);
+      const dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null;
+      if(dl){try{await dl.save({filename:'axolote-nebular-v11-glb.zip',data:zipStore('axolote-nebular-v11.glb',u8)});b.textContent='GLB salvo (.zip)';}catch(e){b.textContent=e&&e.code==='declined'?'Exportar GLB':'Download indisponível aqui';}}
+      else{const url=URL.createObjectURL(new Blob([u8],{type:'model/gltf-binary'}));const a=document.createElement('a');a.href=url;a.download='axolote-nebular-v11.glb';a.click();b.textContent='GLB exportado';}}
+    catch(e){b.textContent='Falhou: '+e.message;}};
   $('tDbg').onclick=()=>{DBG.on=!DBG.on;$('tDbg').setAttribute('aria-pressed',DBG.on);$('dbg').hidden=!DBG.on;};
   $('dbgSpd').onchange=e=>{DBG.speed=+e.target.value;};
   function dbgRender(){if(!DBG.on)return;const m=main,P=m.P;const W=m.writes||{};const dup=Object.values(W).filter(v=>v>1).length;
