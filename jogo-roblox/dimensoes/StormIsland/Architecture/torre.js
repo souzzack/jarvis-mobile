@@ -43,15 +43,16 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
     [[3.6,7,8,3.5],[3,5,6.4,9.4],[2.4,4,4.8,13.6]].forEach(([w,h,d,y])=>add(MM.bevelBox(w,h,d,.3),stone,0,y,d/2-1.5,g));add(new T.ConeGeometry(1.4,3.4,4),cu,0,17.4,0,g).rotation.y=Math.PI/4;
     /* condutor descendo pelo contraforte até a estaca */add(new T.BoxGeometry(.5,15,.25),cond,0,8,6.6,g);add(new T.CylinderGeometry(.35,.35,2.4,6),cu,0,.6,7.4,g);}
   /* escadaria e portal (frente +Z) */
-  for(let s=0;s<8;s++)add(MM.bevelBox(16-s*.3,.9,2.2,.15),stone2,0,.45+s*.9,38-s*2,null);
-  /* fundação da escadaria: desce até o terreno (sem degrau flutuando) */add(MM.bevelBox(17.4,16,17,.35),stone,0,-7.6,31);
-  {let k=1;for(;k<24;k++){const top=.9-k*.9,z=38+k*2;if(ctx.heightAt(P.x,P.z+z)>=y0+top-.3)break;const gl=Math.min(...[-9,-4,0,4,9].map(dx=>ctx.heightAt(P.x+dx,P.z+z)))-y0-1.5;const h=top-Math.min(gl,-16);add(MM.bevelBox(16+k*.25,h,2.2,.15),k%2?stone2:stone,0,top-h/2,z);MM.box(tw,0,top-h/2,z,16+k*.25,h,2.2);}
-   tw.userData.lowerSteps=k-1;
-   /* balaustrada: pilaretes de pedra a cada 2 degraus, corrimão de metal e pilares de arranque com capitel de bronze */
-   const J=7+k;[-1,1].forEach(sd=>{const rail=[];for(let j=0;j<=J-1;j++){const w=j<=7?16-(7-j)*.3:16+(j-7)*.25;const x=sd*(w/2+.55),z=24+2*j,top=7.2-.9*j;
-       if(j%2===0||j===J-1){const b=add(MM.bevelBox(.8,3,.8,.12),stone2,x,top+1.5,z);}rail.push(new T.Vector3(x,top+3.15,z));
-       if(j>=8){const gl=Math.min(ctx.heightAt(P.x+x,P.z+z)-y0,top)-1;add(MM.bevelBox(1.3,top-gl,2.1,.15),stone,x,(top+gl)/2,z);}}
-     tw.add(MM.tube(rail,.2,met,J*3,6));[0,J-1].forEach(j=>{const w=j<=7?16-(7-j)*.3:16+(j-7)*.25;const x=sd*(w/2+.55),z=24+2*j,top=7.2-.9*j;add(MM.bevelBox(1.7,4.6,1.7,.2),stone2,x,top+2.3,z);add(new T.SphereGeometry(.7,10,8),bronze,x,top+5,z);add(MM.bevelBox(2,.4,2,.1),bronze,x,top+4.5,z);});});}
+  /* V2.3.1 — escadaria refeita a partir do terreno real: desce do patamar da porta (7,2) em degraus de 0,9 × 1,3 até o primeiro degrau
+     que toca o chão (o terraço onde a trilha P1 chega). Cada degrau é maciço até o terreno sob ele, com murete lateral e colisor do mesmo tamanho.
+     Antes: 8 degraus de 2 studs de piso que passavam POR CIMA do terraço da trilha (como um muro) e um lance de 27 degraus morro abaixo. */
+  const degs=[];for(let i=0;i<40;i++){const top=7.2-.9*i,z=24.65+1.3*i,w=16+i*.12;const gl=Math.min(...[-w/2,-w/4,0,w/4,w/2].map(dx=>ctx.heightAt(P.x+dx,P.z+z)))-y0;if(i>0&&top<=gl+.3)break;
+    const bot=Math.min(gl-.8,top-.9),h=top-bot;const st=add(MM.bevelBox(w,h,1.42,.12),i%2?stone2:stone,0,top-h/2,z);st.userData.apoio=true;MM.box(tw,0,top-h/2,z,w,h,1.42);degs.push({top,z,w,gl});}
+  tw.userData.lowerSteps=degs.length;tw.userData.escada={degraus:degs.length,peZ:degs[degs.length-1].z,peTopo:degs[degs.length-1].top};
+  /* muretes laterais maciços até o chão + balaustrada (pilaretes a cada 2 degraus, corrimão de metal, pilares de arranque com capitel de bronze) */
+  [-1,1].forEach(sd=>{const rail=[];degs.forEach((q,j)=>{const x=sd*(q.w/2+.6);const gl=Math.min(ctx.heightAt(P.x+x,P.z+q.z)-y0,q.gl)-.8;const h=q.top+.5-gl;const m=add(MM.bevelBox(1.3,h,1.42,.12),stone,x,q.top+.5-h/2,q.z);m.userData.apoio=true;
+      if(j%2===0||j===degs.length-1)add(MM.bevelBox(.8,2.8,.8,.12),stone2,x,q.top+1.9,q.z);rail.push(new T.Vector3(x,q.top+3.45,q.z));});
+    tw.add(MM.tube(rail,.2,met,degs.length*3,6));[0,degs.length-1].forEach(j=>{const q=degs[j];const x=sd*(q.w/2+.6);add(MM.bevelBox(1.8,5,1.8,.2),stone2,x,q.top+2.5,q.z);add(new T.SphereGeometry(.7,10,8),bronze,x,q.top+5.6,q.z);add(MM.bevelBox(2.1,.4,2.1,.1),bronze,x,q.top+5.05,q.z);});});
   add(new T.BoxGeometry(11,13,1),new T.MeshStandardMaterial({color:MM.C('#120f14'),roughness:1}),0,13,24.4);
   [-1,1].forEach(sd=>{const leaf=new T.Group();leaf.position.set(sd*5.3,7.6,24.9);tw.add(leaf);add(MM.bevelBox(5.1,12.6,.8,.12),wood,-sd*2.55,6.3,0,leaf);
     [1.5,6.3,11].forEach(y=>add(new T.BoxGeometry(5.1,.5,.3),metD,-sd*2.55,y,.5,leaf));for(let k=0;k<4;k++)[1.5,6.3,11].forEach(y=>add(new T.SphereGeometry(.16,6,4),met,-sd*(.6+k*1.2),y,.7,leaf));
@@ -139,10 +140,11 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   for(let k=0;k<4;k++){const a=k/4*Math.PI*2+Math.PI/4;const pts=[];const add3=(r,y)=>pts.push(new T.Vector3(Math.sin(a)*r,y,Math.cos(a)*r));
     add3(1.9,136.6);add3(5,133);add3(9.5,126);add3(13,116);add3(11.4,104);add3(9.6,90);add3(9.6,76);add3(15.5,72);add3(19,58);add3(21.5,30);add3(27,16);add3(30.5,2);add3(33,.3);
     const tb=MM.tube(pts,.32,cond,140,6);tb.name='Condutor'+k;tw.add(tb);}
-  /* colisores */
-  MM.box(tw,0,8,0,54,16,54);MM.box(tw,0,40,0,36,44,36);MM.box(tw,0,62,0,44,2,44);MM.box(tw,0,68,0,28,12,28);MM.box(tw,0,90,0,20,32,20);MM.box(tw,0,110,0,32,6,32);MM.box(tw,0,118,0,20,12,20);
-  for(let s=0;s<8;s++)MM.box(tw,0,.45+s*.9,38-s*2,16,.9*(s+1),2.2);
-  tw.userData.walk=[{type:'rect',y:y0+7.4,x:P.x,z:P.z+27,sx:14,sz:6}];
+  /* colisores (V2.3.1: a caixa da base para antes do patamar da porta, que agora é alcançável pela escadaria) */
+  [[0,-1.3,21.5,49.4,0],[0,0,52,21.5,0],[0,0,21.5,52,Math.PI/4],[0,0,52,21.5,Math.PI/4]].forEach(([x,z,sx,sz,ry])=>MM.box(tw,x,8,z,sx,16,sz,ry));/* base octogonal (4 faixas) — antes um quadrado de 54 cujos cantos fechavam o platô */
+  for(let i=1;i<8;i++){const a=i/8*Math.PI*2;MM.box(tw,Math.sin(a)*28,7,Math.cos(a)*28,3.8,14,8,a);}/* contrafortes */MM.box(tw,0,40,0,36,44,36);MM.box(tw,0,62,0,44,2,44);MM.box(tw,0,68,0,28,12,28);MM.box(tw,0,90,0,20,32,20);MM.box(tw,0,110,0,32,6,32);MM.box(tw,0,118,0,20,12,20);
+  
+  tw.userData.walk=[{type:'rect',y:y0+7.2,x:P.x,z:P.z+26,sx:14,sz:4}];tw.userData.assento=MM.seat(ctx,tw,{r:33,y:y0,mat:stone});/* alicerce só onde o platô não cobre o plinto */
   tw.userData.anim={anem,vane};tw.userData.tip=new T.Vector3(P.x,y0+177.4,P.z);tw.userData.coils=[80,90,100].map(y=>new T.Vector3(P.x,y0+y,P.z));
   const AX=[new T.Vector3(0,1,0),new T.Vector3(1,0,0),new T.Vector3(0,1,0)];
   tw.userData.update=function(dt,t,on){rings.forEach((g,i)=>{g.rotateOnAxis(AX[i],dt*(on?.3:.08)*(i%2?-1:1)*(1+i*.5));});gears.forEach(g=>g.rotation.z+=dt*g.userData.spin);cond.userData.u.uT.value=t;cond.userData.u.uPulse.value=on?1:0;};

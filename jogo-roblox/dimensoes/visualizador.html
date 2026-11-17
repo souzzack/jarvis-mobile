@@ -55,6 +55,7 @@ body.walking .pad{display:grid}
   <main class="stage" id="stage" aria-label="Cena 3D">
     <div class="overlay" id="status">Carregando…</div>
     <div class="overlay" id="hud" aria-live="off"></div>
+    <div class="overlay" id="supInfo" hidden style="top:auto;bottom:52px;max-width:min(680px,calc(100% - 32px));font-size:12px;line-height:1.45;white-space:normal"></div>
     <div class="overlay scale" aria-hidden="true"><div id="scaleBar"></div><span id="scaleTxt">10 studs</span></div>
     <div class="overlay inspect" id="inspect" hidden>
       <div class="row" style="justify-content:space-between;align-items:baseline"><h3 id="iName"></h3><button class="chip" id="iClose" aria-label="Fechar inspeção">✕</button></div>
@@ -75,7 +76,7 @@ body.walking .pad{display:grid}
       <div class="chips" id="views" style="margin-top:8px"></div></section>
     <section><h2>Camadas</h2><div class="chips">
       <button class="tog" id="tFx">Efeitos</button><button class="tog" id="tRain">Chuva</button><button class="tog" id="tFull">Iluminação completa</button><button class="tog" id="tLow">Gráfico reduzido</button>
-      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tNeutral">Iluminação neutra</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
+      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tNeutral">Iluminação neutra</button><button class="tog" id="tSupport">Apoio (depuração)</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
     <section><h2>Modelos</h2><p class="note" style="margin-bottom:8px">Clique num modelo na cena ou na lista para inspecionar.</p><div id="modelList"></div></section>
     <section><h2>Exportar</h2><button class="btn primary" id="tExport">Baixar pacote (GLB + heightmap + marcadores)</button><p class="note" style="margin-top:6px">Gera um .zip com um GLB por pasta, heightmap e colormap do terreno, marcadores e manifesto. Ainda não foi importado no Roblox Studio.</p></section>
   </aside>
@@ -108,5 +109,6 @@ body.walking .pad{display:grid}
 <script src="StormIsland/Lighting/iluminacao.js"></script>
 <script src="StormIsland/Effects/efeitos.js"></script>
 <script src="StormIsland/ilha.js"></script>
+<script src="nucleo/apoio.js"></script>
 <script src="nucleo/visualizador.js"></script>
 <script>MM.startViewer();</script>

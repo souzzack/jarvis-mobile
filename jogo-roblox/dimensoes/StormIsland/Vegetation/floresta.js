@@ -16,22 +16,30 @@ function treeGeos(seed,big){const r=MM.rng(seed);const wood=[],veins=[],leaves=[
   return{wood:MM.merge(wood),veins:veins.length?MM.merge(veins):null,leaves:leaves.length?MM.merge(leaves):null};}
 I.buildForest=function(ctx){const M=ctx.mat,F=I.poi.floresta,out=[];const variants=[];for(let v=0;v<12;v++)variants.push(treeGeos(1000+v*37,false));
   const r=MM.rng(808);let n=0;const placed=[];
-  for(let tries=0;tries<900&&n<52;tries++){const a=r()*Math.PI*2,rr=Math.sqrt(r())*(F.r+18);const x=F.x+Math.cos(a)*rr,z=F.z+Math.sin(a)*rr;
+  for(let tries=0;tries<900&&n<52;tries++){const a=r()*Math.PI*2,rr=Math.sqrt(r())*(F.r+18);let x=F.x+Math.cos(a)*rr,z=F.z+Math.sin(a)*rr;
     if(!ctx.inside(x,z)||ctx.pathDist(x,z)<4.5)continue;if(placed.some(p=>Math.hypot(p[0]-x,p[1]-z)<9))continue;if(Math.hypot(x-F.x,z-F.z)<16)continue;
     if(I.minas.some(m=>Math.hypot(m.x-x,m.z-z)<12))continue;const cb=I.poi.caverna.boca;if(Math.hypot(x-cb.x,z-cb.z)<34)continue;/* boca da caverna livre */const y=ctx.heightAt(x,z);if(y<3||y>40)continue;
+    /* V2.3.1: árvore não nasce na escada nem no piso das plataformas (só desloca esta; as demais não mudam) */
+    {let xx=x,zz=z;for(const pl of ctx.reg.list.filter(o=>/^STORM\.ARCH\.PLATFORM/.test(o.userData.id))){const c=Math.cos(pl.rotation.y),s=Math.sin(pl.rotation.y);const L=6+1.25*(pl.userData.degraus||0);
+      for(let t=0;t<=L;t+=2){const px=pl.position.x+t*s,pz=pl.position.z+t*c;const d=Math.hypot(xx-px,zz-pz);if(d<8){xx=px+(xx-px)/(d||1)*8.5;zz=pz+(zz-pz)/(d||1)*8.5;}}}
+     if(xx!==x||zz!==z){if(!ctx.inside(xx,zz)||ctx.pathDist(xx,zz)<4.5)continue;x=xx;z=zz;}}
     const vg=variants[n%variants.length];const o=MM.obj('STORM.VEG.TREE.'+String(n+1).padStart(2,'0'),'Árvore retorcida '+(n+1)+' (forma '+(n%12+1)+')','Vegetation',{notes:'Forma '+(n%12+1)+' de 12. Colisão só no tronco.'});
-    o.position.set(x,y,z);o.rotation.y=r()*Math.PI*2;const sc=.75+r()*.6;o.scale.setScalar(sc);
+    const sc=.75+r()*.6;const R=3.4*sc;let ym=ctx.heightAt(x,z);for(let k=0;k<24;k++){const a2=k/24*6.283;ym=Math.min(ym,ctx.heightAt(x+Math.cos(a2)*R,z+Math.sin(a2)*R));}/* V2.3.1: raízes pelo ponto mais baixo do chão em volta, não pelo centro */
+    o.position.set(x,ym-.15,z);o.rotation.y=r()*Math.PI*2;o.scale.setScalar(sc);
     MM.mesh(vg.wood,M.casca,0,0,0,o);if(vg.veins){const vm=MM.mesh(vg.veins,M.veio,0,0,0,o);vm.castShadow=false;}if(vg.leaves)MM.mesh(vg.leaves,M.folhagem,0,0,0,o);
     MM.box(o,0,5,0,2.2,10,2.2);out.push(o);placed.push([x,z]);n++;}
   /* Árvore-Para-raios Ancestral: peça única no centro da floresta */
-  {const g=treeGeos(4242,true);const o=MM.obj('STORM.VEG.ANCESTRAL','Árvore-Para-raios Ancestral','Vegetation',{notes:'Ponto de interesse da floresta: cristais presos nos galhos e veios mais fortes.'});const y=ctx.heightAt(F.x,F.z);o.position.set(F.x,y,F.z);
+  {const g=treeGeos(4242,true);const o=MM.obj('STORM.VEG.ANCESTRAL','Árvore-Para-raios Ancestral','Vegetation',{notes:'Ponto de interesse da floresta: cristais presos nos galhos e veios mais fortes.'});/* V2.3.1: a Ancestral ficava a 1,4 stud do eixo da trilha P2 (12 de largura); vai para o ponto livre mais próximo dentro da clareira */
+    let ax=F.x,az=F.z;if(ctx.pathDist(ax,az)<4.5){let ok=false;for(let rr=2;rr<=13&&!ok;rr+=1)for(let k=0;k<24&&!ok;k++){const a2=k/24*6.283;const cx=F.x+Math.cos(a2)*rr,cz=F.z+Math.sin(a2)*rr;if(ctx.pathDist(cx,cz)>=4.5){ax=cx;az=cz;ok=true;}}o.userData.movida=[+(ax-F.x).toFixed(1),+(az-F.z).toFixed(1)];}
+    let y=ctx.heightAt(ax,az);for(let k=0;k<12;k++){const a2=k/12*6.283;y=Math.min(y,ctx.heightAt(ax+Math.cos(a2)*6,az+Math.sin(a2)*6));}o.position.set(ax,y-.2,az);
     MM.mesh(g.wood,M.casca,0,0,0,o);if(g.veins)MM.mesh(g.veins,M.veio,0,0,0,o).castShadow=false;if(g.leaves)MM.mesh(g.leaves,M.folhagem,0,0,0,o);
     const rr=MM.rng(9);for(let i=0;i<6;i++){const a=i/6*Math.PI*2;MM.mesh(MM.crystalGeo(.7+rr()*.5,2+rr()*2,1.6),M.cristal,Math.cos(a)*(5+rr()*4),16+rr()*10,Math.sin(a)*(5+rr()*4),o).rotation.set(rr()-.5,rr()*3,rr()-.5);}
     MM.box(o,0,10,0,6,20,6);out.push(o);}
   /* troncos caídos e flores-faísca (coleta) */
   const lg=MM.obj('STORM.VEG.UNDERGROWTH','Troncos caídos e flores-faísca','Vegetation',{notes:'Flores-faísca = pontos de coleta STORM.COLLECT.01.'});
   for(let i=0;i<9;i++){const a=r()*Math.PI*2,rr=20+r()*60;const x=F.x+Math.cos(a)*rr,z=F.z+Math.sin(a)*rr;if(!ctx.inside(x,z)||ctx.pathDist(x,z)<5)continue;const y=ctx.heightAt(x,z);
-    const L=6+r()*7;const t=MM.mesh(new T.CylinderGeometry(.7,.9,L,7),M.casca,x,y+.5,z,lg);t.rotation.set(Math.PI/2,0,r()*3);t.rotation.order='YXZ';t.rotation.y=r()*3;}
+    const L=6+r()*7;const yaw=r()*6.28;const dx=Math.sin(yaw)*L/2,dz=Math.cos(yaw)*L/2;const A=new T.Vector3(x-dx,ctx.heightAt(x-dx,z-dz)+.55,z-dz),Bv=new T.Vector3(x+dx,ctx.heightAt(x+dx,z+dz)+.6,z+dz);/* tronco deitado entre dois pontos reais do chão */
+    const t=MM.mesh(new T.CylinderGeometry(.7,.9,L,7),M.casca,(A.x+Bv.x)/2,(A.y+Bv.y)/2,(A.z+Bv.z)/2,lg);t.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),Bv.clone().sub(A).normalize());t.userData.apoio=true;}
   const fl=new T.MeshStandardMaterial({color:'#9fe8ff',emissive:MM.C('#43d9ff'),emissiveIntensity:.8,roughness:.4});fl.name='FlorFaisca';
   for(let i=0;i<34;i++){const a=r()*Math.PI*2,rr=r()*(F.r);const x=F.x+Math.cos(a)*rr,z=F.z+Math.sin(a)*rr;if(!ctx.inside(x,z)||ctx.pathDist(x,z)<2)continue;const y=ctx.heightAt(x,z);
     const st=MM.mesh(new T.CylinderGeometry(.06,.08,1.2,3),M.folhagem,x,y+.6,z,lg);st.castShadow=false;const b=MM.mesh(new T.OctahedronGeometry(.28,0),fl,x,y+1.3,z,lg);b.castShadow=false;}

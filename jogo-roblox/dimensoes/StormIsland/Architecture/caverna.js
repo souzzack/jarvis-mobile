@@ -4,7 +4,7 @@
 (function(){const MM=window.MM,T=THREE;const I=MM.islands.StormIsland;
 I.buildCave=function(ctx){const M=ctx.mat,b=I.poi.caverna.boca;const out=[];const y=26;
   const arch=MM.obj('STORM.ARCH.CAVE.MOUTH','Boca da Caverna do Trovão','Architecture',{notes:'Vão 19 × 15 studs. Aduelas de pedra com placas de metal rebitado.'});arch.position.set(b.x,y,b.z+1);
-  for(let k=0;k<=12;k++){const a=Math.PI*k/12;const v=MM.mesh(new T.BoxGeometry(3.2,3.4,4.6),k%3===0?M.metalEscuro:M.pedraClara,Math.cos(a)*10.6,8+Math.sin(a)*8.4,0,arch);v.rotation.z=a-Math.PI/2;}
+  for(let k=0;k<=12;k++){const a=Math.PI*k/12;const v=MM.mesh(new T.BoxGeometry(3.2,3.4,4.6),k%3===0?M.metalEscuro:M.pedraClara,Math.cos(a)*10.6,8+Math.sin(a)*8.4,0,arch);v.rotation.z=a-Math.PI/2;v.userData.semApoio=true;/* aduela: apoiada pelo arco e pelas ombreiras, não pelo chão */}
   [-10.6,10.6].forEach(x=>{MM.mesh(new T.BoxGeometry(3.4,8.4,4.8),M.pedraClara,x,4.2,0,arch);MM.mesh(new T.CylinderGeometry(.3,.3,7,6),M.metal,x*1.12,11,2.6,arch);});
   MM.mesh(new T.BoxGeometry(9,1.2,.6),M.metalEscuro,0,17.5,2.4,arch);
   MM.box(arch,-10.6,8,0,3.4,17,4.8);MM.box(arch,10.6,8,0,3.4,17,4.8);out.push(arch);

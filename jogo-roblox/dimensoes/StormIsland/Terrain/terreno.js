@@ -44,11 +44,12 @@ I.buildTerrain=function(ctx){const P=I.poi;
     {const b=P.caverna.boca;const wx=1-MM.ss(16,28,Math.abs(x-b.x));const pad=26;h=MM.lerp(h,pad,wx*MM.ss(-103,-99,z)*(1-MM.ss(-80,-68,z)));h=Math.max(h,MM.lerp(h,64,wx*MM.ss(-99,-104,z)));}
     {const f=I.fenda;const s=MM.segDist(x,z,f.a[0],f.a[1],f.b[0],f.b[1]);const w=f.largura/2*(1+.25*MM.noise2(z/18,1,11));if(s.t>0&&s.t<1)h=MM.lerp(h,-140,MM.ss(w+5,w-1,s.d));}
     /* estratos: nas encostas íngremes e altas a altura "degrau-a-degrau" vira camadas geológicas */
+    const flat=Math.max(1-MM.ss(P.torre.r+2,P.torre.r+10,Math.hypot(x-P.torre.x,z-P.torre.z)),1-MM.ss(P.observatorio.r+1,P.observatorio.r+8,Math.hypot(x-P.observatorio.x,z-P.observatorio.z)),1-MM.ss(P.santuario.r+1,P.santuario.r+6,Math.hypot(x-P.santuario.x,z-P.santuario.z)));
     /* estratos irregulares: espessura variável por região, camadas inclinadas, degraus com bordas erodidas de nitidez variável */
     if(h>20){const L=6+5.5*(.5+.5*MM.noise2(x/95,z/95,24));const hh=h+.045*x-.03*z+3.5*MM.noise2(x/28,z/28,25);const t=hh/L;const t2=t+.28*Math.sin(t*2.3+MM.noise2(x/60,z/60,26)*2);
       const f=t2-Math.floor(t2);const e=MM.noise2(x/40,z/40,27)*.5+.5;const a0=.12+.25*e;const st=Math.floor(t2)+MM.ss(a0,a0+.3+.25*e,f);
-      const amt=(.18+.3*MM.ss(-.3,.5,MM.noise2(x/70,z/70,28)))*MM.ss(20,42,h);h+=(st-t2)*L*amt;}
-    for(const [ax,az,bx,bz,w,dp] of fiss){const s=MM.segDist(x,z,ax,az,bx,bz);if(s.d<w*3)h-=dp*MM.ss(w*2.4,w*.4,s.d)*Math.sin(s.t*Math.PI)*MM.ss(25,45,h);}
+      const amt=(.18+.3*MM.ss(-.3,.5,MM.noise2(x/70,z/70,28)))*MM.ss(20,42,h)*(1-flat);h+=(st-t2)*L*amt;}
+    for(const [ax,az,bx,bz,w,dp] of fiss){const s=MM.segDist(x,z,ax,az,bx,bz);if(s.d<w*3)h-=(1-flat)*dp*MM.ss(w*2.4,w*.4,s.d)*Math.sin(s.t*Math.PI)*MM.ss(25,45,h);}
     return h;}
   const inFenda=(x,z)=>{const f=I.fenda;const s=MM.segDist(x,z,f.a[0],f.a[1],f.b[0],f.b[1]);return s.t>0&&s.t<1&&s.d<f.largura/2+7;};
   const paths=I.caminhos.map(c=>{const S=[];for(let i=0;i<c.pts.length-1;i++){const [ax,az]=c.pts[i],[bx,bz]=c.pts[i+1];const L=Math.hypot(bx-ax,bz-az),n=Math.max(1,Math.round(L/3));for(let k=0;k<n;k++){const t=k/n;S.push([ax+(bx-ax)*t,az+(bz-az)*t]);}}S.push(c.pts[c.pts.length-1]);
@@ -155,7 +156,9 @@ I.buildTerrain=function(ctx){const P=I.poi;
   /* fragmentos de rocha soltos flutuando em volta da ilha */
   for(let s=0;s<16;s++){const ang=r()*Math.PI*2;const [x,z]=edgePt(ang);const d=18+r()*55;const sz=4+r()*10;const g=MM.rockGeo(1200+s,sz,sz*.8,sz,2);const m=MM.mesh(g,rockMat,x+Math.cos(ang)*d,-10-r()*70,z+Math.sin(ang)*d,edge);m.rotation.set(r(),r()*3,r());m.name='Fragmento';
     const top=MM.mesh(MM.rockGeo(1300+s,sz*.85,sz*.25,sz*.85,1),new T.MeshStandardMaterial({color:MM.C('#3b4d37'),roughness:.95}),0,sz*.62,0,m);top.name='MusgoFragmento';}
-  function heightAt(x,z){const fi=(x-X0)/STEP,fj=(z-Z0)/STEP;const i=Math.floor(fi),j=Math.floor(fj);if(i<0||j<0||i>=NX-1||j>=NZ-1)return -200;const u=fi-i,v=fj-j,k=j*NX+i;return MM.lerp(MM.lerp(Hg[k],Hg[k+1],u),MM.lerp(Hg[k+NX],Hg[k+NX+1],u),v);}
+  function heightAt(x,z){const fi=(x-X0)/STEP,fj=(z-Z0)/STEP;const i=Math.floor(fi),j=Math.floor(fj);if(i<0||j<0||i>=NX-1||j>=NZ-1)return -200;const u=fi-i,v=fj-j,k=j*NX+i;
+    /* V2.3.1: interpolação no MESMO triângulo que a malha desenha (antes era bilinear: até alguns décimos de stud de diferença nas encostas) */
+    const h00=Hg[k],h10=Hg[k+1],h01=Hg[k+NX],h11=Hg[k+NX+1];return u+v<=1?h00+u*(h10-h00)+v*(h01-h00):h11+(1-u)*(h01-h11)+(1-v)*(h10-h11);}
   function inside(x,z){return mask(x,z)>.004&&heightAt(x,z)>-5;}
   return{objects:[terr,skirt,base,edge],heightAt,inside,grid:{X0,Z0,STEP,NX,NZ,H:Hg,P:Pm,col,W:aW,AO:aAO},paths,mask,rockMat};};
 })();

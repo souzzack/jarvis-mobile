@@ -6,7 +6,7 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
   const ctx={scene,mat,reg};const terr=I.buildTerrain(ctx);ctx.terrain=terr;ctx.heightAt=terr.heightAt;ctx.inside=terr.inside;ctx.rockMat=terr.rockMat;
   ctx.pathDist=function(x,z){let m=1e9;for(const p of terr.paths){for(let s=0;s<p.S.length-1;s++){const a=p.S[s],b=p.S[s+1];if(Math.abs(x-a[0])>m+p.hw+6&&Math.abs(z-a[1])>m+p.hw+6)continue;const q=MM.segDist(x,z,a[0],a[1],b[0],b[1]);m=Math.min(m,q.d-p.hw);}}return m;};
   const folders={};const put=(list)=>list.forEach(o=>{reg.add(o);const f=o.userData.cat;if(!folders[f]){folders[f]=new T.Group();folders[f].name=f;root.add(folders[f]);}folders[f].add(o);});
-  put(terr.objects);put(I.buildSurface(ctx));
+  I.fixMinas(ctx);put(terr.objects);put(I.buildSurface(ctx));
   put(I.buildTower(ctx));put(I.buildVillage(ctx));put(I.buildCave(ctx));put(I.buildObservatory(ctx));put(I.buildSanctuary(ctx));put(I.buildBridges(ctx));
   put(I.buildForest(ctx));put(I.buildResources(ctx));put(I.buildDeposits(ctx));put(I.buildProps(ctx));put(I.buildMarkers(ctx));
   const light=I.buildLighting(ctx);put([light.clouds]);

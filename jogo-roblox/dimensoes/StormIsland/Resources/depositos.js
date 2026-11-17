@@ -21,14 +21,14 @@ I.buildDeposits=function(ctx){const P=I.poi,out=[];const r=MM.rng(4242);const H=
   /* 1. cristal atmosférico */
   {const o=tipo('STORM.RES.ATMOS','Depósitos: cristal atmosférico','Aglomerados nas bordas de estrato das montanhas. Futuro: coleta com ferramenta de mineração. No Roblox: MeshPart Glass + núcleo Neon pequeno.');
     const anchors=[[-150,-118],[-60,-138],[24,-150],[96,-150],[-205,-112],[-100,-150]];anchors.forEach(([ax,az],i)=>{const s=find(ax,az,30,(x,y,z,n)=>y>30&&n.y>.72&&n.y<.95);if(!s)return;
-      const g=new T.Group();g.name='CristalAtmosferico_'+(i+1);g.position.set(s.x,s.y-.4,s.z);g.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),s.n.clone().lerp(new T.Vector3(0,1,0),.4).normalize());o.add(g);
+      const gm=Math.min(...[[0,0],[3.4,0],[-3.4,0],[0,3.4],[0,-3.4],[2.4,2.4],[-2.4,-2.4],[2.4,-2.4],[-2.4,2.4]].map(([a,b])=>H(s.x+a,s.z+b)));const g=new T.Group();g.name='CristalAtmosferico_'+(i+1);g.position.set(s.x,gm+.1,s.z);g.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),s.n.clone().lerp(new T.Vector3(0,1,0),.4).normalize());o.add(g);
       MM.mesh(MM.rockGeo(4300+i,3.2,1.4,2.8,2),ctx.rockMat,0,.2,0,g);const n=7+Math.floor(r()*5);
       for(let k=0;k<n;k++){const a=r()*6.28,d=r()*1.6;const h=(k<2?4.5:1.5)+r()*3.5;const c=MM.mesh(MM.crystalGeo(.35+r()*.45,h,1+r()*.8),crysA,Math.cos(a)*d,.8,Math.sin(a)*d,g);c.rotation.set((r()-.5)*.7,r()*6.28,(r()-.5)*.7);}
       o.userData.pontos.push({id:'STORM.RES.ATMOS.'+String(i+1).padStart(2,'0'),x:s.x,y:s.y,z:s.z});});}
   /* 2. rocha condutora com veios de cobre nativo */
   {const o=tipo('STORM.RES.CONDUTORA','Depósitos: rocha condutora','Rochas com veios de cobre nativo na zona de raios (torre e linha de transmissão). No Roblox: MeshPart de rocha + MeshPart dos veios (CorrodedMetal).');
     const anchors=[[64,-6],[2,-52],[66,-58],[30,60],[82,96]];anchors.forEach(([ax,az],i)=>{const s=find(ax,az,22,(x,y,z,n)=>n.y>.88);if(!s)return;
-      const g=new T.Group();g.name='RochaCondutora_'+(i+1);g.position.set(s.x,s.y,s.z);g.rotation.y=r()*6.28;o.add(g);const sx=2.6+r(),sy=1.8+r()*.8,sz=2.2+r();
+      const gm=Math.min(...[[0,0],[3,0],[-3,0],[0,3],[0,-3]].map(([a,b])=>H(s.x+a,s.z+b)));const g=new T.Group();g.name='RochaCondutora_'+(i+1);g.position.set(s.x,gm-.2,s.z);g.rotation.y=r()*6.28;o.add(g);const sx=2.6+r(),sy=1.8+r()*.8,sz=2.2+r();
       MM.mesh(MM.rockGeo(4400+i,sx,sy,sz,2),ctx.rockMat,0,sy*.45,0,g);
       for(let v=0;v<3;v++){const pts=[];const a0=r()*6.28,tilt=(r()-.5)*1.2;for(let q=0;q<=10;q++){const a=a0+q/10*2.4;const yy=sy*.45+Math.sin(a*1.3+tilt)*sy*.55;const rr=Math.sqrt(Math.max(.05,1-Math.pow((yy-sy*.45)/(sy*.95),2)));pts.push(new T.Vector3(Math.cos(a)*sx*.98*rr,yy,Math.sin(a)*sz*.98*rr));}
         g.add(MM.tube(pts,.11+r()*.08,cuN,24,5));for(let q=0;q<3;q++){const p=pts[2+Math.floor(r()*7)];MM.mesh(new T.DodecahedronGeometry(.22+r()*.18,0),cuN,p.x,p.y,p.z,g);}}
@@ -45,11 +45,11 @@ I.buildDeposits=function(ctx){const P=I.poi,out=[];const r=MM.rng(4242);const H=
   /* 4. fragmentos de energia sobre discos rúnicos */
   {const o=tipo('STORM.RES.FRAGMENTO','Depósitos: fragmentos de energia','Estilhaço angular flutuando 2 studs acima de um disco rúnico de pedra. No Roblox: MeshPart Neon pequeno + Glass por fora, BodyPosition/TweenService para flutuar.');
     const anchors=[[P.observatorio.x-30,P.observatorio.z+18],[P.observatorio.x+20,P.observatorio.z+34],[-92,-14],[118,-20],[P.santuario.x+16,P.santuario.z-14]];
-    anchors.forEach(([ax,az],i)=>{const s=find(ax,az,16,(x,y,z,n)=>n.y>.93);if(!s)return;const g=new T.Group();g.name='FragmentoEnergia_'+(i+1);g.position.set(s.x,s.y,s.z);o.add(g);
+    anchors.forEach(([ax,az],i)=>{const s=find(ax,az,16,(x,y,z,n)=>n.y>.93);if(!s)return;const gm=Math.min(...[[0,0],[2.5,0],[-2.5,0],[0,2.5],[0,-2.5]].map(([a,b])=>H(s.x+a,s.z+b)));const g=new T.Group();g.name='FragmentoEnergia_'+(i+1);g.position.set(s.x,gm,s.z);o.add(g);
       const disc=MM.mesh(new T.CylinderGeometry(2.2,2.5,.5,10),ctx.rockMat,0,.1,0,g);const band=MM.mesh(new T.CylinderGeometry(2.21,2.21,.32,10,1,true),runeDisc,0,.18,0,g);
       for(let k=0;k<3;k++){const a=k/3*6.28;const b=MM.mesh(MM.rockGeo(4600+i*3+k,.45,.6,.45,1),ctx.rockMat,Math.cos(a)*1.7,.6,Math.sin(a)*1.7,g);}
       const fl=new T.Group();fl.name='Estilhaco';fl.position.y=2.6;fl.userData.animated=true;fl.userData.float=true;g.add(fl);const sg=new T.OctahedronGeometry(.75,0);sg.scale(.7,1.6,.5);
-      MM.mesh(sg,crysA,0,0,0,fl);const c=MM.mesh(new T.OctahedronGeometry(.32,0),core,0,0,0,fl);c.scale.y=1.6;c.castShadow=false;
+      fl.userData.flutua=true;MM.mesh(sg,crysA,0,0,0,fl);const c=MM.mesh(new T.OctahedronGeometry(.32,0),core,0,0,0,fl);c.scale.y=1.6;c.castShadow=false;
       for(let k=0;k<4;k++){const a=k/4*6.28;const bit=MM.mesh(new T.TetrahedronGeometry(.16,0),crysA,Math.cos(a)*1.1,(r()-.5)*.6,Math.sin(a)*1.1,fl);}
       o.userData.pontos.push({id:'STORM.RES.FRAG.'+String(i+1).padStart(2,'0'),x:s.x,y:s.y,z:s.z});});
     o.userData.update=(t)=>o.traverse(q=>{if(q.userData.float){q.position.y=2.6+Math.sin(t*1.3+q.parent.position.x)*.25;q.rotation.y=t*.6;}});}

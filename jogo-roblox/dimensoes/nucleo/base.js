@@ -71,9 +71,34 @@ MM.merge=function(geos){const nonIdx=geos.map(g=>g.index?g.toNonIndexed():g);let
 MM.bake=function(obj){obj.updateMatrixWorld(true);const inv=new T.Matrix4().copy(obj.matrixWorld).invert();const groups=new Map();const kill=[];
   obj.traverse(m=>{if(!m.isMesh||m.isInstancedMesh)return;let p=m.parent;while(p&&p!==obj){if(p.userData&&p.userData.animated)return;p=p.parent;}if(m.name)return;
     const g=m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone();if(!g.attributes.normal)g.computeVertexNormals();
-    const mat=new T.Matrix4().multiplyMatrices(inv,m.matrixWorld);g.applyMatrix4(mat);const key=m.material.uuid+(m.material.side===T.BackSide?'b':'');if(!groups.has(key))groups.set(key,{mat:m.material,geos:[],cast:m.castShadow});groups.get(key).geos.push(g);kill.push(m);});
+    const mat=new T.Matrix4().multiplyMatrices(inv,m.matrixWorld);g.applyMatrix4(mat);/* marcas de apoio viram caixas no modelo (não separam a fusão: mesma quantidade de chamadas de desenho) */
+    if(m.userData.apoio||m.userData.semApoio){m.geometry.computeBoundingBox();const b=m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld);(obj.userData[m.userData.apoio?'apoioBoxes':'semApoioBoxes']=obj.userData[m.userData.apoio?'apoioBoxes':'semApoioBoxes']||[]).push([b.min.x,b.min.y,b.min.z,b.max.x,b.max.y,b.max.z].map(v=>+v.toFixed(2)));}
+    const key=m.material.uuid+(m.material.side===T.BackSide?'b':'');if(!groups.has(key))groups.set(key,{mat:m.material,geos:[],cast:m.castShadow});groups.get(key).geos.push(g);kill.push(m);});
   kill.forEach(m=>m.parent.remove(m));
   groups.forEach(v=>{const merged=MM.merge(v.geos);const mm=new T.Mesh(merged,v.mat);mm.castShadow=v.cast;mm.receiveShadow=true;obj.add(mm);});};
+/* ---------- assentamento no terreno (V2.3.1) ----------
+   MM.footG: alturas do chão sob uma área local do modelo (já posicionado em x,z e girado em y).
+   MM.seat: escolhe o nível do piso pela área inteira (não pelo centro), cria alicerce de pedra até 1 stud abaixo do ponto mais baixo,
+   rodapé mais largo, colisor, e degraus de transição na frente quando o chão desce. Retorna o relatório do assentamento. */
+MM.footG=function(ctx,o,pts){const c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);return pts.map(([lx,lz])=>{const x=o.position.x+lx*c+lz*s,z=o.position.z-lx*s+lz*c;return ctx.heightAt(x,z);});};
+MM.rectPts=function(w,d,cx,cz,step){const P=[];step=step||2;const nx=Math.max(2,Math.ceil(w/step)),nz=Math.max(2,Math.ceil(d/step));for(let i=0;i<=nx;i++)for(let j=0;j<=nz;j++)P.push([(cx||0)-w/2+w*i/nx,(cz||0)-d/2+d*j/nz]);return P;};
+MM.discPts=function(R,step){const P=[[0,0]];step=step||2;for(let r=step;r<=R+.01;r+=step){const n=Math.max(8,Math.round(2*Math.PI*r/step));for(let k=0;k<n;k++)P.push([Math.cos(k/n*6.283)*r,Math.sin(k/n*6.283)*r]);}if(R%step)for(let k=0;k<32;k++)P.push([Math.cos(k/32*6.283)*R,Math.sin(k/32*6.283)*R]);return P;};
+MM.seat=function(ctx,o,opt){const w=opt.w,d=opt.d,disc=opt.r;const pts=disc?MM.discPts(disc,1.5):MM.rectPts(w,d,0,0,1.5);const G=MM.footG(ctx,o,pts);
+  const gmin=Math.min(...G),gmax=Math.max(...G);const y=opt.y!==undefined?opt.y:gmax-(opt.bury===undefined?.4:opt.bury);o.position.y=y;
+  const M=opt.mat||ctx.mat.pedraEscura;const rep={id:o.userData.id,gmin:+gmin.toFixed(2),gmax:+gmax.toFixed(2),piso:+y.toFixed(2),alicerce:0,degraus:0};
+  const bb=MM.bevelBox||((a,b,c)=>new T.BoxGeometry(a,b,c));const top=opt.base===undefined?0:opt.base;/* topo do alicerce = fundo da laje do modelo */
+  if(y-gmin>.2){const depth=y+top-gmin+1;rep.alicerce=+(y-gmin).toFixed(2);
+    const fm=disc?new T.CylinderGeometry(disc+.3,disc+.5,depth,disc>12?28:16):bb(w+.6,depth,d+.6,.25);const f=MM.mesh(fm,M,0,top-depth/2+.02,0,o);f.userData.apoio=true;
+    const fh=Math.min(1.4,depth*.4);const ft=disc?new T.CylinderGeometry(disc+.9,disc+1.1,fh,disc>12?28:16):bb(w+1.6,fh,d+1.6,.2);const k=MM.mesh(ft,M,0,top-depth+fh/2,0,o);k.userData.apoio=true;/* rodapé (sapata) */
+    if(!disc)MM.box(o,0,top-depth/2,0,w+.6,depth,d+.6);}
+  /* degraus de transição diante da porta (+Z local) até o chão real */
+  if(opt.front!==undefined){const sw=opt.stepW||5,run=1.3;const floorTop=y+(opt.floor===undefined?top:opt.floor);let z=opt.front+run/2;
+    /* patamar na soleira: 2,4 studs no nível do piso, para o personagem parar diante da porta */const ld=opt.landing===undefined?2.4:opt.landing;
+    if(ld>0){const lz=opt.front+ld/2;const lt=floorTop-y;const gs=Math.min(...MM.footG(ctx,o,[[-sw/2-.5,opt.front+ld],[sw/2+.5,opt.front+ld],[0,opt.front+ld]]))-y-.5;const h=lt-gs;
+      const L=MM.mesh(bb(sw+1,h,ld,.12),M,0,lt-h/2,lz,o);L.userData.apoio=true;MM.box(o,0,lt-h/2,lz,sw+1,h,ld);z=opt.front+ld+run/2;rep.patamar=ld;}const gF=MM.footG(ctx,o,[[0,z+run]])[0];const rise=floorTop-gF;
+    if(rise>.6){const n=Math.ceil(rise/.75),rz=rise/n;for(let k=1;k<n;k++){const t=floorTop-k*rz-y;const gs=Math.min(...MM.footG(ctx,o,[[-sw/2,z],[sw/2,z],[0,z+run/2]]))-y-.5;const h=t-gs;
+        const s=MM.mesh(bb(sw,h,run,.12),opt.stepMat||M,0,t-h/2,z,o);s.userData.apoio=true;MM.box(o,0,t-h/2,z,sw,h,run);z+=run;rep.degraus++;}}}
+  return rep;};
 MM.tris=function(o){let t=0;o.traverse(m=>{if(m.isMesh&&m.geometry){const g=m.geometry;t+=(g.index?g.index.count:g.attributes.position.count)/3*(m.isInstancedMesh?m.count:1);}});return Math.round(t);};
 
 /* ---------- boneco de escala com as proporções do avatar padrão (≈5,2 studs) ---------- */

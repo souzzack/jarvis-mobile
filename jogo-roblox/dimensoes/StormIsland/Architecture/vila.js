@@ -29,7 +29,7 @@ I.buildHouse=function(ctx,id,name,opt){const M=ctx.mat,r=MM.rng(opt.seed);const 
   const rodH=8+r()*4;const rx=round?0:(opt.roof==='shed'?-w/2+1:0);add(new T.CylinderGeometry(.16,.32,rodH,5),M.metal,rx,top+rodH/2-.4,0);
   [.35,.6].forEach(f=>{const c=add(new T.TorusGeometry(.8,.22,5,12),M.cobre,rx,top+rodH*f,0);c.rotation.x=Math.PI/2;});
   add(new T.SphereGeometry(.45,8,6),M.cobre,rx,top+rodH-.2,0);
-  g.userData.rodTip=new T.Vector3(rx,top+rodH-.2,0);return g;};
+  g.userData.rodTip=new T.Vector3(rx,top+rodH-.2,0);const sw=w+1.6,sd=(round?w:d)+1.6;MM.box(g,0,.8,0,sw,1.6,sd);/* laje pisável */g.userData.foot={w:sw,d:sd,base:0,floor:1.6,front:sd/2,stepW:5.6,mat:M.pedraClara};/* mesmo material da laje: sem chamada de desenho extra */return g;};
 I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   /* praça e Coletor */
   const pz=MM.obj('STORM.ARCH.VILLAGE.PLAZA','Praça do Coletor','Architecture',{notes:'Ponto de encontro da vila e raiz dos cabos.'});pz.position.set(V.x,H,V.z);
@@ -38,16 +38,21 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   MM.mesh(new T.CylinderGeometry(4,4.6,2.2,8),M.pedra,0,1.4,0,pz);MM.mesh(new T.CylinderGeometry(1.25,1.6,17,8),M.cobre,0,10,0,pz);
   [6,10,14].forEach(y=>MM.mesh(new T.TorusGeometry(2.3,.45,6,16),M.patina,0,y,0,pz).rotation.x=Math.PI/2);
   MM.mesh(MM.crystalGeo(1,2.2,2.2),M.cristal,0,18.4,0,pz);MM.mesh(new T.SphereGeometry(.55,8,6),M.energia,0,19.6,0,pz).castShadow=false;
-  MM.box(pz,0,9,0,9,18,9);pz.userData.top=new T.Vector3(V.x,H+19.6,V.z);out.push(pz);
+  MM.box(pz,0,9,0,9,18,9);pz.userData.assento=MM.seat(ctx,pz,{r:17.6,bury:.25,mat:M.pedra});pz.userData.top=new T.Vector3(V.x,pz.position.y+19.6,V.z);out.push(pz);
   /* casas: candidatas em anel; descarta as que tocam caminhos ou a praça */
   const r=MM.rng(404);const variants=[{w:14,d:12,floors:2,roof:'gable'},{w:12,d:12,floors:1,roof:'cone'},{w:16,d:12,floors:2,roof:'shed'},{w:13,d:11,floors:1,roof:'gable',rot90:true},{w:15,d:13,floors:2,roof:'gable',rot90:true},{w:11,d:11,floors:1,roof:'cone'},{w:14,d:10,floors:1,roof:'shed'},{w:12,d:13,floors:2,roof:'gable'}];
   let n=0;const placed=[];
   for(let ring=0;ring<2;ring++)for(let k=0;k<14&&n<11;k++){const a=k/14*Math.PI*2+ring*.22+r()*.12;const rad=31+ring*15+r()*4;const x=V.x+Math.sin(a)*rad,z=V.z+Math.cos(a)*rad;
     if(ctx.pathDist(x,z)<10.5)continue;if(placed.some(p=>Math.hypot(p[0]-x,p[1]-z)<18))continue;if(Math.hypot(x-V.x,z-V.z)>V.r-6)continue;
     const vv=variants[n%variants.length];const hs=I.buildHouse(ctx,'STORM.ARCH.HOUSE.'+String(n+1).padStart(2,'0'),'Casa da vila '+(n+1),Object.assign({seed:900+n*7},vv));
-    hs.position.set(x,H,z);hs.rotation.y=Math.atan2(V.x-x,V.z-z)+(r()-.5)*.25;/* frente para a praça */out.push(hs);placed.push([x,z]);n++;}
+    hs.position.set(x,H,z);hs.rotation.y=Math.atan2(V.x-x,V.z-z)+(r()-.5)*.25;/* frente para a praça */
+    /* V2.3.1: piso pela área inteira da casa + alicerce e degraus onde o chão desce (antes: altura fixa da vila para todas) */hs.userData.assento=MM.seat(ctx,hs,hs.userData.foot);out.push(hs);placed.push([x,z]);n++;}
   /* oficina da Ferreira dos Para-raios (NPC 02): galpão aberto com toldo, bigorna e bobina em montagem */
-  {const ws=MM.obj('STORM.ARCH.WORKSHOP','Oficina dos Para-raios','Architecture',{notes:'Espaço do NPC STORM.NPC.02. Frente aberta de 18 studs.'});const x=-60,z=74;ws.position.set(x,ctx.heightAt(x,z),z);ws.rotation.y=.9;
+  {const ws=MM.obj('STORM.ARCH.WORKSHOP','Oficina dos Para-raios','Architecture',{notes:'Espaço do NPC STORM.NPC.02. Frente aberta de 18 studs.'});/* V2.3.1: posição livre mais próxima da original (−60,74), que ficava em cima do início da trilha P2 */
+    let x=-60,z=74;{let best=null;for(let rr=0;rr<=46&&!best;rr+=2)for(let k=0;k<16&&!best;k++){const a=k/16*6.283;const cx=-60+Math.cos(a)*rr,cz=74+Math.sin(a)*rr;if(ctx.pathDist(cx,cz)<19)continue;if(out.some(o=>o.userData.foot&&Math.hypot(o.position.x-cx,o.position.z-cz)<22))continue;best=[cx,cz];}if(best){x=best[0];z=best[1];}}
+    ws.position.set(x,0,z);
+    /* frente aberta virada para um lado livre (sem casa a menos de 12 studs diante dela) */
+    {const houses=out.filter(o=>o.userData.foot);let bestR=.9,bestS=-1e9;for(const ry of [.9,.9+Math.PI/2,.9+Math.PI,.9-Math.PI/2]){let sc=0;for(const d of [10,14,18]){const fx=x+Math.sin(ry)*d,fz=z+Math.cos(ry)*d;const hd=Math.min(...houses.map(o=>Math.hypot(o.position.x-fx,o.position.z-fz)),99);sc+=Math.min(hd,20)-(ctx.inside(fx,fz)?0:50)-Math.max(0,ctx.pathDist(fx,fz))*.2;}if(sc>bestS){bestS=sc;bestR=ry;}}ws.userData.ry=bestR;}ws.rotation.y=ws.userData.ry;MM.box(ws,0,.7,0,22,1.4,16);ws.userData.assento=MM.seat(ctx,ws,{w:22,d:16,base:0,floor:1.4,front:8,stepW:14,mat:M.pedraClara});
     MM.mesh(new T.BoxGeometry(22,1.4,16),M.pedraClara,0,.7,0,ws);MM.mesh(new T.BoxGeometry(22,10,1.2),M.alvenaria,0,6,-7.4,ws);[-10.4,10.4].forEach(xx=>MM.mesh(new T.BoxGeometry(1.2,10,15),M.alvenaria,xx,6,0,ws));
     const roof=MM.mesh(shedGeo(22,16,3.5,1,1.4),M.telhado,0,11,0,ws);roof.rotation.y=Math.PI/2;
     [-7,0,7].forEach(xx=>MM.mesh(new T.CylinderGeometry(.35,.35,10,6),M.madeira,xx,6,7.2,ws));
@@ -56,10 +61,13 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
     MM.mesh(new T.CylinderGeometry(.4,.4,6,6),M.metal,4,4,-2,ws);MM.mesh(new T.BoxGeometry(2,1.6,2),M.pedraEscura,8,2.2,-4,ws);
     MM.box(ws,0,6,-7.4,22,12,1.6);MM.box(ws,-10.4,6,0,1.6,12,15);MM.box(ws,10.4,6,0,1.6,12,15);out.push(ws);}
   /* barracas do mercado */
-  [[-14,104,.4],[-50,108,-.5]].forEach(([x,z,ry],i)=>{if(ctx.pathDist(x,z)<6)return;const st=MM.obj('STORM.PROP.STALL.0'+(i+1),'Barraca do mercado '+(i+1),'Props');st.position.set(x,ctx.heightAt(x,z),z);st.rotation.y=ry;
-    MM.mesh(new T.BoxGeometry(6,3,3),M.madeira,0,1.5,0,st);[[-2.8,-1.3],[2.8,-1.3],[-2.8,1.3],[2.8,1.3]].forEach(([a,b])=>MM.mesh(new T.CylinderGeometry(.18,.18,7,5),M.madeira,a,3.5,b,st));
-    const aw=MM.mesh(new T.BoxGeometry(7,.2,4.4),M.tecido,0,7,0,st);aw.rotation.x=.18;MM.mesh(MM.crystalGeo(.4,.8,.8),M.cristal,-1.5,3.1,0,st);MM.mesh(new T.BoxGeometry(1.2,1,1),M.cobre,1.4,3.5,0,st);
-    MM.box(st,0,1.5,0,6,3,3);out.push(st);});
+  [[-14,104,.4],[-50,108,-.5]].forEach(([x0,z0,ry],i)=>{/* V2.3.1: barraca nunca na frente de uma porta (antes a 2 ficava colada na porta da casa 2) */
+    const fronts=out.filter(o=>o.userData.foot).map(o=>{const f=o.userData.foot,c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);const lz=f.d/2+5;return[o.position.x+lz*s,o.position.z+lz*c,o];});
+    let x=x0,z=z0;for(let t=0;t<12;t++){const bad=fronts.some(([fx,fz])=>Math.hypot(fx-x,fz-z)<9)||out.some(o=>o.userData.foot&&Math.hypot(o.position.x-x,o.position.z-z)<14);if(!bad&&ctx.pathDist(x,z)>=4)break;const a=t*1.3;x=x0+Math.cos(a)*(4+t*1.5);z=z0+Math.sin(a)*(4+t*1.5);}
+    if(ctx.pathDist(x,z)<4)return;const st=MM.obj('STORM.PROP.STALL.0'+(i+1),'Barraca do mercado '+(i+1),'Props');st.position.set(x,0,z);st.rotation.y=ry;MM.mesh(new T.BoxGeometry(8,.5,5.4),M.madeira,0,.25,0,st).userData.apoio=true;/* estrado da barraca */st.userData.assento=MM.seat(ctx,st,{w:8,d:5.4,base:0,mat:M.madeira});
+    MM.mesh(new T.BoxGeometry(6,3,3),M.madeira,0,2,0,st);[[-2.8,-1.3],[2.8,-1.3],[-2.8,1.3],[2.8,1.3]].forEach(([a,b])=>MM.mesh(new T.CylinderGeometry(.18,.18,7,5),M.madeira,a,4,b,st));
+    const aw=MM.mesh(new T.BoxGeometry(7,.2,4.4),M.tecido,0,7.5,0,st);aw.rotation.x=.18;MM.mesh(MM.crystalGeo(.4,.8,.8),M.cristal,-1.5,3.6,0,st);MM.mesh(new T.BoxGeometry(1.2,1,1),M.cobre,1.4,4,0,st);
+    MM.box(st,0,2,0,6,3,3);out.push(st);});
   /* cabos de cada para-raios até o Coletor (catenárias) */
   const cab=MM.obj('STORM.PROP.VILLAGE.CABLES','Cabos dos para-raios','Props',{notes:'No Roblox: Beam ou RopeConstraint visual entre Attachments.'});const top=pz.userData.top;
   out.forEach(o=>{if(!o.userData.rodTip)return;o.updateMatrixWorld(true);const a=o.localToWorld(o.userData.rodTip.clone());const sag=2+a.distanceTo(top)*.06;cab.add(MM.tube(MM.catenary(a,top,sag,20),.12,M.metalEscuro,24,4));});
@@ -68,7 +76,7 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   const lan=MM.obj('STORM.PROP.LANTERNS','Lanternas dos caminhos','Props',{notes:'Luz quente e fraca; no Roblox: PointLight sem sombra só nas mais próximas.'});
   ctx.terrain.paths.forEach(p=>{if(p.c.tipo!=='principal')return;let acc=0;for(let i=1;i<p.S.length;i++){const [x0,z0]=p.S[i-1],[x1,z1]=p.S[i];acc+=Math.hypot(x1-x0,z1-z0);if(acc<22)continue;acc=0;
       const dx=x1-x0,dz=z1-z0,L=Math.hypot(dx,dz)||1;const side=(i%2?1:-1)*(p.hw+1.6);const x=x1-dz/L*side,z=z1+dx/L*side;const y=ctx.heightAt(x,z);if(y<0)continue;
-      const post=new T.Group();post.position.set(x,y,z);MM.mesh(new T.CylinderGeometry(.2,.3,6,6),M.metalEscuro,0,3,0,post);MM.mesh(new T.BoxGeometry(1.3,.25,.25),M.metalEscuro,.5,5.8,0,post);
-      const l=MM.mesh(new T.BoxGeometry(.7,1,.7),M.lanterna,1,5.1,0,post);l.castShadow=false;lan.add(post);}});
+      const yb=Math.min(y,ctx.heightAt(x+.4,z),ctx.heightAt(x-.4,z),ctx.heightAt(x,z+.4),ctx.heightAt(x,z-.4));const post=new T.Group();post.position.set(x,yb-.3,z);MM.mesh(new T.CylinderGeometry(.2,.3,6.3,6),M.metalEscuro,0,3.15,0,post);MM.mesh(new T.CylinderGeometry(.45,.55,.6,6),M.metalEscuro,0,.3,0,post);MM.mesh(new T.BoxGeometry(1.3,.25,.25),M.metalEscuro,.5,6.1,0,post);
+      const l=MM.mesh(new T.BoxGeometry(.7,1,.7),M.lanterna,1,5.4,0,post);l.castShadow=false;lan.add(post);}});
   out.push(lan);return out;};
 })();

@@ -12,9 +12,11 @@ I.buildObservatory=function(ctx){const M=ctx.mat,P=I.poi.observatorio;const o=MM
   const tel=new T.Group();tel.name='Telescopio';tel.position.set(0,11,0);o.add(tel);MM.mesh(new T.CylinderGeometry(1.4,2,3,8),M.metalEscuro,0,0,0,tel);
   const tube=MM.mesh(new T.CylinderGeometry(1.5,1.9,19,12),M.cobre,0,7,3,tel);tube.rotation.x=-.75;MM.mesh(new T.TorusGeometry(1.7,.3,6,14),M.metal,0,13.4,9.5,tel).rotation.x=Math.PI/2-.75;
   /* anexo em ruínas e entulho */
-  const r=MM.rng(55);for(let i=0;i<5;i++)add(new T.BoxGeometry(8,4+r()*7,1.4),M.alvenaria,20+i*1.2,3,-6+i*5).rotation.y=.4+r()*.2;
-  for(let i=0;i<10;i++){const a=r()*Math.PI*2,rr=17+r()*9;const pl=add(new T.BoxGeometry(2+r()*3,.4,2+r()*3),i%2?M.metalEscuro:M.pedra,Math.cos(a)*rr,.4,Math.sin(a)*rr);pl.rotation.set(r()-.5,r()*3,r()-.5);}
-  MM.box(o,0,5.7,0,28,11.4,28);return[o];};
+  const r=MM.rng(55);const gl=(lx,lz,R)=>Math.min(...[[0,0],[R,0],[-R,0],[0,R],[0,-R]].map(([a,b])=>ctx.heightAt(P.x+lx+a,P.z+lz+b)))-P.h;
+  /* V2.3.1: cada parede do anexo apoiada no próprio chão (antes: centro fixo em y=3 → as mais baixas flutuavam) */
+  for(let i=0;i<5;i++){const h=4+r()*7,lx=20+i*1.2,lz=-6+i*5;const g0=gl(lx,lz,4.2);const w=add(new T.BoxGeometry(8,h+1,1.4),M.alvenaria,lx,g0+h/2-.5,lz);w.rotation.y=.4+r()*.2;w.userData.apoio=true;}
+  for(let i=0;i<10;i++){const a=r()*Math.PI*2,rr=17+r()*9;const sx=2+r()*3,sz=2+r()*3,px=Math.cos(a)*rr,pz=Math.sin(a)*rr;const pl=add(new T.BoxGeometry(sx,.4,sz),i%2?M.metalEscuro:M.pedra,px,gl(px,pz,Math.max(sx,sz)/2)+.12,pz);pl.rotation.set((r()-.5)*.2,r()*3,(r()-.5)*.2);pl.userData.apoio=true;}
+  MM.box(o,0,5.7,0,28,11.4,28);o.userData.assento=MM.seat(ctx,o,{r:16.5,y:P.h,mat:M.pedraClara});return[o];};
 I.buildSanctuary=function(ctx){const M=ctx.mat,P=I.poi.santuario;const s=MM.obj('STORM.ARCH.SANCTUARY','Santuário da Tempestade','Architecture',{notes:'Área secreta. Seis pilares condutores em volta de um altar: o mesmo símbolo das Sete Estrelas do Axolote Nebular (STORM.DISCOVERY.01).'});
   s.position.set(P.x,P.h,P.z);const add=(g,m,x,y,z)=>MM.mesh(g,m,x,y,z,s);
   add(new T.CylinderGeometry(15,16,1.4,7),M.pedraClara,0,.7,0);add(new T.CylinderGeometry(11,11,.5,7),M.pedra,0,1.5,0);
@@ -24,5 +26,5 @@ I.buildSanctuary=function(ctx){const M=ctx.mat,P=I.poi.santuario;const s=MM.obj(
     const gem=new T.MeshStandardMaterial({color:cores[i],emissive:MM.C(cores[i]),emissiveIntensity:.7,roughness:.3});gem.name='Gema'+i;const gm=add(new T.OctahedronGeometry(.6,0),gem,x,h+2.6,z);gm.castShadow=false;}
   add(new T.BoxGeometry(4,3,4),M.pedraClara,0,3,0);const core=new T.MeshStandardMaterial({color:'#FFF4D6',emissive:MM.C('#FFF4D6'),emissiveIntensity:.5,roughness:.3});core.name='SetimaEstrela';
   add(new T.OctahedronGeometry(.9,0),core,0,5.4,0).castShadow=false;
-  MM.box(s,0,3,0,4,3,4);return[s];};
+  MM.box(s,0,3,0,4,3,4);s.userData.assento=MM.seat(ctx,s,{r:16,bury:.3,mat:M.pedraClara});/* V2.3.1: o fim da trilha P5 rebaixa o platô para ≈5; antes o santuário ficava fixo em 10, flutuando ≈5 studs */return[s];};
 })();
