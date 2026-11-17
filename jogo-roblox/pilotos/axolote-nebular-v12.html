@@ -649,7 +649,7 @@ function updateCreature(c,dt,t){const P=c.P,X=c.X,s=c.state;c.st+=dt;const st=c.
   const desired=to.clone().normalize().multiplyScalar(Math.min(vmax,dist*1.6));const steer=desired.sub(c.vel);const maxA=s==='move'?1.4:1.1;if(steer.length()>maxA*dt)steer.setLength(maxA*dt);
   c.vel.add(steer);c.pos.addScaledVector(c.vel,dt);const spd=c.vel.length();c.speed=spd;
   const wv=sstep(.06,.32,spd),vy=Math.atan2(c.vel.x,c.vel.z);let dv=((vy-face+PI)%TAU+TAU)%TAU-PI;const wantYaw=face+dv*wv;let dy=((wantYaw-c.yaw+PI)%(TAU)+TAU)%TAU-PI;const ky=xp(3.2,dt);let step=dy*ky;const mx=1.8*dt;step=clamp(step,-mx,mx);const yawRate=step/Math.max(dt,1e-4);c.yaw+=step;
-  const turn=clamp(yawRate,-2,2);c.roll=lerp(c.roll,-turn*.2*clamp(spd/.6,0,1),xp(3,dt));c.pitch=lerp(c.pitch,clamp(-c.vel.y*.6,-.3,.3)+clamp(spd*.06,0,.08),xp(3,dt));
+  c.turnS=(c.turnS||0)+(clamp(yawRate,-2,2)-(c.turnS||0))*xp(5,dt);const turn=c.turnS;/* v12: taxa de curva filtrada (inverter o sentido torcia a coluna num quadro) */c.roll=lerp(c.roll,-turn*.2*clamp(spd/.6,0,1),xp(3,dt));c.pitch=lerp(c.pitch,clamp(-c.vel.y*.6,-.3,.3)+clamp(spd*.06,0,.08),xp(3,dt));
   /* ---- metas de pose por estado (curvas com easing, não senoides puras) ---- */
   const tg={bob:0,crouch:0,headX:0,headY:0,headZ:0,flare:0,ringMul:1,align:0,glow:1,star:1,legTuck:.35,paddle:.12,tailAmp:.13,tailFreq:1.15,mouth:0,spin:0,lift:0,ringGlow:0,calm:0,serene:0,exCur:0,exFocus:0,exSurp:0,exSerene:0,exHappy:0,cx:0,cy:0,cz:0,cr:0};let gazeF=null,gazeU=null;let circ=null;
   const breath=Math.sin(t*TAU/4.8+c.seed);tg.bob=Math.sin(t*TAU/5.2+c.seed)*.045+noise(t*.25,c.seed)*.02;
@@ -661,11 +661,13 @@ function updateCreature(c,dt,t){const P=c.P,X=c.X,s=c.state;c.st+=dt;const st=c.
 
 
   const ctx={t,st,dt,spd,dist,P,X,breath,turn,gazeF:null,gazeU:null};STATE_DEF[s].update(c,tg,ctx);gazeF=ctx.gazeF;gazeU=ctx.gazeU;
-  const awake=s==='awake';c.rev={body:awake?sstep(1.6,3.4,st):1,r0:awake?sstep(3.0,3.9,st):1,r1:awake?sstep(3.5,4.4,st):1,vis:awake?sstep(4.2,5.0,st):1,eyes:awake?sstep(5.0,5.4,st):1,gills:awake?sstep(2.2,3.6,st):1};
+  const awake=s==='awake';{const tr={body:awake?sstep(1.6,3.4,st):1,r0:awake?sstep(3.0,3.9,st):1,r1:awake?sstep(3.5,4.4,st):1,vis:awake?sstep(4.2,5.0,st):1,eyes:awake?sstep(5.0,5.4,st):1,gills:awake?sstep(2.2,3.6,st):1};
+    /* v12: a revelação não salta: no Despertar segue a própria curva (some em ~0,3 s no início); se interrompido, completa em ~1 s */
+    for(const k in tr){const cur=c.rev[k];c.rev[k]=awake?cur+(tr[k]-cur)*xp(tr[k]<cur?10:12,dt):cur+(tr[k]-cur)*xp(3,dt);if(!awake&&1-c.rev[k]<.002)c.rev[k]=1;}}
   /* ---- suavização: transições e interrupções sem saltos ---- */
   const kf=STATE_DEF[s].kf;const ak=xp(kf,dt),ae=xp(s==='rare'?16:7,dt),ab=xp(Math.min(kf,6),dt),ar=xp(3.2,dt);
   /* v12: membros, cauda e brânquias no máximo 6/s; anéis 3,2/s (antes herdavam 14/s e davam estalos na entrada da Comemoração e da Descoberta) */
-  const RATE_BODY={legTuck:1,paddle:1,flare:1,calm:1,tailAmp:1,tailFreq:1,headZ:1,cx:1,cy:1,cz:1,cr:1},RATE_RING={align:1,ringMul:1};
+  const RATE_BODY={legTuck:1,paddle:1,flare:1,calm:1,tailAmp:1,tailFreq:1,headZ:1,cx:1,cy:1,cz:1,cr:1,lift:1},RATE_RING={align:1,ringMul:1};
   for(const k in tg){if(k==='spin')continue;P[k]+=(tg[k]-P[k])*(k.startsWith('ex')?ae:RATE_RING[k]?ar:RATE_BODY[k]?ab:ak);}
   /* giro: na comemoração soma ao ângulo atual; se interrompido, completa até o múltiplo de 360° mais próximo, sem salto */
   if(s==='cele'){const ns=c.spinBase+tg.spin;c.spinV=(ns-P.spin)/Math.max(dt,1e-4);P.spin=ns;c.spinGoal=undefined;}
@@ -706,8 +708,8 @@ function updateCreature(c,dt,t){const P=c.P,X=c.X,s=c.state;c.st+=dt;const st=c.
   X.rings[0].mat.userData.u.uRev.value=c.rev.r0;X.rings[1].mat.userData.u.uRev.value=c.rev.r1;X.rings.forEach((R,i)=>R.frags.forEach(f=>f.visible=f.visible&&(i?c.rev.r1:c.rev.r0)>.95));
   X.tailTip.material.opacity=FX.on?(.22+.14*Math.sin(t*1.7+c.seed))*c.rev.body:0;
   const ou=X.overM.userData.u;ou.uTime.value=t;ou.uBase.value=.75+.25*(P.star-1)+.15;ou.uVis.value=c.rev.vis;X.stalkM.emissiveIntensity=.5*P.glow;
-  if(s==='cont'||s==='awake'){const w=s==='cont'?clamp((st-5.0)/1.0,0,1):clamp((st-4.2)/.9,0,1);ou.uWave.value=lerp(-.1,1.0,w);ou.uWaveAmp.value=Math.sin(w*PI)*(s==='cont'?1.2:1.4);U.forEach(u=>{u.uPulse.value=lerp(1.4,-2.9,clamp((st-(s==='cont'?5.1:5.3))/1.1,0,1));const T0=s==='cont'?5.1:5.3;u.uPulseAmp.value=.8*sstep(T0,T0+.15,st)*(1-sstep(T0+1.0,T0+1.2,st));});}
-  else if(s==='rare'){const w=clamp((st-.8)/1.2,0,1);ou.uWave.value=lerp(-.1,.95,w);ou.uWaveAmp.value=Math.sin(w*PI)*(+$('rarity').value);U.forEach(u=>{u.uPulse.value=lerp(1.4,-2.8,clamp((st-1.2)/1.2,0,1));u.uPulseAmp.value=sstep(1.2,1.35,st)*(1-sstep(2.3,2.5,st));});}
+  if(s==='cont'||s==='awake'){const w=s==='cont'?clamp((st-5.0)/1.0,0,1):clamp((st-4.2)/.9,0,1);ou.uWave.value=lerp(-.1,1.0,w);ou.uWaveAmp.value=Math.sin(w*PI)*(s==='cont'?1.2:1.4);U.forEach(u=>{u.uPulse.value=lerp(1.4,-2.9,clamp((st-(s==='cont'?5.1:5.3))/1.1,0,1));const T0=s==='cont'?5.1:5.3;u.uPulseAmp.value=.8*sstep(T0,T0+.3,st)*(1-sstep(T0+.9,T0+1.25,st));});}
+  else if(s==='rare'){const w=clamp((st-.8)/1.2,0,1);ou.uWave.value=lerp(-.1,.95,w);ou.uWaveAmp.value=Math.sin(w*PI)*(+$('rarity').value);U.forEach(u=>{u.uPulse.value=lerp(1.4,-2.8,clamp((st-1.2)/1.2,0,1));u.uPulseAmp.value=sstep(1.2,1.5,st)*(1-sstep(2.15,2.5,st));});}
   else{const dk=1-xp(6,dt);ou.uWaveAmp.value*=dk;U.forEach(u=>u.uPulseAmp.value*=dk);}/* v12: interrompido no meio, o brilho se apaga em ~0,4 s */
   /* ---- efeitos sincronizados com o estado ---- */
   if(FX.on&&lod<2&&!c.sim&&c.inView!==false){const b0=FX.budget;FX.budget=b0*(lod===0?1:.35);FX.tag=c.state;effects(c,dt,t,st,spd);FX.tag=null;FX.budget=b0;}}
