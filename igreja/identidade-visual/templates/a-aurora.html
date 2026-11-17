@@ -1,0 +1,37 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=block" rel="stylesheet">
+<style>
+:root{--ambar:#E8B27A;--marfim:#F4EDE3;--carvao:#1C1A17;--nevoa:#8C8478}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:var(--carvao)}
+.post{position:relative;width:1080px;height:1350px;overflow:hidden}
+/* Stand-in fotográfico: amanhecer desfocado sobre horizonte (substituir por foto real) */
+.foto{position:absolute;inset:0;
+ background:
+  radial-gradient(ellipse 38% 22% at 64% 66%, rgba(255,226,170,.95), rgba(255,190,120,.55) 35%, transparent 70%),
+  radial-gradient(ellipse 90% 45% at 60% 68%, rgba(214,132,74,.55), transparent 70%),
+  linear-gradient(180deg,#2a2f3a 0%,#4b4a52 26%,#9a7462 56%,#d9a171 66%,#5a4436 71%,#2b241f 80%,#17130f 100%);
+ filter:blur(2px) saturate(.9)}
+.foto::after{content:"";position:absolute;left:-5%;right:-5%;top:69%;height:40%;
+ background:linear-gradient(180deg,rgba(20,16,12,.0),rgba(20,16,12,.85) 18%,#120f0c);
+ clip-path:polygon(0 18%,12% 10%,24% 14%,38% 6%,52% 12%,66% 4%,80% 10%,92% 6%,100% 12%,100% 100%,0 100%)}
+.veu{position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,15,12,.72) 0%,rgba(18,15,12,.25) 42%,rgba(18,15,12,.1) 55%,rgba(18,15,12,.78) 100%)}
+.grao{position:absolute;inset:0;background:url(_grain.svg);opacity:.16;mix-blend-mode:overlay}
+.vinheta{position:absolute;inset:0;box-shadow:inset 0 0 260px rgba(0,0,0,.6)}
+.topo{position:absolute;top:84px;left:96px;right:96px;display:flex;justify-content:space-between;
+ font:500 20px/1 Inter;letter-spacing:.32em;text-transform:uppercase;color:rgba(244,237,227,.75)}
+.texto{position:absolute;left:96px;right:120px;top:240px}
+.texto blockquote{font:500 74px/1.06 'Cormorant Garamond',serif;color:var(--marfim);letter-spacing:-.01em;text-shadow:0 2px 30px rgba(0,0,0,.35)}
+.texto em{font-style:italic;color:#F6D2A6}
+.ref{position:absolute;left:96px;bottom:96px;display:flex;align-items:center;gap:22px;
+ font:500 24px/1 Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--marfim)}
+.ref::before{content:"";width:56px;height:1.5px;background:var(--ambar)}
+.ref small{font-size:18px;color:rgba(244,237,227,.6);letter-spacing:.24em}
+.marca{position:absolute;right:96px;bottom:96px;font:600 18px/1 Inter;letter-spacing:.3em;color:rgba(244,237,227,.6)}
+</style></head><body><div class="post">
+<div class="foto"></div><div class="veu"></div><div class="grao"></div><div class="vinheta"></div>
+<div class="topo"><span>Versículo</span><span>Nº 01</span></div>
+<div class="texto"><blockquote>“As misericórdias do Senhor são a causa de não sermos consumidos, porque as suas misericórdias não têm fim; <em>renovam-se cada manhã.</em> Grande é a tua fidelidade.”</blockquote></div>
+<div class="ref">Lamentações 3:22-23 <small>ARA</small></div>
+<div class="marca">SUA IGREJA</div>
+</div></body></html>

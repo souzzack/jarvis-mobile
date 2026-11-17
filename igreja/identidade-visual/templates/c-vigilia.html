@@ -1,0 +1,33 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;700;800&display=block" rel="stylesheet">
+<style>
+:root{--noite:#0E1116;--ardosia:#1E2633;--luz:#F2C77B;--cinza:#A7ADB7}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1350px;overflow:hidden;background:var(--noite)}
+.post{position:relative;width:1080px;height:1350px;overflow:hidden;background:linear-gradient(180deg,#121722,#0B0E13)}
+/* Conceito: uma porta entreaberta, a única fonte de luz do quadro */
+.porta{position:absolute;left:760px;top:150px;width:46px;height:820px;
+ background:linear-gradient(180deg,#FFE7B8,#F2C77B 55%,#C98D45);box-shadow:0 0 60px 10px rgba(242,199,123,.45),0 0 220px 60px rgba(242,199,123,.18)}
+.feixe{position:absolute;left:520px;top:970px;width:560px;height:380px;
+ background:linear-gradient(180deg,rgba(242,199,123,.42),rgba(242,199,123,0) 85%);
+ clip-path:polygon(240px 0,286px 0,100% 100%,0 100%);filter:blur(6px)}
+.chao{position:absolute;left:0;right:0;top:970px;height:1px;background:rgba(167,173,183,.15)}
+.parede{position:absolute;inset:0;background:radial-gradient(ellipse 40% 55% at 72% 42%,rgba(242,199,123,.12),transparent 70%)}
+.grao{position:absolute;inset:0;background:url(_grain.svg);opacity:.2;mix-blend-mode:screen}
+.topo{position:absolute;top:96px;left:96px;font:700 19px/1 'Inter Tight';letter-spacing:.34em;text-transform:uppercase;color:var(--luz)}
+.bloco{position:absolute;left:96px;top:180px;width:600px}
+.titulo{font:800 84px/1.02 'Inter Tight';letter-spacing:-.035em;text-transform:uppercase;color:#F3F1EC}
+.titulo i{display:block;font:400 italic 100px/1 'Instrument Serif';text-transform:none;letter-spacing:-.01em;color:var(--luz);margin-top:18px}
+.corpo{margin-top:48px;width:540px;font:400 32px/1.42 'Inter Tight';color:#D9DCE1}
+.corpo b{font-weight:500;color:#fff}
+.pe{position:absolute;left:96px;right:96px;bottom:96px;display:flex;justify-content:space-between;align-items:center;
+ font:500 20px/1 'Inter Tight';letter-spacing:.2em;text-transform:uppercase;color:var(--cinza)}
+.pe span:first-child{color:#E9E6DF}
+.pe span:first-child::before{content:"";display:inline-block;width:40px;height:1.5px;background:var(--luz);vertical-align:middle;margin-right:18px}
+</style></head><body><div class="post">
+<div class="parede"></div><div class="porta"></div><div class="feixe"></div><div class="chao"></div><div class="grao"></div>
+<div class="topo">Reflexão · 03</div>
+<div class="bloco"><div class="titulo">Confiar não é entender tudo.<i>É seguir quem entende.</i></div>
+<div class="corpo">Talvez hoje você não saiba o porquê. Nem o quando. Mas <b>sabe com quem está.</b> E isso basta para dar o próximo passo.</div></div>
+<div class="pe"><span>Para meditar · Provérbios 3:5-6</span><span>Sua Igreja</span></div>
+</div></body></html>
