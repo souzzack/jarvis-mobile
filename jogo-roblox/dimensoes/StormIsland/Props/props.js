@@ -10,12 +10,12 @@ function pylon(ctx,id,name,x,z,h){const M=ctx.mat;const o=MM.obj(id,name,'Props'
 I.buildProps=function(ctx){const M=ctx.mat,P=I.poi,out=[];const r=MM.rng(1212);
   /* rochas únicas espalhadas fora dos caminhos */
   const rk=MM.obj('STORM.PROP.ROCKS','Rochas da ilha','Props',{notes:'Cada rocha tem forma própria (semente diferente). No Roblox: 3–4 malhas base reaproveitadas com escala e rotação.'});
-  for(let i=0,n=0;i<500&&n<70;i++){const x=-260+r()*520,z=-200+r()*400;if(!ctx.inside(x,z)||ctx.pathDist(x,z)<6)continue;if(Math.hypot(x-P.vila.x,z-P.vila.z)<P.vila.r-4)continue;if(Math.hypot(x-P.torre.x,z-P.torre.z)<34)continue;
-    const y=ctx.heightAt(x,z);if(y<2)continue;const s=1.5+r()*r()*7;const m=MM.mesh(MM.rockGeo(3000+i,s*(1+r()*.6),s*(.6+r()*.6),s*(1+r()*.5),1),r()<.3?M.pedraClara:M.pedra,x,y+s*.15,z,rk);m.rotation.y=r()*6;n++;}
+  for(let i=0,n=0;i<500&&n<44;i++){const x=-260+r()*520,z=-200+r()*400;if(!ctx.inside(x,z)||ctx.pathDist(x,z)<6)continue;if(Math.hypot(x-P.vila.x,z-P.vila.z)<P.vila.r-4)continue;if(Math.hypot(x-P.torre.x,z-P.torre.z)<34||Math.hypot(x-P.torre.x,z-P.torre.z-36)<18)continue;
+    const y=ctx.heightAt(x,z);if(y<2)continue;const s=1.5+r()*r()*7;const m=MM.mesh(MM.rockGeo(3000+i,s*(1+r()*.6),s*(.6+r()*.6),s*(1+r()*.5),2),ctx.rockMat,x,y+s*.15,z,rk);m.rotation.y=r()*6;n++;}
   out.push(rk);
   /* rochas altas que escondem a passagem secreta (fresta de 8 studs: STORM.HIDDEN.01) */
   const hid=MM.obj('STORM.PROP.SECRET.ROCKS','Rochas da passagem oculta','Props',{notes:'A fresta entre elas é a entrada da trilha secreta. Colisão nas rochas; vão livre de 8 studs.'});
-  [[-188,62,12],[-170,68,10],[-198,78,14],[-176,50,9]].forEach(([x,z,s],i)=>{const y=ctx.heightAt(x,z);MM.mesh(MM.rockGeo(70+i,s*.8,s*1.4,s*.8,1),M.pedra,x,y+s*.6,z,hid);MM.box(hid,x,y+s*.6,z,s*1.4,s*2.6,s*1.4);});
+  [[-188,62,12],[-170,68,10],[-198,78,14],[-176,50,9]].forEach(([x,z,s],i)=>{const y=ctx.heightAt(x,z);MM.mesh(MM.rockGeo(70+i,s*.8,s*1.4,s*.8,2),ctx.rockMat,x,y+s*.6,z,hid);MM.box(hid,x,y+s*.6,z,s*1.4,s*2.6,s*1.4);});
   out.push(hid);
   /* doca de chegada e arco do portal */
   {const C=P.chegada;const o=MM.obj('STORM.ARCH.ARRIVAL','Doca de chegada e arco do portal','Architecture',{notes:'Área inicial (STORM.SPAWN.01) e arco do portal de volta (STORM.PORTAL.01). Vão do arco: 14 × 18 studs.'});o.position.set(C.x,C.h,C.z);
@@ -33,7 +33,7 @@ I.buildProps=function(ctx){const M=ctx.mat,P=I.poi,out=[];const r=MM.rng(1212);
     const tl=MM.mesh(new T.CylinderGeometry(.5,.6,4,8),M.cobre,2,4.2,14.6,o);tl.rotation.x=1.1;
     MM.box(o,0,.4,8,10,.8,18);out.push(o);o.updateMatrixWorld(true);const c0=o.localToWorld(new T.Vector3(0,0,8));o.userData.walk=[{type:'rect',y:y+.8,x:c0.x,z:c0.z,sx:13,sz:13}];}
   /* linha de transmissão: torre → vila → estrada do penhasco */
-  {const T0=P.torre;const pts=[[42,18],[20,52],[-2,74],[24,112],[66,108]];const line=MM.obj('STORM.PROP.POWERLINE','Linha de transmissão','Props',{notes:'Cabos visuais. No Roblox: Beam entre Attachments.'});
+  {const T0=P.torre;const pts=[[72,30],[20,52],[-2,74],[24,112],[66,108]];const line=MM.obj('STORM.PROP.POWERLINE','Linha de transmissão','Props',{notes:'Cabos visuais. No Roblox: Beam entre Attachments.'});
     const pyl=pts.map(([x,z],i)=>{const p=pylon(ctx,'STORM.PROP.PYLON.0'+(i+1),'Torre de transmissão '+(i+1),x,z,20+(i%2)*3);out.push(p);return p;});
     for(let i=0;i<pyl.length-1;i++){const a=pyl[i],b=pyl[i+1];a.updateMatrixWorld(true);b.updateMatrixWorld(true);for(let k=0;k<2;k++){const A=a.localToWorld(a.userData.arms[k].clone()),B=b.localToWorld(b.userData.arms[k].clone());line.add(MM.tube(MM.catenary(A,B,3.5,20),.1,M.metalEscuro,24,3));}}
     out.push(line);}

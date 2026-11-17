@@ -75,7 +75,7 @@ body.walking .pad{display:grid}
       <div class="chips" id="views" style="margin-top:8px"></div></section>
     <section><h2>Camadas</h2><div class="chips">
       <button class="tog" id="tFx">Efeitos</button><button class="tog" id="tRain">Chuva</button><button class="tog" id="tFull">Iluminação completa</button><button class="tog" id="tLow">Gráfico reduzido</button>
-      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tScale">Escala</button></div></section>
+      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
     <section><h2>Modelos</h2><p class="note" style="margin-bottom:8px">Clique num modelo na cena ou na lista para inspecionar.</p><div id="modelList"></div></section>
     <section><h2>Exportar</h2><button class="btn primary" id="tExport">Baixar pacote (GLB + heightmap + marcadores)</button><p class="note" style="margin-top:6px">Gera um .zip com um GLB por pasta, heightmap e colormap do terreno, marcadores e manifesto. Ainda não foi importado no Roblox Studio.</p></section>
   </aside>
@@ -90,8 +90,11 @@ body.walking .pad{display:grid}
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
 <script src="nucleo/base.js"></script>
+<script src="nucleo/texturas.js"></script>
+<script src="nucleo/triplanar.js"></script>
 <script src="StormIsland/plano.js"></script>
 <script src="StormIsland/Terrain/terreno.js"></script>
+<script src="StormIsland/Terrain/superficie.js"></script>
 <script src="StormIsland/Architecture/torre.js"></script>
 <script src="StormIsland/Architecture/vila.js"></script>
 <script src="StormIsland/Architecture/caverna.js"></script>

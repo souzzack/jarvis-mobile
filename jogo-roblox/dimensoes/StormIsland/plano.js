@@ -7,7 +7,7 @@ MM.islands.StormIsland={
   id:'StormIsland',nome:'Ilha das Tempestades',
   paleta:{pedra:'#4a5168',pedraClara:'#6d7590',pedraEscura:'#2b3042',alvenaria:'#6c6876',metal:'#a7b0c4',metalEscuro:'#3d4458',cobre:'#b0703c',patina:'#3f8f86',
     madeira:'#4a3b3a',telhado:'#36405a',corda:'#6a5d52',vidro:'#1c2440',janela:'#ffb35c',cristal:'#7fe4ff',energia:'#43d9ff',lanterna:'#ffc27a',
-    folhagem:'#3d3652',casca:'#2a2734',veio:'#5fd3ff',tecido:'#5a3d6b',musgo:'#3b5a50',musgo2:'#4d6b5c',rocha:'#5b5f75',rochaAlta:'#8e94ad',trilha:'#aaa699',penhasco:'#2a2d3e',
+    folhagem:'#3d3652',casca:'#2a2734',veio:'#5fd3ff',tecido:'#5a3d6b',musgo:'#3b5a50',musgo2:'#4d6b5c',rocha:'#57565f',rochaAlta:'#7d7c86',trilha:'#aaa699',penhasco:'#2a2d3e',
     ceuTopo:'#070a19',ceuMeio:'#141a3a',ceuHorizonte:'#2a2f5c',nevoa:'#1a2140',violeta:'#7a4dff',azul:'#2f7bff',ciano:'#43d9ff',prata:'#b8c2d6'},
   /* pontos de interesse: centro, raio e altura do platô (h = altura do chão em studs) */
   poi:{

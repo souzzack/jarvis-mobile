@@ -55,6 +55,10 @@ MM.tube=function(pts,r,mat,seg,rad){const c=new T.CatmullRomCurve3(pts);const m=
 MM.rockGeo=function(seed,sx,sy,sz,detail){const g=new T.IcosahedronGeometry(1,detail===undefined?1:detail);const p=g.attributes.position;const r=MM.rng(seed);const o=[r()*50,r()*50];
   for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);const n=1+.28*MM.noise2(x*1.6+o[0],z*1.6+y*1.3+o[1],seed)+.12*MM.noise2(x*3.7,y*3.7+z,seed+3);
     let yy=y*n*sy;if(yy<-sy*.35)yy=-sy*.35-(yy+sy*.35)*.15;p.setXYZ(i,x*n*sx,yy,z*n*sz);}
+  /* fraturas: planos de corte achatam partes da rocha (faces quebradas) e sulcos de estrato */
+  if((detail||0)>=2){const v=new T.Vector3();const planes=[];const k=2+Math.floor(r()*3);for(let q=0;q<k;q++){const n=new T.Vector3(r()-.5,(r()-.3)*.8,r()-.5).normalize();planes.push([n,.55+r()*.25]);}
+    for(let i=0;i<p.count;i++){v.set(p.getX(i)/sx,p.getY(i)/sy,p.getZ(i)/sz);for(const [n,d] of planes){const t=v.dot(n);if(t>d)v.addScaledVector(n,-(t-d)*.92);}
+      const str=1-.035*Math.max(0,Math.sin(v.y*14+r()*0))*(v.y>-.3?1:0);p.setXYZ(i,v.x*sx*str,v.y*sy,v.z*sz*str);}}
   g.computeVertexNormals();return g;};
 /* prisma hexagonal facetado (cristal) apontando para +Y */
 MM.crystalGeo=function(r,h,tip){const g=new T.CylinderGeometry(r*.8,r,h,6,1);g.translate(0,h/2,0);const c=new T.ConeGeometry(r*.8,tip||r*1.8,6);c.translate(0,h+(tip||r*1.8)/2,0);return MM.merge([g,c]);};

@@ -12,10 +12,11 @@ I.buildEffects=function(ctx){const scene=ctx.scene,E={on:true,rain:true,t:0,flas
   const drops=[];for(let i=0;i<NR;i++)drops.push({x:(r()-.5)*160,y:r()*90,z:(r()-.5)*160,v:70+r()*30});
   /* arcos elétricos: bobinas da torre e para-raios da vila → Coletor */
   const aGeo=new T.BufferGeometry();const arcs=new T.LineSegments(aGeo,new T.LineBasicMaterial({color:MM.C('#8fe9ff'),transparent:true,opacity:.85}));arcs.frustumCulled=false;grp.add(arcs);
-  const tower=ctx.reg.byId['STORM.ARCH.TOWER'],plaza=ctx.reg.byId['STORM.ARCH.VILLAGE.PLAZA'];const rods=ctx.reg.list.filter(o=>o.userData.rodTip).map(o=>{o.updateMatrixWorld(true);return o.localToWorld(o.userData.rodTip.clone());});
+  const edgeObj=ctx.reg.byId['STORM.TERRAIN.EDGE'],edgeAnim=edgeObj&&edgeObj.userData.anim;const tower=ctx.reg.byId['STORM.ARCH.TOWER'],plaza=ctx.reg.byId['STORM.ARCH.VILLAGE.PLAZA'];const rods=ctx.reg.list.filter(o=>o.userData.rodTip).map(o=>{o.updateMatrixWorld(true);return o.localToWorld(o.userData.rodTip.clone());});
   function setBolt(segs){const a=new Float32Array(segs.length*3);segs.forEach((p,i)=>{a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z;});bGeo.setAttribute('position',new T.BufferAttribute(a,3));bGeo.computeBoundingSphere();}
   E.update=function(dt,cam){E.t+=dt;const on=E.on;grp.visible=on;
-    if(tower){const A=tower.userData.anim;A.anem.rotation.y+=dt*(on?2.4:.6);A.vane.rotation.y=Math.sin(E.t*.3)*.5;}
+    if(tower){const A=tower.userData.anim;A.anem.rotation.y+=dt*(on?2.4:.6);A.vane.rotation.y=Math.sin(E.t*.3)*.5;if(tower.userData.update)tower.userData.update(dt,E.t,on);}
+    if(edgeAnim&&edgeAnim.wMat)edgeAnim.wMat.uniforms.uT.value=E.t;
     if(!on){E.flash=0;return;}
     /* relâmpago distante ou na agulha */
     E.next-=dt;E.nextTower-=dt;let fired=false;
