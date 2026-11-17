@@ -30,7 +30,7 @@ MM.makeMaterials=function(pal){return{
   madeira:std('MadeiraEscura',{color:pal.madeira,roughness:.85}),
   telhado:std('TelhadoMetal',{color:pal.telhado,metalness:.5,roughness:.5,flatShading:true}),
   corda:std('Corda',{color:pal.corda,roughness:1}),
-  vidro:std('VidroEscuro',{color:pal.vidro,metalness:.2,roughness:.15,emissive:MM.C(pal.janela),emissiveIntensity:.35}),
+  vidro:std('VidroEscuro',{color:pal.vidro,metalness:.2,roughness:.15,emissive:MM.C(pal.janela),emissiveIntensity:.85}),
   cristal:std('CristalEnergizado',{color:pal.cristal,roughness:.15,metalness:.1,transparent:true,opacity:.82,emissive:MM.C(pal.energia),emissiveIntensity:.55,flatShading:true}),
   energia:std('Energia',{color:pal.energia,emissive:MM.C(pal.energia),emissiveIntensity:1.6,roughness:.4}),
   lanterna:std('Lanterna',{color:pal.lanterna,emissive:MM.C(pal.lanterna),emissiveIntensity:1.1}),
@@ -64,7 +64,8 @@ MM.rockGeo=function(seed,sx,sy,sz,detail){const g=new T.IcosahedronGeometry(1,de
 MM.crystalGeo=function(r,h,tip){const g=new T.CylinderGeometry(r*.8,r,h,6,1);g.translate(0,h/2,0);const c=new T.ConeGeometry(r*.8,tip||r*1.8,6);c.translate(0,h+(tip||r*1.8)/2,0);return MM.merge([g,c]);};
 MM.merge=function(geos){const nonIdx=geos.map(g=>g.index?g.toNonIndexed():g);let n=0;nonIdx.forEach(g=>n+=g.attributes.position.count);const P=new Float32Array(n*3),N=new Float32Array(n*3);let o=0;
   nonIdx.forEach(g=>{if(!g.attributes.normal)g.computeVertexNormals();P.set(g.attributes.position.array,o*3);N.set(g.attributes.normal.array,o*3);o+=g.attributes.position.count;});
-  const out=new T.BufferGeometry();out.setAttribute('position',new T.BufferAttribute(P,3));out.setAttribute('normal',new T.BufferAttribute(N,3));return out;};
+  const out=new T.BufferGeometry();out.setAttribute('position',new T.BufferAttribute(P,3));out.setAttribute('normal',new T.BufferAttribute(N,3));
+  if(nonIdx.every(g=>g.attributes.color)){const C=new Float32Array(n*3);let q=0;nonIdx.forEach(g=>{C.set(g.attributes.color.array,q*3);q+=g.attributes.color.count;});out.setAttribute('color',new T.BufferAttribute(C,3));}return out;};
 /* bake(): funde as peças estáticas de um modelo por material (menos chamadas de desenho e GLB mais limpo).
    Partes animadas (userData.animated) e sprites ficam separadas. */
 MM.bake=function(obj){obj.updateMatrixWorld(true);const inv=new T.Matrix4().copy(obj.matrixWorld).invert();const groups=new Map();const kill=[];

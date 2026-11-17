@@ -35,5 +35,11 @@ I.buildForest=function(ctx){const M=ctx.mat,F=I.poi.floresta,out=[];const varian
   const fl=new T.MeshStandardMaterial({color:'#9fe8ff',emissive:MM.C('#43d9ff'),emissiveIntensity:.8,roughness:.4});fl.name='FlorFaisca';
   for(let i=0;i<34;i++){const a=r()*Math.PI*2,rr=r()*(F.r);const x=F.x+Math.cos(a)*rr,z=F.z+Math.sin(a)*rr;if(!ctx.inside(x,z)||ctx.pathDist(x,z)<2)continue;const y=ctx.heightAt(x,z);
     const st=MM.mesh(new T.CylinderGeometry(.06,.08,1.2,3),M.folhagem,x,y+.6,z,lg);st.castShadow=false;const b=MM.mesh(new T.OctahedronGeometry(.28,0),fl,x,y+1.3,z,lg);b.castShadow=false;}
+  /* desenho instanciado: as 52 árvores viram 1 InstancedMesh por forma × material (≈ 36 chamadas em vez de ≈ 160 + sombras).
+     Cada árvore continua sendo um modelo próprio (inspeção, colisão, exportação): sua malha vira um "proxy" invisível que guarda o material real. */
+  {const hid=new T.MeshBasicMaterial({visible:false});hid.name='ProxyInstanciado';MM.hidMat=hid;MM.realMats=MM.realMats||{};const groups=new Map();
+    out.filter(o=>o.userData.id.startsWith('STORM.VEG.TREE.')).forEach(o=>{o.updateMatrix();o.children.forEach(m=>{if(!m.isMesh)return;const k=m.geometry.uuid+'|'+m.material.uuid;if(!groups.has(k))groups.set(k,{g:m.geometry,mat:m.material,cs:m.castShadow,mats:[]});groups.get(k).mats.push(o.matrix.clone());
+      MM.realMats[m.material.name]=m.material;m.userData.realMat=m.material.name;m.material=hid;});});
+    groups.forEach(({g,mat,cs,mats})=>{const im=new T.InstancedMesh(g,mat,mats.length);im.name='ArvoresInstanciadas';im.userData.renderOnly=true;im.castShadow=cs;im.receiveShadow=true;mats.forEach((m,i)=>im.setMatrixAt(i,m));lg.add(im);});}
   out.push(lg);return out;};
 })();

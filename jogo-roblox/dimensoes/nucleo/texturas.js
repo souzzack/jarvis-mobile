@@ -21,7 +21,7 @@ function make(N,fn,strength){const col=new Uint8ClampedArray(N*N*4),hgt=new Floa
   return{map:tex(col,true),normalMap:tex(nrm,false),roughnessMap:tex(rgh,false)};}
 const G={};
 /* rocha estratificada com fraturas e grão */
-G.rocha=(N=512)=>{const A=C3('#4d4c55'),B=C3('#68666e'),D=C3('#2c2b32'),V=C3('#5c5670');return make(N,(u,v)=>{const w=pfbm(u*4,v*4,4,4,11);const band=.5+.5*Math.sin((v+w*.22)*Math.PI*2*3);
+G.rocha=(N=512)=>{const A=C3('#55524f'),B=C3('#716c66'),D=C3('#2e2b2a'),V=C3('#5d5862');return make(N,(u,v)=>{const w=pfbm(u*4,v*4,4,4,11);const band=(.5+.5*Math.sin((v+w*.5)*Math.PI*2*3))*(.3+.7*pfbm(u*3,v*3,3,3,12));
     const W=worley(u*3,v*9,3,21);const keep=W.id>.62?1:0;/* só algumas bordas viram fratura */const crack=(1-sst(0,.035,W.f2-W.f1))*keep*sst(.3,.6,pfbm(u*6,v*6,6,3,22));
     const grain=pfbm(u*32,v*32,32,3,31);const layer=pfbm(u*2,v*24,2,4,23);/* camadas finas horizontais */
     let c=mix(A,B,sst(.3,.8,band)*.7+grain*.2+layer*.25);c=mix(c,V,sst(.6,.9,pfbm(u*3,v*3,3,3,41))*.3);c=mix(c,D,crack*.8);
@@ -36,7 +36,7 @@ G.terra=(N=256)=>{const A=C3('#3d3431'),B=C3('#554a43'),P=C3('#7a736c');return m
 G.lajes=(N=512)=>{const A=C3('#8d8a84'),B=C3('#6f6c68'),M=C3('#3b3936');return make(N,(u,v)=>{const W=worley(u*7,v*7,7,71);const edge=sst(.0,.09,W.f2-W.f1);const n=pfbm(u*24,v*24,24,3,72);
     let c=mix(A,B,W.id*.7+n*.3);c=mix(M,c,edge);return{c,h:edge*(.6+.2*n),r:.6+.25*(1-edge)};},5);};
 /* alvenaria: fiadas de blocos chanfrados, com desgaste nas quinas */
-G.blocos=(N=512)=>{const A=C3('#6d6a77'),B=C3('#82808c'),M=C3('#2f2e36');return make(N,(u,v)=>{const rows=6,cols=3;const ry=v*rows,row=Math.floor(ry);const rx=u*cols+(row%2)*.5;const col=Math.floor(rx);
+G.blocos=(N=512)=>{const A=C3('#726c68'),B=C3('#89837c'),M=C3('#2f2c2b');return make(N,(u,v)=>{const rows=6,cols=3;const ry=v*rows,row=Math.floor(ry);const rx=u*cols+(row%2)*.5;const col=Math.floor(rx);
     const fx=rx-col,fy=ry-row;const id=H(((col%cols)+cols)%cols,row,81);const e=Math.min(fx,1-fx,fy*1.6,(1-fy)*1.6);const bev=sst(0,.06,e);const n=pfbm(u*20,v*20,20,3,82);
     let c=mix(A,B,id*.6+n*.3);c=mix(c,C3('#9a97a1'),sst(.06,.02,e)*.3);c=mix(M,c,sst(.005,.02,e));return{c,h:bev*.8+n*.15,r:.82+.1*n};},6);};
 /* metal envelhecido: riscos, encardido e pontos de ferrugem */

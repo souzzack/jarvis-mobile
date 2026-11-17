@@ -8,7 +8,7 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
   const folders={};const put=(list)=>list.forEach(o=>{reg.add(o);const f=o.userData.cat;if(!folders[f]){folders[f]=new T.Group();folders[f].name=f;root.add(folders[f]);}folders[f].add(o);});
   put(terr.objects);put(I.buildSurface(ctx));
   put(I.buildTower(ctx));put(I.buildVillage(ctx));put(I.buildCave(ctx));put(I.buildObservatory(ctx));put(I.buildSanctuary(ctx));put(I.buildBridges(ctx));
-  put(I.buildForest(ctx));put(I.buildResources(ctx));put(I.buildProps(ctx));put(I.buildMarkers(ctx));
+  put(I.buildForest(ctx));put(I.buildResources(ctx));put(I.buildDeposits(ctx));put(I.buildProps(ctx));put(I.buildMarkers(ctx));
   const light=I.buildLighting(ctx);put([light.clouds]);
   /* funde peças estáticas por material (exceto terreno, marcadores e vegetação instanciada por forma) */
   reg.list.forEach(o=>{const id=o.userData.id;if(o.userData.cat==='Interactions'||id==='STORM.TERRAIN.MAIN'||id.startsWith('STORM.VEG.TREE.'))return;MM.bake(o);});/* árvores mantêm a geometria compartilhada (12 formas reaproveitadas, como num Roblox com MeshParts clonadas) */
@@ -21,6 +21,7 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
   const P=I.poi;
   const views={'Aérea':{pos:[40,560,330],tgt:[0,0,-10]},'Frontal':{pos:[0,90,470],tgt:[0,30,20]},'Três quartos':{pos:[360,210,330],tgt:[0,30,-10]},
     'Torre':{pos:[120,90,90],tgt:[P.torre.x,P.torre.h+60,P.torre.z]},'Vila':{pos:[40,60,170],tgt:[P.vila.x,P.vila.h+6,P.vila.z]},'Floresta':{pos:[-60,60,90],tgt:[P.floresta.x,20,P.floresta.z]},
-    'Caverna':{pos:[-128,44,-48],tgt:[-150,32,-104]},'Observatório':{pos:[210,110,-60],tgt:[P.observatorio.x,P.observatorio.h+8,P.observatorio.z]},'Penhasco':{pos:[300,40,120],tgt:[P.penhasco.x,P.penhasco.h,P.penhasco.z]},'Ponte':{pos:[150,40,130],tgt:[114,20,89]},'Santuário (secreto)':{pos:[-190,40,190],tgt:[P.santuario.x,P.santuario.h+4,P.santuario.z]}};
+    'Caverna':{pos:[-128,44,-48],tgt:[-150,32,-104]},'Observatório':{pos:[210,110,-60],tgt:[P.observatorio.x,P.observatorio.h+8,P.observatorio.z]},'Penhasco':{pos:[300,40,120],tgt:[P.penhasco.x,P.penhasco.h,P.penhasco.z]},'Ponte':{pos:[150,40,130],tgt:[114,20,89]},'Santuário (secreto)':{pos:[-190,40,190],tgt:[P.santuario.x,P.santuario.h+4,P.santuario.z]},
+    'Nível do jogador':(()=>{const h=terr.heightAt(40,46);return{pos:[40,h+5.2,46],tgt:[32,h+12,-4]};})(),'Montanhas':{pos:[90,150,60],tgt:[-60,60,-170]},'Montanhas (perto)':{pos:[-30,95,-80],tgt:[-96,80,-184]},'Bordas':{pos:[330,40,150],tgt:[210,-15,40]}};
   return{id:I.id,nome:I.nome,root,reg,terrain:terr,light,fx,colliders,walks,views,spawn:new T.Vector3(P.chegada.x,P.chegada.h,P.chegada.z-2),ms:Math.round(performance.now()-t0),folders};};
 })();

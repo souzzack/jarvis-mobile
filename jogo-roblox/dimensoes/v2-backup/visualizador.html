@@ -1,0 +1,111 @@
+<title>Atlas das Dimensões</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: palco 3D ocupa a tela; painel lateral à direita com ilhas, vistas, camadas e modelos; no celular o painel desce para baixo do palco.
+   Visual de um só tema (noite de tempestade), escolhido de propósito para casar com a cena 3D. */
+:root{--bg:#0a0c1a;--panel:#11142a;--panel2:#171b36;--line:#262c52;--ink:#e8eafb;--muted:#9aa2c8;--accent:#43d9ff;--accent2:#7a4dff;--warn:#ffd27a;
+  --display:"Space Grotesk",system-ui,sans-serif;--body:Inter,system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--body)}
+.app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:0}
+.stage{position:relative;min-height:0;overflow:hidden;background:#05060f}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.side{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding-block:14px;padding-left:16px;padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px;min-width:0}
+h1{font:700 19px/1.15 var(--display);margin:0;letter-spacing:.01em;text-wrap:balance}
+.eyebrow{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h2{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+section{display:flex;flex-direction:column}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.isl{width:100%;display:grid;grid-template-columns:12px 1fr auto;align-items:center;gap:10px;text-align:left;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:8px 10px;font:500 13px var(--body);cursor:pointer}
+.isl.on{border-color:var(--accent);background:var(--panel2)}.isl:disabled{color:var(--muted);cursor:not-allowed;opacity:.75}
+.isl em{font:400 11px var(--mono);color:var(--muted);font-style:normal}.isl.on em{color:var(--accent)}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px rgba(255,255,255,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip,.tog,.btn{font:500 12.5px var(--body);color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 10px;cursor:pointer}
+.chip:hover,.tog:hover,.btn:hover{border-color:#3a4278}
+.tog[aria-pressed="true"]{border-color:var(--accent);color:#fff;background:linear-gradient(180deg,rgba(67,217,255,.16),rgba(67,217,255,.06))}
+.btn.primary{background:var(--accent);color:#06101a;border-color:transparent;font-weight:600}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+details{border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:var(--panel2)}
+summary{display:flex;justify-content:space-between;padding:7px 10px;cursor:pointer;font:500 13px var(--body)}summary b{font:500 12px var(--mono);color:var(--muted)}
+details div{display:flex;flex-direction:column;padding:0 6px 6px;max-height:260px;overflow-y:auto}
+details button{display:flex;flex-direction:column;align-items:flex-start;gap:0;text-align:left;background:transparent;border:0;border-radius:6px;color:var(--ink);padding:5px 6px;cursor:pointer;font:400 12.5px var(--body)}
+details button code{font:400 10.5px var(--mono);color:var(--muted)}details button:hover,details button.on{background:#20264a}
+.overlay{position:absolute;pointer-events:none}
+#status{inset:0;display:grid;place-items:center;font:500 15px var(--display);color:var(--muted)}
+#hud{left:max(12px,env(safe-area-inset-left,0px));top:12px;font:400 11.5px/1.5 var(--mono);color:#cfd5f4;background:rgba(8,10,24,.66);border:1px solid var(--line);border-radius:8px;padding:6px 9px;white-space:pre}
+.scale{left:max(12px,env(safe-area-inset-left,0px));bottom:12px;display:flex;flex-direction:column;gap:4px;font:500 11px var(--mono);color:#dfe4ff;background:rgba(8,10,24,.66);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+#scaleBar{height:6px;border:2px solid #dfe4ff;border-top:0;width:40px}
+.inspect{right:12px;top:12px;width:min(320px,calc(100% - 24px));pointer-events:auto;background:rgba(13,16,34,.94);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.inspect h3{font:600 15px var(--display);margin:0}.inspect code{font:400 11px var(--mono);color:var(--accent)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px}.kv dt{color:var(--muted)}.kv dd{margin:0;font-family:var(--mono);font-size:11.5px;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.inspect .row{display:flex;gap:6px;flex-wrap:wrap}
+.pad{right:12px;bottom:12px;display:none;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,46px);gap:6px;pointer-events:auto}
+.pad button{background:rgba(17,20,42,.85);border:1px solid var(--line);border-radius:10px;color:var(--ink);font:600 16px var(--body)}
+body.walking .pad{display:grid}
+.note{font-size:12px;color:var(--muted);margin:0}
+.walkhelp{display:none}body.walking .walkhelp{display:block}
+[hidden]{display:none!important}
+@media (max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:62vh auto;height:auto}.side{border-left:0;border-top:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px))}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+<div class="app">
+  <main class="stage" id="stage" aria-label="Cena 3D">
+    <div class="overlay" id="status">Carregando…</div>
+    <div class="overlay" id="hud" aria-live="off"></div>
+    <div class="overlay scale" aria-hidden="true"><div id="scaleBar"></div><span id="scaleTxt">10 studs</span></div>
+    <div class="overlay inspect" id="inspect" hidden>
+      <div class="row" style="justify-content:space-between;align-items:baseline"><h3 id="iName"></h3><button class="chip" id="iClose" aria-label="Fechar inspeção">✕</button></div>
+      <code id="iId"></code>
+      <dl class="kv"><dt>Pasta</dt><dd id="iCat"></dd><dt>Triângulos</dt><dd id="iTris"></dd><dt>Tamanho (studs)</dt><dd id="iSize"></dd><dt>Pivô</dt><dd id="iPivot"></dd><dt>Colisão</dt><dd id="iCols"></dd><dt>Notas</dt><dd id="iNotes" style="font-family:var(--body)"></dd></dl>
+      <div class="row"><button class="btn" id="iFocus">Focar</button><button class="btn" id="iIso">Isolar</button><button class="btn" id="iGlb">Exportar GLB</button></div>
+    </div>
+    <div class="overlay pad" aria-label="Controles de caminhada">
+      <span></span><button data-key="KeyW" aria-label="Frente">▲</button><button data-key="Space" aria-label="Pular">⤒</button>
+      <button data-key="KeyA" aria-label="Esquerda">◀</button><button data-key="KeyS" aria-label="Trás">▼</button><button data-key="KeyD" aria-label="Direita">▶</button>
+    </div>
+  </main>
+  <aside class="side">
+    <header><div class="eyebrow">Magnata do Multiverso · Atlas das Dimensões</div><h1>Ilha das Tempestades</h1><p class="note" id="buildInfo">Piloto navegável. As outras cinco ilhas esperam a sua aprovação deste padrão.</p></header>
+    <section><h2>Dimensões</h2><ul id="islands"></ul></section>
+    <section><h2>Câmera</h2><div class="seg"><button class="tog" id="mOrbit" aria-pressed="true">Câmera livre</button><button class="tog" id="mWalk" aria-pressed="false">Caminhar (boneco)</button></div>
+      <p class="note walkhelp" style="margin-top:6px">WASD ou setas para andar, espaço para pular, arraste para girar a câmera. Velocidade 16 studs/s e pulo de 7,2 studs (padrão do Roblox).</p>
+      <div class="chips" id="views" style="margin-top:8px"></div></section>
+    <section><h2>Camadas</h2><div class="chips">
+      <button class="tog" id="tFx">Efeitos</button><button class="tog" id="tRain">Chuva</button><button class="tog" id="tFull">Iluminação completa</button><button class="tog" id="tLow">Gráfico reduzido</button>
+      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
+    <section><h2>Modelos</h2><p class="note" style="margin-bottom:8px">Clique num modelo na cena ou na lista para inspecionar.</p><div id="modelList"></div></section>
+    <section><h2>Exportar</h2><button class="btn primary" id="tExport">Baixar pacote (GLB + heightmap + marcadores)</button><p class="note" style="margin-top:6px">Gera um .zip com um GLB por pasta, heightmap e colormap do terreno, marcadores e manifesto. Ainda não foi importado no Roblox Studio.</p></section>
+  </aside>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+<script src="nucleo/base.js"></script>
+<script src="nucleo/texturas.js"></script>
+<script src="nucleo/triplanar.js"></script>
+<script src="StormIsland/plano.js"></script>
+<script src="StormIsland/Terrain/terreno.js"></script>
+<script src="StormIsland/Terrain/superficie.js"></script>
+<script src="StormIsland/Architecture/torre.js"></script>
+<script src="StormIsland/Architecture/vila.js"></script>
+<script src="StormIsland/Architecture/caverna.js"></script>
+<script src="StormIsland/Architecture/observatorio.js"></script>
+<script src="StormIsland/Architecture/pontes.js"></script>
+<script src="StormIsland/Vegetation/floresta.js"></script>
+<script src="StormIsland/Resources/cristais.js"></script>
+<script src="StormIsland/Props/props.js"></script>
+<script src="StormIsland/Interactions/marcadores.js"></script>
+<script src="StormIsland/Lighting/iluminacao.js"></script>
+<script src="StormIsland/Effects/efeitos.js"></script>
+<script src="StormIsland/ilha.js"></script>
+<script src="nucleo/visualizador.js"></script>
+<script>MM.startViewer();</script>

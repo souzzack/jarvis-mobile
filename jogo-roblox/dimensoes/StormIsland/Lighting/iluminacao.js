@@ -4,11 +4,13 @@
 (function(){const MM=window.MM,T=THREE;const I=MM.islands.StormIsland;
 const NOISE='float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float n2(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*n2(p);p*=2.03;a*=.5;}return s;}';
 I.buildLighting=function(ctx){const pal=I.paleta,scene=ctx.scene;const L={};
-  scene.fog=new T.FogExp2(MM.C(pal.nevoa),.00085);
-  L.hemi=new T.HemisphereLight(MM.C('#8e92b2'),MM.C('#2b2630'),.62);scene.add(L.hemi);
-  L.sun=new T.DirectionalLight(MM.C('#dfe2fb'),1.4);L.sun.position.set(-220,320,180);L.sun.castShadow=true;const sc=L.sun.shadow.camera;sc.left=-330;sc.right=330;sc.top=300;sc.bottom=-300;sc.near=50;sc.far=900;L.sun.shadow.mapSize.set(2048,2048);L.sun.shadow.bias=-.0006;L.sun.shadow.normalBias=.6;scene.add(L.sun);
-  L.rim=new T.DirectionalLight(MM.C('#7a4dff'),.35);L.rim.position.set(260,120,-260);scene.add(L.rim);
-  L.beacon=new T.PointLight(MM.C('#43d9ff'),1.4,190,2);L.beacon.position.set(I.poi.torre.x,I.poi.torre.h+76,I.poi.torre.z);scene.add(L.beacon);
+  scene.fog=new T.FogExp2(MM.C('#1d2544'),.00078);/* perspectiva aérea: separa primeiro plano, meio e montanhas sem esconder a forma */
+  L.hemi=new T.HemisphereLight(MM.C('#9aa2c6'),MM.C('#3b3129'),.7);/* céu frio, rebote do chão quente */scene.add(L.hemi);
+  L.sun=new T.DirectionalLight(MM.C('#e8e9f5'),1.65);L.sun.position.set(-220,320,180);L.sun.castShadow=true;const sc=L.sun.shadow.camera;sc.left=-330;sc.right=330;sc.top=300;sc.bottom=-300;sc.near=50;sc.far=900;L.sun.shadow.mapSize.set(2048,2048);L.sun.shadow.bias=-.0006;L.sun.shadow.normalBias=.6;scene.add(L.sun);
+  L.rim=new T.DirectionalLight(MM.C('#8c7dff'),.8);L.rim.position.set(300,60,-160);/* contraluz frio: lê os paredões do lado da sombra */scene.add(L.rim);
+  /* luzes quentes nas construções (só 2 pontuais dinâmicas: porta da torre e praça da vila; o resto é emissivo) */
+  L.warm=[[I.poi.torre.x,I.poi.torre.h+10,I.poi.torre.z+30,70],[I.poi.vila.x,I.poi.vila.h+9,I.poi.vila.z,90]].map(([x,y,z,d])=>{const l=new T.PointLight(MM.C('#ffb066'),1.3,d,2);l.position.set(x,y,z);scene.add(l);return l;});
+  L.beacon=new T.PointLight(MM.C('#43d9ff'),1.1,170,2);L.beacon.position.set(I.poi.torre.x,I.poi.torre.h+76,I.poi.torre.z);scene.add(L.beacon);
   /* céu */
   const sky=new T.Mesh(new T.SphereGeometry(1800,40,20),new T.ShaderMaterial({side:T.BackSide,depthWrite:false,fog:false,uniforms:{uT:{value:0},uFlash:{value:0},top:{value:MM.C(pal.ceuTopo)},mid:{value:MM.C(pal.ceuMeio)},hor:{value:MM.C(pal.ceuHorizonte)}},
     vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
@@ -38,7 +40,10 @@ I.buildLighting=function(ctx){const pal=I.paleta,scene=ctx.scene;const L={};
     spots.forEach(([x,z,R,y])=>{for(let i=0;i<9;i++){const sm=new T.SpriteMaterial({map:tx,color:MM.C('#8f97c6'),transparent:true,opacity:.16+rr()*.1,depthWrite:false,fog:true});const s=new T.Sprite(sm);const a=rr()*6.28,d=rr()*R;
       s.position.set(x+Math.cos(a)*d,y+rr()*8,z+Math.sin(a)*d);const k=40+rr()*50;s.scale.set(k*1.8,k*.5,1);s.userData.base=s.position.clone();s.userData.ph=rr()*6;mist.add(s);}});
     scene.add(mist);L.mist=mist;}
-  L.setMode=function(full){L.sun.castShadow=full;L.beacon.visible=full;L.rim.visible=full;L.hemi.intensity=full?.62:.95;};
-  L.update=function(t,flash){if(L.mist)L.mist.children.forEach(s=>{s.position.x=s.userData.base.x+Math.sin(t*.05+s.userData.ph)*14;s.position.z=s.userData.base.z+Math.cos(t*.04+s.userData.ph)*10;});sky.material.uniforms.uT.value=t;sky.material.uniforms.uFlash.value=flash;sea.material.uniforms.uT.value=t;sea.material.uniforms.uFlash.value=flash;L.hemi.intensity=(L.sun.castShadow?.62:.95)+flash*.9;};
+  L.neutral=false;L.setMode=function(full){L.full=full;L.sun.castShadow=full&&!L.neutral;L.beacon.visible=full&&!L.neutral;L.rim.visible=full&&!L.neutral;L.warm.forEach(l=>l.visible=full&&!L.neutral);L.hemi.intensity=L.neutral?1.05:(full?.7:1);};
+  /* iluminação neutra: luz branca uniforme, sem névoa nem céu de tempestade — para inspecionar forma e material */
+  const fog0=scene.fog,neutralBg=MM.C('#8c8f96');L.setNeutral=function(on){L.neutral=on;scene.fog=on?null:fog0;sky.visible=!on;sea.visible=!on;if(L.mist)L.mist.visible=!on;cl.visible=!on;scene.background=on?neutralBg:null;
+    L.hemi.color.copy(on?MM.C('#ffffff'):MM.C('#9aa2c6'));L.hemi.groundColor.copy(on?MM.C('#6b6660'):MM.C('#3b3129'));L.sun.color.copy(on?MM.C('#ffffff'):MM.C('#e8e9f5'));L.sun.intensity=on?1.5:1.65;L.setMode(L.full!==false);};
+  L.update=function(t,flash){if(L.mist)L.mist.children.forEach(s=>{s.position.x=s.userData.base.x+Math.sin(t*.05+s.userData.ph)*14;s.position.z=s.userData.base.z+Math.cos(t*.04+s.userData.ph)*10;});sky.material.uniforms.uT.value=t;sky.material.uniforms.uFlash.value=flash;sea.material.uniforms.uT.value=t;sea.material.uniforms.uFlash.value=flash;L.hemi.intensity=(L.neutral?1.05:(L.full!==false?.7:1))+flash*.7;};
   return L;};
 })();

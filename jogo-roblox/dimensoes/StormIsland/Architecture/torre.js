@@ -20,11 +20,12 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   /* ---- materiais da torre ---- */
   const stone=MM.triplanar({mode:'rocha',name:'PedraTorre',rockScale:.085,strata:0,tint:'#e8e3dc',mossTop:.35,env:.5});stone.userData.u.tRockC.value=tx.blocos.map;stone.userData.u.tRockN.value=tx.blocos.normalMap;
   const stone2=MM.triplanar({mode:'rocha',name:'PedraEntalhada',rockScale:.06,strata:0,tint:'#fffaf2',env:.5});
-  const met=new T.MeshStandardMaterial({name:'MetalEnvelhecido',map:tx.metal.map,normalMap:tx.metal.normalMap,roughnessMap:tx.metal.roughnessMap,metalness:.82,roughness:1,envMapIntensity:1.1});
+  const met=new T.MeshStandardMaterial({name:'MetalEnvelhecido',map:tx.metal.map,normalMap:tx.metal.normalMap,roughnessMap:tx.metal.roughnessMap,metalness:.85,roughness:.62,envMapIntensity:1.25});/* escovado: rugosidade menor que a do metal escuro */
+  const bronze=new T.MeshStandardMaterial({name:'BronzeOxidado',color:MM.C('#c9a46a'),map:tx.cobre.map,normalMap:tx.cobre.normalMap,roughnessMap:tx.cobre.roughnessMap,metalness:.85,roughness:.75,envMapIntensity:1.3});
   const metD=new T.MeshStandardMaterial({name:'MetalEscuroTorre',color:MM.C('#3b3f4a'),map:tx.metal.map,normalMap:tx.metal.normalMap,roughnessMap:tx.metal.roughnessMap,metalness:.7,roughness:1});
   const cu=new T.MeshStandardMaterial({name:'CobreOxidado',map:tx.cobre.map,normalMap:tx.cobre.normalMap,roughnessMap:tx.cobre.roughnessMap,metalness:.75,roughness:1,envMapIntensity:1.2});
   const wood=new T.MeshStandardMaterial({name:'MadeiraPorta',color:MM.C('#4a3428'),roughness:.8});
-  const glass=new T.MeshPhysicalMaterial({name:'VidroReforcado',color:MM.C('#5e7b8a'),roughness:.06,metalness:0,transmission:.55,transparent:true,opacity:.75,clearcoat:1,envMapIntensity:1.4,emissive:MM.C('#ffb36b'),emissiveIntensity:.08});
+  const glass=new T.MeshPhysicalMaterial({name:'VidroReforcado',color:MM.C('#5e7b8a'),roughness:.06,metalness:0,transmission:.55,transparent:true,opacity:.75,clearcoat:1,envMapIntensity:1.4,emissive:MM.C('#ffb36b'),emissiveIntensity:.5});/* luz quente de dentro */
   const crys=new T.MeshPhysicalMaterial({name:'CristalAtmosferico',color:MM.C('#b8eeff'),roughness:.04,transmission:.7,transparent:true,opacity:.9,clearcoat:1,flatShading:true,emissive:MM.C('#3fc8ff'),emissiveIntensity:.35,envMapIntensity:2});
   const core=new T.MeshStandardMaterial({name:'NucleoEnergia',color:MM.C('#9ef0ff'),emissive:MM.C('#43d9ff'),emissiveIntensity:2.2});
   const rune=new T.MeshStandardMaterial({name:'FaixaDeRunas',color:MM.C('#77737c'),roughness:.85,emissive:MM.C('#43d9ff'),emissiveMap:tx.runas,emissiveIntensity:.55});
@@ -45,7 +46,12 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   for(let s=0;s<8;s++)add(MM.bevelBox(16-s*.3,.9,2.2,.15),stone2,0,.45+s*.9,38-s*2,null);
   /* fundação da escadaria: desce até o terreno (sem degrau flutuando) */add(MM.bevelBox(17.4,16,17,.35),stone,0,-7.6,31);
   {let k=1;for(;k<24;k++){const top=.9-k*.9,z=38+k*2;if(ctx.heightAt(P.x,P.z+z)>=y0+top-.3)break;const gl=Math.min(...[-9,-4,0,4,9].map(dx=>ctx.heightAt(P.x+dx,P.z+z)))-y0-1.5;const h=top-Math.min(gl,-16);add(MM.bevelBox(16+k*.25,h,2.2,.15),k%2?stone2:stone,0,top-h/2,z);MM.box(tw,0,top-h/2,z,16+k*.25,h,2.2);}
-   tw.userData.lowerSteps=k-1;[-1,1].forEach(sd=>{const L=k*2+2;const w=add(MM.bevelBox(1.6,2.2,L,.2),stone2,sd*(8.6+k*.13),-k*.45+.6,38+L/2-1);w.rotation.x=Math.atan2(k*.9,L);});}[-8.4,8.4].forEach(x=>add(MM.bevelBox(1.6,3,17,.2),stone2,x,1,31));
+   tw.userData.lowerSteps=k-1;
+   /* balaustrada: pilaretes de pedra a cada 2 degraus, corrimão de metal e pilares de arranque com capitel de bronze */
+   const J=7+k;[-1,1].forEach(sd=>{const rail=[];for(let j=0;j<=J-1;j++){const w=j<=7?16-(7-j)*.3:16+(j-7)*.25;const x=sd*(w/2+.55),z=24+2*j,top=7.2-.9*j;
+       if(j%2===0||j===J-1){const b=add(MM.bevelBox(.8,3,.8,.12),stone2,x,top+1.5,z);}rail.push(new T.Vector3(x,top+3.15,z));
+       if(j>=8){const gl=Math.min(ctx.heightAt(P.x+x,P.z+z)-y0,top)-1;add(MM.bevelBox(1.3,top-gl,2.1,.15),stone,x,(top+gl)/2,z);}}
+     tw.add(MM.tube(rail,.2,met,J*3,6));[0,J-1].forEach(j=>{const w=j<=7?16-(7-j)*.3:16+(j-7)*.25;const x=sd*(w/2+.55),z=24+2*j,top=7.2-.9*j;add(MM.bevelBox(1.7,4.6,1.7,.2),stone2,x,top+2.3,z);add(new T.SphereGeometry(.7,10,8),bronze,x,top+5,z);add(MM.bevelBox(2,.4,2,.1),bronze,x,top+4.5,z);});});}
   add(new T.BoxGeometry(11,13,1),new T.MeshStandardMaterial({color:MM.C('#120f14'),roughness:1}),0,13,24.4);
   [-1,1].forEach(sd=>{const leaf=new T.Group();leaf.position.set(sd*5.3,7.6,24.9);tw.add(leaf);add(MM.bevelBox(5.1,12.6,.8,.12),wood,-sd*2.55,6.3,0,leaf);
     [1.5,6.3,11].forEach(y=>add(new T.BoxGeometry(5.1,.5,.3),metD,-sd*2.55,y,.5,leaf));for(let k=0;k<4;k++)[1.5,6.3,11].forEach(y=>add(new T.SphereGeometry(.16,6,4),met,-sd*(.6+k*1.2),y,.7,leaf));
@@ -80,10 +86,17 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   const S=8;[[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a,b])=>{const c=add(ibeam(34,2),met,a*S,74,b*S);c.rotation.y=Math.atan2(a,b);});
   for(let lv=0;lv<4;lv++){const ya=74+lv*8.5,yb=ya+8.5;[[[S,S],[S,-S]],[[S,-S],[-S,-S]],[[-S,-S],[-S,S]],[[-S,S],[S,S]]].forEach(([p,q])=>{
       [[ya,yb],[yb,ya]].forEach(([y1,y2])=>{const A=new T.Vector3(p[0],y1,p[1]),B=new T.Vector3(q[0],y2,q[1]);const L=A.distanceTo(B);const br=add(new T.BoxGeometry(.5,L,.9),metD,(A.x+B.x)/2,(A.y+B.y)/2,(A.z+B.z)/2);br.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.clone().sub(A).normalize());});
-      const mid=new T.Vector3((p[0]+q[0])/2,(ya+yb)/2,(p[1]+q[1])/2);const pl=add(new T.BoxGeometry(1.6,1.6,.3),met,mid.x,mid.y,mid.z);pl.lookAt(0,mid.y,0);});
+      const mid=new T.Vector3((p[0]+q[0])/2,(ya+yb)/2,(p[1]+q[1])/2);const pl=add(new T.BoxGeometry(1.6,1.6,.3),met,mid.x,mid.y,mid.z);pl.lookAt(0,mid.y,0);for(const [ox,oy] of [[-.55,-.55],[.55,-.55],[-.55,.55],[.55,.55]])add(new T.SphereGeometry(.13,6,4),bronze,ox,oy,-.2,pl).castShadow=false;});
     [[0,S,1],[0,-S,1],[S,0,0],[-S,0,0]].forEach(([x,z,o])=>{const h=add(new T.BoxGeometry(o?S*2+2:1.2,1,o?1.2:S*2+2),met,x,yb,z);});}
   add(new T.TorusGeometry(12.5,.9,4,40),metD,0,91,0).rotation.x=Math.PI/2;add(new T.TorusGeometry(13.6,.15,5,48),met,0,94,0).rotation.x=Math.PI/2;
   for(let i=0;i<28;i++){const a=i/28*Math.PI*2;add(new T.CylinderGeometry(.1,.1,3,4),metD,Math.sin(a)*13.6,92.5,Math.cos(a)*13.6).castShadow=false;}
+  /* mãos-francesas: passarela (y 91) presa às colunas; braços das bobinas; escoras da plataforma (y 108) */
+  const strut=(A,B,w,m)=>{const L=A.distanceTo(B);const b=add(new T.BoxGeometry(w,L,w),m||metD,(A.x+B.x)/2,(A.y+B.y)/2,(A.z+B.z)/2);b.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.clone().sub(A).normalize());return b;};
+  for(let i=0;i<8;i++){const a=i/8*Math.PI*2+Math.PI/8;const c=Math.cos(a),sn=Math.sin(a);const rc=i%2?9.3:8.6;strut(new T.Vector3(sn*rc,86.5,c*rc),new T.Vector3(sn*12.4,90.6,c*12.4),.45);add(new T.BoxGeometry(.5,.5,4.6),metD,sn*10.6,91,c*10.6).rotation.y=a;}
+  [80,90,100].forEach(y=>{for(let i=0;i<4;i++){const a=i/4*Math.PI*2+Math.PI/4;const b=add(new T.BoxGeometry(.5,.7,2.4),met,Math.sin(a)*10.4,y,Math.cos(a)*10.4);b.rotation.y=a;add(new T.CylinderGeometry(.18,.18,.9,6),bronze,Math.sin(a)*9.8,y+.6,Math.cos(a)*9.8);}});
+  for(let i=0;i<8;i++){const a=i/8*Math.PI*2+Math.PI/8;const c=Math.cos(a),sn=Math.sin(a);strut(new T.Vector3(Math.sign(sn)*S*.98,100,Math.sign(c)*S*.98),new T.Vector3(sn*14.6,108.2,c*14.6),.55);}
+  for(let k=0;k<4;k++){const a=k/4*Math.PI*2;const A=new T.Vector3(Math.sin(a)*15,108.4,Math.cos(a)*15),B=new T.Vector3(Math.sin(a)*21,64.6,Math.cos(a)*21);tw.add(MM.tube(MM.catenary(A,B,2.2,16),.12,metD,20,4));
+    add(new T.CylinderGeometry(.3,.3,.8,6),bronze,A.x,A.y-.2,A.z);add(new T.CylinderGeometry(.3,.3,.8,6),bronze,B.x,B.y+.3,B.z);}
   add(new T.CylinderGeometry(3.1,3.1,30,6),crys,0,90,0);add(new T.CylinderGeometry(.55,.55,31,6),core,0,90,0).castShadow=false;
   {const hp=[];for(let i=0;i<=120;i++){const t=i/120,a=t*Math.PI*14;hp.push(new T.Vector3(Math.cos(a)*1.9,75.5+t*29,Math.sin(a)*1.9));}const hx=MM.tube(hp,.14,core,240,4);hx.castShadow=false;tw.add(hx);}
   [80,90,100].forEach((y,i)=>{add(new T.TorusGeometry(9.8,.85,10,40),cu,0,y,0).rotation.x=Math.PI/2;add(new T.TorusGeometry(9.8,.3,6,40),core,0,y,0).rotation.x=Math.PI/2;});
@@ -98,25 +111,40 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   const anem=new T.Group();anem.name='Anemometro';anem.position.set(10.5,114.5,-6);tw.add(anem);anem.userData.animated=true;add(new T.CylinderGeometry(.18,.18,5,5),met,0,-1.5,0,anem);
   for(let i=0;i<3;i++){const a=i/3*Math.PI*2;const arm=add(new T.BoxGeometry(.16,.16,4),met,Math.sin(a)*2,1.2,Math.cos(a)*2,anem);arm.rotation.y=a;const cup=add(new T.SphereGeometry(.7,10,6,0,Math.PI*2,0,Math.PI/2),cu,Math.sin(a)*4,1.2,Math.cos(a)*4,anem);cup.rotation.set(0,a+Math.PI/2,Math.PI/2);}
   const vane=new T.Group();vane.name='CataVento';vane.position.set(-10.5,114.5,6);tw.add(vane);vane.userData.animated=true;add(new T.CylinderGeometry(.15,.15,4,5),met,0,0,0,vane);add(new T.ConeGeometry(.7,2.4,4),cu,0,2.2,1.6,vane).rotation.x=Math.PI/2;add(new T.BoxGeometry(.12,1.8,2.6),cu,0,2.2,-1.6,vane);
-  /* 7. CAPTADOR DE TEMPESTADES: mastro, três anéis em cardã com runas, cristal atmosférico e agulhas condutoras */
-  add(new T.CylinderGeometry(1.1,1.6,22,8),met,0,136,0);[130,136,142].forEach(y=>add(new T.TorusGeometry(1.9,.4,6,14),cu,0,y,0).rotation.x=Math.PI/2);
+  /* 7. CAPTADOR DE TEMPESTADES — cardã de verdade: anel externo gira no eixo vertical (mancais no mastro e no topo), anel médio gira
+     sobre eixos presos ao externo, anel interno sobre eixos presos ao médio. Cristal suspenso no eixo de energia, no centro de todos. */
+  add(new T.CylinderGeometry(1.1,1.6,22,8),met,0,128,0);[122,128,134].forEach(y=>add(new T.TorusGeometry(1.9,.4,6,14),bronze,0,y,0).rotation.x=Math.PI/2);
+  for(let i=0;i<4;i++){const a=i/4*Math.PI*2;strut(new T.Vector3(Math.sin(a)*2.8,126.5,Math.cos(a)*2.8),new T.Vector3(Math.sin(a)*1.2,136,Math.cos(a)*1.2),.35,cu);}
   const catcher=new T.Group();catcher.name='CaptadorDeTempestades';catcher.position.set(0,152,0);tw.add(catcher);catcher.userData.animated=true;
-  const rings=[];[[13,.75,0],[10,.6,1],[7,.5,2]].forEach(([R,t,k])=>{const g=new T.Group();g.rotation.set(k===1?Math.PI/2:0,0,k===2?Math.PI/2:0);catcher.add(g);
-    const rg=add(new T.TorusGeometry(R,t,10,72),met,0,0,0,g);const band=add(new T.TorusGeometry(R,t*1.02,4,72),rune,0,0,0,g);band.scale.z=.35;
-    for(let n=0;n<8;n++){const a=n/8*Math.PI*2;add(new T.SphereGeometry(t*1.25,8,6),cu,Math.cos(a)*R,Math.sin(a)*R,0,g);}rings.push(g);});
-  {const cg=new T.OctahedronGeometry(4.2,0);cg.scale(1,1.9,1);const cr=add(cg,crys,0,0,0,catcher);cr.name='CristalAtmosferico';const ci=add(new T.OctahedronGeometry(1.6,0),core,0,0,0,catcher);ci.scale.y=1.9;ci.castShadow=false;}
-  for(let k=0;k<5;k++){const a=k/5*Math.PI*2;const base=new T.Vector3(Math.cos(a)*2.4,8.5,Math.sin(a)*2.4);const tipv=new T.Vector3(Math.cos(a)*.6,19,Math.sin(a)*.6);const L=base.distanceTo(tipv);
-    const nd=add(new T.CylinderGeometry(.08,.32,L,5),met,(base.x+tipv.x)/2,152+(base.y+tipv.y)/2,(base.z+tipv.z)/2);nd.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),tipv.clone().sub(base).normalize());}
-  add(new T.CylinderGeometry(.18,.5,14,6),met,0,170,0);const tip=add(new T.SphereGeometry(.9,12,8),core,0,177.4,0);tip.castShadow=false;tip.name='PontaParaRaios';
+  /* mancais fixos (base e topo) */
+  add(new T.CylinderGeometry(1.7,2.1,3,12),bronze,0,-14.6,0,catcher);add(new T.TorusGeometry(2.2,.35,6,16),met,0,-13.2,0,catcher).rotation.x=Math.PI/2;
+  add(new T.CylinderGeometry(1.7,1.7,2.8,12),bronze,0,14.4,0,catcher);add(new T.CylinderGeometry(3.2,2.4,.7,16),bronze,0,15.9,0,catcher);
+  const ringDef=[[13,1.15],[10,.95],[7,.78]];const rings=[];let parent=catcher;
+  ringDef.forEach(([R,t],k)=>{const g=new T.Group();g.name='AnelCardan'+k;parent.add(g);
+    if(k===1)g.rotation.x=Math.PI/2;if(k===2)g.rotation.y=Math.PI/2;
+    add(new T.TorusGeometry(R,t,12,96),met,0,0,0,g);const band=add(new T.TorusGeometry(R,t*1.03,4,96),rune,0,0,0,g);band.scale.z=.4;
+    add(new T.TorusGeometry(R+t*.9,t*.28,5,96),bronze,0,0,0,g);add(new T.TorusGeometry(R-t*.9,t*.28,5,96),bronze,0,0,0,g);
+    for(let n=0;n<8;n++){const a=n/8*Math.PI*2+Math.PI/8;add(new T.SphereGeometry(t*1.2,10,8),bronze,Math.cos(a)*R,Math.sin(a)*R,0,g);}
+    if(k===0)for(let n=0;n<24;n++){const a=n/24*Math.PI*2;if(Math.abs(Math.cos(a))>.97||Math.abs(Math.sin(a))>.97)continue;const f=add(MM.bevelBox(.5,1.6,.7,.1),bronze,Math.cos(a)*(R+1.6),Math.sin(a)*(R+1.6),0,g);f.rotation.z=a-Math.PI/2;}
+    /* eixos que prendem o próximo anel: k0 → eixo X (pinos em ±x); k1 → eixo local Y */
+    if(k===0)[-1,1].forEach(sd=>{add(new T.CylinderGeometry(.42,.42,3.2,8),met,sd*11.5,0,0,g).rotation.z=Math.PI/2;add(new T.CylinderGeometry(.9,.9,.8,10),bronze,sd*(R-.2),0,0,g).rotation.z=Math.PI/2;});
+    if(k===1)[-1,1].forEach(sd=>{add(new T.CylinderGeometry(.38,.38,3.2,8),met,0,sd*8.5,0,g);add(new T.CylinderGeometry(.8,.8,.7,10),bronze,0,sd*(R-.2),0,g);});
+    rings.push(g);parent=g;});
+  {const cg=new T.OctahedronGeometry(3.6,0);cg.scale(1,1.62,1);const cr=add(cg,crys,0,0,0,catcher);cr.name='CristalAtmosferico';const ci=add(new T.OctahedronGeometry(1.5,0),core,0,0,0,catcher);ci.scale.y=1.7;ci.castShadow=false;
+    [[-13,-6.2],[6.2,13]].forEach(([y1,y2])=>{const b=add(new T.CylinderGeometry(.16,.16,y2-y1,6),core,0,(y1+y2)/2,0,catcher);b.castShadow=false;b.name='EixoDeEnergia';});}
+  for(let k=0;k<5;k++){const a=k/5*Math.PI*2;const base=new T.Vector3(Math.cos(a)*2.6,16.2,Math.sin(a)*2.6);const tipv=new T.Vector3(Math.cos(a)*.7,24.5,Math.sin(a)*.7);
+    const nd=strut(new T.Vector3(base.x,152+base.y,base.z),new T.Vector3(tipv.x,152+tipv.y,tipv.z),.3,met);nd.geometry=new T.CylinderGeometry(.08,.3,base.distanceTo(tipv),5);add(new T.SphereGeometry(.32,8,6),bronze,base.x,152+base.y,base.z);}
+  add(new T.CylinderGeometry(.18,.5,10.5,6),met,0,172.3,0);const tip=add(new T.SphereGeometry(.9,12,8),core,0,177.4,0);tip.castShadow=false;tip.name='PontaParaRaios';
   /* condutores de cobre: do captador, pela treliça e contrafortes, até o chão */
   for(let k=0;k<4;k++){const a=k/4*Math.PI*2+Math.PI/4;const pts=[];const add3=(r,y)=>pts.push(new T.Vector3(Math.sin(a)*r,y,Math.cos(a)*r));
-    add3(2,146);add3(5,140);add3(9.5,128);add3(13,116);add3(11.4,104);add3(9.6,90);add3(9.6,76);add3(15.5,72);add3(19,58);add3(21.5,30);add3(27,16);add3(30.5,2);add3(33,.3);
+    add3(1.9,136.6);add3(5,133);add3(9.5,126);add3(13,116);add3(11.4,104);add3(9.6,90);add3(9.6,76);add3(15.5,72);add3(19,58);add3(21.5,30);add3(27,16);add3(30.5,2);add3(33,.3);
     const tb=MM.tube(pts,.32,cond,140,6);tb.name='Condutor'+k;tw.add(tb);}
   /* colisores */
   MM.box(tw,0,8,0,54,16,54);MM.box(tw,0,40,0,36,44,36);MM.box(tw,0,62,0,44,2,44);MM.box(tw,0,68,0,28,12,28);MM.box(tw,0,90,0,20,32,20);MM.box(tw,0,110,0,32,6,32);MM.box(tw,0,118,0,20,12,20);
   for(let s=0;s<8;s++)MM.box(tw,0,.45+s*.9,38-s*2,16,.9*(s+1),2.2);
   tw.userData.walk=[{type:'rect',y:y0+7.4,x:P.x,z:P.z+27,sx:14,sz:6}];
   tw.userData.anim={anem,vane};tw.userData.tip=new T.Vector3(P.x,y0+177.4,P.z);tw.userData.coils=[80,90,100].map(y=>new T.Vector3(P.x,y0+y,P.z));
-  tw.userData.update=function(dt,t,on){rings.forEach((g,i)=>{g.rotateOnAxis(new T.Vector3(0,0,1),dt*(on?.22:.06)*(i%2?-1:1)*(1+i*.4));});gears.forEach(g=>g.rotation.z+=dt*g.userData.spin);cond.userData.u.uT.value=t;cond.userData.u.uPulse.value=on?1:0;};
+  const AX=[new T.Vector3(0,1,0),new T.Vector3(1,0,0),new T.Vector3(0,1,0)];
+  tw.userData.update=function(dt,t,on){rings.forEach((g,i)=>{g.rotateOnAxis(AX[i],dt*(on?.3:.08)*(i%2?-1:1)*(1+i*.5));});gears.forEach(g=>g.rotation.z+=dt*g.userData.spin);cond.userData.u.uT.value=t;cond.userData.u.uPulse.value=on?1:0;};
   return[tw];};
 })();
