@@ -60,7 +60,7 @@ body.walking .pad{display:grid}
     <div class="overlay inspect" id="inspect" hidden>
       <div class="row" style="justify-content:space-between;align-items:baseline"><h3 id="iName"></h3><button class="chip" id="iClose" aria-label="Fechar inspeção">✕</button></div>
       <code id="iId"></code>
-      <dl class="kv"><dt>Pasta</dt><dd id="iCat"></dd><dt>Triângulos</dt><dd id="iTris"></dd><dt>Tamanho (studs)</dt><dd id="iSize"></dd><dt>Pivô</dt><dd id="iPivot"></dd><dt>Colisão</dt><dd id="iCols"></dd><dt>Notas</dt><dd id="iNotes" style="font-family:var(--body)"></dd></dl>
+      <dl class="kv"><dt>Pasta</dt><dd id="iCat"></dd><dt>Triângulos</dt><dd id="iTris"></dd><dt>Tamanho (studs)</dt><dd id="iSize"></dd><dt>Pivô</dt><dd id="iPivot"></dd><dt>Colisão</dt><dd id="iCols"></dd><dt>Notas</dt><dd id="iNotes" style="font-family:var(--body)"></dd><dt>Diagnóstico</dt><dd id="iDiag" style="font-family:var(--body)"></dd></dl>
       <div class="row"><button class="btn" id="iFocus">Focar</button><button class="btn" id="iIso">Isolar</button><button class="btn" id="iGlb">Exportar GLB</button></div>
     </div>
     <div class="overlay pad" aria-label="Controles de caminhada">
@@ -76,7 +76,7 @@ body.walking .pad{display:grid}
       <div class="chips" id="views" style="margin-top:8px"></div></section>
     <section><h2>Camadas</h2><div class="chips">
       <button class="tog" id="tFx">Efeitos</button><button class="tog" id="tRain">Chuva</button><button class="tog" id="tFull">Iluminação completa</button><button class="tog" id="tLow">Gráfico reduzido</button>
-      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tNeutral">Iluminação neutra</button><button class="tog" id="tSupport">Apoio (depuração)</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
+      <button class="tog" id="tCols">Colisões e limites</button><button class="tog" id="tMarks">Marcadores</button><button class="tog" id="tLabels">Rótulos</button><button class="tog" id="tNeutral">Iluminação neutra</button><button class="tog" id="tSupport">Diagnóstico Estrutural</button><button class="tog" id="tClay">Sem materiais</button><button class="tog" id="tScale">Escala</button></div></section>
     <section><h2>Modelos</h2><p class="note" style="margin-bottom:8px">Clique num modelo na cena ou na lista para inspecionar.</p><div id="modelList"></div></section>
     <section><h2>Exportar</h2><button class="btn primary" id="tExport">Baixar pacote (GLB + heightmap + marcadores)</button><p class="note" style="margin-top:6px">Gera um .zip com um GLB por pasta, heightmap e colormap do terreno, marcadores e manifesto. Ainda não foi importado no Roblox Studio.</p></section>
   </aside>
@@ -110,5 +110,6 @@ body.walking .pad{display:grid}
 <script src="StormIsland/Effects/efeitos.js"></script>
 <script src="StormIsland/ilha.js"></script>
 <script src="nucleo/apoio.js"></script>
+<script src="nucleo/diagnostico.js"></script>
 <script src="nucleo/visualizador.js"></script>
 <script>MM.startViewer();</script>

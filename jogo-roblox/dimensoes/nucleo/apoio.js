@@ -10,20 +10,24 @@ MM.supportAudit=function(models,groundAt,opts){opts=opts||{};const ray=new T.Ray
   const box=new T.Box3(),tmp=new T.Box3();
   models.forEach(o=>{const u=o.userData;if(u.flutua){out.models.push({id:u.id,nome:o.name||u.nome,intencional:u.flutua});return;}
     o.updateMatrixWorld(true);const meshes=[];
-    o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh)return;let p=m,skip=false;while(p&&p!==o){if(p.userData&&(p.userData.flutua||p.userData.float))skip=true;p=p.parent;}if(skip||m.userData.semApoio)return;
+    o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh)return;let p=m,skip=false;while(p&&p!==o){if(p.userData&&(p.userData.flutua||p.userData.float))skip=true;if(MM.excecoesFlutuacao&&p.name&&MM.excecoesFlutuacao.pecas[p.name])skip=true;p=p.parent;}if(skip||m.userData.semApoio)return;
       if(m.material&&m.material.visible===false&&!m.userData.realMat)return;if(!m.geometry.boundingBox)m.geometry.computeBoundingBox();tmp.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);meshes.push({m,b:tmp.clone()});});
     if(!meshes.length)return;const minY=Math.min(...meshes.map(q=>q.b.min.y));
     const base=meshes.filter(q=>{if(q.m.userData.apoio)return true;const g=groundAt((q.b.min.x+q.b.max.x)/2,(q.b.min.z+q.b.max.z)/2,q.b.min.y);return g!==null&&q.b.min.y<=g+4;});/* peças cuja base fica a menos de 4 studs do chão = peças de apoio */if(!base.length)return;box.makeEmpty();base.forEach(q=>box.union(q.b));
-    const sx=box.max.x-box.min.x,sz=box.max.z-box.min.z;const st=Math.max(.75,Math.sqrt(sx*sz/(opts.maxRays||420)));const objs=base.map(q=>q.m);
+    const sx=box.max.x-box.min.x,sz=box.max.z-box.min.z;const objs=base.map(q=>q.m);
+    /* conjunto espalhado (lanternas, geodos, fragmentos…): uma grade por peça, senão a grade fica grossa demais para peças finas */
+    const units=[];if(sx*sz>4000&&o.children.length>1){o.children.forEach(ch=>{const b=new T.Box3();base.forEach(q=>{let p=q.m;while(p&&p!==o&&p!==ch)p=p.parent;if(p===ch)b.union(q.b);});if(!b.isEmpty())units.push(b);});}
+    if(!units.length)units.push(box);
     const r={id:u.id,nome:u.nome||o.name,cat:u.cat,contato:0,folga:0,suspenso:0,enterrado:0,colunas:0,maxFolga:-1e9,piorPonto:null,minFolga:1e9};
-    for(let x=box.min.x+st/2;x<box.max.x;x+=st)for(let z=box.min.z+st/2;z<box.max.z;z+=st){ray.set(new T.Vector3(x,box.min.y-30,z),up);const hit=ray.intersectObjects(objs,false)[0];if(!hit)continue;
+    for(const ub of units){const ux=ub.max.x-ub.min.x,uz=ub.max.z-ub.min.z;const st=Math.max(units.length>1?.35:.75,Math.sqrt(ux*uz/((opts.maxRays||420)/(units.length>1?3:1))));
+    for(let x=ub.min.x+st/2;x<ub.max.x;x+=st)for(let z=ub.min.z+st/2;z<ub.max.z;z+=st){ray.set(new T.Vector3(x,ub.min.y-30,z),up);const hit=ray.intersectObjects(objs,false)[0];if(!hit)continue;
       const y=hit.point.y;const g=groundAt(x,z,y);if(g===null||g<-150)continue;const gap=y-g;
       /* só conta superfície virada para baixo (fundo real da peça); flanco arredondado de rocha ou raiz é contorno, não base */
       const inB=(L)=>L&&L.some(b=>x>=b[0]-.05&&x<=b[3]+.05&&y>=b[1]-.05&&y<=b[4]+.05&&z>=b[2]-.05&&z<=b[5]+.05);if(inB(u.semApoioBoxes)&&!inB(u.apoioBoxes))continue;const ehApoio=hit.object.userData.apoio||inB(u.apoioBoxes);
       if(hit.face){nm.getNormalMatrix(hit.object.matrixWorld);nv.copy(hit.face.normal).applyMatrix3(nm).normalize();if(nv.y>-.75&&gap>.35)continue;}
       /* acima do teto (4 studs; 2 nas árvores) e sem marca de apoio = beiral, galho ou balanço: não é a base */const teto=(opts.teto&&opts.teto(u.id))||4;if(gap>teto&&!ehApoio)continue;
       r.colunas++;let cls;if(gap<-.35){cls=3;r.enterrado++;}else if(gap<=.35){cls=0;r.contato++;}else if(gap<=1.5){cls=1;r.folga++;}else{cls=2;r.suspenso++;}
-      if(gap>r.maxFolga){r.maxFolga=gap;r.piorPonto=[+x.toFixed(1),+y.toFixed(1),+z.toFixed(1)];}r.minFolga=Math.min(r.minFolga,gap);out.pts.push(x,y,z,g,cls);}
+      if(gap>r.maxFolga){r.maxFolga=gap;r.piorPonto=[+x.toFixed(1),+y.toFixed(1),+z.toFixed(1)];}r.minFolga=Math.min(r.minFolga,gap);out.pts.push(x,y,z,g,cls);}}/* fim das unidades */
     if(r.colunas)out.models.push(r);});
   out.models.forEach(r=>{if(r.colunas){r.maxFolga=+r.maxFolga.toFixed(2);r.minFolga=+r.minFolga.toFixed(2);r.semApoio=r.suspenso>0;}});
   return out;};

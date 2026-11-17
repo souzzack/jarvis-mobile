@@ -7,6 +7,10 @@ I.buildCave=function(ctx){const M=ctx.mat,b=I.poi.caverna.boca;const out=[];cons
   for(let k=0;k<=12;k++){const a=Math.PI*k/12;const v=MM.mesh(new T.BoxGeometry(3.2,3.4,4.6),k%3===0?M.metalEscuro:M.pedraClara,Math.cos(a)*10.6,8+Math.sin(a)*8.4,0,arch);v.rotation.z=a-Math.PI/2;v.userData.semApoio=true;/* aduela: apoiada pelo arco e pelas ombreiras, não pelo chão */}
   [-10.6,10.6].forEach(x=>{MM.mesh(new T.BoxGeometry(3.4,8.4,4.8),M.pedraClara,x,4.2,0,arch);MM.mesh(new T.CylinderGeometry(.3,.3,7,6),M.metal,x*1.12,11,2.6,arch);});
   MM.mesh(new T.BoxGeometry(9,1.2,.6),M.metalEscuro,0,17.5,2.4,arch);
+  /* V2.3.2 — pórtico encaixado no paredão: muros de arrimo laterais e verga de pedra que entram no corte do terreno e fecham as frestas
+     entre o arco e a rocha (antes o arco era um bloco solto diante de um corte retangular, com o tubo do túnel exposto pelos lados) */
+  [-1,1].forEach(sd=>{const w=MM.mesh(MM.bevelBox(6.4,23,12.5,.3),M.pedra,sd*15.3,10.3,-3.9,arch);w.userData.apoio=true;MM.mesh(MM.bevelBox(7.2,1.2,13.2,.2),M.pedraClara,sd*15.3,21.9,-3.9,arch);MM.box(arch,sd*15.3,10.3,-3.9,6.4,23,12.5);});
+  MM.mesh(MM.bevelBox(37,7.5,12.5,.3),M.pedra,0,20.6,-3.9,arch);MM.mesh(MM.bevelBox(38,1,13.2,.2),M.pedraClara,0,24.8,-3.9,arch);
   MM.box(arch,-10.6,8,0,3.4,17,4.8);MM.box(arch,10.6,8,0,3.4,17,4.8);out.push(arch);
   /* túnel e câmara */
   const tun=MM.obj('STORM.ARCH.CAVE.TUNNEL','Túnel e câmara da caverna','Architecture',{notes:'Chão plano caminhável; teto alto o bastante para pular (≥ 12 studs).'});

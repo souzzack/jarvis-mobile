@@ -9,6 +9,10 @@ I.buildTerrain=function(ctx){const P=I.poi;
   function mask(x,z){const wx=x+24*MM.fbm(x/130,z/130,3,5),wz=z+24*MM.fbm(x/130+9.1,z/130,3,6);return 1-Math.hypot(wx/274,(wz+12)/220)+.05*MM.fbm(x/48,z/48,3,7)+.018*MM.fbm(x/14,z/14,2,8);}
   const plato=(h,x,z,c,r,edge,H)=>{const d=Math.hypot(x-c.x,z-c.z);return MM.lerp(h,H,MM.ss(r+edge,r,d));};
   const ca=Math.cos(.45),sa=Math.sin(.45);
+  /* peso de área plana construída (torre, observatório, santuário): 1 dentro do platô, 0 fora */
+  /* área do EDIFÍCIO (não do platô inteiro): a trilha pode rampar no platô, mas não escava debaixo da construção */
+  const protW=(x,z)=>Math.max(1-MM.ss(35,39,Math.hypot(x-P.torre.x,z-P.torre.z)),1-MM.ss(19,22,Math.hypot(x-P.observatorio.x,z-P.observatorio.z)),1-MM.ss(18,21,Math.hypot(x-P.santuario.x,z-P.santuario.z)));
+  const flatW=(x,z)=>Math.max(1-MM.ss(P.torre.r+2,P.torre.r+10,Math.hypot(x-P.torre.x,z-P.torre.z)),1-MM.ss(P.observatorio.r+1,P.observatorio.r+8,Math.hypot(x-P.observatorio.x,z-P.observatorio.z)),1-MM.ss(P.santuario.r+1,P.santuario.r+6,Math.hypot(x-P.santuario.x,z-P.santuario.z)));
   /* formações: [x, z, altura, raio u, raio v, rotação, tipo 0 domo · 1 mesa · 2 chifre · 3 crista] */
   const FORM=[[-156,-150,52,46,32,.5,1],[-96,-184,96,30,22,-.4,2],[-58,-160,40,52,16,.25,3],[30,-188,66,40,30,.9,0],[-12,-150,28,18,14,0,2],
     [98,-178,54,34,24,-.7,1],[-214,-128,36,26,20,.3,0],[62,-150,30,13,11,0,2],[-192,-178,60,16,14,.2,2],[170,-174,30,36,14,-.3,3],[-40,-208,48,30,22,.6,0],[8,-214,40,20,16,1.2,2]];
@@ -44,7 +48,7 @@ I.buildTerrain=function(ctx){const P=I.poi;
     {const b=P.caverna.boca;const wx=1-MM.ss(16,28,Math.abs(x-b.x));const pad=26;h=MM.lerp(h,pad,wx*MM.ss(-103,-99,z)*(1-MM.ss(-80,-68,z)));h=Math.max(h,MM.lerp(h,64,wx*MM.ss(-99,-104,z)));}
     {const f=I.fenda;const s=MM.segDist(x,z,f.a[0],f.a[1],f.b[0],f.b[1]);const w=f.largura/2*(1+.25*MM.noise2(z/18,1,11));if(s.t>0&&s.t<1)h=MM.lerp(h,-140,MM.ss(w+5,w-1,s.d));}
     /* estratos: nas encostas íngremes e altas a altura "degrau-a-degrau" vira camadas geológicas */
-    const flat=Math.max(1-MM.ss(P.torre.r+2,P.torre.r+10,Math.hypot(x-P.torre.x,z-P.torre.z)),1-MM.ss(P.observatorio.r+1,P.observatorio.r+8,Math.hypot(x-P.observatorio.x,z-P.observatorio.z)),1-MM.ss(P.santuario.r+1,P.santuario.r+6,Math.hypot(x-P.santuario.x,z-P.santuario.z)));
+    const flat=flatW(x,z);
     /* estratos irregulares: espessura variável por região, camadas inclinadas, degraus com bordas erodidas de nitidez variável */
     if(h>20){const L=6+5.5*(.5+.5*MM.noise2(x/95,z/95,24));const hh=h+.045*x-.03*z+3.5*MM.noise2(x/28,z/28,25);const t=hh/L;const t2=t+.28*Math.sin(t*2.3+MM.noise2(x/60,z/60,26)*2);
       const f=t2-Math.floor(t2);const e=MM.noise2(x/40,z/40,27)*.5+.5;const a0=.12+.25*e;const st=Math.floor(t2)+MM.ss(a0,a0+.3+.25*e,f);
@@ -61,7 +65,7 @@ I.buildTerrain=function(ctx){const P=I.poi;
   for(let j=0;j<NZ;j++)for(let i=0;i<NX;i++){const x=X0+i*STEP,z=Z0+j*STEP;const k=j*NX+i;const m=mask(x,z);Mg[k]=m;let h=raw(x,z);let pm=0,pe=0;
     if(!inFenda(x,z))for(const p of paths){for(let s=0;s<p.S.length-1;s++){const a=p.S[s],b=p.S[s+1];if(Math.abs(x-a[0])>p.hw+12||Math.abs(z-a[1])>p.hw+12)continue;const q=MM.segDist(x,z,a[0],a[1],b[0],b[1]);if(q.d>p.hw+7)continue;
       const ph=MM.lerp(p.H[s],p.H[s+1],q.t);const hv=p.hw*(.86+.28*(MM.noise2(x/24,z/24,29)*.5+.5))+.6*MM.noise2(x/4,z/4,30);/* largura variável e borda irregular */
-      const w=MM.ss(hv+6,hv-1,q.d);h=MM.lerp(h,ph-.3+.25*MM.noise2(x/2,z/2,19),w);pm=Math.max(pm,MM.ss(hv+.5,hv-2.5,q.d)*(p.c.tipo==='secreto'?.5:1)*(.75+.25*MM.noise2(x/5,z/5,20)));
+      const w=MM.ss(hv+6,hv-1,q.d);const hc=MM.lerp(h,ph-.3+.25*MM.noise2(x/2,z/2,19),w);/* V2.3.2: a trilha não escava platô construído (antes o fim da P4 e da P5 rebaixava o observatório e o santuário) */h=MM.lerp(hc,Math.max(hc,h),protW(x,z));pm=Math.max(pm,MM.ss(hv+.5,hv-2.5,q.d)*(p.c.tipo==='secreto'?.5:1)*(.75+.25*MM.noise2(x/5,z/5,20)));
       pe=Math.max(pe,MM.ss(hv+2.2,hv+.4,q.d)*MM.ss(hv-1.4,hv,q.d)*(p.c.tipo==='secreto'?0:1));}}
     h-=.35*pe;/* valeta de drenagem natural na beira da trilha */
     /* borda: paredão até a base, com saliências de estrato (a altura de cada camada recua/avança) */

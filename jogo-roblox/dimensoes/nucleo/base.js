@@ -99,6 +99,10 @@ MM.seat=function(ctx,o,opt){const w=opt.w,d=opt.d,disc=opt.r;const pts=disc?MM.d
     if(rise>.6){const n=Math.ceil(rise/.75),rz=rise/n;for(let k=1;k<n;k++){const t=floorTop-k*rz-y;const gs=Math.min(...MM.footG(ctx,o,[[-sw/2,z],[sw/2,z],[0,z+run/2]]))-y-.5;const h=t-gs;
         const s=MM.mesh(bb(sw,h,run,.12),opt.stepMat||M,0,t-h/2,z,o);s.userData.apoio=true;MM.box(o,0,t-h/2,z,sw,h,run);z+=run;rep.degraus++;}}}
   return rep;};
+/* placa em arco (setor de anel extrudado na vertical): porta, verga ou moldura que acompanha uma parede cilíndrica.
+   r0/r1 = raios interno/externo, th = abertura angular (rad), h = altura; centrada em +Z, de y=0 a y=h. */
+MM.arcSlab=function(r0,r1,th,h,seg){seg=seg||10;const s=new T.Shape();for(let i=0;i<=seg;i++){const a=-th/2+th*i/seg;const p=[r1*Math.sin(a),-r1*Math.cos(a)];i?s.lineTo(...p):s.moveTo(...p);}
+  for(let i=seg;i>=0;i--){const a=-th/2+th*i/seg;s.lineTo(r0*Math.sin(a),-r0*Math.cos(a));}const g=new T.ExtrudeGeometry(s,{depth:h,bevelEnabled:false});g.rotateX(-Math.PI/2);return g;};
 MM.tris=function(o){let t=0;o.traverse(m=>{if(m.isMesh&&m.geometry){const g=m.geometry;t+=(g.index?g.index.count:g.attributes.position.count)/3*(m.isInstancedMesh?m.count:1);}});return Math.round(t);};
 
 /* ---------- boneco de escala com as proporções do avatar padrão (≈5,2 studs) ---------- */

@@ -24,11 +24,13 @@ MM.islands.StormIsland={
     {id:'P1',nome:'Caminho principal: chegada → vila → torre',w:16,tipo:'principal',pts:[[0,186],[-4,150],[-20,118],[-34,92],[-18,58],[4,30],[18,26],[32,26]]},/* V2.3.1: termina no pé da escadaria da torre (antes entrava na base da torre em 30,−10) */
     {id:'P2',nome:'Trilha da floresta até a Caverna do Trovão',w:12,tipo:'principal',pts:[[-62,88],[-104,66],[-140,42],[-168,8],[-172,-36],[-158,-74],[-150,-98]]},
     {id:'P3',nome:'Estrada do penhasco (atravessa a ponte suspensa)',w:12,tipo:'principal',pts:[[-6,100],[40,104],[86,96],[140,82],[186,62],[214,46]]},
-    {id:'P4',nome:'Serpentina do observatório',w:10,tipo:'principal',pts:[[46,26],[58,8],[70,-12],[86,-44],/* V2.3.1: sai do pé da escadaria, contornando a colina (antes começava dentro da base da torre) */[112,-62],[104,-84],[126,-98],[142,-116]]},
+    {id:'P4',nome:'Serpentina do observatório',w:10,tipo:'principal',pts:[[46,26],[58,8],[70,-12],[86,-44],/* V2.3.1: sai do pé da escadaria, contornando a colina (antes começava dentro da base da torre) */[112,-62],[104,-84],[126,-98],[148,-106]]/* V2.3.2: termina diante da porta do observatório (antes em 142,−116, dentro da parede) */},
     {id:'P5',nome:'Passagem secreta para o santuário',w:8,tipo:'secreto',pts:[[-176,58],[-198,92],[-214,122],[-226,146]]},
     {id:'P6',nome:'Rota alternativa pela crista leste',w:10,tipo:'alternativo',pts:[[186,62],[192,20],[186,-26],[176,-70],[160,-108]]}],
   /* fenda que corta a ilha até as nuvens: a estrada do penhasco cruza por uma ponte suspensa */
   /* torres da linha de transmissão (props.js) — a vila usa para não pôr porta de casa colada numa torre */
+  /* rochas que escondem a passagem secreta [x,z,tamanho] — props.js desenha; floresta.js evita */
+  rochasSecretas:[[-193,60,12],[-166,68,10],[-206,76,14],[-173.5,50,9]],
   linhaTransmissao:[[72,30],[20,52],[-2,74],[24,112],[66,108]],
   fenda:{a:[106,154],b:[120,22],largura:13},
   pontes:[{id:'STORM.BRIDGE.01',nome:'Ponte Suspensa da Fenda',a:[96,94],b:[132,84],w:8}],

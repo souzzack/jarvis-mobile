@@ -10,6 +10,17 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
   put(I.buildTower(ctx));put(I.buildVillage(ctx));put(I.buildCave(ctx));put(I.buildObservatory(ctx));put(I.buildSanctuary(ctx));put(I.buildBridges(ctx));
   put(I.buildForest(ctx));put(I.buildResources(ctx));put(I.buildDeposits(ctx));put(I.buildProps(ctx));put(I.buildMarkers(ctx));
   const light=I.buildLighting(ctx);put([light.clouds]);
+  /* V2.3.2 — recorte da superfície pelo volume REAL das construções (a superfície é gerada antes delas e só evitava um raio fixo por área).
+     Remove instâncias de grama, seixos, plantas, cogumelos, raízes, afloramentos e poças/depósitos cujo volume cruza um colisor de construção. */
+  {root.updateMatrixWorld(true);const vols=[];reg.list.forEach(o=>{const c=o.userData.cat;if(!['Architecture','Props','Resources'].includes(c)||/ROCKS/.test(o.userData.id))return;o.updateMatrixWorld(true);
+      (o.userData.colliders||[]).forEach(cc=>{const p=new T.Vector3(...cc.c).applyMatrix4(o.matrixWorld);const ry=new T.Euler().setFromRotationMatrix(o.matrixWorld,'YXZ').y+cc.ry;vols.push({p,s:cc.s,ry,id:o.userData.id});});});
+    const hit=(v,r)=>vols.some(c=>{const dx=v.x-c.p.x,dz=v.z-c.p.z;const cs=Math.cos(c.ry),sn=Math.sin(c.ry);const lx=dx*cs-dz*sn,lz=dx*sn+dz*cs;return Math.abs(lx)<c.s[0]/2+r&&Math.abs(lz)<c.s[2]/2+r&&v.y<c.p.y+c.s[1]/2+r&&v.y>c.p.y-c.s[1]/2-r;});
+    const surf=reg.byId['STORM.TERRAIN.SURFACE'];const rep={};const v=new T.Vector3(),sc=new T.Vector3(),q=new T.Quaternion(),mt=new T.Matrix4();surf.updateMatrixWorld(true);
+    surf.traverse(m=>{if(!m.isInstancedMesh)return;if(!m.geometry.boundingSphere)m.geometry.computeBoundingSphere();const r0=m.geometry.boundingSphere.radius;let k=0;const n=m.count;
+      for(let i=0;i<n;i++){m.getMatrixAt(i,mt);mt.decompose(v,q,sc);v.applyMatrix4(m.matrixWorld);const r=r0*Math.max(sc.x,sc.z)*.7;if(hit(v,r))continue;if(k!==i)m.setMatrixAt(k,mt);k++;}
+      if(k<n){rep[m.name]=n-k;m.count=k;m.instanceMatrix.needsUpdate=true;}});
+    ['Pocas','DepositosCristal'].forEach(nm=>{const g=surf.getObjectByName(nm);if(!g)return;g.children.slice().forEach(c=>{c.getWorldPosition(v);if(hit(v,1.5)){g.remove(c);rep[nm]=(rep[nm]||0)+1;}});});
+    surf.userData.recorte=rep;}
   /* funde peças estáticas por material (exceto terreno, marcadores e vegetação instanciada por forma) */
   reg.list.forEach(o=>{const id=o.userData.id;if(o.userData.cat==='Interactions'||id==='STORM.TERRAIN.MAIN'||id.startsWith('STORM.VEG.TREE.'))return;MM.bake(o);});/* árvores mantêm a geometria compartilhada (12 formas reaproveitadas, como num Roblox com MeshParts clonadas) */
   const fx=I.buildEffects(ctx);

@@ -23,7 +23,9 @@ I.buildHouse=function(ctx,id,name,opt){const M=ctx.mat,r=MM.rng(opt.seed);const 
     if(r()<.8){const ch=add(new T.BoxGeometry(2,6,2),M.pedra,w/2-2.6,yTop+rh*.55,-d/4);ch.rotation.y=.1;add(new T.BoxGeometry(2.6,.6,2.6),M.pedraEscura,w/2-2.6,yTop+rh*.55+3.2,-d/4);}
     MM.box(g,0,(yTop+rh)/2,0,w+1,yTop+rh,d+1);}
   /* porta e janelas na frente (+Z local) */
-  const fz=round?w/2+.05:d/2+.05;add(new T.BoxGeometry(4.6,8.6,.5),M.madeira,0,6.1,fz);add(new T.BoxGeometry(5.8,.9,.9),M.pedraClara,0,10.6,fz+.1);
+  const fz=round?w/2+.05:d/2+.05;
+  if(round){/* V2.3.2: porta e verga em arco, cravadas na parede cilíndrica (antes: placa reta tangente, bordas soltas no ar) */const R=w/2;MM.mesh(MM.arcSlab(R-.15,R+.55,4.6/R,8.6),M.madeira,0,1.8,0,g);MM.mesh(MM.arcSlab(R-.15,R+.95,5.8/R,.9),M.pedraClara,0,10.15,0,g);}
+  else{add(new T.BoxGeometry(4.6,8.6,.5),M.madeira,0,6.1,fz);add(new T.BoxGeometry(5.8,.9,.9),M.pedraClara,0,10.6,fz+.1);}
   if(!round){[-w/2+2.4,w/2-2.4].forEach(x=>{if(Math.abs(x)>3.8)add(new T.BoxGeometry(2,2.6,.3),M.vidro,x,6.6,fz+.05);});}
   /* para-raios com duas bobinas e esfera */
   const rodH=8+r()*4;const rx=round?0:(opt.roof==='shed'?-w/2+1:0);add(new T.CylinderGeometry(.16,.32,rodH,5),M.metal,rx,top+rodH/2-.4,0);
@@ -63,7 +65,7 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   /* barracas do mercado */
   [[-14,104,.4],[-50,108,-.5]].forEach(([x0,z0,ry],i)=>{/* V2.3.1: barraca nunca na frente de uma porta (antes a 2 ficava colada na porta da casa 2) */
     const fronts=out.filter(o=>o.userData.foot).map(o=>{const f=o.userData.foot,c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);const lz=f.d/2+5;return[o.position.x+lz*s,o.position.z+lz*c,o];});
-    let x=x0,z=z0;for(let t=0;t<12;t++){const bad=fronts.some(([fx,fz])=>Math.hypot(fx-x,fz-z)<9)||out.some(o=>o.userData.foot&&Math.hypot(o.position.x-x,o.position.z-z)<14);if(!bad&&ctx.pathDist(x,z)>=4)break;const a=t*1.3;x=x0+Math.cos(a)*(4+t*1.5);z=z0+Math.sin(a)*(4+t*1.5);}
+    let x=x0,z=z0;for(let t=0;t<12;t++){const bad=fronts.some(([fx,fz])=>Math.hypot(fx-x,fz-z)<9)||out.some(o=>o.userData.foot&&Math.hypot(o.position.x-x,o.position.z-z)<14)||Math.hypot(V.x-x,V.z-z)<17.6+5.5;/* V2.3.2: fora do anel da praça */if(!bad&&ctx.pathDist(x,z)>=4)break;const a=t*1.3;x=x0+Math.cos(a)*(4+t*1.5);z=z0+Math.sin(a)*(4+t*1.5);}
     if(ctx.pathDist(x,z)<4)return;const st=MM.obj('STORM.PROP.STALL.0'+(i+1),'Barraca do mercado '+(i+1),'Props');st.position.set(x,0,z);st.rotation.y=ry;MM.mesh(new T.BoxGeometry(8,.5,5.4),M.madeira,0,.25,0,st).userData.apoio=true;/* estrado da barraca */st.userData.assento=MM.seat(ctx,st,{w:8,d:5.4,base:0,mat:M.madeira});
     MM.mesh(new T.BoxGeometry(6,3,3),M.madeira,0,2,0,st);[[-2.8,-1.3],[2.8,-1.3],[-2.8,1.3],[2.8,1.3]].forEach(([a,b])=>MM.mesh(new T.CylinderGeometry(.18,.18,7,5),M.madeira,a,4,b,st));
     const aw=MM.mesh(new T.BoxGeometry(7,.2,4.4),M.tecido,0,7.5,0,st);aw.rotation.x=.18;MM.mesh(MM.crystalGeo(.4,.8,.8),M.cristal,-1.5,3.6,0,st);MM.mesh(new T.BoxGeometry(1.2,1,1),M.cobre,1.4,4,0,st);
@@ -71,7 +73,7 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   /* cabos de cada para-raios até o Coletor (catenárias) */
   const cab=MM.obj('STORM.PROP.VILLAGE.CABLES','Cabos dos para-raios','Props',{notes:'No Roblox: Beam ou RopeConstraint visual entre Attachments.'});const top=pz.userData.top;
   out.forEach(o=>{if(!o.userData.rodTip)return;o.updateMatrixWorld(true);const a=o.localToWorld(o.userData.rodTip.clone());const sag=2+a.distanceTo(top)*.06;cab.add(MM.tube(MM.catenary(a,top,sag,20),.12,M.metalEscuro,24,4));});
-  out.push(cab);
+  cab.userData.ancoras=out.filter(o=>o.userData.rodTip).map(o=>o.userData.id).concat(['STORM.ARCH.VILLAGE.PLAZA']);out.push(cab);
   /* lanternas ao longo dos caminhos da vila e até a torre */
   const lan=MM.obj('STORM.PROP.LANTERNS','Lanternas dos caminhos','Props',{notes:'Luz quente e fraca; no Roblox: PointLight sem sombra só nas mais próximas.'});
   ctx.terrain.paths.forEach(p=>{if(p.c.tipo!=='principal')return;let acc=0;for(let i=1;i<p.S.length;i++){const [x0,z0]=p.S[i-1],[x1,z1]=p.S[i];acc+=Math.hypot(x1-x0,z1-z0);if(acc<22)continue;acc=0;

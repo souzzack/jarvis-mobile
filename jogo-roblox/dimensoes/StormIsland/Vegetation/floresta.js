@@ -22,6 +22,8 @@ I.buildForest=function(ctx){const M=ctx.mat,F=I.poi.floresta,out=[];const varian
     /* V2.3.1: árvore não nasce na escada nem no piso das plataformas (só desloca esta; as demais não mudam) */
     {let xx=x,zz=z;for(const pl of ctx.reg.list.filter(o=>/^STORM\.ARCH\.PLATFORM/.test(o.userData.id))){const c=Math.cos(pl.rotation.y),s=Math.sin(pl.rotation.y);const L=6+1.25*(pl.userData.degraus||0);
       for(let t=0;t<=L;t+=2){const px=pl.position.x+t*s,pz=pl.position.z+t*c;const d=Math.hypot(xx-px,zz-pz);if(d<8){xx=px+(xx-px)/(d||1)*8.5;zz=pz+(zz-pz)/(d||1)*8.5;}}}
+     /* V2.3.2: nem dentro das rochas da passagem secreta (na V2.3.1 as árvores 25, 46 e 49 ficaram dentro delas) */
+     for(const [rx,rz,rs] of I.rochasSecretas){const d=Math.hypot(xx-rx,zz-rz),R=rs*.9+3;if(d<R){xx=rx+(xx-rx)/(d||1)*(R+.5);zz=rz+(zz-rz)/(d||1)*(R+.5);}}
      if(xx!==x||zz!==z){if(!ctx.inside(xx,zz)||ctx.pathDist(xx,zz)<4.5)continue;x=xx;z=zz;}}
     const vg=variants[n%variants.length];const o=MM.obj('STORM.VEG.TREE.'+String(n+1).padStart(2,'0'),'Árvore retorcida '+(n+1)+' (forma '+(n%12+1)+')','Vegetation',{notes:'Forma '+(n%12+1)+' de 12. Colisão só no tronco.'});
     const sc=.75+r()*.6;const R=3.4*sc;let ym=ctx.heightAt(x,z);for(let k=0;k<24;k++){const a2=k/24*6.283;ym=Math.min(ym,ctx.heightAt(x+Math.cos(a2)*R,z+Math.sin(a2)*R));}/* V2.3.1: raízes pelo ponto mais baixo do chão em volta, não pelo centro */

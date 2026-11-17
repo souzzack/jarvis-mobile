@@ -46,7 +46,7 @@ I.buildTower=function(ctx){const P=I.poi.torre,y0=P.h,tx=MM.tex;
   /* V2.3.1 — escadaria refeita a partir do terreno real: desce do patamar da porta (7,2) em degraus de 0,9 × 1,3 até o primeiro degrau
      que toca o chão (o terraço onde a trilha P1 chega). Cada degrau é maciço até o terreno sob ele, com murete lateral e colisor do mesmo tamanho.
      Antes: 8 degraus de 2 studs de piso que passavam POR CIMA do terraço da trilha (como um muro) e um lance de 27 degraus morro abaixo. */
-  const degs=[];for(let i=0;i<40;i++){const top=7.2-.9*i,z=24.65+1.3*i,w=16+i*.12;const gl=Math.min(...[-w/2,-w/4,0,w/4,w/2].map(dx=>ctx.heightAt(P.x+dx,P.z+z)))-y0;if(i>0&&top<=gl+.3)break;
+  const degs=[];for(let i=0;i<40;i++){const top=7.2-.9*i,z=25.3+1.3*i,w=16+i*.12;/* V2.3.2: primeiro degrau começa depois da soleira (antes entrava 0,5 stud no vão da porta) */const gl=Math.min(...[-w/2,-w/4,0,w/4,w/2].map(dx=>ctx.heightAt(P.x+dx,P.z+z)))-y0;if(i>0&&top<=gl+.3)break;
     const bot=Math.min(gl-.8,top-.9),h=top-bot;const st=add(MM.bevelBox(w,h,1.42,.12),i%2?stone2:stone,0,top-h/2,z);st.userData.apoio=true;MM.box(tw,0,top-h/2,z,w,h,1.42);degs.push({top,z,w,gl});}
   tw.userData.lowerSteps=degs.length;tw.userData.escada={degraus:degs.length,peZ:degs[degs.length-1].z,peTopo:degs[degs.length-1].top};
   /* muretes laterais maciços até o chão + balaustrada (pilaretes a cada 2 degraus, corrimão de metal, pilares de arranque com capitel de bronze) */
