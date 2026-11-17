@@ -31,7 +31,7 @@ I.buildDeposits=function(ctx){const P=I.poi,out=[];const r=MM.rng(4242);const H=
       const gm=Math.min(...[[0,0],[3,0],[-3,0],[0,3],[0,-3]].map(([a,b])=>H(s.x+a,s.z+b)));const g=new T.Group();g.name='RochaCondutora_'+(i+1);g.position.set(s.x,gm-.2,s.z);g.rotation.y=r()*6.28;o.add(g);const sx=2.6+r(),sy=1.8+r()*.8,sz=2.2+r();
       MM.mesh(MM.rockGeo(4400+i,sx,sy,sz,2),ctx.rockMat,0,sy*.45,0,g);
       for(let v=0;v<3;v++){const pts=[];const a0=r()*6.28,tilt=(r()-.5)*1.2;for(let q=0;q<=10;q++){const a=a0+q/10*2.4;const yy=sy*.45+Math.sin(a*1.3+tilt)*sy*.55;const rr=Math.sqrt(Math.max(.05,1-Math.pow((yy-sy*.45)/(sy*.95),2)));pts.push(new T.Vector3(Math.cos(a)*sx*.98*rr,yy,Math.sin(a)*sz*.98*rr));}
-        g.add(MM.tube(pts,.11+r()*.08,cuN,24,5));for(let q=0;q<3;q++){const p=pts[2+Math.floor(r()*7)];MM.mesh(new T.DodecahedronGeometry(.22+r()*.18,0),cuN,p.x,p.y,p.z,g);}}
+        {const vt=MM.tube(pts,.11+r()*.08,cuN,24,5);vt.userData.semApoio=true;g.add(vt);}for(let q=0;q<3;q++){const p=pts[2+Math.floor(r()*7)];MM.mesh(new T.DodecahedronGeometry(.22+r()*.18,0),cuN,p.x,p.y,p.z,g).userData.semApoio=true;}/* veios e nódulos presos na rocha, não no chão */}
       o.userData.pontos.push({id:'STORM.RES.COND.'+String(i+1).padStart(2,'0'),x:s.x,y:s.y,z:s.z});});}
   /* 3. mineral eletrificado (geodos abertos) */
   {const o=tipo('STORM.RES.GEODO','Depósitos: mineral eletrificado (geodos)','Geodos rachados com cristais violeta e arco elétrico interno, na beira da fenda e dos penhascos. No Roblox: casca MeshPart + cristais Glass + Beam animado.');

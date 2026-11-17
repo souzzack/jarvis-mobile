@@ -80,12 +80,13 @@ MM.bake=function(obj){obj.updateMatrixWorld(true);const inv=new T.Matrix4().copy
    MM.footG: alturas do chão sob uma área local do modelo (já posicionado em x,z e girado em y).
    MM.seat: escolhe o nível do piso pela área inteira (não pelo centro), cria alicerce de pedra até 1 stud abaixo do ponto mais baixo,
    rodapé mais largo, colisor, e degraus de transição na frente quando o chão desce. Retorna o relatório do assentamento. */
-MM.footG=function(ctx,o,pts){const c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);return pts.map(([lx,lz])=>{const x=o.position.x+lx*c+lz*s,z=o.position.z-lx*s+lz*c;return ctx.heightAt(x,z);});};
+MM.minG=a=>{const b=a.filter(v=>!Number.isNaN(v));return b.length?Math.min(...b):-1e3;};
+MM.footG=function(ctx,o,pts){const c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);return pts.map(([lx,lz])=>{const x=o.position.x+lx*c+lz*s,z=o.position.z-lx*s+lz*c;return ctx.inside(x,z)?ctx.heightAt(x,z):NaN;});};/* NaN = fora da ilha (vazio) */
 MM.rectPts=function(w,d,cx,cz,step){const P=[];step=step||2;const nx=Math.max(2,Math.ceil(w/step)),nz=Math.max(2,Math.ceil(d/step));for(let i=0;i<=nx;i++)for(let j=0;j<=nz;j++)P.push([(cx||0)-w/2+w*i/nx,(cz||0)-d/2+d*j/nz]);return P;};
 MM.discPts=function(R,step){const P=[[0,0]];step=step||2;for(let r=step;r<=R+.01;r+=step){const n=Math.max(8,Math.round(2*Math.PI*r/step));for(let k=0;k<n;k++)P.push([Math.cos(k/n*6.283)*r,Math.sin(k/n*6.283)*r]);}if(R%step)for(let k=0;k<32;k++)P.push([Math.cos(k/32*6.283)*R,Math.sin(k/32*6.283)*R]);return P;};
 MM.seat=function(ctx,o,opt){const w=opt.w,d=opt.d,disc=opt.r;const pts=disc?MM.discPts(disc,1.5):MM.rectPts(w,d,0,0,1.5);const G=MM.footG(ctx,o,pts);
-  const gmin=Math.min(...G),gmax=Math.max(...G);const y=opt.y!==undefined?opt.y:gmax-(opt.bury===undefined?.4:opt.bury);o.position.y=y;
-  const M=opt.mat||ctx.mat.pedraEscura;const rep={id:o.userData.id,gmin:+gmin.toFixed(2),gmax:+gmax.toFixed(2),piso:+y.toFixed(2),alicerce:0,degraus:0};
+  const fora=G.filter(Number.isNaN).length;const Gi=G.filter(v=>!Number.isNaN(v));const gmin=Math.min(...Gi),gmax=Math.max(...Gi);const y=opt.y!==undefined?opt.y:gmax-(opt.bury===undefined?.4:opt.bury);o.position.y=y;
+  const M=opt.mat||ctx.mat.pedraEscura;const rep={id:o.userData.id,foraDaIlha:fora,amostras:G.length,gmin:+gmin.toFixed(2),gmax:+gmax.toFixed(2),piso:+y.toFixed(2),alicerce:0,degraus:0};
   const bb=MM.bevelBox||((a,b,c)=>new T.BoxGeometry(a,b,c));const top=opt.base===undefined?0:opt.base;/* topo do alicerce = fundo da laje do modelo */
   if(y-gmin>.2){const depth=y+top-gmin+1;rep.alicerce=+(y-gmin).toFixed(2);
     const fm=disc?new T.CylinderGeometry(disc+.3,disc+.5,depth,disc>12?28:16):bb(w+.6,depth,d+.6,.25);const f=MM.mesh(fm,M,0,top-depth/2+.02,0,o);f.userData.apoio=true;
@@ -94,9 +95,9 @@ MM.seat=function(ctx,o,opt){const w=opt.w,d=opt.d,disc=opt.r;const pts=disc?MM.d
   /* degraus de transição diante da porta (+Z local) até o chão real */
   if(opt.front!==undefined){const sw=opt.stepW||5,run=1.3;const floorTop=y+(opt.floor===undefined?top:opt.floor);let z=opt.front+run/2;
     /* patamar na soleira: 2,4 studs no nível do piso, para o personagem parar diante da porta */const ld=opt.landing===undefined?2.4:opt.landing;
-    if(ld>0){const lz=opt.front+ld/2;const lt=floorTop-y;const gs=Math.min(...MM.footG(ctx,o,[[-sw/2-.5,opt.front+ld],[sw/2+.5,opt.front+ld],[0,opt.front+ld]]))-y-.5;const h=lt-gs;
+    if(ld>0){const lz=opt.front+ld/2;const lt=floorTop-y;const gs=MM.minG(MM.footG(ctx,o,[[-sw/2-.5,opt.front+ld],[sw/2+.5,opt.front+ld],[0,opt.front+ld]]))-y-.5;const h=lt-gs;
       const L=MM.mesh(bb(sw+1,h,ld,.12),M,0,lt-h/2,lz,o);L.userData.apoio=true;MM.box(o,0,lt-h/2,lz,sw+1,h,ld);z=opt.front+ld+run/2;rep.patamar=ld;}const gF=MM.footG(ctx,o,[[0,z+run]])[0];const rise=floorTop-gF;
-    if(rise>.6){const n=Math.ceil(rise/.75),rz=rise/n;for(let k=1;k<n;k++){const t=floorTop-k*rz-y;const gs=Math.min(...MM.footG(ctx,o,[[-sw/2,z],[sw/2,z],[0,z+run/2]]))-y-.5;const h=t-gs;
+    if(rise>.6){const n=Math.ceil(rise/.75),rz=rise/n;for(let k=1;k<n;k++){const t=floorTop-k*rz-y;const gs=MM.minG(MM.footG(ctx,o,[[-sw/2,z],[sw/2,z],[0,z+run/2]]))-y-.5;const h=t-gs;
         const s=MM.mesh(bb(sw,h,run,.12),opt.stepMat||M,0,t-h/2,z,o);s.userData.apoio=true;MM.box(o,0,t-h/2,z,sw,h,run);z+=run;rep.degraus++;}}}
   return rep;};
 /* placa em arco (setor de anel extrudado na vertical): porta, verga ou moldura que acompanha uma parede cilíndrica.

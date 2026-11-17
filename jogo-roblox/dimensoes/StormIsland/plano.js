@@ -18,14 +18,14 @@ MM.islands.StormIsland={
     caverna:{x:-150,z:-102,nome:'Caverna do Trovão',boca:{x:-150,z:-104},dir:[0,1]},
     penhasco:{x:222,z:44,h:26,nome:'Penhasco das Nuvens'},
     observatorio:{x:150,z:-128,r:28,h:66,nome:'Observatório Abandonado'},
-    santuario:{x:-228,z:150,r:20,h:10,nome:'Santuário da Tempestade (secreto)'}},
+    santuario:{x:-187,z:123,r:20,h:10,/* V2.3.2: estava em (−228,150), além do contorno da ilha (base 100% sobre a franja sem chão) */nome:'Santuário da Tempestade (secreto)'}},
   /* caminhos: [x,z] em sequência; w = largura total em studs; tipo principal/alternativo/secreto */
   caminhos:[
     {id:'P1',nome:'Caminho principal: chegada → vila → torre',w:16,tipo:'principal',pts:[[0,186],[-4,150],[-20,118],[-34,92],[-18,58],[4,30],[18,26],[32,26]]},/* V2.3.1: termina no pé da escadaria da torre (antes entrava na base da torre em 30,−10) */
     {id:'P2',nome:'Trilha da floresta até a Caverna do Trovão',w:12,tipo:'principal',pts:[[-62,88],[-104,66],[-140,42],[-168,8],[-172,-36],[-158,-74],[-150,-98]]},
     {id:'P3',nome:'Estrada do penhasco (atravessa a ponte suspensa)',w:12,tipo:'principal',pts:[[-6,100],[40,104],[86,96],[140,82],[186,62],[214,46]]},
     {id:'P4',nome:'Serpentina do observatório',w:10,tipo:'principal',pts:[[46,26],[58,8],[70,-12],[86,-44],/* V2.3.1: sai do pé da escadaria, contornando a colina (antes começava dentro da base da torre) */[112,-62],[104,-84],[126,-98],[148,-106]]/* V2.3.2: termina diante da porta do observatório (antes em 142,−116, dentro da parede) */},
-    {id:'P5',nome:'Passagem secreta para o santuário',w:8,tipo:'secreto',pts:[[-176,58],[-198,92],[-214,122],[-226,146]]},
+    {id:'P5',nome:'Passagem secreta para o santuário',w:8,tipo:'secreto',pts:[[-176,58],[-198,92],[-194,104]]},
     {id:'P6',nome:'Rota alternativa pela crista leste',w:10,tipo:'alternativo',pts:[[186,62],[192,20],[186,-26],[176,-70],[160,-108]]}],
   /* fenda que corta a ilha até as nuvens: a estrada do penhasco cruza por uma ponte suspensa */
   /* torres da linha de transmissão (props.js) — a vila usa para não pôr porta de casa colada numa torre */
@@ -55,7 +55,7 @@ MM.islands.StormIsland={
     ['STORM.COLLECT.03','Coleta','Peças de máquina no observatório',162,-138],
     ['STORM.PUZZLE.TOWER','Puzzle','Alinhar os para-raios da torre',32,-26],
     ['STORM.PUZZLE.OBS','Puzzle','Apontar o telescópio quebrado',150,-128],
-    ['STORM.SECRET.01','Área secreta','Santuário da Tempestade',-228,150],
+    ['STORM.SECRET.01','Área secreta','Santuário da Tempestade',-187,123],
     ['STORM.DISCOVERY.01','Descoberta','Inscrição das Sete Estrelas no santuário',-228,156],
     ['STORM.EQUIP.01','Equipamento secreto','Bobina antiga no fundo da caverna',-156,-162],
     ['STORM.WEATHER.01','Evento climático','Zona de tempestade elétrica (cume norte)',-40,-150],

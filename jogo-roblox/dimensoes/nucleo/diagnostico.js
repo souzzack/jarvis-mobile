@@ -46,6 +46,7 @@ MM.structuralTests=function(isl,supAt,opts){opts=opts||{};const X=MM.excecoesFlu
   /* 4. apoio medido por raio vertical (exceções fora) */
   const a=MM.supportAudit(models.filter(o=>!X.modelos[o.userData.id]),supAt,{teto:id=>id.startsWith('STORM.VEG.')?2:4});R.apoio=a;
   a.models.forEach(m=>{if(!m.colunas)return;const s=st(m.id);s.info.apoio={contato:m.contato,folga:m.folga,suspenso:m.suspenso,enterrado:m.enterrado,maior:m.maxFolga};
+    if(m.sobreVazio){bad(m.id,m.sobreVazio+' ponto(s) da base sobre o vazio, além da borda da ilha');return;}
     if(m.suspenso>0){const tol=(opts.toleranciaSuspensa||{})[m.id];if(tol&&m.suspenso<=tol.n&&m.maxFolga<=tol.max)warn(m.id,'trecho suspenso conhecido: '+tol.motivo);else if(/^STORM\.VEG\./.test(m.id)&&m.suspenso<=1&&m.maxFolga<=2)warn(m.id,'raiz orgânica em arco a '+m.maxFolga+' do chão (inspecionar)');else bad(m.id,m.suspenso+' ponto(s) suspenso(s), folga até '+m.maxFolga);}
     else if(m.folga>Math.max(2,m.colunas*.1))warn(m.id,m.folga+' pontos com folga ≤ 1,5');});
   models.forEach(o=>{const id=o.userData.id;const s=st(id);if(X.modelos[id]){s.excecao=X.modelos[id];return;}if(!s.info.apoio&&s.status==='verde')warn(id,'sem ponto de apoio medido');});
@@ -59,7 +60,7 @@ MM.rotasDaIlha=function(isl,P){const R=isl.reg.byId;const W=(o,lx,lz)=>{const c=
   const tw=R['STORM.ARCH.TOWER'];out.push(['torre: pé da escada → porta',[p1[p1.length-1],W(tw,0,26)],['STORM.ARCH.TOWER']]);
   const ob=R['STORM.ARCH.OBSERVATORY'];const p4=c[3].pts;out.push(['observatório: P4 → porta',[p4[p4.length-1],W(ob,0,22),W(ob,0,16.2)],['STORM.ARCH.OBSERVATORY']]);
   const cb=P.poi.caverna.boca;const p2=c[1].pts;out.push(['caverna: P2 → câmara',[p2[p2.length-1],[cb.x,cb.z+6],[cb.x,cb.z-4],[cb.x+2,cb.z-16],[cb.x-3,cb.z-32],[-150,-140],[-150,-150]],['STORM.ARCH.CAVE.MOUTH','STORM.ARCH.CAVE.TUNNEL']]);
-  const sa=R['STORM.ARCH.SANCTUARY'];const p5=c[4].pts;out.push(['santuário: P5 → altar',[p5[p5.length-1],[sa.position.x,sa.position.z+6]],['STORM.ARCH.SANCTUARY']]);
+  const sa=R['STORM.ARCH.SANCTUARY'];const p5=c[4].pts;out.push(['santuário: P5 → diante do altar',[p5[p5.length-1],[sa.position.x,sa.position.z-5]],['STORM.ARCH.SANCTUARY']]);
   out.push(['chegada: doca → P1',[[P.poi.chegada.x,P.poi.chegada.z+10],c[0].pts[0]],['STORM.ARCH.ARRIVAL']]);
   const lk=R['STORM.ARCH.CLIFF.LOOKOUT'];const p3=c[2].pts;out.push(['mirante: P3 → deck',[p3[p3.length-1],W(lk,0,8),W(lk,0,14)],[]]);
   P.minas.forEach(m=>{if(m.interno)return;let best=null,bd=1e9;c.forEach(cc=>cc.pts.forEach(p=>{const d=Math.hypot(p[0]-m.x,p[1]-m.z);if(d<bd){bd=d;best=p;}}));const dx=m.x-best[0],dz=m.z-best[1],L=Math.hypot(dx,dz)||1;out.push(['mina '+m.id.slice(-2)+': trilha → frente',[best,[m.x-dx/L*7,m.z-dz/L*7]],[m.id.replace('MINE','RES.MINE')]]);});

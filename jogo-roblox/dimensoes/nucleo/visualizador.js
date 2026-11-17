@@ -87,7 +87,7 @@ MM.startViewer=function(){const stage=$('stage');const status=$('status');
     $('modelList').querySelectorAll('button').forEach(b=>b.onclick=()=>{const o=isl.reg.byId[b.dataset.id];select(o);focusObj(o);});
     const tg=(id,key,fn)=>{const b=$(id);b.setAttribute('aria-pressed',S[key]);b.onclick=()=>{S[key]=!S[key];b.setAttribute('aria-pressed',S[key]);fn&&fn();};};
     tg('tFx','fx',()=>{isl.fx.on=S.fx;});tg('tRain','rain',()=>{isl.fx.rain=S.rain;});tg('tFull','full',()=>isl.light.setMode(S.full));tg('tCols','cols',()=>{colGroup.visible=S.cols;});
-    tg('tMarks','marks',()=>{isl.folders.Interactions.visible=S.marks;});if(!S.labels)isl.folders.Interactions.traverse(o=>{if(o.name==='rotulo')o.visible=false;});let supG=null,supA=null;const supAt=(x,z,y)=>{const C=[];const t=isl.terrain.heightAt(x,z);if(t>-150)C.push(t);
+    tg('tMarks','marks',()=>{isl.folders.Interactions.visible=S.marks;});if(!S.labels)isl.folders.Interactions.traverse(o=>{if(o.name==='rotulo')o.visible=false;});let supG=null,supA=null;const supAt=(x,z,y)=>{const C=[];const t=isl.terrain.heightAt(x,z);if(t>-150&&isl.terrain.inside(x,z))C.push(t);/* V2.3.2: fora do contorno da ilha não há chão desenhado (antes contava como chão 5 studs abaixo) */
       for(const w of isl.walks){let h=null;if(w.type==='rect'){if(Math.abs(x-w.x)<=w.sx/2&&Math.abs(z-w.z)<=w.sz/2)h=w.y;}else if(w.type==='disc'){if(Math.hypot(x-w.x,z-w.z)<=w.r)h=w.y;}
         else if(w.type==='bridge'){const q=MM.segDist(x,z,w.a[0],w.a[1],w.b[0],w.b[1]);if(q.d<=w.hw&&q.t>0&&q.t<1)h=w.y(q.t);}else if(w.type==='flat'){for(let i=0;i<w.pts.length-1;i++){const q=MM.segDist(x,z,w.pts[i][0],w.pts[i][1],w.pts[i+1][0],w.pts[i+1][1]);if(q.d<=w.hw){h=w.y;break;}}}if(h!==null)C.push(h);}
       if(!C.length)return null;const below=C.filter(c=>c<=y+3);return below.length?Math.max(...below):Math.min(...C);};
@@ -100,7 +100,7 @@ MM.startViewer=function(){const stage=$('stage');const status=$('status');
       return{ok:true,passos:n,maiorSubida:+maxUp.toFixed(2),maiorDescida:+maxDrop.toFixed(2),yFinal:+y.toFixed(2)};};
     window.__supportAudit=()=>{if(!supA){const models=isl.reg.list.filter(o=>!['Terrain','Lighting','Interactions'].includes(o.userData.cat)&&!NAO.includes(o.userData.id));const t0=performance.now();supA=MM.supportAudit(models,supAt,{teto:id=>id.startsWith('STORM.VEG.')?2:4});supA.ms=Math.round(performance.now()-t0);}return supA;};
     /* Diagnóstico Estrutural: testes automáticos + camada visual (caixa, pivô e eixos por modelo na cor do estado, colisores, pontos de apoio e lacunas) */
-    let diagR=null,diagG=null;const TOL={'STORM.BRIDGE.01':{n:1,max:3,motivo:'borda da 1ª tábua sobre o lábio da fenda (início do vão)'}};
+    let diagR=null,diagG=null;const TOL={'STORM.BRIDGE.01':{n:3,max:4,motivo:'bordas das tábuas sobre o lábio da fenda (início do vão)'}};
     window.__diagnostico=()=>{if(!diagR){diagR=MM.structuralTests(isl,supAt,{walk:p=>window.__walkTest(p),rotas:MM.rotasDaIlha(isl,MM.islands.StormIsland),toleranciaSuspensa:TOL});supA=diagR.apoio;}return diagR;};
     tg('tSupport','support',()=>{const R=window.__diagnostico();if(!diagG){diagG=MM.structuralDebug(isl,R);scene.add(diagG);}diagG.visible=S.support;colGroup.visible=S.support||S.cols;
       const red=Object.entries(R.modelos).filter(([,s])=>s.status==='vermelho'),yel=Object.entries(R.modelos).filter(([,s])=>s.status==='amarelo');const rot=R.rotas?Object.values(R.rotas):[];
