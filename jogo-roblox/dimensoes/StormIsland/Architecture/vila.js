@@ -49,19 +49,19 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
     const vv=variants[n%variants.length];const hs=I.buildHouse(ctx,'STORM.ARCH.HOUSE.'+String(n+1).padStart(2,'0'),'Casa da vila '+(n+1),Object.assign({seed:900+n*7},vv));
     hs.position.set(x,H,z);hs.rotation.y=Math.atan2(V.x-x,V.z-z)+(r()-.5)*.25;/* frente para a praça */
     /* V2.3.1: piso pela área inteira da casa + alicerce e degraus onde o chão desce (antes: altura fixa da vila para todas) */hs.userData.assento=MM.seat(ctx,hs,hs.userData.foot);out.push(hs);placed.push([x,z]);n++;}
-  /* oficina da Ferreira dos Para-raios (NPC 02): galpão aberto com toldo, bigorna e bobina em montagem */
-  {const ws=MM.obj('STORM.ARCH.WORKSHOP','Oficina dos Para-raios','Architecture',{notes:'Espaço do NPC STORM.NPC.02. Frente aberta de 18 studs.'});/* V2.3.1: posição livre mais próxima da original (−60,74), que ficava em cima do início da trilha P2 */
-    let x=-60,z=74;{let best=null;for(let rr=0;rr<=46&&!best;rr+=2)for(let k=0;k<16&&!best;k++){const a=k/16*6.283;const cx=-60+Math.cos(a)*rr,cz=74+Math.sin(a)*rr;if(ctx.pathDist(cx,cz)<19)continue;if(out.some(o=>o.userData.foot&&Math.hypot(o.position.x-cx,o.position.z-cz)<22))continue;best=[cx,cz];}if(best){x=best[0];z=best[1];}}
+  /* Oficina dos Inventores (V2.3.4): edifício completo em oficina.js. Aqui só a posição, a orientação e o assentamento no terreno. */
+  {const ws=MM.obj('STORM.ARCH.WORKSHOP','Oficina dos Inventores','Architecture',{notes:'Edifício 26 × 20 studs, interior explorável (bancadas, laboratório atmosférico, depósito, canto do inventor) e o Condensador Atmosférico. Lugar do NPC STORM.NPC.02. Porta 6,4 × 10,8.'});
+    /* posição livre mais próxima da original (−60,74): a planta nova (≈ 28 × 22 com o plinto, + escada) pede mais folga de trilhas e casas */
+    let x=-60,z=74;{let best=null;for(let rr=0;rr<=80&&!best;rr+=2)for(let k=0;k<24&&!best;k++){const a=k/24*6.283;const cx=-60+Math.cos(a)*rr,cz=74+Math.sin(a)*rr;if(ctx.pathDist(cx,cz)<13)continue;if(out.some(o=>(o.userData.foot||/PLAZA|STALL/.test(o.userData.id))&&Math.hypot(o.position.x-cx,o.position.z-cz)<24))continue;
+      let ok=true;const hs=[ctx.heightAt(cx,cz)];for(let q=0;q<16&&ok;q++){const aa=q/16*6.283;if(!ctx.inside(cx+Math.cos(aa)*19,cz+Math.sin(aa)*19))ok=false;for(const rr2 of [8,15])hs.push(ctx.heightAt(cx+Math.cos(aa)*rr2,cz+Math.sin(aa)*rr2));}if(!ok)continue;
+      /* V2.3.4: terreno quase plano sob a planta e a escada (variação ≤ 2,5 studs) — senão o alicerce vira um pedestal e a escada não alcança o chão */if(Math.max(...hs)-Math.min(...hs)>2.5)continue;best=[cx,cz];}if(best){x=best[0];z=best[1];}else console.warn('oficina: nenhum terreno plano livre encontrado; usando a posição original');}
     ws.position.set(x,0,z);
-    /* frente aberta virada para um lado livre (sem casa a menos de 12 studs diante dela) */
-    {const houses=out.filter(o=>o.userData.foot);let bestR=.9,bestS=-1e9;for(const ry of [.9,.9+Math.PI/2,.9+Math.PI,.9-Math.PI/2]){let sc=0;for(const d of [10,14,18]){const fx=x+Math.sin(ry)*d,fz=z+Math.cos(ry)*d;const hd=Math.min(...houses.map(o=>Math.hypot(o.position.x-fx,o.position.z-fz)),99);sc+=Math.min(hd,20)-(ctx.inside(fx,fz)?0:50)-Math.max(0,ctx.pathDist(fx,fz))*.2;}if(sc>bestS){bestS=sc;bestR=ry;}}ws.userData.ry=bestR;}ws.rotation.y=ws.userData.ry;MM.box(ws,0,.7,0,22,1.4,16);ws.userData.assento=MM.seat(ctx,ws,{w:22,d:16,base:0,floor:1.4,front:8,stepW:14,mat:M.pedraClara});
-    MM.mesh(new T.BoxGeometry(22,1.4,16),M.pedraClara,0,.7,0,ws);MM.mesh(new T.BoxGeometry(22,10,1.2),M.alvenaria,0,6,-7.4,ws);[-10.4,10.4].forEach(xx=>MM.mesh(new T.BoxGeometry(1.2,10,15),M.alvenaria,xx,6,0,ws));
-    const roof=MM.mesh(shedGeo(22,16,3.5,1,1.4),M.telhado,0,11,0,ws);roof.rotation.y=Math.PI/2;
-    [-7,0,7].forEach(xx=>MM.mesh(new T.CylinderGeometry(.35,.35,10,6),M.madeira,xx,6,7.2,ws));
-    MM.mesh(new T.BoxGeometry(2.4,2.2,1.4),M.metalEscuro,-3,2.5,1,ws);MM.mesh(new T.BoxGeometry(3.4,.9,1.6),M.metal,-3,4,1,ws);
-    for(let i=0;i<5;i++)MM.mesh(new T.TorusGeometry(1.6,.28,6,16),M.cobre,4,2.6+i*.65,-2,ws).rotation.x=Math.PI/2;
-    MM.mesh(new T.CylinderGeometry(.4,.4,6,6),M.metal,4,4,-2,ws);MM.mesh(new T.BoxGeometry(2,1.6,2),M.pedraEscura,8,2.2,-4,ws);
-    MM.box(ws,0,6,-7.4,22,12,1.6);MM.box(ws,-10.4,6,0,1.6,12,15);MM.box(ws,10.4,6,0,1.6,12,15);out.push(ws);}
+    /* frente (porta) virada para o lado mais livre e mais perto de uma trilha */
+    {const houses=out.filter(o=>o.userData.foot);let bestR=.9,bestS=-1e9;for(const ry of [.9,.9+Math.PI/2,.9+Math.PI,.9-Math.PI/2]){let sc=0;for(const d of [14,18,22]){const fx=x+Math.sin(ry)*d,fz=z+Math.cos(ry)*d;const hd=Math.min(...houses.map(o=>Math.hypot(o.position.x-fx,o.position.z-fz)),99);sc+=Math.min(hd,20)-(ctx.inside(fx,fz)?0:50)-Math.max(0,ctx.pathDist(fx,fz))*.25;}if(sc>bestS){bestS=sc;bestR=ry;}}ws.rotation.y=bestR;}
+    const b=I.buildWorkshop(ctx,ws);
+    ws.userData.assento=MM.seat(ctx,ws,{w:27.6,d:21.6,base:0,floor:1.6,front:10.8,stepW:8,mat:b.stone,bury:.3});
+    I.workshopComponents(ws);MM.bake(b.roof);b.roof.userData.animated=true;MM.bake(ws.__oficina.front);ws.__oficina.front.userData.animated=true;/* telhado fundido à parte para poder ser ocultado na inspeção */
+    out.push(ws);}
   /* barracas do mercado */
   [[-14,104,.4],[-50,108,-.5]].forEach(([x0,z0,ry],i)=>{/* V2.3.1: barraca nunca na frente de uma porta (antes a 2 ficava colada na porta da casa 2) */
     const fronts=out.filter(o=>o.userData.foot).map(o=>{const f=o.userData.foot,c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);const lz=f.d/2+5;return[o.position.x+lz*s,o.position.z+lz*c,o];});

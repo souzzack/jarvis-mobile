@@ -12,11 +12,11 @@ I.buildEffects=function(ctx){const scene=ctx.scene,E={on:true,rain:true,t:0,flas
   const drops=[];for(let i=0;i<NR;i++)drops.push({x:(r()-.5)*160,y:r()*90,z:(r()-.5)*160,v:75+r()*30,l:1.4+r()*1.4});/* vento constante de oeste: gotas inclinadas na mesma direção */
   /* arcos elétricos: bobinas da torre e para-raios da vila → Coletor */
   const aGeo=new T.BufferGeometry();const arcs=new T.LineSegments(aGeo,new T.LineBasicMaterial({color:MM.C('#8fe9ff'),transparent:true,opacity:.85}));arcs.frustumCulled=false;grp.add(arcs);
-  const fragObj=ctx.reg.byId['STORM.RES.FRAGMENTO'];const edgeObj=ctx.reg.byId['STORM.TERRAIN.EDGE'],edgeAnim=edgeObj&&edgeObj.userData.anim;const tower=ctx.reg.byId['STORM.ARCH.TOWER'],plaza=ctx.reg.byId['STORM.ARCH.VILLAGE.PLAZA'];const rods=ctx.reg.list.filter(o=>o.userData.rodTip).map(o=>{o.updateMatrixWorld(true);return o.localToWorld(o.userData.rodTip.clone());});
+  const ofi=ctx.reg.byId['STORM.ARCH.WORKSHOP'];const fragObj=ctx.reg.byId['STORM.RES.FRAGMENTO'];const edgeObj=ctx.reg.byId['STORM.TERRAIN.EDGE'],edgeAnim=edgeObj&&edgeObj.userData.anim;const tower=ctx.reg.byId['STORM.ARCH.TOWER'],plaza=ctx.reg.byId['STORM.ARCH.VILLAGE.PLAZA'];const rods=ctx.reg.list.filter(o=>o.userData.rodTip).map(o=>{o.updateMatrixWorld(true);return o.localToWorld(o.userData.rodTip.clone());});
   function setBolt(segs){const a=new Float32Array(segs.length*3);segs.forEach((p,i)=>{a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z;});bGeo.setAttribute('position',new T.BufferAttribute(a,3));bGeo.computeBoundingSphere();}
   E.update=function(dt,cam){E.t+=dt;const on=E.on;grp.visible=on;
     if(tower){const A=tower.userData.anim;A.anem.rotation.y+=dt*(on?2.4:.6);A.vane.rotation.y=Math.sin(E.t*.3)*.5;if(tower.userData.update)tower.userData.update(dt,E.t,on);}
-    if(edgeAnim&&edgeAnim.wMat)edgeAnim.wMat.uniforms.uT.value=E.t;if(fragObj&&fragObj.userData.update)fragObj.userData.update(E.t);
+    if(edgeAnim&&edgeAnim.wMat)edgeAnim.wMat.uniforms.uT.value=E.t;if(ofi&&ofi.userData.update)ofi.userData.update(dt,E.t,on,E.light,cam);if(fragObj&&fragObj.userData.update)fragObj.userData.update(E.t);
     if(!on){E.flash=0;return;}
     /* relâmpago distante ou na agulha */
     E.next-=dt;E.nextTower-=dt;let fired=false;
@@ -28,6 +28,8 @@ I.buildEffects=function(ctx){const scene=ctx.scene,E={on:true,rain:true,t:0,flas
     /* arcos a ~12 quadros por segundo: bobinas da torre e um para-raios por vez até o Coletor */
     E.arcT=(E.arcT||0)-dt;if(E.arcT<=0){E.arcT=.08;const segs=[];
       if(tower)tower.userData.coils.forEach((c,i)=>{if(r()<.55){const a=r()*Math.PI*2;const p0=c.clone().add(new T.Vector3(Math.cos(a)*2.6,0,Math.sin(a)*2.6)),p1=c.clone().add(new T.Vector3(Math.cos(a+.6)*8.8,(r()-.5)*2,Math.sin(a+.6)*8.8));segs.push(...bolt(p0,p1,1.6,0,r));}});
+      /* faíscas da oficina: entre os eletrodos do condensador e o condutor do telhado, e no toroide da bobina do laboratório */
+      if(ofi&&ofi.__oficina&&ofi.__oficina.faiscaW&&cam.position.distanceTo(ofi.position)<160){const R=ofi.__oficina;if(r()<.6)segs.push(...bolt(R.faiscaW[r()<.5?0:1],R.condutorFim,.5,0,r));if(r()<.45){const a=r()*6.28;segs.push(...bolt(R.faiscaLab,R.faiscaLab.clone().add(new T.Vector3(Math.cos(a)*2.4,-.6-r(),Math.sin(a)*2.4)),.6,0,r));}}
       if(plaza&&rods.length&&r()<.5){const k=Math.floor(r()*rods.length);segs.push(...bolt(rods[k],plaza.userData.top,3,0,r));}
       const a=new Float32Array(segs.length*3);segs.forEach((p,i)=>{a[i*3]=p.x;a[i*3+1]=p.y;a[i*3+2]=p.z;});aGeo.setAttribute('position',new T.BufferAttribute(a,3));}
   };

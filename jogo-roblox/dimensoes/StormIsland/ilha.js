@@ -23,7 +23,7 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
     surf.userData.recorte=rep;}
   /* funde peças estáticas por material (exceto terreno, marcadores e vegetação instanciada por forma) */
   reg.list.forEach(o=>{const id=o.userData.id;if(o.userData.cat==='Interactions'||id==='STORM.TERRAIN.MAIN'||id.startsWith('STORM.VEG.TREE.'))return;MM.bake(o);});/* árvores mantêm a geometria compartilhada (12 formas reaproveitadas, como num Roblox com MeshParts clonadas) */
-  const fx=I.buildEffects(ctx);
+  const fx=I.buildEffects(ctx);fx.light=light;
   root.updateMatrixWorld(true);
   /* colisores em coordenadas de mundo (caixas orientadas só em Y) e superfícies caminháveis */
   const colliders=[],walks=[];reg.list.forEach(o=>{o.updateMatrixWorld(true);(o.userData.colliders||[]).forEach(c=>{const p=new T.Vector3(...c.c).applyMatrix4(o.matrixWorld);const s=new T.Vector3();o.matrixWorld.decompose(new T.Vector3(),new T.Quaternion(),s);

@@ -5,8 +5,8 @@
 function treeGeos(seed,big){const r=MM.rng(seed);const wood=[],veins=[],leaves=[];
   function branch(start,dir,len,rad,depth){const pts=[start.clone()];let p=start.clone(),d=dir.clone();const segs=6;
     for(let i=1;i<=segs;i++){const twist=new T.Vector3((r()-.5)*.9,(r()-.2)*.35,(r()-.5)*.9);d.add(twist.multiplyScalar(.35)).normalize();p=p.clone().addScaledVector(d,len/segs);pts.push(p);}
-    const curve=new T.CatmullRomCurve3(pts);const tg=new T.TubeGeometry(curve,segs*2,rad,6,false);
-    /* afina até a ponta */const pa=tg.attributes.position;for(let i=0;i<pa.count;i++){const ring=Math.floor(i/7)/(segs*2);const c=curve.getPointAt(Math.min(1,ring));const v=new T.Vector3(pa.getX(i),pa.getY(i),pa.getZ(i)).sub(c).multiplyScalar(1-.7*ring).add(c);pa.setXYZ(i,v.x,v.y,v.z);}
+    const curve=new T.CatmullRomCurve3(pts);const TS=segs+2,RS=5;const tg=new T.TubeGeometry(curve,TS,rad,RS,false);/* V2.3.4: 8 × 5 segmentos (antes 12 × 6): −44% de triângulos nas árvores, a maior fonte de sombra da cena */
+    /* afina até a ponta */const pa=tg.attributes.position;for(let i=0;i<pa.count;i++){const ring=Math.floor(i/(RS+1))/TS;const c=curve.getPointAt(Math.min(1,ring));const v=new T.Vector3(pa.getX(i),pa.getY(i),pa.getZ(i)).sub(c).multiplyScalar(1-.7*ring).add(c);pa.setXYZ(i,v.x,v.y,v.z);}
     tg.computeVertexNormals();wood.push(tg);
     if(depth<=1&&rad>.5){const vp=curve.getPoints(16).map((q,i)=>{const a=i*.7+seed;return q.clone().add(new T.Vector3(Math.cos(a)*rad*.95,0,Math.sin(a)*rad*.95));});veins.push(new T.TubeGeometry(new T.CatmullRomCurve3(vp),24,.09,3,false));}
     if(depth<(big?4:3)){const n=depth===0?(big?4:3):2+(r()<.4?1:0);for(let k=0;k<n;k++){const t=.45+r()*.5;const sp=curve.getPointAt(t);const nd=d.clone().add(new T.Vector3((r()-.5)*1.8,.3+r()*.6,(r()-.5)*1.8)).normalize();branch(sp,nd,len*(.55+r()*.2),rad*.55,depth+1);}}

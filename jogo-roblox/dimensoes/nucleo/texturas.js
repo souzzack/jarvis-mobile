@@ -49,5 +49,10 @@ G.cobre=(N=256)=>{const Cu=C3('#a5683c'),Cl=C3('#c98a55'),Pt=C3('#4f9a8a'),Pd=C3
 G.runas=(N=512)=>{const c=document.createElement('canvas');c.width=N;c.height=N/4;const g=c.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,N,N/4);g.strokeStyle='#fff';g.lineWidth=5;g.lineCap='round';
   const r=MM.rng(7);for(let i=0;i<14;i++){const x0=12+i*(N-24)/14,w=(N-24)/14-10,y0=18,h=N/4-36;g.beginPath();const k=3+Math.floor(r()*3);for(let s=0;s<k;s++){const a=[x0+r()*w,y0+r()*h],b=[x0+r()*w,y0+r()*h];g.moveTo(a[0],a[1]);if(r()<.4)g.arc(a[0],a[1],4+r()*8,0,Math.PI*2);else g.lineTo(b[0],b[1]);}g.stroke();}
   const t=new T.CanvasTexture(c);t.wrapS=T.RepeatWrapping;return t;};
-MM.tex={};MM.makeTextures=function(){const t0=performance.now();for(const k of ['rocha','musgo','terra','lajes','blocos','metal','cobre'])MM.tex[k]=G[k]();MM.tex.runas=G.runas();MM.tex.ms=Math.round(performance.now()-t0);return MM.tex;};
+/* madeira em tábuas (V2.3.4, oficina): veio ao longo de u, juntas entre tábuas, emendas de topo desencontradas e nós */
+G.madeira=(N=256)=>{const A=C3('#5e412c'),B=C3('#8a6444'),D=C3('#2a1b12');return make(N,(u,v)=>{const rows=4,ry=v*rows,row=Math.floor(ry),fv=ry-row;const uu=((u*2+row*.37)%1+1)%1;
+    const w=pfbm(u*4,v*4,4,3,121);const grain=.5+.5*Math.sin((fv*9+w*2.2+pn(u*2,v*8,2,122)*1.5)*Math.PI*2);const fine=pn(u*64,v*16,64,123);
+    const seam=1-sst(0,.035,fv)*sst(1,.965,fv);const butt=uu<.012?1:0;const W=worley(u*6,v*12,6,124);const knot=(1-sst(.04,.12,W.f1))*(W.id>.8?1:0);
+    let c=mix(A,B,grain*.55+fine*.25);c=mix(c,D,knot*.7);c=mix(c,D,Math.max(seam,butt)*.85);return{c,h:grain*.25+fine*.1-Math.max(seam,butt)*.8-knot*.3,r:.62+.22*fine+seam*.15};},3.5);};
+MM.tex={};MM.makeTextures=function(){const t0=performance.now();for(const k of ['rocha','musgo','terra','lajes','blocos','metal','cobre','madeira'])MM.tex[k]=G[k]();MM.tex.runas=G.runas();MM.tex.ms=Math.round(performance.now()-t0);return MM.tex;};
 })();

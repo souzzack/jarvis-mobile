@@ -8,7 +8,7 @@ MM.startViewer=function(){const stage=$('stage');const status=$('status');
   const renderer=new T.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;stage.insertBefore(renderer.domElement,stage.firstChild);
   MM.renderer=renderer;const scene=new T.Scene();const cam=new T.PerspectiveCamera(55,1,.5,6000);const controls=new T.OrbitControls(cam,renderer.domElement);controls.enableDamping=true;controls.maxPolarAngle=Math.PI*.495;controls.minDistance=4;controls.maxDistance=1700;
-  const clayMat=new T.MeshStandardMaterial({color:0xb8b5ae,roughness:.85});const S={clay:false,quality:matchMedia('(pointer:coarse)').matches||innerWidth<700?'low':'high',fx:true,rain:true,full:true,neutral:false,support:false,cols:false,marks:true,labels:innerWidth>=700,scale:true,mode:'orbit',sel:null,isolated:false,island:null};
+  const clayMat=new T.MeshStandardMaterial({color:0xb8b5ae,roughness:.85});const S={clay:false,quality:matchMedia('(pointer:coarse)').matches||innerWidth<700?'low':'high',fx:true,rain:true,full:true,neutral:false,support:false,oficina:false,telhado:false,frente:false,cols:false,marks:true,labels:innerWidth>=700,scale:true,mode:'orbit',sel:null,isolated:false,island:null};
   let composer=null,bloom=null;
   function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setPixelRatio(S.quality==='low'?1:Math.min(devicePixelRatio||1,2));renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(composer){composer.setPixelRatio(renderer.getPixelRatio());composer.setSize(w,h);}}
   new ResizeObserver(resize).observe(stage);
@@ -71,6 +71,7 @@ MM.startViewer=function(){const stage=$('stage');const status=$('status');
   renderer.domElement.addEventListener('pointerdown',e=>{downAt=[e.clientX,e.clientY];});
   renderer.domElement.addEventListener('pointerup',e=>{if(!downAt||Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])>5)return;const r=renderer.domElement.getBoundingClientRect();
     ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),cam);const hits=ray.intersectObjects(isl.root.children,true).filter(h=>h.object.visible&&!(h.object.isSprite));
+    if(S.oficina&&hits.length){const c=window.__ofiPick(hits[0].point);if(c){window.__ofiSelect(c);return;}}
     for(const h of hits){let o=h.object;while(o&&!(o.userData&&o.userData.id&&isl.reg.byId[o.userData.id]===o))o=o.parent;if(o){select(o);return;}}select(null);});
   function select(o){sel=o;if(selBox){scene.remove(selBox);selBox=null;}const P=$('inspect');if(!o){P.hidden=true;$('modelList').querySelectorAll('.on').forEach(b=>b.classList.remove('on'));return;}
     selBox=new T.BoxHelper(o,0x43d9ff);scene.add(selBox);const b=new T.Box3().setFromObject(o),s=b.getSize(new T.Vector3());const u=o.userData;
@@ -107,6 +108,22 @@ MM.startViewer=function(){const stage=$('stage');const status=$('status');
       $('supInfo').hidden=!S.support;$('supInfo').innerHTML='<b>Diagnóstico Estrutural</b> · <span style="color:#3ee07a">'+R.contagem.verde+' validados</span> · <span style="color:#ffd23f">'+R.contagem.amarelo+' inspecionar</span> · <span style="color:#ff6b6b">'+R.contagem.vermelho+' com problema</span> · rotas '+rot.filter(r=>r.ok).length+'/'+rot.length+' · interseções '+R.globais.intersecoes
         +(red.length?'<br><span style="color:#ff6b6b">'+red.map(([id,s])=>id.replace('STORM.','')+': '+s.motivos[0]).join(' · ')+'</span>':'')+'<br><span style="opacity:.75">clique num modelo para ver o nome técnico e os motivos · pontos: verde contato, amarelo folga, vermelho suspenso, azul alicerce</span>';
       if(sel)select(sel);});
+    /* ---- Inspecionar Oficina: isola a oficina (só visibilidade — nada é removido da ilha), enquadra, oculta telhado/frente, seleciona componentes ---- */
+    const ofi=isl.reg.byId['STORM.ARCH.WORKSHOP'];let ofiVis=null,compBox=null;
+    const ofiFrame=(lc,lt)=>{if(!ofi)return;if(S.mode==='walk')setMode('orbit');const C=ofi.localToWorld(new T.Vector3(...lc)),Tt=ofi.localToWorld(new T.Vector3(...lt));cam.position.copy(C);controls.target.copy(Tt);controls.update();};
+    const OV={'Frente':[[0,9,50],[0,7,0]],'Lateral':[[50,9,0],[0,7,0]],'Três quartos':[[36,22,40],[0,6,0]],'Superior':[[0,62,4],[0,0,0]],'Interior':[[0,12.5,8.5],[0,3,-5]],'Bancadas':[[-4,6.5,4],[-10,3,4]],
+      'Condensador':[[4.5,7,3.5],[0,6.5,-4.6]],'Telhado':[[22,26,26],[0,17,0]],'Fundação':[[22,1.8,20],[8,0,10]],'Jogador':[[3,6.8,22],[0,5,0]]};
+    if(ofi){$('oficinaViews').innerHTML=Object.keys(OV).map(n=>`<button class="chip" data-ov="${n}">${n}</button>`).join('');$('oficinaViews').querySelectorAll('button').forEach(b=>b.onclick=()=>ofiFrame(...OV[b.dataset.ov]));}
+    window.__ofiView=n=>ofiFrame(...OV[n]);
+    tg('tOficina','oficina',()=>{if(!ofi)return;if(S.oficina){ofiVis=new Map();isl.root.traverse(o=>{if(o===isl.root||!o.parent||o.parent!==isl.root&&!o.userData.id)return;if(o.userData.id||o.parent===isl.root){ofiVis.set(o,o.visible);}});
+        isl.reg.list.forEach(o=>{if(o!==ofi)o.visible=false;});isl.light.clouds&&(isl.light.clouds.visible=false);grid.visible=false;
+        dummy.visible=true;dummy.position.copy(ofi.localToWorld(new T.Vector3(3,1.8,14)));dummy.rotation.y=ofi.rotation.y+Math.PI;ofiFrame(...OV['Três quartos']);}
+      else{if(ofiVis)ofiVis.forEach((v,o)=>o.visible=v);ofiVis=null;if(compBox){scene.remove(compBox);compBox=null;}grid.visible=S.scale;}});
+    tg('tTelhado','telhado',()=>{if(ofi&&ofi.__oficina)ofi.__oficina.roof.visible=!S.telhado;});
+    tg('tFrente','frente',()=>{if(ofi&&ofi.__oficina)ofi.__oficina.front.visible=!S.frente;});
+    window.__ofiPick=(p)=>{if(!ofi||!ofi.userData.componentes)return null;let best=null,bv=1e18;ofi.userData.componentes.forEach(c=>{const b=c.box;if(p.x<b[0]-.05||p.x>b[3]+.05||p.y<b[1]-.05||p.y>b[4]+.05||p.z<b[2]-.05||p.z>b[5]+.05)return;const v=(b[3]-b[0])*(b[4]-b[1])*(b[5]-b[2]);if(v<bv){bv=v;best=c;}});return best;};
+    window.__ofiSelect=(c)=>{if(compBox){scene.remove(compBox);compBox=null;}if(!c)return;const b=new T.Box3(new T.Vector3(c.box[0],c.box[1],c.box[2]),new T.Vector3(c.box[3],c.box[4],c.box[5]));compBox=new T.Box3Helper(b,0xffd23f);compBox.material.depthTest=false;compBox.renderOrder=999;scene.add(compBox);
+      const P=$('inspect');P.hidden=false;$('iName').textContent=c.nome;$('iId').textContent='STORM.ARCH.WORKSHOP › '+c.nome;$('iCat').textContent='Componente da Oficina dos Inventores';const s=b.getSize(new T.Vector3());$('iSize').textContent=`${s.x.toFixed(1)} × ${s.y.toFixed(1)} × ${s.z.toFixed(1)}`;};
     tg('tNeutral','neutral',()=>isl.light.setNeutral(S.neutral));tg('tClay','clay',()=>{scene.overrideMaterial=S.clay?clayMat:null;scene.traverse(o=>{if(S.clay){if(o.visible&&(o.isSprite||o.isPoints||o.isLine||(o.material&&o.material.transparent&&!o.isInstancedMesh))){o.visible=false;o.userData._clayHid=true;}}else if(o.userData._clayHid){o.visible=true;delete o.userData._clayHid;}});});tg('tLabels','labels',()=>{isl.folders.Interactions.traverse(o=>{if(o.name==='rotulo')o.visible=S.labels;});});tg('tScale','scale',()=>{grid.visible=S.scale;if(S.mode==='orbit')dummy.visible=S.scale;});
     $('tLow').setAttribute('aria-pressed',S.quality==='low');$('tLow').onclick=()=>{S.quality=S.quality==='low'?'high':'low';$('tLow').setAttribute('aria-pressed',S.quality==='low');applyQuality();};
     $('mWalk').onclick=()=>setMode('walk');$('mOrbit').onclick=()=>setMode('orbit');$('iFocus').onclick=()=>sel&&focusObj(sel);$('iIso').onclick=()=>isolate(!S.isolated);$('iClose').onclick=()=>select(null);
