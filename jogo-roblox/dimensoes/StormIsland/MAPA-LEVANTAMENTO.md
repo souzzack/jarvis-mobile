@@ -50,7 +50,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 2. Boca da Caverna, túnel e Bobina antiga, que têm o defeito visual mais evidente. **Feito.**
 3. Doca de chegada e portal (primeira impressão). **Feito.**
 4. Barracas e Praça do Coletor, para fechar a vila. **Feito.**
-5. Santuário.
+5. Santuário. **Feito.**
 6. Mirante do Penhasco.
 7. Observatório.
 8. Plataformas elevadas.
@@ -273,3 +273,47 @@ Arquivo alterado: `Architecture/vila.js`, só os blocos da praça e das barracas
 **Pendências no Roblox Studio:**
 - conferir os bancos e os postes (colisores) com o fluxo de jogadores na praça;
 - a bobina helicoidal vira uma MeshPart: conferir a `RenderFidelity`.
+
+## 5ª estrutura: Santuário da Tempestade (feito)
+
+Arquivo alterado: `Architecture/observatorio.js`, só a função `I.buildSanctuary`. O observatório não foi mexido.
+
+**O que não mudou:**
+- posição e assentamento no platô;
+- posições, raios (11/9), alturas (11/9) e cores dos 6 pilares;
+- altura das gemas (materiais `Gema0`–`Gema5`);
+- a Sétima Estrela no altar (material `SetimaEstrela`, mesma altura);
+- colisor do altar (4 × 3 × 4) e rota "P5 → diante do altar".
+
+**Defeitos corrigidos:**
+- a base era **heptagonal** (7 lados) para 6 pilares; agora é hexagonal e alinhada com eles;
+- os pilares **não tinham colisão**; agora cada fuste tem a sua.
+
+**O que mudou:**
+- **Plataforma:** dois degraus hexagonais, mais o degrau de entrada no lado da trilha P5, e um piso de cantaria com hexágono e círculo de cobre.
+- **Pilares:**
+  - plinto, fuste de cantaria e 3 cintas de cobre;
+  - sulcos de runas acesos na cor da própria gema (para dentro e para fora);
+  - capitel, colar de ferro e 3 garras segurando a gema.
+- **Condutores:** 6 condutores de cobre descem dos capitéis até o altar, altos o bastante para não cruzar a cabeça do jogador.
+- **Altar:** escalonado em 3 partes, com esfera armilar de cobre em volta da Sétima Estrela.
+- **Muro curvo de runas ao sul:**
+  - pilares de pedra nas pontas;
+  - a constelação das Sete Estrelas, com a estrela central na cor do núcleo.
+- **Braseiros:** 2 braseiros de cristal na entrada.
+- **Rochas:** rochas que assentam a plataforma no platô.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+- Durante o trabalho, o teste de rota acusou bloqueio no pilar da entrada, que fica no eixo da trilha P5. Ajustes feitos:
+  - fustes mais finos (faces a 1,08 na base);
+  - colisor quadrado girado para alinhar com a chegada da trilha (o fuste é hexagonal);
+  - o teste não foi alterado.
+- O muro de runas ficava 0,7 stud acima do degrau de baixo; foi rebaixado e assentado.
+
+**Custo:** o santuário tem cerca de 5,4 mil triângulos. Na vista Vila ficou em 820 chamadas e 1.648.902 triângulos (antes deste passo, 814 e 1.640.031).
+
+**Imagem:** `../../referencias/mapa-santuario-antes-depois.jpg`
+
+**Pendência no Roblox Studio:** conferir a passagem entre o pilar da entrada e os braseiros com um personagem de verdade.
