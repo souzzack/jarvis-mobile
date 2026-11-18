@@ -12,7 +12,7 @@ vec3 mmTopN(sampler2D t,vec3 p,vec3 n,float s,float k){vec3 ty=texture2D(t,p.xz*
 MM.triplanar=function(opts){const tx=MM.tex;const terrain=opts.mode==='terreno';const m=new T.MeshStandardMaterial({color:0xffffff,roughness:.9,metalness:0,envMapIntensity:opts.env||.7});m.name=opts.name||'Triplanar';
   const u={tRockC:{value:tx.rocha.map},tRockN:{value:tx.rocha.normalMap},tMossC:{value:tx.musgo.map},tMossN:{value:tx.musgo.normalMap},tSoilC:{value:tx.terra.map},tSoilN:{value:tx.terra.normalMap},tPathC:{value:tx.lajes.map},tPathN:{value:tx.lajes.normalMap},
     uRockS:{value:opts.rockScale||.045},uTint:{value:new T.Color(opts.tint||'#ffffff')},uStrata:{value:opts.strata===undefined?1:opts.strata},uMossTop:{value:opts.mossTop||0}};
-  m.userData.u=u;
+  m.userData.u=u;m.userData.triplanar=true;/* marca usada pela exportação (o condutor também tem uniforms e não é triplanar) */
   m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,u);
     sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWP;varying vec3 vWN;varying vec4 vW;varying float vWet;varying float vAO;'+(terrain?'attribute vec4 aW;attribute float aWet;attribute float aAO;':''))
       .replace('#include <fog_vertex>','#include <fog_vertex>\n{vec4 wp=vec4(transformed,1.);vec3 wn=objectNormal;\n#ifdef USE_INSTANCING\nwp=instanceMatrix*wp;wn=mat3(instanceMatrix)*wn;\n#endif\nvWP=(modelMatrix*wp).xyz;vWN=normalize(mat3(modelMatrix)*wn);}'+(terrain?'vW=aW;vWet=aWet;vAO=aAO;':'vW=vec4(1.,0.,0.,0.);vWet=0.;vAO=1.;'));
