@@ -18,17 +18,17 @@ function archRingG(ri,ro,spring,t){const s=new T.Shape();s.moveTo(-ro,0);s.lineT
   const g=new T.ExtrudeGeometry(s,{depth:t,bevelEnabled:false,curveSegments:12});g.translate(0,0,-t/2);return g;}
 function archLeafG(r,spring,t){const s=new T.Shape();s.moveTo(-r,0);s.lineTo(-r,spring);s.absarc(0,spring,r,Math.PI,0,true);s.lineTo(r,0);s.lineTo(-r,0);const g=new T.ExtrudeGeometry(s,{depth:t,bevelEnabled:false,curveSegments:12});g.translate(0,0,-t/2);return g;}
 I.houseMats=function(ctx){if(ctx.__casaM)return ctx.__casaM;const tx=MM.tex;
-  const cant=MM.triplanar({mode:'rocha',name:'VilaCantaria',rockScale:.11,strata:0,tint:'#e3dbd2',mossTop:.35,env:.5});cant.userData.u.tRockC.value=tx.blocos.map;cant.userData.u.tRockN.value=tx.blocos.normalMap;
-  const lav=MM.triplanar({mode:'rocha',name:'VilaPedraLavrada',rockScale:.07,strata:0,tint:'#fff3e4',env:.5});
+  const cant=MM.triplanar({mode:'rocha',name:'IlhaCantaria',rockScale:.11,strata:0,tint:'#e3dbd2',mossTop:.35,env:.5});cant.userData.u.tRockC.value=tx.blocos.map;cant.userData.u.tRockN.value=tx.blocos.normalMap;
+  const lav=MM.triplanar({mode:'rocha',name:'IlhaPedraLavrada',rockScale:.07,strata:0,tint:'#fff3e4',env:.5});
   const std=(name,t,o)=>new T.MeshStandardMaterial(Object.assign({name,map:t.map,normalMap:t.normalMap,roughnessMap:t.roughnessMap},o));
   const pm=tx.terra.map.clone();pm.needsUpdate=true;pm.repeat.set(.16,.16);
   ctx.__casaM={cant,lav,
-    woodD:std('VilaMadeiraEstrutural',tx.madeira,{roughness:1,color:MM.C('#7d604c')}),
-    plaster:new T.MeshStandardMaterial({name:'VilaReboco',color:MM.C('#e2d4c0'),map:pm,roughness:.95}),
-    roof:std('VilaChapaTelhado',tx.metal,{metalness:.6,roughness:.88,envMapIntensity:.5,color:MM.C('#4c5f6e')}),
-    iron:std('VilaFerroEscuro',tx.metal,{metalness:.75,roughness:.9,color:MM.C('#4a4d55')}),
-    copper:std('VilaCobre',tx.cobre,{metalness:.8,roughness:.75,color:MM.C('#d39a6a')}),
-    glass:new T.MeshStandardMaterial({name:'VilaVidroAceso',color:MM.C('#3b3226'),roughness:.25,metalness:.1,emissive:MM.C('#ffb468'),emissiveIntensity:.55})};
+    woodD:std('IlhaMadeiraEstrutural',tx.madeira,{roughness:1,color:MM.C('#7d604c')}),
+    plaster:new T.MeshStandardMaterial({name:'IlhaReboco',color:MM.C('#e2d4c0'),map:pm,roughness:.95}),
+    roof:std('IlhaChapaTelhado',tx.metal,{metalness:.6,roughness:.88,envMapIntensity:.5,color:MM.C('#4c5f6e')}),
+    iron:std('IlhaFerroEscuro',tx.metal,{metalness:.75,roughness:.9,color:MM.C('#4a4d55')}),
+    copper:std('IlhaCobre',tx.cobre,{metalness:.8,roughness:.75,color:MM.C('#d39a6a')}),
+    glass:new T.MeshStandardMaterial({name:'IlhaVidroAceso',color:MM.C('#3b3226'),roughness:.25,metalness:.1,emissive:MM.C('#ffb468'),emissiveIntensity:.55})};
   return ctx.__casaM;};
 I.buildHouse=function(ctx,id,name,opt){const M=ctx.mat,K=I.houseMats(ctx),r=MM.rng(opt.seed);const g=MM.obj(id,name,'Architecture',{notes:'Casa da vila (não explorável). Porta em arco 4 × 7,4 studs recuada na parede. Para-raios com bobinas no topo, ligado ao Coletor da praça.'});
   const w=opt.w,d=opt.d,two=opt.floors>1,round=opt.roof==='cone';const BB=MM.bevelBox;

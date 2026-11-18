@@ -47,7 +47,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 ## Ordem recomendada
 
 1. **Casas da vila.** São as que têm mais problemas somados: 5 modelos-protótipo, no centro da vila e ao lado da oficina aprovada. **Feito neste ciclo.**
-2. Boca da Caverna, túnel e Bobina antiga, que têm o defeito visual mais evidente.
+2. Boca da Caverna, túnel e Bobina antiga, que têm o defeito visual mais evidente. **Feito.**
 3. Doca de chegada e portal (primeira impressão).
 4. Barracas e Praça do Coletor, para fechar a vila.
 5. Santuário.
@@ -105,7 +105,7 @@ Arquivo alterado: `Architecture/vila.js`, apenas na função `I.buildHouse` e no
 
 São cerca de 47 mil triângulos a mais e cerca de 13 chamadas a menos.
 
-**Exportação:** `Architecture.glb` traz os materiais `Vila*`. As duas pedras (triplanares) saem como "Rocha", como na oficina.
+**Exportação:** `Architecture.glb` traz os materiais `Ilha*` (família compartilhada pelas estruturas da ilha). As duas pedras (triplanares) saem como "Rocha", como na oficina.
 
 **Imagens:**
 - `../../referencias/mapa-levantamento-estruturas.jpg`
@@ -117,3 +117,61 @@ São cerca de 47 mil triângulos a mais e cerca de 13 chamadas a menos.
 - conferir os colisores (as casas não são exploráveis por dentro);
 - conferir como a pedra fica depois de virar "Rocha";
 - medir o FPS na vila num aparelho real.
+
+## 2ª estrutura: Caverna do Trovão (feito)
+
+**Arquivos alterados:**
+- `Architecture/caverna.js` (reescrito);
+- `Props/props.js`: uma linha, que deixa de criar a rocha solta que atravessava o contraforte novo. O sorteio das outras rochas não muda.
+
+**O que não mudou:**
+- posição da boca;
+- traçado e forma do túnel natural;
+- câmara e estalactites;
+- piso caminhável (dados de rota), ids e marcadores;
+- mina STORM.MINE.02 e lugar da bobina STORM.EQUIP.01.
+
+**O que mudou:**
+- **Pórtico.** Antes eram uma verga-caixa de 37 × 7,5 studs que parecia solta na frente do paredão, 13 aduelas-caixa e 2 hastes soltas. Agora é uma fachada de cantaria de 34 × 22 studs, apoiada no adro e encostada no paredão:
+  - arco de verdade, com 14 aduelas em cunha e fecho saliente;
+  - emblema da tempestade no fecho: aro e raio de cobre, mais um cristal;
+  - ombreiras em fiadas alternadas e impostas;
+  - embasamento, fiada saliente, cornija e frontão escalonado;
+  - placas de ferro rebitadas com moldura de cobre;
+  - 2 lanternas de parede;
+  - contrafortes em talude que escondem a junta com a rocha.
+- **Atrás do arco.**
+  - abóbada de alvenaria com 3 arcos de ferro;
+  - anel de fechamento que esconde a fresta entre a abóbada e o túnel natural.
+- **Na entrada.**
+  - soleira e adro de lajes com juntas de ferro, cobrindo o recorte do terreno na boca;
+  - degrau de 0,5 stud.
+- **Túnel.**
+  - piso contínuo de 12 studs (antes eram 40 placas com frestas na curva);
+  - trilhos com dormentes até a câmara;
+  - 4 quadros de escoramento (esteios, chapéu e mãos-francesas, cada um com sua lanterna), com colisores nos esteios;
+  - entulho ao pé da parede da câmara.
+- **Bobina antiga.**
+  - pedestal octogonal e coluna de isoladores;
+  - bobina helicoidal de cobre com 14 voltas e toroide;
+  - armação de ferro e cabo até a parede.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, 5 amarelos (os mesmos de antes), 0 vermelhos e 0 interseções.
+- 24 de 24 rotas, incluindo a da caverna.
+- Durante o trabalho apareceram e foram corrigidos:
+  - uma rocha da ilha atravessando o contraforte;
+  - duas rochas de acabamento que caíam dentro do vão;
+  - entulho encostado na bobina.
+
+**Custo** (vista Vila, efeitos desligados, depois das casas e da caverna): 802 chamadas e 1.614.739 triângulos. Só com as casas eram 788 e 1.599.327. A caverna somou cerca de 14 chamadas e 15 mil triângulos:
+- pórtico: cerca de 6,1 mil triângulos;
+- túnel: cerca de 4,6 mil;
+- bobina: cerca de 5 mil.
+
+**Imagem:** `../../referencias/mapa-caverna-antes-depois.jpg`
+
+**Pendências no Roblox Studio:**
+- O recorte da boca no Terrain do Roblox precisa ser feito no Studio (por exemplo, com subtração de região) ou coberto pelo pórtico importado. O heightmap sozinho fecha a boca.
+- A abóbada e o túnel são vistos por dentro. No Roblox, conferir se a face interna aparece; senão, usar `DoubleSided` na MeshPart.
+- Conferir os colisores dos esteios e das ombreiras com um personagem andando.
