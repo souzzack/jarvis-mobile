@@ -185,7 +185,7 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
     MM.box(ws,x,FL+3.3,z,ry?1.4:len,6.6,ry?len:1.4);};
   shelf(-7.8,-D/2+TW+.9,0,6.4);shelf(-W/2+TW+.9,-5.4,Math.PI/2,4.2);
   [[-5.2,-6.4],[-6.6,-6]].forEach(([x,z],i)=>{/* barris com aros */add(new T.CylinderGeometry(.85,.75,1.9,12),woodD,x,FL+.95,z,dep);[.3,1.6].forEach(y=>add(new T.TorusGeometry(.84,.06,4,14),ironD,x,FL+y,z,dep).rotation.x=Math.PI/2);});
-  [[-8.4,-3.8],[-7,-4],[-7.7,-3.9]].forEach(([x,z],i)=>add(crateG,wood,x,FL+.55+(i===2?1.1:0),z,dep).rotation.y=rnd()*.4);MM.box(ws,-7.7,FL+1.1,-3.9,3,2.2,1.4);
+  [[-9.4,-3.8],[-8,-4],[-8.7,-3.9]].forEach(([x,z],i)=>add(crateG,wood,x,FL+.55+(i===2?1.1:0),z,dep).rotation.y=rnd()*.4);MM.box(ws,-8.7,FL+1.1,-3.9,3,2.2,1.4);/* V2.3.5: 1 stud mais para a esquerda — a passagem até o depósito tinha 0,1 stud de folga */
   /* --- 5d. canto do inventor (fundo direito): prancheta, banco, luminária, protótipos, notas; lugar do NPC --- */
   const inv=comp('Canto do inventor',interior);
   {const g=new T.Group();g.position.set(7.6,FL,-7.4);inv.add(g);[[-1.3,-.6],[1.3,-.6],[-1.3,.6],[1.3,.6]].forEach(([a,b])=>add(new T.BoxGeometry(.2,3.2,.2),woodD,a,1.6,b,g));
