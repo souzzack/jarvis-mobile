@@ -48,7 +48,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 
 1. **Casas da vila.** São as que têm mais problemas somados: 5 modelos-protótipo, no centro da vila e ao lado da oficina aprovada. **Feito neste ciclo.**
 2. Boca da Caverna, túnel e Bobina antiga, que têm o defeito visual mais evidente. **Feito.**
-3. Doca de chegada e portal (primeira impressão).
+3. Doca de chegada e portal (primeira impressão). **Feito.**
 4. Barracas e Praça do Coletor, para fechar a vila.
 5. Santuário.
 6. Mirante do Penhasco.
@@ -175,3 +175,50 @@ São cerca de 47 mil triângulos a mais e cerca de 13 chamadas a menos.
 - O recorte da boca no Terrain do Roblox precisa ser feito no Studio (por exemplo, com subtração de região) ou coberto pelo pórtico importado. O heightmap sozinho fecha a boca.
 - A abóbada e o túnel são vistos por dentro. No Roblox, conferir se a face interna aparece; senão, usar `DoubleSided` na MeshPart.
 - Conferir os colisores dos esteios e das ombreiras com um personagem andando.
+
+## 3ª estrutura: Doca de chegada e portal (feito)
+
+Arquivo alterado: `Props/props.js`, só o bloco `STORM.ARCH.ARRIVAL`.
+
+**O que não mudou:**
+- posição da doca;
+- spawn (STORM.SPAWN.01) e marcador do portal (STORM.PORTAL.01);
+- área caminhável de 30 × 26 studs, com o topo do piso no mesmo nível;
+- rota "chegada: doca → P1";
+- o anel de energia continua com o nome `AnelPortal`, no mesmo centro e no mesmo raio.
+
+**Praça:**
+- Antes: tablado liso com 6 frisos escuros.
+- Agora:
+  - laje de cantaria com piso de pedra lavrada, juntas em grade e meio-fio;
+  - rosa-dos-ventos de cobre com núcleo de energia no ponto de chegada;
+  - alicerce de cantaria até o chão real, no lado do penhasco (antes a borda sul ficava a 0,6 stud do chão);
+  - balaustrada de balaústres torneados nos cantos do lado do penhasco;
+  - 4 postes de luz;
+  - placa de direções com 3 setas (no lugar da placa antiga);
+  - bagagens de quem chega: baús e barris.
+
+**Portal:**
+- Antes: 2 colunas-caixa, uma viga-caixa, um meio anel de cobre e o anel de energia.
+- Agora:
+  - estrado de dois degraus;
+  - anel de 19 aduelas de pedra, em pé sobre o estrado e preso aos pilares;
+  - fecho com o mesmo emblema da tempestade da caverna;
+  - runas de cobre nas duas faces e 8 cristais voltados para o centro;
+  - segundo anel de energia, mais fino;
+  - pilares com base, fuste de cantaria, cintas e bobina de cobre em espiral, e capitel;
+  - entablamento em degraus;
+  - para-raios com bobinas e cristais nas pontas.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+- 11 colisores novos: estrado, pilares, balaustrada, postes, placa e bagagens.
+
+**Custo:** a doca tem cerca de 14 mil triângulos (antes, 1,1 mil). Na vista da Vila ficou em 801 chamadas e 1.625.675 triângulos.
+
+**Imagem:** `../../referencias/mapa-chegada-antes-depois.jpg`
+
+**Pendências no Roblox Studio:**
+- conferir os colisores do estrado, porque o degrau de 0,5 deve ser subido sem pulo;
+- ligar o `AnelPortal` ao script de teleporte quando ele existir.
