@@ -49,7 +49,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 1. **Casas da vila.** São as que têm mais problemas somados: 5 modelos-protótipo, no centro da vila e ao lado da oficina aprovada. **Feito neste ciclo.**
 2. Boca da Caverna, túnel e Bobina antiga, que têm o defeito visual mais evidente. **Feito.**
 3. Doca de chegada e portal (primeira impressão). **Feito.**
-4. Barracas e Praça do Coletor, para fechar a vila.
+4. Barracas e Praça do Coletor, para fechar a vila. **Feito.**
 5. Santuário.
 6. Mirante do Penhasco.
 7. Observatório.
@@ -222,3 +222,54 @@ Arquivo alterado: `Props/props.js`, só o bloco `STORM.ARCH.ARRIVAL`.
 **Pendências no Roblox Studio:**
 - conferir os colisores do estrado, porque o degrau de 0,5 deve ser subido sem pulo;
 - ligar o `AnelPortal` ao script de teleporte quando ele existir.
+
+## 4ª estrutura: Praça do Coletor e barracas do mercado (feito)
+
+Arquivo alterado: `Architecture/vila.js`, só os blocos da praça e das barracas. As casas e a oficina não foram mexidas.
+
+**O que não mudou:**
+- posição e assentamento da praça (raio de 17,6 studs);
+- colisor do Coletor (9 × 18 × 9);
+- altura da esfera de energia, que é a raiz dos cabos dos para-raios, então os cabos não mudam;
+- regras de posição das barracas e o colisor do balcão de cada uma.
+
+**Praça:**
+- Antes: discos lisos com 24 blocos escuros em anel.
+- Agora:
+  - calçamento de cantaria com anel de pedra lavrada;
+  - 3 frisos de cobre, 12 raios de pedra e 12 frisos de cobre diagonais;
+  - 4 bancos curvos e 4 postes de luz, colocados só onde não há trilha (com colisores).
+
+**Coletor:**
+- Antes: coluna de cobre lisa com 3 argolas.
+- Agora:
+  - pedestal octogonal de 3 degraus;
+  - colares de isoladores e anéis de pátina;
+  - bobina helicoidal de cobre de 10 voltas e 6 travessas de ferro;
+  - coroa de 6 garras segurando o cristal, com 3 cristais menores;
+  - aro de cobre na esfera de energia.
+
+**Barracas:**
+- Antes: caixa, 4 varas e toldo de placa.
+- Agora:
+  - estrado de tábuas;
+  - balcão de painéis com ferragens, tampo, prateleira e o emblema de cristal;
+  - esteios com vigas e toldo listrado inclinado com babado;
+  - mercadorias: cristais num caixote, uma peça de cobre, frascos e uma lanterna;
+  - barril e caixote no estrado.
+- Material novo: `IlhaLona`.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+
+**Custo:**
+- praça: cerca de 9,8 mil triângulos;
+- cada barraca: cerca de 1,5 mil triângulos;
+- vista Vila: 814 chamadas e 1.640.031 triângulos (antes deste passo, 801 e 1.625.675).
+
+**Imagem:** `../../referencias/mapa-praca-barracas-antes-depois.jpg`
+
+**Pendências no Roblox Studio:**
+- conferir os bancos e os postes (colisores) com o fluxo de jogadores na praça;
+- a bobina helicoidal vira uma MeshPart: conferir a `RenderFidelity`.

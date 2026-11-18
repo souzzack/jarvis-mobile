@@ -135,14 +135,35 @@ I.buildHouse=function(ctx,id,name,opt){const M=ctx.mat,K=I.houseMats(ctx),r=MM.r
   g.userData.rodTip=new T.Vector3(rx,top+rodH-.2,0);const sw=w+1.6,sd=(round?w:d)+1.6;MM.box(g,0,.8,0,sw,1.6,sd);/* laje pisável */g.userData.foot={w:sw,d:sd,base:0,floor:1.6,front:sd/2,stepW:5.6,mat:K.lav};/* mesmo material do plinto: sem chamada de desenho extra */
   g.userData.materiais=Object.values(K).map(m=>m.name);return g;};
 I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
-  /* praça e Coletor */
-  const pz=MM.obj('STORM.ARCH.VILLAGE.PLAZA','Praça do Coletor','Architecture',{notes:'Ponto de encontro da vila e raiz dos cabos.'});pz.position.set(V.x,H,V.z);
-  MM.mesh(new T.CylinderGeometry(17,17.6,.6,40),M.pedraClara,0,.3,0,pz);MM.mesh(new T.CylinderGeometry(11,11,.66,32),M.pedra,0,.33,0,pz);
-  for(let i=0;i<24;i++){const a=i/24*Math.PI*2;MM.mesh(new T.BoxGeometry(1.2,.7,4),M.pedraEscura,Math.sin(a)*14,.35,Math.cos(a)*14,pz).rotation.y=a;}
-  MM.mesh(new T.CylinderGeometry(4,4.6,2.2,8),M.pedra,0,1.4,0,pz);MM.mesh(new T.CylinderGeometry(1.25,1.6,17,8),M.cobre,0,10,0,pz);
-  [6,10,14].forEach(y=>MM.mesh(new T.TorusGeometry(2.3,.45,6,16),M.patina,0,y,0,pz).rotation.x=Math.PI/2);
-  MM.mesh(MM.crystalGeo(1,2.2,2.2),M.cristal,0,18.4,0,pz);MM.mesh(new T.SphereGeometry(.55,8,6),M.energia,0,19.6,0,pz).castShadow=false;
-  MM.box(pz,0,9,0,9,18,9);pz.userData.assento=MM.seat(ctx,pz,{r:17.6,bury:.25,mat:M.pedra});pz.userData.top=new T.Vector3(V.x,pz.position.y+19.6,V.z);out.push(pz);
+  /* praça e Coletor (Mapa V1): calçamento de cantaria com anel de pedra lavrada, raios e frisos de cobre, bancos curvos fora das trilhas,
+     postes de luz; Coletor em pedestal octogonal de três degraus, coluna de cobre com colares de isoladores, bobina helicoidal,
+     coroa de garras segurando o cristal. Topo da esfera de energia na mesma altura de antes (raiz dos cabos dos para-raios). */
+  const K=I.houseMats(ctx),BB=MM.bevelBox;
+  const pz=MM.obj('STORM.ARCH.VILLAGE.PLAZA','Praça do Coletor','Architecture',{notes:'Ponto de encontro da vila e raiz dos cabos. Praça de 35 studs; bancos curvos só fora das trilhas.'});pz.position.set(V.x,H,V.z);
+  {const a=(g,m,x,y,z)=>MM.mesh(g,m,x,y,z,pz);
+    a(new T.CylinderGeometry(17,17.6,.6,48),K.lav,0,.3,0).userData.apoio=true;a(new T.CylinderGeometry(11,11,.66,40),K.cant,0,.33,0);
+    [[11,.16],[16.7,.12],[5.9,.12]].forEach(([r,t])=>{const tr=a(new T.TorusGeometry(r,t,4,64),K.copper,0,.64,0);tr.rotation.x=Math.PI/2;tr.scale.z=.5;tr.castShadow=false;});
+    for(let i=0;i<12;i++){const an=i/12*Math.PI*2;const s=a(new T.BoxGeometry(.45,.06,5.4),K.lav,Math.sin(an)*13.9,.62,Math.cos(an)*13.9);s.rotation.y=an;s.castShadow=false;
+      const c=a(new T.BoxGeometry(.18,.05,4.6),K.copper,Math.sin(an+Math.PI/12)*8.3,.68,Math.cos(an+Math.PI/12)*8.3);c.rotation.y=an+Math.PI/12;c.castShadow=false;}
+    /* bancos curvos e postes, só onde não há trilha */
+    const livre=(an,r,half)=>[-half,0,half].every(d=>ctx.pathDist(V.x+Math.sin(an+d)*r,V.z+Math.cos(an+d)*r)>.8);let nb=0,nl=0;
+    for(let i=0;i<12;i++){const an=(i+.5)/12*Math.PI*2;
+      if(livre(an,14.2,.26)){nb++;const s=a(MM.arcSlab(13.6,14.8,.44,.32),K.lav,0,1.45,0);s.rotation.y=an;[-.15,.15].forEach(d=>{const p=a(MM.arcSlab(13.85,14.55,.07,.8),K.cant,0,.66,0);p.rotation.y=an+d;});MM.box(pz,Math.sin(an)*14.2,1.2,Math.cos(an)*14.2,6,1.2,1.3,an);}
+      else if(nl<4&&livre(an,16,.08)){nl++;const x=Math.sin(an)*16,z=Math.cos(an)*16;a(new T.CylinderGeometry(.45,.6,.5,8),K.iron,x,.85,z);a(new T.CylinderGeometry(.15,.2,6,8),K.iron,x,3.9,z);
+        const g=a(new T.CylinderGeometry(.34,.42,1,6),K.glass,x,7.3,z);g.castShadow=false;a(new T.ConeGeometry(.55,.5,6),K.iron,x,8.05,z);a(new T.CylinderGeometry(.42,.3,.15,6),K.iron,x,6.75,z);MM.box(pz,x,3.9,z,.6,6.4,.6);}}
+    pz.userData.bancos=nb;pz.userData.postes=nl;
+    /* Coletor */
+    [[5.2,5.6,1.06,K.lav],[4.2,4.5,1.86,K.cant],[3.2,3.5,2.66,K.lav]].forEach(([r0,r1,y,m])=>a(new T.CylinderGeometry(r0,r1,.8,8),m,0,y,0));
+    a(new T.CylinderGeometry(1.25,1.6,15.2,20),K.copper,0,10.66,0);
+    [3.5,4.05].forEach(y=>a(new T.CylinderGeometry(2,2.1,.4,16),K.lav,0,y,0));[4.75,16.4].forEach(y=>a(new T.TorusGeometry(2.2,.26,8,24),M.patina,0,y,0).rotation.x=Math.PI/2);
+    {const hp=[];for(let i=0;i<=200;i++){const t=i/200,an=t*Math.PI*2*10;hp.push(new T.Vector3(Math.cos(an)*1.95,5.3+t*10.6,Math.sin(an)*1.95));}const hc=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(hp),400,.17,5,false),K.copper);hc.castShadow=true;pz.add(hc);}
+    for(let i=0;i<6;i++){const an=i/6*Math.PI*2;const s=a(new T.BoxGeometry(.2,11,.22),K.iron,Math.cos(an)*1.42,10.6,Math.sin(an)*1.42);s.rotation.y=-an;}
+    a(new T.TorusGeometry(1.75,.22,6,20),K.iron,0,17.7,0).rotation.x=Math.PI/2;
+    for(let i=0;i<6;i++){const an=i/6*Math.PI*2+.3;const cl=a(new T.BoxGeometry(.24,1.9,.24),K.iron,Math.cos(an)*1.35,18.55,Math.sin(an)*1.35);cl.rotation.set(0,-an,0);cl.rotateZ(.42);}
+    a(MM.crystalGeo(1,2.2,2.2),M.cristal,0,18.4,0).castShadow=false;
+    [[.9,.2,.3],[-.7,.6,-.35],[.1,-.95,.25]].forEach(([x,z,t],i)=>{const c=a(MM.crystalGeo(.35,.9,.7),M.cristal,x,18.2,z);c.rotation.set(t,i,-t);c.castShadow=false;});
+    a(new T.SphereGeometry(.55,12,8),M.energia,0,19.6,0).castShadow=false;a(new T.TorusGeometry(.95,.1,5,16),K.copper,0,19.6,0).rotation.x=Math.PI/2;}
+  MM.box(pz,0,9,0,9,18,9);pz.userData.assento=MM.seat(ctx,pz,{r:17.6,bury:.25,mat:K.cant});pz.userData.top=new T.Vector3(V.x,pz.position.y+19.6,V.z);out.push(pz);
   /* casas: candidatas em anel; descarta as que tocam caminhos ou a praça */
   const r=MM.rng(404);const variants=[{w:14,d:12,floors:2,roof:'gable'},{w:12,d:12,floors:1,roof:'cone'},{w:16,d:12,floors:2,roof:'shed'},{w:13,d:11,floors:1,roof:'gable',rot90:true},{w:15,d:13,floors:2,roof:'gable',rot90:true},{w:11,d:11,floors:1,roof:'cone'},{w:14,d:10,floors:1,roof:'shed'},{w:12,d:13,floors:2,roof:'gable'}];
   let n=0;const placed=[];
@@ -171,9 +192,26 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   [[-14,104,.4],[-50,108,-.5]].forEach(([x0,z0,ry],i)=>{/* V2.3.1: barraca nunca na frente de uma porta (antes a 2 ficava colada na porta da casa 2) */
     const fronts=out.filter(o=>o.userData.foot).map(o=>{const f=o.userData.foot,c=Math.cos(o.rotation.y),s=Math.sin(o.rotation.y);const lz=f.d/2+5;return[o.position.x+lz*s,o.position.z+lz*c,o];});
     let x=x0,z=z0;for(let t=0;t<12;t++){const bad=fronts.some(([fx,fz])=>Math.hypot(fx-x,fz-z)<9)||out.some(o=>o.userData.foot&&Math.hypot(o.position.x-x,o.position.z-z)<14)||Math.hypot(V.x-x,V.z-z)<17.6+5.5;/* V2.3.2: fora do anel da praça */if(!bad&&ctx.pathDist(x,z)>=4)break;const a=t*1.3;x=x0+Math.cos(a)*(4+t*1.5);z=z0+Math.sin(a)*(4+t*1.5);}
-    if(ctx.pathDist(x,z)<4)return;const st=MM.obj('STORM.PROP.STALL.0'+(i+1),'Barraca do mercado '+(i+1),'Props');st.position.set(x,0,z);st.rotation.y=ry;MM.mesh(new T.BoxGeometry(8,.5,5.4),M.madeira,0,.25,0,st).userData.apoio=true;/* estrado da barraca */st.userData.assento=MM.seat(ctx,st,{w:8,d:5.4,base:0,mat:M.madeira});
-    MM.mesh(new T.BoxGeometry(6,3,3),M.madeira,0,2,0,st);[[-2.8,-1.3],[2.8,-1.3],[-2.8,1.3],[2.8,1.3]].forEach(([a,b])=>MM.mesh(new T.CylinderGeometry(.18,.18,7,5),M.madeira,a,4,b,st));
-    const aw=MM.mesh(new T.BoxGeometry(7,.2,4.4),M.tecido,0,7.5,0,st);aw.rotation.x=.18;MM.mesh(MM.crystalGeo(.4,.8,.8),M.cristal,-1.5,3.6,0,st);MM.mesh(new T.BoxGeometry(1.2,1,1),M.cobre,1.4,4,0,st);
+    if(ctx.pathDist(x,z)<4)return;const st=MM.obj('STORM.PROP.STALL.0'+(i+1),'Barraca do mercado '+(i+1),'Props',{notes:'Barraca de tábuas com toldo listrado, balcão e mercadorias (cristais, peças de cobre, frascos). Frente = +Z local.'});st.position.set(x,0,z);st.rotation.y=ry;
+    /* Mapa V1: barraca de verdade — estrado de tábuas, balcão com painéis e tampo, esteios, toldo listrado com babado, mercadorias */
+    const K=I.houseMats(ctx),BB=MM.bevelBox,s=(g,m,x,y,z)=>MM.mesh(g,m,x,y,z,st);
+    if(!ctx.__lona){ctx.__lona=new T.MeshStandardMaterial({name:'IlhaLona',color:MM.C('#d9cba9'),roughness:1,side:T.DoubleSide});}const lona=ctx.__lona;
+    s(BB(8,.5,5.4,.06),K.woodD,0,.25,0).userData.apoio=true;/* estrado da barraca */for(let k=-3;k<=3;k++)s(new T.BoxGeometry(.06,.03,5.3),K.iron,k*1.1,.51,0).castShadow=false;
+    st.userData.assento=MM.seat(ctx,st,{w:8,d:5.4,base:0,mat:K.woodD});
+    s(BB(6,2.6,.3,.05),K.woodD,0,1.8,1.35);[-1,1].forEach(k=>s(BB(.3,2.6,2.7,.05),K.woodD,k*2.85,1.8,0));s(BB(6.6,.25,3.4,.05),M.madeira,0,3.22,0);s(BB(5.4,.12,2.4,.04),M.madeira,0,1.9,0);
+    for(let k=-2;k<=2;k++)s(new T.BoxGeometry(.06,2.4,.05),K.iron,k*1.15,1.8,1.53);[.9,2.7].forEach(y=>s(new T.BoxGeometry(5.8,.14,.06),K.iron,0,y,1.54));
+    {const pl=s(new T.CylinderGeometry(.5,.5,.08,16),K.copper,0,2.2,1.56);pl.rotation.x=Math.PI/2;s(MM.crystalGeo(.12,.3,.25),M.cristal,0,2.05,1.62).castShadow=false;}
+    [[-2.8,-1.3,7.8],[2.8,-1.3,7.8],[-2.8,1.3,7.0],[2.8,1.3,7.0]].forEach(([a,b,h])=>{s(BB(.32,h-.5,.32,.04),K.woodD,a,.5+(h-.5)/2,b);});
+    s(new T.BoxGeometry(6,.25,.25),K.woodD,0,7.0,1.3);s(new T.BoxGeometry(6,.25,.25),K.woodD,0,7.8,-1.3);
+    /* toldo listrado inclinado (frente mais baixa) e babado */
+    {const aw=new T.Group();aw.position.set(0,7.6,0);aw.rotation.x=.18;st.add(aw);for(let k=0;k<6;k++){MM.mesh(new T.BoxGeometry(7.2/6,.07,4.8),k%2?lona:M.tecido,-3.6+7.2/6*(k+.5),.12,0,aw);}
+      for(let k=0;k<12;k++){const f=MM.mesh(new T.ConeGeometry(.32,.6,3),k%2?lona:M.tecido,-3.3+k*.6,-.2,2.4,aw);f.rotation.x=Math.PI;f.castShadow=false;}}
+    /* mercadorias */
+    s(BB(1.4,.6,1,.04),K.woodD,-1.7,3.65,.2);[[-1.95,.1,.7],[-1.5,.35,.9],[-1.7,0,.5]].forEach(([x,z,h],k)=>{const c=s(MM.crystalGeo(.2,h,.35),M.cristal,x,3.95,z);c.rotation.set(.15*k,k,-.1*k);c.castShadow=false;});
+    s(BB(1.2,1,1,.06),M.cobre,1.4,3.85,-.2);s(new T.CylinderGeometry(.35,.35,.25,12),K.iron,1.4,4.47,-.2);s(new T.TorusGeometry(.3,.07,5,10),K.copper,1.4,4.75,-.2);
+    [-.3,.2,.65].forEach((x,k)=>{s(new T.CylinderGeometry(.22,.22,.6,8),K.glass,x,3.65,.6-k*.15).castShadow=false;s(new T.CylinderGeometry(.14,.14,.12,8),K.woodD,x,4.01,.6-k*.15);});
+    s(new T.CylinderGeometry(.04,.04,.9,4),K.iron,.4,6.5,1.1);{const g=s(new T.CylinderGeometry(.24,.3,.7,6),K.glass,.4,5.8,1.1);g.castShadow=false;s(new T.ConeGeometry(.38,.3,6),K.iron,.4,6.3,1.1);}
+    s(new T.CylinderGeometry(.55,.55,1.5,10),K.woodD,3.4,1.25,-1.6);[.8,1.7].forEach(y=>s(new T.CylinderGeometry(.58,.58,.1,10),K.iron,3.4,y,-1.6));s(BB(1.2,1,1.1,.05),K.woodD,-3.4,1,-1.6);
     MM.box(st,0,2,0,6,3,3);out.push(st);});
   /* cabos de cada para-raios até o Coletor (catenárias) */
   const cab=MM.obj('STORM.PROP.VILLAGE.CABLES','Cabos dos para-raios','Props',{notes:'No Roblox: Beam ou RopeConstraint visual entre Attachments.'});const top=pz.userData.top;
