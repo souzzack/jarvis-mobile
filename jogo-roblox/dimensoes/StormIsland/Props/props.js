@@ -133,12 +133,43 @@ I.buildProps=function(ctx){const M=ctx.mat,P=I.poi,out=[];const r=MM.rng(1212);
     const N=9,S=[];for(let i=0;i<N;i++){const t=i/(N-1)-.5;S.push([t,ctx.heightAt(x+2*dx*t,z+2*dz*t)]);}const mt=S.reduce((a,s)=>a+s[0],0)/N,mg=S.reduce((a,s)=>a+s[1],0)/N;const k=S.reduce((a,s)=>a+(s[0]-mt)*(s[1]-mg),0)/S.reduce((a,s)=>a+(s[0]-mt)**2,0);
     let c=mg;const over=Math.max(...S.map(([t,g])=>(c+k*t)-g));c-=Math.max(0,over-rad*.15);A.y=c-k*.5+rad*.85;B.y=c+k*.5+rad*.85;
     const m=MM.mesh(geo,mat,(A.x+B.x)/2,(A.y+B.y)/2,(A.z+B.z)/2,parent);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),B.clone().sub(A).normalize());m.userData.apoio=true;return m;};
-  const ru=MM.obj('STORM.PROP.RUINS','Ruínas tecnológicas','Props',{notes:'Anel de bobina caído, torre tombada e placas de metal semienterradas.'});
-  {let x=-92,z=-24,y=ctx.heightAt(x,z);const ring=MM.mesh(new T.TorusGeometry(7,.9,8,30),M.cobre,x,y+2.2,z,ru);ring.rotation.set(1.2,.4,.2);ring.updateMatrixWorld();
-    {/* anel encostado no chão pelo ponto mais baixo real */let low=1e9;const pa=ring.geometry.attributes.position,v=new T.Vector3();for(let q=0;q<pa.count;q+=3){v.fromBufferAttribute(pa,q).applyMatrix4(ring.matrixWorld);low=Math.min(low,v.y-ctx.heightAt(v.x,v.z));}ring.position.y-=low+.35;ring.userData.semApoio=true;}/* V2.3.2: assentado pelo ponto mais baixo real; o lado de dentro do aro (sobre o vazio do anel) não é base */
-    lay(new T.CylinderGeometry(1,1.2,9,8),M.metalEscuro,x+5,z+3,1.1,9,1.2,ru);
-    x=118;z=-30;y=ctx.heightAt(x,z);lay(new T.BoxGeometry(2.4,22,2.4),M.metalEscuro,x,z,1.97,22,1.2,ru);for(let i=0;i<4;i++){const xx=x-8+i*4.5,zz=z+.3*i;lay(new T.BoxGeometry(.25,5,.25),M.metal,xx,zz,.4+Math.PI/2,5,.15,ru);}/* V2.3.2: barras deitadas no chão pelos dois extremos (antes só pelo centro) */
-    for(let i=0;i<6;i++){const xx=60+r()*40,zz=-60+r()*30;if(ctx.pathDist(xx,zz)<5)continue;const sx=4+r()*4,sz=3+r()*3,R=Math.max(sx,sz)/2;const gm=Math.min(...[[0,0],[R,0],[-R,0],[0,R],[0,-R]].map(([a,b])=>ctx.heightAt(xx+a,zz+b)));const pl=MM.mesh(new T.BoxGeometry(sx,.35,sz),M.metal,xx,gm+.25,zz,ru);pl.rotation.set((r()-.5)*.12,r()*3,(r()-.5)*.12);pl.userData.apoio=true;}}
+const ru=MM.obj('STORM.PROP.RUINS','Ruínas tecnológicas','Props',{notes:'Coletor ancestral desabado (base de pedra, coluna partida com cristais, aro de cobre partido em três, tambores de coluna caídos), torre de treliça tombada com o pé ainda chumbado, e placas de metal rebitadas semienterradas.'});
+  /* Mapa V1: antes eram um toro inteiro inclinado, um cilindro, uma caixa de 22 studs com 4 barras e placas lisas (amarelo: o anel não
+     encostava no chão irregular). Agora cada peça deitada é assentada pelo ponto mais alto do chão sob ela (semienterrada, sem folga). */
+  {const K=I.houseMats(ctx),BB=MM.bevelBox,q=MM.rng(4242);
+    const sink=(m,depth)=>{/* assenta pela metade de baixo: nenhum ponto da face inferior fica mais que 0,25 acima do chão (o resto entra no chão) */m.updateMatrixWorld(true);const pa=m.geometry.attributes.position,v=new T.Vector3();const bb=new T.Box3().setFromObject(m);const cy=(bb.min.y+bb.max.y)/2;let hi=-1e9,lo=1e9;
+      for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(m.matrixWorld);if(v.y>cy)continue;const d=v.y-ctx.heightAt(v.x,v.z);hi=Math.max(hi,d);lo=Math.min(lo,d);}m.position.y-=Math.max(hi-.25,lo+depth);m.userData.apoio=true;return m;};
+    /* desvio: nada das ruínas em cima de árvores nem dos fragmentos de energia (depósitos ancorados a 10 studs de cada ruína) */
+    const obst=[];ctx.reg.list.forEach(o=>{const id=o.userData.id||'';if(id.startsWith('STORM.VEG.TREE.'))obst.push([o.position.x,o.position.z,3.2]);});{const fr=ctx.reg.byId['STORM.RES.FRAGMENTO'];if(fr)fr.children.forEach(g=>{fr.updateMatrixWorld(true);const w=g.getWorldPosition(new T.Vector3());obst.push([w.x,w.z,3.8]);});}
+    const livre=(x,z,r0)=>obst.every(([ox,oz,rr])=>Math.hypot(ox-x,oz-z)>rr+r0);
+    const perto=(x0,z0,r0,lim)=>{for(let rr=0;rr<=lim;rr+=1)for(let k=0;k<(rr?16:1);k++){const a=k/16*6.283;const x=x0+Math.cos(a)*rr,z=z0+Math.sin(a)*rr;if(livre(x,z,r0)&&ctx.pathDist(x,z)>2)return[x,z];}return[x0,z0];};
+    /* A) coletor ancestral desabado */
+    {const [x,z]=perto(-92,-24,7.5,14);g=Math.min(...[[0,0],[4,0],[-4,0],[0,4],[0,-4]].map(([a,b])=>ctx.heightAt(x+a,z+b)));
+      MM.mesh(new T.CylinderGeometry(4.2,4.8,1.6,8),K.cant,x,g+.3,z,ru).userData.apoio=true;MM.mesh(new T.CylinderGeometry(3.4,3.6,.5,8),K.lav,x,g+1.3,z,ru);
+      MM.mesh(new T.CylinderGeometry(1.35,1.5,3.4,12),K.cant,x,g+3.2,z,ru);[2.2,3.9].forEach(h=>MM.mesh(new T.CylinderGeometry(1.55,1.55,.3,12),K.copper,x,g+h,z,ru));
+      [[0,0,1.6,0],[.5,.3,1.1,.4],[-.4,.4,.9,-.3],[.2,-.5,1.2,.2]].forEach(([dx,dz,h,t],k)=>{const c=MM.mesh(MM.crystalGeo(.3,h,.5),M.cristal,x+dx,g+4.8,z+dz,ru);c.rotation.set(t,k,-t);c.castShadow=false;});
+      /* aro de cobre partido em três arcos caídos em volta da base */
+      [[0,1.7,.12],[2.3,1.5,-.1],[4.3,1.3,.08]].forEach(([a0,len,tl],k)=>{const arc=MM.mesh(new T.TorusGeometry(7,.85,8,14,len),M.cobre,x+Math.cos(a0)*.6,g+1,z+Math.sin(a0)*.6,ru);arc.rotation.set(Math.PI/2+tl,0,a0);sink(arc,.45);});
+      /* tambores de coluna caídos */
+      [[x+6,z+3,1.1,4.5],[x+9.5,z+5.5,1.25,3.6],[x-6.5,z-4,2.4,3]].forEach(([cx,cz,yaw,len],k)=>{if(!livre(cx,cz,len/2+1.2))return;const d=lay(new T.CylinderGeometry(1.2,1.2,len,12),K.cant,cx,cz,yaw,len,1.2,ru);d.material=K.cant;
+        const dir=new T.Vector3(0,1,0).applyQuaternion(d.quaternion);[-.3,.3].forEach(f=>{const b=MM.mesh(new T.CylinderGeometry(1.26,1.26,.25,12),K.copper,d.position.x+dir.x*len*f,d.position.y+dir.y*len*f,d.position.z+dir.z*len*f,ru);b.quaternion.copy(d.quaternion);b.userData.semApoio=true;});});
+      for(let k=0;k<7;k++){const a=q()*6.28,rr=5+q()*5;const px=x+Math.cos(a)*rr,pz=z+Math.sin(a)*rr;const s=.6+q()*.8;if(!livre(px,pz,s))continue;const b=MM.mesh(BB(s*1.4,s*.8,s,.06),k%2?K.cant:K.lav,px,0,pz,ru);b.rotation.set((q()-.5)*.3,q()*3,(q()-.5)*.3);sink(b,.25);}
+      MM.box(ru,x,g+1.6,z,3.2,6.4,3.2);/* só o toco da coluna; a base de 1,6 é pisável */ru.userData.coletor=[+x.toFixed(1),+z.toFixed(1)];}
+    /* B) torre de treliça tombada (o pé quebrado ainda chumbado na base) */
+    {const len=22;let x=118,z=-30,yaw=1.97;{let ok=false;for(let k=0;k<24&&!ok;k++){const yw=1.97+((k%2?1:-1)*Math.ceil(k/2))*.2;for(const [ox,oz] of [[0,0],[4,0],[-4,0],[0,4],[0,-4],[6,6],[-6,-6]]){const cx=118+ox,cz=-30+oz;let good=true;for(let t=-.55;t<=.55;t+=.1)if(!livre(cx+Math.sin(yw)*len*t,cz+Math.cos(yw)*len*t,2.6)){good=false;break;}if(good){x=cx;z=cz;yaw=yw;ok=true;break;}}}ru.userData.torre=[+x.toFixed(1),+z.toFixed(1),+yaw.toFixed(2),ok];}const dx=Math.sin(yaw),dz=Math.cos(yaw);const sx=-dz,sz=dx;
+      const leg=(off,lift,sem)=>{const m=lay(new T.CylinderGeometry(.24,.3,len,5),K.iron,x+sx*off,z+sz*off,yaw,len,.3,ru);m.material=K.iron;if(lift){m.position.y+=lift;m.userData.apoio=false;m.userData.semApoio=true;}return m;};
+      const l1=leg(-1.6,0),l2=leg(1.6,0);const l3=leg(-1.0,2.6,1),l4=leg(1.0,2.6,1);
+      const pt=(m,f)=>{const d=new T.Vector3(0,1,0).applyQuaternion(m.quaternion);return m.position.clone().add(d.multiplyScalar(len*f));};
+      const bar=(a,b,r)=>{const d=b.clone().sub(a);const m=MM.mesh(new T.BoxGeometry(r,d.length(),r),K.iron,(a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2,ru);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());m.userData.semApoio=true;return m;};
+      for(let k=-4;k<=4;k++){const f=k/9;const a1=pt(l1,f),a2=pt(l2,f),a3=pt(l3,f),a4=pt(l4,f);bar(a1,a2,.2);bar(a3,a4,.2);bar(a1,a3,.2);bar(a2,a4,.2);if(k<4){const f2=(k+1)/9;bar(a1,pt(l3,f2),.14);bar(a2,pt(l4,f2),.14);}}
+      {const tip=pt(l3,.5).add(pt(l4,.5)).multiplyScalar(.5);const arm=bar(tip.clone().add(new T.Vector3(sx*4.5,0,sz*4.5)),tip.clone().add(new T.Vector3(-sx*4.5,0,-sz*4.5)),.45);[-4,4].forEach(o2=>{const ins=MM.mesh(new T.CylinderGeometry(.35,.35,1.2,8),M.patina,tip.x+sx*o2,tip.y-.3,tip.z+sz*o2,ru);ins.userData.semApoio=true;});}
+      /* pé: base de pedra com os quatro tocos de perna torcidos */
+      {const b0=pt(l1,-.5).add(pt(l2,-.5)).multiplyScalar(.5);const gx=b0.x-dx*3,gz=b0.z-dz*3,gg=Math.min(...[[0,0],[2,0],[-2,0],[0,2],[0,-2]].map(([a,b])=>ctx.heightAt(gx+a,gz+b)));
+        MM.mesh(BB(5.2,1.2,5.2,.1),K.cant,gx,gg+.2,gz,ru).userData.apoio=true;[[-1.9,-1.9],[1.9,-1.9],[-1.9,1.9],[1.9,1.9]].forEach(([a,b],k)=>{const st=MM.mesh(new T.CylinderGeometry(.24,.3,1.6+k*.3,5),K.iron,gx+a,gg+1.4+k*.15,gz+b,ru);st.rotation.set((k%2-.5)*.6,0,(k<2?-.5:.5)*.5);st.userData.semApoio=true;});}
+      }
+    /* C) placas de metal rebitadas semienterradas (mesmo sorteio de antes) */
+    for(let i=0;i<6;i++){const xx=60+r()*40,zz=-60+r()*30;if(ctx.pathDist(xx,zz)<5)continue;const sx=4+r()*4,sz=3+r()*3;const pl=MM.mesh(BB(sx,.35,sz,.05),K.iron,xx,0,zz,ru);pl.rotation.set((r()-.5)*.12,r()*3,(r()-.5)*.12);sink(pl,.12);
+      [-1,1].forEach(s=>{const rib=MM.mesh(new T.BoxGeometry(sx*.9,.2,.3),K.iron,0,.25,s*sz*.3,pl);rib.userData.semApoio=true;});for(let k=0;k<6;k++){const rv=MM.mesh(new T.SphereGeometry(.12,6,4),K.copper,(k/5-.5)*sx*.85,.2,(k%2?1:-1)*sz*.42,pl);rv.userData.semApoio=true;}}}
   out.push(ru);
   return out;};
 })();

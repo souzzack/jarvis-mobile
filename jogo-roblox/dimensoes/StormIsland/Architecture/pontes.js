@@ -2,18 +2,42 @@
    A ponte tem superfície caminhável (catenária suave), guarda-corpos de corda e pilares de ancoragem. */
 (function(){const MM=window.MM,T=THREE;const I=MM.islands.StormIsland;
 I.buildBridges=function(ctx){const M=ctx.mat,out=[];
-  I.pontes.forEach(pb=>{const o=MM.obj(pb.id,pb.nome,'Architecture',{notes:'Vão de '+Math.round(Math.hypot(pb.b[0]-pb.a[0],pb.b[1]-pb.a[1]))+' studs sobre a fenda. Largura '+pb.w+' studs. No Roblox: tábuas ancoradas com colisão em caixa.'});
+  /* Mapa V1: ponte pênsil de verdade. Antes: pilares-caixa com ponta de cone que, no lado oeste, desciam para dentro da fenda (o chão
+     era medido no lábio), encontro só até 7 studs de altura (bordas das tábuas sem apoio no lábio = amarelo) e corrimãos sem cabo principal.
+     Agora: torres de cantaria recuadas para terra firme, encontros contínuos até o chão real no lábio, longarinas sob o tabuado, cabos
+     principais com pendurais, estais até blocos de ancoragem. Tabuleiro, catenária, largura, corrimãos e superfície caminhável: os de antes. */
+  I.pontes.forEach(pb=>{const K=I.houseMats(ctx),BB=MM.bevelBox;const o=MM.obj(pb.id,pb.nome,'Architecture',{notes:'Vão de '+Math.round(Math.hypot(pb.b[0]-pb.a[0],pb.b[1]-pb.a[1]))+' studs sobre a fenda. Largura '+pb.w+' studs. Ponte pênsil: torres de pedra, cabos principais, pendurais e estais. No Roblox: tábuas ancoradas com colisão em caixa.'});
     const A=new T.Vector3(pb.a[0],ctx.heightAt(pb.a[0],pb.a[1])+.6,pb.a[1]),B=new T.Vector3(pb.b[0],ctx.heightAt(pb.b[0],pb.b[1])+.6,pb.b[1]);const sag=2.2;
-    const dir=B.clone().sub(A);const L=dir.length();dir.normalize();const side=new T.Vector3(-dir.z,0,dir.x);const n=Math.round(L/1.25);
-    const deckY=t=>MM.lerp(A.y,B.y,t)-sag*4*t*(1-t);
-    for(let i=0;i<=n;i++){const t=i/n;const p=A.clone().lerp(B,t);p.y=deckY(t);const pl=MM.mesh(new T.BoxGeometry(pb.w,.4,1.05),M.madeira,p.x,p.y,p.z,o);pl.rotation.y=Math.atan2(dir.x,dir.z);pl.rotation.z=(i%3-1)*.015;
-      /* V2.3.1: sobre terra firme o tabuleiro apoia num encontro de pedra (antes: tábuas a 0,2–1 stud do chão nas cabeceiras) */
-      const gs=Math.min(...[-1,-.5,0,.5,1].flatMap(k=>[-.7,0,.7].map(q=>ctx.heightAt(p.x+side.x*k*(pb.w/2+.6)+dir.x*q,p.z+side.z*k*(pb.w/2+.6)+dir.z*q))));const gap=p.y-.2-gs;if(gap>-.1&&gap<7){const h=gap+2.5;const ab=MM.mesh(new T.BoxGeometry(pb.w+1.2,h,1.3),M.pedraClara,p.x,p.y-.2-h/2,p.z,o);ab.rotation.y=pl.rotation.y;ab.userData.apoio=true;}}
-    [-1,1].forEach(sg=>{const off=side.clone().multiplyScalar(sg*pb.w/2);
-      [A,B].forEach(E=>{const p=E.clone().add(off);const g=Math.min(...[[.8,0],[-.8,0],[0,.8],[0,-.8]].map(([a,b])=>ctx.heightAt(p.x+a,p.z+b)))-1;const top=p.y+7;const pi=MM.mesh(new T.BoxGeometry(1.6,top-g,1.6),M.pedraClara,p.x,(top+g)/2,p.z,o);pi.userData.apoio=true;MM.mesh(new T.BoxGeometry(2.6,1.2,2.6),M.pedraClara,p.x,g+1.1,p.z,o).userData.apoio=true;MM.mesh(new T.ConeGeometry(1.3,1.6,4),M.metalEscuro,p.x,p.y+7.8,p.z,o);});
-      const rail=[],low=[];for(let i=0;i<=24;i++){const t=i/24;const p=A.clone().lerp(B,t).add(off);p.y=deckY(t)+3.6+sag*.8*4*t*(1-t)*.0;rail.push(p);const q=p.clone();q.y=deckY(t)+.3;low.push(q);}
-      o.add(MM.tube(rail,.14,M.corda,40,4));o.add(MM.tube(low,.12,M.corda,40,4));
-      for(let i=2;i<24;i+=2){const t=i/24;const p=A.clone().lerp(B,t).add(off);const h=3.4;const v=MM.mesh(new T.CylinderGeometry(.07,.07,h,3),M.corda,p.x,deckY(t)+h/2+.2,p.z,o);v.castShadow=false;}});
+    const dir=B.clone().sub(A);const L=dir.length();dir.normalize();const side=new T.Vector3(-dir.z,0,dir.x);const n=Math.round(L/1.25);const ry=Math.atan2(dir.x,dir.z);
+    const deckY=t=>MM.lerp(A.y,B.y,t)-sag*4*t*(1-t);const P=t=>{const p=A.clone().lerp(B,t);p.y=deckY(t);return p;};
+    const add=(g,m,x,y,z)=>MM.mesh(g,m,x,y,z,o);
+    for(let i=0;i<=n;i++){const t=i/n;const p=P(t);const pl=add(new T.BoxGeometry(pb.w,.4,1.05),M.madeira,p.x,p.y,p.z);pl.rotation.y=ry;pl.rotation.z=(i%3-1)*.015;
+      /* encontro: onde ainda há chão sob a tábua (até 16 studs abaixo), muro de cantaria do tabuleiro até o chão real */
+      /* encontro em 4 fatias na largura: cada fatia desce do tabuleiro até o chão real sob ela (no máximo 18 studs), só onde há ilha embaixo
+         (no lábio, metade da tábua já está sobre a fenda: a fatia sobre terra é apoiada, a sobre o vazio não é criada) */
+      const NS=4,sw=(pb.w+1.2)/NS;for(let k=0;k<NS;k++){const u=-(pb.w+1.2)/2+sw*(k+.5);const cx=p.x+side.x*u,cz=p.z+side.z*u;if(!ctx.inside(cx,cz))continue;
+        const gg=[-.45,0,.45].flatMap(f=>[-.6,0,.6].map(q=>ctx.heightAt(cx+side.x*f*sw+dir.x*q,cz+side.z*f*sw+dir.z*q)));const gx=Math.max(...gg),gs=Math.min(...gg);const top=p.y-.2;
+        if(top-gx<=-.1||top-gx>=16)continue;const h=Math.min(top-gs,18)+1.2;const ab=add(BB(sw+.02,h,1.3,.05),K.cant,cx,top-h/2,cz);ab.rotation.y=ry;ab.userData.apoio=true;}}
+    /* longarinas sob as bordas do tabuado */
+    [-1,1].forEach(s=>{for(let i=0;i<n;i++){const a=P(i/n),b=P((i+1)/n);const c=a.clone().add(b).multiplyScalar(.5).add(side.clone().multiplyScalar(s*(pb.w/2-.5)));const d=b.clone().sub(a);const m=add(new T.BoxGeometry(.45,.5,d.length()+.06),K.woodD,c.x,c.y-.42,c.z);m.lookAt(c.x+d.x,c.y-.42+d.y,c.z+d.z);m.userData.semApoio=true;}});
+    /* torres em terra firme: recuam da ponta do tabuleiro até o chão ficar no nível da ponte */
+    const tops=[];[[A,-1],[B,1]].forEach(([E,sg])=>{let back=1.2;const g0=()=>[-1,1].map(s=>{const q=E.clone().add(dir.clone().multiplyScalar(sg*back)).add(side.clone().multiplyScalar(s*(pb.w/2+1.3)));return Math.min(...[[0,0],[1,0],[-1,0],[0,1],[0,-1]].map(([u,v])=>ctx.heightAt(q.x+u,q.z+v)));});
+      while(back<8&&Math.min(...g0())<E.y-3)back+=.5;const gl=g0();
+      [-1,1].forEach((s,k)=>{const q=E.clone().add(dir.clone().multiplyScalar(sg*back)).add(side.clone().multiplyScalar(s*(pb.w/2+1.3)));const g=gl[k]-.5,topY=E.y+9;
+        add(BB(2.8,1.4,2.8,.1),K.lav,q.x,g+.7,q.z).userData.apoio=true;const sh=add(BB(2,topY-g-1.4,2,.1),K.cant,q.x,(topY+g+1.4)/2,q.z);sh.rotation.y=ry;sh.userData.apoio=true;
+        add(BB(2.6,.8,2.6,.1),K.lav,q.x,topY+.4,q.z).rotation.y=ry;add(new T.BoxGeometry(1,.6,1.6),K.iron,q.x,topY+1.1,q.z).rotation.y=ry;add(new T.SphereGeometry(.4,10,8),K.copper,q.x,topY+2,q.z);
+        add(new T.BoxGeometry(2.2,.3,2.2),K.copper,q.x,E.y+3.2,q.z).rotation.y=ry;MM.box(o,q.x,(topY+g)/2,q.z,2.2,topY-g,2.2,ry);
+        tops.push({s,sg,p:new T.Vector3(q.x,topY+1.3,q.z)});
+        /* estai até o bloco de ancoragem atrás da torre */
+        const an=q.clone().add(dir.clone().multiplyScalar(sg*7));const ga=ctx.heightAt(an.x,an.z);const blk=add(BB(2.4,1.6,2.4,.1),K.cant,an.x,ga+.3,an.z);blk.rotation.y=ry;blk.userData.apoio=true;add(new T.TorusGeometry(.35,.1,5,10),K.iron,an.x,ga+1.3,an.z);
+        o.add(MM.tube([new T.Vector3(q.x,topY+1.3,q.z),new T.Vector3((q.x+an.x)/2,(topY+ga)/2+.6,(q.z+an.z)/2),new T.Vector3(an.x,ga+1.3,an.z)],.13,K.iron,10,4));});});
+    /* cabos principais (catenária entre os topos das torres) e pendurais até as longarinas */
+    [-1,1].forEach(s=>{const ta=tops.find(q=>q.s===s&&q.sg===-1).p,tb=tops.find(q=>q.s===s&&q.sg===1).p;const cab=MM.catenary(ta,tb,(ta.y+tb.y)/2-(deckY(.5)+4.6),40);o.add(MM.tube(cab,.16,K.iron,60,5));
+      for(let i=2;i<n-1;i+=2){const t=i/n;const p=P(t).add(side.clone().multiplyScalar(s*(pb.w/2-.5)));let best=cab[0],bd=1e9;cab.forEach(c=>{const d=Math.hypot(c.x-p.x,c.z-p.z);if(d<bd){bd=d;best=c;}});const top=Math.max(best.y,p.y+3.7);
+        const h=add(new T.CylinderGeometry(.06,.06,top-p.y,4),K.iron,p.x,(top+p.y)/2,p.z);h.castShadow=false;h.userData.semApoio=true;}});
+    /* corrimãos de corda (os de antes) */
+    [-1,1].forEach(sg=>{const off=side.clone().multiplyScalar(sg*pb.w/2);const rail=[],low=[];for(let i=0;i<=24;i++){const t=i/24;const p=A.clone().lerp(B,t).add(off);p.y=deckY(t)+3.6;rail.push(p);const q=p.clone();q.y=deckY(t)+.3;low.push(q);}
+      o.add(MM.tube(rail,.14,M.corda,40,4));o.add(MM.tube(low,.12,M.corda,40,4));});
     o.userData.walk=[{type:'bridge',a:[A.x,A.z],b:[B.x,B.z],hw:pb.w/2-.4,y:t=>deckY(t)+.2}];out.push(o);});
   /* plataformas elevadas na floresta (Mapa V1): torres de vigia de madeira. Antes: laje lisa, guarda-corpo = anel quadrado flutuando
      3 studs acima do piso sem nenhum montante, escada de colunas maciças de pedra. Agora: tabuado sobre vigas, esteios com cintas de

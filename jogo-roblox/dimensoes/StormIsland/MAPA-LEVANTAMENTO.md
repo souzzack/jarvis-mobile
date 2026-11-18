@@ -54,7 +54,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 6. Mirante do Penhasco. **Feito.**
 7. Observatório. **Feito.**
 8. Plataformas elevadas. **Feito.**
-9. Ponte e ruínas, para resolver os amarelos.
+9. Ponte e ruínas, para resolver os amarelos. **Feito.**
 10. Torres de transmissão.
 
 ## 1ª estrutura: casas da vila (feito)
@@ -446,3 +446,57 @@ Arquivo alterado: `Architecture/pontes.js`, só o bloco das plataformas. A ponte
 **Imagem:** `../../referencias/mapa-plataformas-antes-depois.jpg`
 
 **Pendência no Roblox Studio:** a escada sobe por colisores em bloco, então conferir com um personagem se a subida fica natural.
+
+## 9ª estrutura: Ponte Suspensa da Fenda e Ruínas tecnológicas (feito; os dois amarelos foram resolvidos)
+
+Arquivos alterados:
+- `Architecture/pontes.js`, só o bloco da ponte (as plataformas não foram mexidas);
+- `Props/props.js`, só o bloco das ruínas.
+
+**Ponte: o que não mudou.** Traçado, catenária do tabuleiro, largura, tábuas, corrimãos de corda e superfície caminhável.
+
+**Ponte: causas do amarelo e dos defeitos.**
+- O encontro só era criado até 7 studs de altura e medido pelo chão mais baixo. No lábio da fenda, metade da tábua já está sobre o vazio, então a borda ficava sem apoio. Era o amarelo "trecho suspenso conhecido".
+- Os pilares-caixa com ponta de cone mediam o chão no lábio e, no lado oeste, desciam para dentro da fenda.
+
+**Ponte: correções.**
+- Encontros de cantaria em 4 fatias na largura. Cada fatia é decidida pelo chão mais alto sob ela e desce até o chão real (no máximo 18 studs), só onde há ilha embaixo.
+- Torres de cantaria recuadas para terra firme: a torre recua da ponta do tabuleiro até o chão ficar no nível da ponte. Cada torre tem base, cinta de cobre, capitel, sela de ferro, pomo de cobre e colisão.
+- Cabos principais entre os topos das torres, com pendurais até as longarinas, e estais até blocos de ancoragem atrás das torres.
+- Longarinas de madeira sob as bordas do tabuado.
+
+**Ruínas: causa do amarelo.** O anel de cobre inteiro e o cilindro deitados não encostavam no chão irregular (3 pontos com folga).
+
+**Ruínas: a nova construção.**
+- **Coletor ancestral desabado:**
+  - base octogonal de pedra;
+  - toco de coluna com cintas de cobre e cristais brotando;
+  - aro de cobre partido em 3 arcos;
+  - tambores de coluna caídos e entulho.
+- **Torre de treliça tombada:** pernas, travessas e diagonais, braço com isoladores, e o pé de pedra com os tocos das pernas torcidos.
+- **Placas de metal rebitadas e nervuradas**, com o mesmo sorteio de antes.
+- **Assentamento:** cada peça deitada é assentada pela metade de baixo, então nenhum ponto da face inferior fica mais de 0,25 acima do chão.
+- **Desvio de obstáculos:** as ruínas desviam das árvores e dos fragmentos de energia ancorados perto delas. Por isso:
+  - o coletor ficou a ~13 studs da posição anterior, em (−80, −19), porque a árvore 36 estava no centro antigo;
+  - a torre tombada ficou 4 studs ao norte, em (118, −26).
+- **Colisão:** só no toco da coluna. As peças baixas são pisáveis.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: **90 verdes**, 3 amarelos e 0 vermelhos, com 0 interseções e 0 instâncias dentro de estruturas.
+- Os 3 amarelos que sobram são só de vegetação: árvores 25, 27 e 48.
+- 24 de 24 rotas.
+- Durante o trabalho apareceram e foram corrigidos:
+  - a base nova do coletor envolvia a árvore 36;
+  - os colisores grandes das ruínas englobavam fragmentos de energia;
+  - o encontro profundo avançava sobre o vazio da fenda.
+
+**Custo:**
+- ponte: cerca de 6,1 mil triângulos;
+- ruínas: cerca de 3,1 mil triângulos;
+- vista Vila: 843 chamadas e 1.679.399 triângulos.
+
+**Imagem:** `../../referencias/mapa-ponte-ruinas-antes-depois.jpg`
+
+**Pendências no Roblox Studio:**
+- conferir os cabos (no Roblox, Beam ou RopeConstraint visual);
+- conferir os encontros no lábio da fenda, que vem do Terrain.
