@@ -55,7 +55,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 7. Observatório. **Feito.**
 8. Plataformas elevadas. **Feito.**
 9. Ponte e ruínas, para resolver os amarelos. **Feito.**
-10. Torres de transmissão.
+10. Torres de transmissão. **Feito.**
 
 ## 1ª estrutura: casas da vila (feito)
 
@@ -500,3 +500,74 @@ Arquivos alterados:
 **Pendências no Roblox Studio:**
 - conferir os cabos (no Roblox, Beam ou RopeConstraint visual);
 - conferir os encontros no lábio da fenda, que vem do Terrain.
+
+## 10ª estrutura: Torres de transmissão 1–5 (feito)
+
+Arquivo alterado: `Props/props.js`, só a função `pylon()`. A escolha dos pontos e os cabos da linha não mudaram.
+
+**O que não mudou:**
+- altura de cada torre (20 e 23 studs);
+- posição;
+- pontos de amarração dos cabos (±4, h − 1,1);
+- colisor 5,4 × h × 5,4.
+
+**Antes:** 4 pernas, 3 aros horizontais, uma barra no topo, isoladores-cilindro soltos e sapatas de ferro.
+
+**Agora:**
+- **Treliça:** 5 lances com aros e diagonais em X nas quatro faces.
+- **Braço:**
+  - mísula treliçada;
+  - cadeias de 4 discos de isolador descendo até a amarração do cabo.
+- **Topo:** pico com para-raios de cobre.
+- **Base:**
+  - placa de perigo com o raio da tempestade;
+  - sapatas de cantaria até o chão real, com chapa de ferro.
+
+**Validação no visualizador (não no Studio):** diagnóstico com 90 verdes, 3 amarelos (só árvores) e 0 vermelhos; 24 de 24 rotas.
+
+**Custo:** cerca de 1,6 mil triângulos por torre (antes, 316).
+
+**Imagem:** `../../referencias/mapa-torres-transmissao-antes-depois.jpg`
+
+---
+
+## Fechamento do ciclo Mapa V1
+
+A fila do levantamento terminou. As estruturas foram refeitas uma vez cada, sem versões repetidas. A oficina não foi tocada, e a Torre Meteorológica também não, por já estar concluída.
+
+**Diagnóstico Estrutural (visualizador):**
+
+| Item | Antes do ciclo | Depois do ciclo |
+|---|---|---|
+| Verdes | 88 | 90 |
+| Amarelos | 5 | 3 (só vegetação: árvores 25, 27 e 48) |
+| Vermelhos | 0 | 0 |
+| Interseções | 0 | 0 |
+| Rotas | 24 de 24 | 24 de 24 |
+
+Os 2 amarelos de estrutura (ponte e ruínas) foram resolvidos.
+
+**Mudanças de posição, todas justificadas acima:**
+- o mirante foi para a borda real do penhasco;
+- o coletor das ruínas saiu de cima da árvore 36;
+- a torre tombada desviou dos fragmentos de energia.
+
+**Custo da cena** (efeitos desligados, mesmas câmeras, navegador sem placa de vídeo; o FPS daqui não vale para o Roblox):
+
+| Vista | Antes do ciclo | Depois do ciclo |
+|---|---|---|
+| Três quartos | 1.014 chamadas, 1.358.477 triângulos | 1.073 chamadas, 1.534.696 triângulos |
+| Vila | 801 chamadas, 1.552.271 triângulos | 851 chamadas, 1.690.055 triângulos |
+| Torre | 705 chamadas, 1.524.467 triângulos | 737 chamadas, 1.616.907 triângulos |
+| Nível do jogador | 617 chamadas | 634 chamadas |
+
+As construções somaram cerca de 140 a 180 mil triângulos. O peso maior da cena continua sendo a vegetação instanciada (cerca de 640 mil triângulos sempre desenhados). O recorte por distância proposto na V2.3.5 continua pendente da sua autorização.
+
+**Folha final:** `../../referencias/mapa-v1-folha-final.jpg`, com a vista aérea, a vila e uma vista de cada estrutura refeita.
+
+**Pendências gerais no Roblox Studio:**
+- importar o pacote GLB;
+- conferir os nomes, os colisores e o `DoubleSided` das peças vistas por dentro (cúpula, abóbada da caverna, túnel);
+- recortar a boca da caverna no Terrain;
+- ligar `AnelPortal` e `Telescopio` aos scripts;
+- medir o FPS em aparelho real.

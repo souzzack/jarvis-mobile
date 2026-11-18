@@ -2,11 +2,28 @@
    Rochas únicas, linha de transmissão (torres de treliça + cabos), doca de chegada com arco do portal, mirante do Penhasco das Nuvens,
    ruínas tecnológicas e as rochas que escondem a passagem para o santuário. */
 (function(){const MM=window.MM,T=THREE;const I=MM.islands.StormIsland;
-function pylon(ctx,id,name,x,z,h){const M=ctx.mat;const o=MM.obj(id,name,'Props',{notes:'Torre de treliça da linha de transmissão.'});const y=ctx.heightAt(x,z);o.position.set(x,y,z);
-  const legs=[[-2.6,-2.6],[2.6,-2.6],[-2.6,2.6],[2.6,2.6]];legs.forEach(([a,b])=>{const L=new T.Vector3(a*.35,h,b*.35).sub(new T.Vector3(a,0,b));const m=MM.mesh(new T.CylinderGeometry(.18,.24,L.length(),4),M.metalEscuro,a*.675,h/2,b*.675,o);m.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),L.normalize());});
-  for(let k=1;k<4;k++){const yy=k*h/4;const s=2.6*(1-k/4*.65);MM.mesh(new T.BoxGeometry(s*2,.25,.25),M.metal,0,yy,s,o);MM.mesh(new T.BoxGeometry(s*2,.25,.25),M.metal,0,yy,-s,o);MM.mesh(new T.BoxGeometry(.25,.25,s*2),M.metal,s,yy,0,o);MM.mesh(new T.BoxGeometry(.25,.25,s*2),M.metal,-s,yy,0,o);}
-  MM.mesh(new T.BoxGeometry(9,.5,.6),M.metal,0,h,0,o);[-4,4].forEach(xx=>MM.mesh(new T.CylinderGeometry(.35,.35,1.2,6),M.patina,xx,h-.6,0,o));
-  legs.forEach(([a,b])=>{const gl=Math.min(ctx.heightAt(x+a,z+b),ctx.heightAt(x+a*1.15,z+b*1.15))-y;const hh=Math.max(1.2,.5-gl+.8);MM.mesh(new T.BoxGeometry(1.3,hh,1.3),M.metalEscuro,a,.5-hh/2,b,o).userData.apoio=true;});/* V2.3.2: sapata de ferro fundido na base REAL de cada perna inclinada (a,b)=±2,6; na V2.3.1 ficava em ±1,75, solta ao lado */
+/* torre de treliça da linha de transmissão (Mapa V1): antes eram 4 pernas, 3 aros horizontais e uma barra no topo, com isoladores-cilindro
+   soltos e sapatas de ferro. Agora: sapatas de cantaria até o chão real, diagonais em X nas quatro faces e nos quatro lances,
+   mísula treliçada sob o braço, cadeias de isoladores de 4 discos até os pontos de amarração (os mesmos de antes: ±4, h−1,1),
+   pico com para-raios de cobre e placa de perigo com o raio da tempestade. Altura, posição, amarrações e colisor: os de antes. */
+function pylon(ctx,id,name,x,z,h){const M=ctx.mat,K=I.houseMats(ctx),BB=MM.bevelBox;const o=MM.obj(id,name,'Props',{notes:'Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios.'});const y=ctx.heightAt(x,z);o.position.set(x,y,z);
+  const add=(g,m,a,b,c)=>MM.mesh(g,m,a,b,c,o);const W=yy=>2.6*(1-.65*yy/h);/* meia largura da torre na altura yy */
+  const bar=(A,B,r,m)=>{const d=B.clone().sub(A);const mm=add(new T.BoxGeometry(r,d.length(),r),m||K.iron,(A.x+B.x)/2,(A.y+B.y)/2,(A.z+B.z)/2);mm.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());mm.userData.semApoio=true;return mm;};
+  const C=(sx,sz,yy)=>new T.Vector3(sx*W(yy),yy,sz*W(yy));
+  /* pernas (cantoneiras) */
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{const m=bar(C(sx,sz,0),C(sx,sz,h),.34);m.userData.semApoio=false;});
+  /* lances: aros horizontais e X em cada face */
+  const L=[0,h*.22,h*.44,h*.64,h*.82,h];const faces=[[[-1,-1],[1,-1]],[[1,-1],[1,1]],[[1,1],[-1,1]],[[-1,1],[-1,-1]]];
+  for(let k=0;k<L.length-1;k++){const y0=L[k],y1=L[k+1];faces.forEach(([a,b])=>{if(k>0)bar(C(a[0],a[1],y0),C(b[0],b[1],y0),.2);bar(C(a[0],a[1],y0),C(b[0],b[1],y1),.14);bar(C(b[0],b[1],y0),C(a[0],a[1],y1),.14);});}
+  /* braço com mísula treliçada */
+  add(new T.BoxGeometry(9.2,.45,.6),K.iron,0,h,0);[-1,1].forEach(s=>{bar(new T.Vector3(s*W(h-2.2),h-2.2,0),new T.Vector3(s*4.4,h-.2,0),.18);bar(new T.Vector3(s*W(h-2.2),h-2.2,0),new T.Vector3(s*2.2,h-.2,0),.14);
+    /* cadeia de isoladores: haste e 4 discos até a amarração do cabo (±4, h−1,1) */add(new T.CylinderGeometry(.05,.05,1.1,4),K.iron,s*4,h-.55,0);for(let q=0;q<4;q++)add(new T.CylinderGeometry(.34,.34,.1,10),M.patina,s*4,h-.3-q*.22,0);add(new T.SphereGeometry(.14,6,4),K.copper,s*4,h-1.1,0);});
+  /* pico e para-raios */
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>bar(C(sx,sz,h),new T.Vector3(0,h+2.6,0),.16));add(new T.CylinderGeometry(.08,.14,2.4,6),K.iron,0,h+3.8,0);add(new T.TorusGeometry(.32,.09,5,10),K.copper,0,h+3.6,0).rotation.x=Math.PI/2;add(new T.SphereGeometry(.26,8,6),K.copper,0,h+5.1,0);
+  /* placa de perigo com o raio */
+  {const pz=W(3)+.08;add(new T.BoxGeometry(1.3,1.3,.06),K.iron,0,3,pz);const s=new T.Shape();[[.35,1.6],[-.45,.1],[.05,.1],[-.35,-1.6],[.55,-.05],[.05,-.05],[.35,1.6]].forEach((p,i)=>i?s.lineTo(p[0],p[1]):s.moveTo(p[0],p[1]));const bo=add(new T.ExtrudeGeometry(s,{depth:.05,bevelEnabled:false}),K.copper,0,3,pz+.03);bo.scale.set(.32,.32,1);}
+  /* sapatas de cantaria na base REAL de cada perna (±2,6), do chão real até 0,5 */
+  [[-2.6,-2.6],[2.6,-2.6],[-2.6,2.6],[2.6,2.6]].forEach(([a,b])=>{const gl=Math.min(ctx.heightAt(x+a,z+b),ctx.heightAt(x+a*1.15,z+b*1.15))-y;const hh=Math.max(1.2,.5-gl+.8);add(BB(1.5,hh,1.5,.08),K.cant,a,.5-hh/2,b).userData.apoio=true;add(new T.BoxGeometry(1.1,.12,1.1),K.iron,a,.56,b).userData.semApoio=true;});
   MM.box(o,0,h/2,0,5.4,h,5.4);o.userData.arms=[new T.Vector3(-4,h-1.1,0),new T.Vector3(4,h-1.1,0)];return o;}
 I.buildProps=function(ctx){const M=ctx.mat,P=I.poi,out=[];const r=MM.rng(1212);
   /* rochas únicas espalhadas fora dos caminhos */
