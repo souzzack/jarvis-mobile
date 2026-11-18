@@ -94,13 +94,13 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
   {const g=new T.Group();g.position.set(0,F+7.6,-D/2+TW/2);win.add(g);add(new T.TorusGeometry(2.45,.3,8,32),bronze,0,0,-.35,g);add(new T.CircleGeometry(2.4,24),glass,0,0,0,g);for(let i=0;i<6;i++){const sp=add(new T.BoxGeometry(.14,4.8,.18),ironD,0,0,0,g);sp.rotation.z=i/6*Math.PI;}add(new T.CylinderGeometry(.45,.45,.3,12),bronze,0,0,0,g).rotation.x=Math.PI/2;}
   /* ================= 3. ENTRADA: arco de aduelas, porta dupla, dobradiças, lanternas, placa ================= */
   const ent=comp('Entrada',frente);const zf=D/2+.05;
-  for(let k=0;k<=8;k++){const a=Math.PI*k/8;const v=add(bb(1.4,1.2,TW+.5,.12),k===4?bronze:stoneL,Math.cos(a)*(DOOR+.6),F+DH+Math.sin(a)*(DOOR+.6),D/2-TW/2,ent);v.rotation.z=a-Math.PI/2;}
+  for(let k=0;k<=8;k++){const a=Math.PI*k/8;const v=add(bb(1.4,1.2,TW+.5,.12),stoneL,Math.cos(a)*(DOOR+.6),F+DH+Math.sin(a)*(DOOR+.6),D/2-TW/2,ent);v.rotation.z=a-Math.PI/2;}
   [-1,1].forEach(sd=>add(bb(1.2,DH,TW+.5,.12),stoneL,sd*(DOOR+.6),F+DH/2,D/2-TW/2,ent));add(bb(2*DOOR+3,.5,TW+1.4,.12),stoneL,0,F+.1,D/2-TW/2+.3,ent);/* soleira */
   {/* bandeira (vidro em leque) */const fan=add(new T.CircleGeometry(DOOR,16,0,Math.PI),glass,0,F+DH,D/2-TW/2,ent);for(let i=1;i<4;i++){const r=add(new T.BoxGeometry(.12,DOOR,.16),woodD,0,F+DH+DOOR/2,D/2-TW/2,ent);r.position.set(Math.cos(i/4*Math.PI)*DOOR/2,F+DH+Math.sin(i/4*Math.PI)*DOOR/2,D/2-TW/2);r.rotation.z=i/4*Math.PI-Math.PI/2;}}
   [-1,1].forEach(sd=>{/* folhas abertas para dentro (70°) para o interior ficar acessível */const leaf=new T.Group();leaf.name='Folha'+(sd<0?'E':'D');leaf.position.set(sd*DOOR,F+.35,D/2-TW+.1);leaf.rotation.y=-sd*1.22;ent.add(leaf);
     for(let p=0;p<5;p++)add(new T.BoxGeometry(DOOR/5-.04,DH-.4,.32),wood,-sd*(DOOR/10+p*DOOR/5),(DH-.4)/2,0,leaf);
-    [1,DH-1.4].forEach(y=>{add(new T.BoxGeometry(DOOR-.2,.32,.12),ironD,-sd*DOOR/2,y,.2,leaf);add(new T.CylinderGeometry(.16,.16,.7,6),iron,0,y,0,leaf);/* dobradiça */bolts(leaf,[0,1,2,3].map(i=>[-sd*(.4+i*.75),y,.28]));});
-    add(new T.TorusGeometry(.32,.07,6,12),iron,-sd*(DOOR-.5),DH/2-.3,.25,leaf);});
+    [1,DH-1.4].forEach(y=>{add(new T.BoxGeometry(DOOR-.2,.32,.12),ironD,-sd*DOOR/2,y,.2,leaf);add(new T.CylinderGeometry(.16,.16,.7,6),ironD,0,y,0,leaf);/* dobradiça */bolts(leaf,[0,1,2,3].map(i=>[-sd*(.4+i*.75),y,.28]));});
+    add(new T.TorusGeometry(.32,.07,6,12),ironD,-sd*(DOOR-.5),DH/2-.3,.25,leaf);});
   [-1,1].forEach(sd=>{/* lanternas de parede */const g=new T.Group();g.position.set(sd*(DOOR+2.2),F+7.4,zf+.3);ent.add(g);add(new T.BoxGeometry(.25,.25,1.2),ironD,0,.9,-.5,g);add(new T.BoxGeometry(.9,.12,.9),ironD,0,.55,.2,g);
     add(new T.BoxGeometry(.62,.9,.62),warm,0,0,.2,g).castShadow=false;[[-.36,-.36],[.36,-.36],[-.36,.36],[.36,.36]].forEach(([a,b])=>add(new T.BoxGeometry(.08,1.05,.08),ironD,a,0,.2+b,g));add(new T.ConeGeometry(.6,.45,4),ironD,0,.75,.2,g).rotation.y=Math.PI/4;});
   {/* placa em bandeira, presa num braço de ferro */const g=new T.Group();g.position.set(-DOOR-4.6,F+9.6,zf);ent.add(g);add(new T.BoxGeometry(.18,.18,3.4),ironD,0,0,1.6,g);[.9,2.4].forEach(z=>add(new T.CylinderGeometry(.03,.03,.5,4),ironD,0,-.3,z,g));
@@ -111,23 +111,23 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
     for(let x=-13.8;x<=13.81;x+=1.97)add(new T.BoxGeometry(.4,.65,LS),woodD,x,-.33,LS/2,a);
     for(let q=0;q<7;q++)add(new T.BoxGeometry(28.4,.18,.3),wood,0,.08,.8+q*LS/7,a);add(new T.BoxGeometry(28.6,.16,LS),wood,0,.25,LS/2,a);
     add(new T.BoxGeometry(28.8,.1,LS+.25),roofM,0,.38,LS/2,a);for(let x=-13.6;x<=13.61;x+=1.6)add(new T.BoxGeometry(.1,.2,LS+.2),roofM,x,.5,LS/2,a);
-    add(new T.BoxGeometry(28.8,.3,.15),bronze,0,.35,LS+.15,a);/* testeira */});
+    add(new T.BoxGeometry(28.8,.3,.15),copper,0,.35,LS+.15,a);/* testeira */});
   add(new T.CylinderGeometry(.42,.42,29.2,10,1,false),copper,0,YT+.45,0,roof).rotation.z=Math.PI/2;/* cumeeira */
-  for(let x=-12;x<=12;x+=4)bolts(roof,[[x,YT+.85,0]],bronze);
+  for(let x=-12;x<=12;x+=4)bolts(roof,[[x,YT+.85,0]],copper);
   [-6.5,6.5].forEach(x=>{/* tesouras internas (visíveis de dentro) */add(new T.BoxGeometry(.7,.75,D+.6),woodD,x,E-.1,0,roof);add(new T.BoxGeometry(.6,YT-E-.6,.6),woodD,x,(E+YT-.6)/2,0,roof);
     [-1,1].forEach(sz=>strut(roof,V(x,E+.2,sz*.3),V(x,E+(YT-E)*.55,sz*5.2),.45));add(new T.BoxGeometry(.9,.9,.12),ironD,x,E-.1,D/2+.35,roof);});
   [-1,1].forEach(sz=>{/* calhas e condutores pluviais até as gárgulas do plinto */const ye=YT-S*11.6-.35,ze=sz*(11.6+.2);const gut=add(new T.CylinderGeometry(.34,.34,28.6,10,1,true,0,Math.PI),copper,0,ye,ze,roof);gut.rotation.z=Math.PI/2;gut.rotation.y=sz>0?0:Math.PI;
     [-1,1].forEach(sx=>{const x=sx*(W/2+.2);roof.add(MM.tube([V(x+sx*.6,ye,ze),V(x,ye-.6,ze-sz*.3),V(x,F+1.2,sz*(D/2+1.2)),V(x,F+.1,sz*(D/2+1.4))],.18,copper,10,6));
       for(let y=F+2;y<ye-1;y+=3)add(new T.BoxGeometry(.5,.12,.3),ironD,x,y,sz*(D/2+.95),roof);});});
   /* chaminé de pedra da forja */
-  const ch=add(bb(2.2,YT+1.8-F,2.2,.12),stoneL,-9,F+(YT+1.8-F)/2,-6.4,roof);add(bb(2.8,.4,2.8,.08),stone,-9,YT+1.9,-6.4,roof);add(new T.CylinderGeometry(1.25,1.25,.35,10),copper,-9,YT-1.9,-6.4,roof);
+  const ch=add(bb(2.2,YT+1.8-F,2.2,.12),stoneL,-9,F+(YT+1.8-F)/2,-6.4,roof);add(bb(2.8,.4,2.8,.08),stoneL,-9,YT+1.9,-6.4,roof);add(new T.CylinderGeometry(1.25,1.25,.35,10),copper,-9,YT-1.9,-6.4,roof);
   /* para-raios na cumeeira (2 extremos + 1 central ligado ao condensador) */
-  const rods=[];[-12.4,0,12.4].forEach((x,i)=>{const h=i===1?3.2:4.2;add(new T.CylinderGeometry(.08,.18,h,6),iron,x,YT+.8+h/2,0,roof);add(new T.SphereGeometry(.3,10,8),copper,x,YT+.8+h,0,roof);
+  const rods=[];[-12.4,0,12.4].forEach((x,i)=>{const h=i===1?3.2:4.2;add(new T.CylinderGeometry(.08,.18,h,6),ironD,x,YT+.8+h/2,0,roof);add(new T.SphereGeometry(.3,10,8),copper,x,YT+.8+h,0,roof);
     [.35,.6].forEach(f=>add(new T.TorusGeometry(.38,.1,5,12),copper,x,YT+.8+h*f,0,roof).rotation.x=Math.PI/2);add(new T.CylinderGeometry(.35,.45,.5,8),ironD,x,YT+.75,0,roof);rods.push(V(x,YT+.8+h,0));});
-  [-1,1].forEach(sx=>{/* condutor de descida: do para-raios, pela empena, até a estaca no chão */const x=sx*12.4;const cnd=MM.tube([V(x,YT+.9,0),V(sx*13.25,YT-.4,-1.5),V(sx*13.25,E-1,-D/2+.5),V(sx*13.25,F+.4,-D/2-.3),V(sx*13.6,F-.1,-D/2-.8)],.13,cond,40,5);cnd.name='CondutorDescida'+(sx<0?'E':'D');roof.add(cnd);
-    for(let k=0;k<4;k++){const y=F+1.5+k*2.6;add(new T.CylinderGeometry(.14,.14,.4,6),warm,sx*13.4,y,-D/2+.45,roof).rotation.z=Math.PI/2;}});
-  {/* bucha de passagem do telhado: condutor do para-raios central até o topo do condensador */const zb=-4.5,yb=YT-S*4.5+.45;add(new T.CylinderGeometry(.5,.6,.6,10),bronze,0,yb,zb,roof);
-    const c=MM.tube([rods[1].clone().setY(YT+1.2),V(0,YT+.7,-1.2),V(0,yb+.3,zb),V(0,yb-1.4,zb)],.12,cond,24,5);c.name='CondutorCentral';roof.add(c);}
+  [-1,1].forEach(sx=>{/* condutor de descida: do para-raios, pela empena, até a estaca no chão */const x=sx*12.4;const cnd=MM.tube([V(x,YT+.9,0),V(sx*13.25,YT-.4,-1.5),V(sx*13.25,E-1,-D/2+.5),V(sx*13.25,F+.4,-D/2-.3),V(sx*13.6,F-.1,-D/2-.8)],.13,cond,40,5);roof.add(cnd);
+    for(let k=0;k<4;k++){const y=F+1.5+k*2.6;add(new T.CylinderGeometry(.14,.14,.4,6),copper,sx*13.4,y,-D/2+.45,roof).rotation.z=Math.PI/2;}});
+  {/* bucha de passagem do telhado: condutor do para-raios central até o topo do condensador */const zb=-4.5,yb=YT-S*4.5+.45;add(new T.CylinderGeometry(.5,.6,.6,10),copper,0,yb,zb,roof);
+    const c=MM.tube([rods[1].clone().setY(YT+1.2),V(0,YT+.7,-1.2),V(0,yb+.3,zb),V(0,yb-1.4,zb)],.12,cond,24,5);roof.add(c);}
   /* ================= 5. INTERIOR ================= */
   const floor=comp('Piso de tabuado');add(new T.BoxGeometry(W-2*TW,.2,D-2*TW),wood,0,F+.1,0,floor).receiveShadow=true;
   for(let z=-D/2+TW+1;z<D/2-TW;z+=2.2)add(new T.BoxGeometry(W-2*TW,.04,.05),woodD,0,F+.21,z,floor).castShadow=false;
@@ -159,7 +159,7 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
     [0,1,2].forEach(i=>{const a=i/3*Math.PI*2+.5;strut(g,V(Math.cos(a)*1.05,.9,Math.sin(a)*1.05),V(Math.cos(a)*.6,3,Math.sin(a)*.6),.12,iron);});MM.box(ws,9.6,FL+3,4.2,2.6,6,2.6);refs.bobinaLab=g;}
   {/* gerador: carcaça, volante animado, correia, base */const g=new T.Group();g.position.set(9,FL,-1.4);lab.add(g);add(bb(3.4,.6,2.2,.08),ironD,0,.3,0,g);const hs=add(new T.CylinderGeometry(.95,.95,2.4,16),iron,-.3,1.55,0,g);hs.rotation.z=Math.PI/2;
     for(let i=0;i<5;i++)add(new T.TorusGeometry(.97,.06,4,18),ironD,-1.3+i*.5,1.55,0,g).rotation.y=Math.PI/2;
-    const fw=new T.Group();fw.name='VolanteGerador';fw.position.set(1.35,1.55,0);fw.userData.animated=true;g.add(fw);add(new T.TorusGeometry(.9,.14,6,18),bronze,0,0,0,fw).rotation.y=Math.PI/2;for(let i=0;i<5;i++){const sp=add(new T.BoxGeometry(.08,1.7,.08),iron,0,0,0,fw);sp.rotation.x=i/5*Math.PI;}
+    const fw=new T.Group();fw.name='VolanteGerador';fw.position.set(1.35,1.55,0);fw.userData.animated=true;g.add(fw);add(new T.TorusGeometry(.9,.14,6,18),bronze,0,0,0,fw).rotation.y=Math.PI/2;for(let i=0;i<5;i++){const sp=add(new T.BoxGeometry(.08,1.7,.08),bronze,0,0,0,fw);sp.rotation.x=i/5*Math.PI;}
     add(new T.CylinderGeometry(.18,.18,.6,8),ironD,1.35,1.55,0,g).rotation.z=Math.PI/2;MM.box(ws,9,FL+1.3,-1.4,3.6,2.6,2.4);refs.volante=fw;}
   {/* painel de controle na parede direita: gabinete, mostradores, alavancas, botões, cabos */const g=new T.Group();g.position.set(W/2-TW-.6,FL,-3.6);g.rotation.y=-Math.PI/2;lab.add(g);add(bb(4.4,5.2,1.1,.08),ironD,0,2.6,0,g);add(new T.BoxGeometry(4.6,.25,1.3),bronze,0,5.3,0,g);
     [[-1.2,4],[0,4],[1.2,4]].forEach(([u,v])=>{add(new T.CylinderGeometry(.5,.5,.12,16),bronze,u,v,.56,g).rotation.x=Math.PI/2;add(new T.CircleGeometry(.43,16),gauge,u,v,.63,g);});
@@ -185,7 +185,7 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
     MM.box(ws,7.6,FL+1.8,-7.4,3.4,3.6,2.4);}
   {/* mesa lateral com protótipos: planetário mecânico e máquina voadora; luminária própria */const g=new T.Group();g.position.set(11.1,FL,-7.6);inv.add(g);add(bb(1.6,.2,3,.04),wood,0,3,0,g);[[-.6,-1.3],[.6,-1.3],[-.6,1.3],[.6,1.3]].forEach(([a,b])=>add(new T.BoxGeometry(.18,2.9,.18),woodD,a,1.45,b,g));
     const orr=new T.Group();orr.name='Planetario';orr.position.set(0,3.1,-.7);orr.userData.animated=true;g.add(orr);add(new T.CylinderGeometry(.25,.32,.2,10),bronze,0,.1,0,orr);add(new T.SphereGeometry(.22,10,8),warm,0,.7,0,orr);
-    [.5,.8].forEach((r,i)=>{add(new T.TorusGeometry(r,.025,4,24),bronze,0,.7,0,orr).rotation.x=Math.PI/2+.2*i;add(new T.SphereGeometry(.08+.04*i,8,6),i?crys:iron,r,.7,0,orr);});
+    [.5,.8].forEach((r,i)=>{add(new T.TorusGeometry(r,.025,4,24),bronze,0,.7,0,orr).rotation.x=Math.PI/2+.2*i;add(new T.SphereGeometry(.08+.04*i,8,6),bronze,r,.7,0,orr);});
     const fly=new T.Group();fly.position.set(0,3.4,.6);g.add(fly);add(new T.CylinderGeometry(.18,.12,1,8),copper,0,0,0,fly).rotation.z=Math.PI/2;[-1,1].forEach(sd=>{const wg=add(new T.BoxGeometry(.04,.02,1),paper,0,.1,sd*.5,fly);});add(new T.BoxGeometry(.04,.5,.04),ironD,0,-.25,0,fly);
     const lamp=new T.Group();lamp.position.set(.4,3.1,1.1);g.add(lamp);strut(lamp,V(0,0,0),V(0,1.6,0),.07,iron);add(new T.ConeGeometry(.4,.4,10,1,true),bronze,0,1.55,0,lamp);add(new T.SphereGeometry(.14,8,6),warm,0,1.4,0,lamp);MM.box(ws,11.1,FL+1.6,-7.6,1.8,3.2,3.2);refs.orrery=orr;}
   {/* banco e notas presas na parede do fundo */const g=new T.Group();g.position.set(7.6,FL,-5.6);inv.add(g);add(new T.CylinderGeometry(.6,.6,.16,10),wood,0,2.3,0,g);add(new T.CylinderGeometry(.08,.08,2.2,6),iron,0,1.15,0,g);add(new T.CylinderGeometry(.6,.7,.12,10),ironD,0,.06,0,g);
@@ -205,8 +205,8 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
     const ci=add(new T.OctahedronGeometry(.42,0),core,0,5.5,0,cd);ci.scale.y=2.2;ci.castShadow=false;}
   /* anéis de contenção (animados): três aros inclinados com nós de bronze e faixa de runas no maior */
   [[2.55,.14,.35],[2.9,.12,-.55],[3.25,.16,.15]].forEach(([R,t,tilt],i)=>{const g=new T.Group();g.name='AnelContencao'+i;g.position.set(0,5.5,0);g.rotation.set(tilt,0,i*.6);g.userData.animated=true;cd.add(g);
-    add(new T.TorusGeometry(R,t,8,48),i===2?bronze:iron,0,0,0,g).rotation.x=Math.PI/2;if(i===2){const rb=add(new T.TorusGeometry(R,t*1.05,4,48),rune,0,0,0,g);rb.rotation.x=Math.PI/2;rb.scale.z=.45;}
-    for(let n=0;n<6;n++){const a=n/6*Math.PI*2;add(new T.SphereGeometry(t*1.5,8,6),copper,Math.cos(a)*R,0,Math.sin(a)*R,g);}animC.push(g);});
+    const rm=i===2?bronze:iron;add(new T.TorusGeometry(R,t,8,48),rm,0,0,0,g).rotation.x=Math.PI/2;if(i===2){const rb=add(new T.TorusGeometry(R,t*1.05,4,48),rune,0,0,0,g);rb.rotation.x=Math.PI/2;rb.scale.z=.45;}
+    for(let n=0;n<6;n++){const a=n/6*Math.PI*2;add(new T.SphereGeometry(t*1.5,8,6),rm,Math.cos(a)*R,0,Math.sin(a)*R,g);}animC.push(g);});
   /* colunas de bobinas laterais e pontes de cobre até o topo */
   [-1,1].forEach(sd=>{const x=sd*2.95;add(new T.CylinderGeometry(.32,.32,6.2,10),ironD,x,4.6,0,cd);for(let i=0;i<14;i++)add(new T.TorusGeometry(.42,.07,4,12),copper,x,2.2+i*.36,0,cd).rotation.x=Math.PI/2;
     add(new T.SphereGeometry(.42,10,8),bronze,x,7.9,0,cd);cd.add(MM.tube([V(x,7.9,0),V(x*.75,8.9,0),V(x*.3,9.1,0)],.12,cond,14,5));
@@ -220,8 +220,8 @@ I.buildWorkshop=function(ctx,ws){const M=ctx.mat,tx=MM.tex;const rnd=MM.rng(2341
   {const g=new T.Group();g.position.set(0,2.4,2.2);cd.add(g);add(new T.CylinderGeometry(.55,.55,.2,16),bronze,0,0,0,g).rotation.x=Math.PI/2;add(new T.CircleGeometry(.48,16),gauge,0,0,.11,g);
     const nd=new T.Group();nd.name='PonteiroManometro';nd.position.set(0,0,.13);nd.userData.animated=true;g.add(nd);add(new T.BoxGeometry(.04,.4,.02),ironD,0,.17,0,nd);animC.push(nd);}
   /* mecanismos móveis: par de engrenagens e pistões */
-  const gearA=new T.Group();gearA.name='EngrenagensCondensador';gearA.position.set(-2.25,2.2,1.1);gearA.rotation.y=-.5;gearA.userData.animated=true;cd.add(gearA);const gg1=add(gearM,bronze,0,0,0,gearA),gg2=add(gearS,iron,1.05,.55,0,gearA);
-  const pist=[];[-1,1].forEach(sd=>{const g=new T.Group();g.name='Pistao'+(sd<0?'E':'D');g.position.set(sd*1.2,1.4,-2.1);g.userData.animated=true;cd.add(g);add(new T.CylinderGeometry(.22,.22,1.3,8),iron,0,.65,0,g);add(new T.CylinderGeometry(.32,.32,.25,8),bronze,0,1.3,0,g);pist.push(g);
+  const gearA=new T.Group();gearA.name='EngrenagensCondensador';gearA.position.set(-2.25,2.2,1.1);gearA.rotation.y=-.5;gearA.userData.animated=true;cd.add(gearA);const gg1=add(gearM,bronze,0,0,0,gearA),gg2=add(gearS,bronze,1.05,.55,0,gearA);
+  const pist=[];const pg=new T.Group();pg.name='Pistoes';pg.position.set(0,1.4,-2.1);pg.userData.animated=true;cd.add(pg);pist.push(pg);[-1,1].forEach(sd=>{add(new T.CylinderGeometry(.22,.22,1.3,8),iron,sd*1.2,.65,0,pg);add(new T.CylinderGeometry(.32,.32,.25,8),iron,sd*1.2,1.3,0,pg);
     add(new T.CylinderGeometry(.36,.36,1,10),ironD,sd*1.2,1.8,-2.1,cd);});
   MM.box(ws,0,FL+2,-4.6,7.2,4,7.2);MM.box(ws,0,FL+6,-4.6,4,8,4);
   /* ================= 7. COLISORES DO EDIFÍCIO ================= */

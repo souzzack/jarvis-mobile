@@ -60,7 +60,10 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
     {const houses=out.filter(o=>o.userData.foot);let bestR=.9,bestS=-1e9;for(const ry of [.9,.9+Math.PI/2,.9+Math.PI,.9-Math.PI/2]){let sc=0;for(const d of [14,18,22]){const fx=x+Math.sin(ry)*d,fz=z+Math.cos(ry)*d;const hd=Math.min(...houses.map(o=>Math.hypot(o.position.x-fx,o.position.z-fz)),99);sc+=Math.min(hd,20)-(ctx.inside(fx,fz)?0:50)-Math.max(0,ctx.pathDist(fx,fz))*.25;}if(sc>bestS){bestS=sc;bestR=ry;}}ws.rotation.y=bestR;}
     const b=I.buildWorkshop(ctx,ws);
     ws.userData.assento=MM.seat(ctx,ws,{w:27.6,d:21.6,base:0,floor:1.6,front:10.8,stepW:8,mat:b.stone,bury:.3});
-    I.workshopComponents(ws);MM.bake(b.roof);b.roof.userData.animated=true;MM.bake(ws.__oficina.front);ws.__oficina.front.userData.animated=true;/* telhado fundido à parte para poder ser ocultado na inspeção */
+    I.workshopComponents(ws);
+    /* custo: o interior fica à sombra do telhado e das paredes — não projeta sombra; cada grupo animado é fundido por material internamente */
+    ['Bancadas','Laboratório atmosférico','Depósito','Canto do inventor','Piso de tabuado','Condensador Atmosférico','Janelas'].forEach(n=>{const g=ws.getObjectByName(n);if(g)g.traverse(m=>{if(m.isMesh)m.castShadow=false;});});
+    ws.traverse(g=>{if(g.userData&&g.userData.animated&&g!==b.roof)MM.bake(g);});MM.bake(b.roof);b.roof.userData.animated=true;MM.bake(ws.__oficina.front);ws.__oficina.front.userData.animated=true;/* telhado fundido à parte para poder ser ocultado na inspeção */
     out.push(ws);}
   /* barracas do mercado */
   [[-14,104,.4],[-50,108,-.5]].forEach(([x0,z0,ry],i)=>{/* V2.3.1: barraca nunca na frente de uma porta (antes a 2 ficava colada na porta da casa 2) */
@@ -77,7 +80,7 @@ I.buildVillage=function(ctx){const M=ctx.mat,V=I.poi.vila,out=[];const H=V.h;
   /* lanternas ao longo dos caminhos da vila e até a torre */
   const lan=MM.obj('STORM.PROP.LANTERNS','Lanternas dos caminhos','Props',{notes:'Luz quente e fraca; no Roblox: PointLight sem sombra só nas mais próximas.'});
   ctx.terrain.paths.forEach(p=>{if(p.c.tipo!=='principal')return;let acc=0;for(let i=1;i<p.S.length;i++){const [x0,z0]=p.S[i-1],[x1,z1]=p.S[i];acc+=Math.hypot(x1-x0,z1-z0);if(acc<22)continue;acc=0;
-      const dx=x1-x0,dz=z1-z0,L=Math.hypot(dx,dz)||1;const side=(i%2?1:-1)*(p.hw+1.6);const x=x1-dz/L*side,z=z1+dx/L*side;const y=ctx.heightAt(x,z);if(y<0)continue;
+      const dx=x1-x0,dz=z1-z0,L=Math.hypot(dx,dz)||1;const side=(i%2?1:-1)*(p.hw+1.6);const x=x1-dz/L*side,z=z1+dx/L*side;const y=ctx.heightAt(x,z);if(y<0)continue;if(out.some(o=>o.userData.id==='STORM.ARCH.WORKSHOP'&&Math.hypot(o.position.x-x,o.position.z-z)<19))continue;/* V2.3.4: nenhuma lanterna dentro da oficina */
       const yb=Math.min(y,ctx.heightAt(x+.4,z),ctx.heightAt(x-.4,z),ctx.heightAt(x,z+.4),ctx.heightAt(x,z-.4));const post=new T.Group();post.position.set(x,yb-.3,z);MM.mesh(new T.CylinderGeometry(.2,.3,6.3,6),M.metalEscuro,0,3.15,0,post);MM.mesh(new T.CylinderGeometry(.45,.55,.6,6),M.metalEscuro,0,.3,0,post);MM.mesh(new T.BoxGeometry(1.3,.25,.25),M.metalEscuro,.5,6.1,0,post);
       const l=MM.mesh(new T.BoxGeometry(.7,1,.7),M.lanterna,1,5.4,0,post);l.castShadow=false;lan.add(post);}});
   out.push(lan);return out;};

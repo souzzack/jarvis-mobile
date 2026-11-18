@@ -73,7 +73,7 @@ MM.bake=function(obj){obj.updateMatrixWorld(true);const inv=new T.Matrix4().copy
     const g=m.geometry.index?m.geometry.toNonIndexed():m.geometry.clone();if(!g.attributes.normal)g.computeVertexNormals();
     const mat=new T.Matrix4().multiplyMatrices(inv,m.matrixWorld);g.applyMatrix4(mat);/* marcas de apoio viram caixas no modelo (não separam a fusão: mesma quantidade de chamadas de desenho) */
     if(m.userData.apoio||m.userData.semApoio){m.geometry.computeBoundingBox();const b=m.geometry.boundingBox.clone().applyMatrix4(m.matrixWorld);(obj.userData[m.userData.apoio?'apoioBoxes':'semApoioBoxes']=obj.userData[m.userData.apoio?'apoioBoxes':'semApoioBoxes']||[]).push([b.min.x,b.min.y,b.min.z,b.max.x,b.max.y,b.max.z].map(v=>+v.toFixed(2)));}
-    const key=m.material.uuid+(m.material.side===T.BackSide?'b':'');if(!groups.has(key))groups.set(key,{mat:m.material,geos:[],cast:m.castShadow});groups.get(key).geos.push(g);kill.push(m);});
+    const key=m.material.uuid+(m.material.side===T.BackSide?'b':'')+(obj.userData.bakeCast?(m.castShadow?'s':'n'):'');/* bakeCast: separa o que projeta sombra do que não projeta (o passe de sombra só desenha o primeiro grupo) */if(!groups.has(key))groups.set(key,{mat:m.material,geos:[],cast:m.castShadow});groups.get(key).geos.push(g);kill.push(m);});
   kill.forEach(m=>m.parent.remove(m));
   groups.forEach(v=>{const merged=MM.merge(v.geos);const mm=new T.Mesh(merged,v.mat);mm.castShadow=v.cast;mm.receiveShadow=true;obj.add(mm);});};
 /* ---------- assentamento no terreno (V2.3.1) ----------
