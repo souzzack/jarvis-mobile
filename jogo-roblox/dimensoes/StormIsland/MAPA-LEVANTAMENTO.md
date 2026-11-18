@@ -56,3 +56,64 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 8. Plataformas elevadas.
 9. Ponte e ruínas, para resolver os amarelos.
 10. Torres de transmissão.
+
+## 1ª estrutura: casas da vila (feito)
+
+Arquivo alterado: `Architecture/vila.js`, apenas na função `I.buildHouse` e no novo `I.houseMats`.
+
+**O que não mudou:**
+- posição, orientação e altura;
+- planta (w × d), variantes e alturas dos telhados (mesmo sorteio);
+- os 4 ou 5 colisores de cada casa;
+- laje pisável, degraus de `MM.seat` e ponta do para-raios (os cabos continuam ligados ao Coletor).
+
+**O que mudou:**
+- **Térreo:**
+  - cantaria com aberturas reais;
+  - porta em arco de 4 × 7 studs recuada 0,3 stud, com aduelas, fecho, tábuas, ferragens, argola e soleira;
+  - janelas com caixilho, montante, travessa, peitoril e verga;
+  - cunhais alternados nos 4 cantos.
+- **Andar (casas de 2 pisos):**
+  - balanço com viga de borda e consolos;
+  - reboco com enxaimel (esteios, baldrame, frechal, travessa e escoras) e janelas.
+- **Telhado:**
+  - chapas com espessura e juntas em pé, cumeeira, guarda-pó nas empenas;
+  - calhas e condutores até o plinto;
+  - empenas fechadas com óculo de vidro aceso e aro de cobre.
+- **Telhado de uma água:** paredes de fechamento de verdade.
+- **Casa redonda:**
+  - cone apoiado no topo da parede; antes ficava até 0,4 stud acima, com fresta;
+  - forro do beiral, calha, 10 nervuras e remate de cobre;
+  - porta com ombreiras e juntas;
+  - janelas emolduradas e cintas de pedra.
+- **Chaminé:** cantaria reta, sem a inclinação de antes, com capelo e dois potes.
+- **Lanterna:** junto à porta. Quando não cabe, vai na lateral, perto da frente.
+- **Para-raios:** isolador, bobinas e esfera.
+- **Materiais:** 8 por casa, compartilhados por todas e da mesma família da oficina (cantaria, pedra lavrada, madeira, reboco, chapa azul-escura, ferro, cobre e vidro aceso).
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, 5 amarelos (os mesmos de antes), 0 vermelhos, 0 interseções e 24 de 24 rotas, incluindo as rotas até as portas das casas.
+- Cada casa tem 7 a 8 malhas depois da fusão por material, com 3,4 a 6,7 mil triângulos (antes, 550 a 750).
+
+**Custo da cena** (efeitos desligados, mesmas câmeras):
+
+| Vista | Antes (chamadas / triângulos) | Depois (chamadas / triângulos) |
+|---|---|---|
+| Vila | 801 / 1.552.271 | 788 / 1.599.327 |
+| Três quartos | 1.014 / 1.358.477 | 1.001 / 1.405.533 |
+| Nível do jogador | 617 / 1.477.273 | 608 / 1.500.279 |
+
+São cerca de 47 mil triângulos a mais e cerca de 13 chamadas a menos.
+
+**Exportação:** `Architecture.glb` traz os materiais `Vila*`. As duas pedras (triplanares) saem como "Rocha", como na oficina.
+
+**Imagens:**
+- `../../referencias/mapa-levantamento-estruturas.jpg`
+- `../../referencias/mapa-casas-antes-depois.jpg`
+- `../../referencias/mapa-casas-vistas.jpg`
+
+**Pendências no Roblox Studio:**
+- importar e conferir os nomes;
+- conferir os colisores (as casas não são exploráveis por dentro);
+- conferir como a pedra fica depois de virar "Rocha";
+- medir o FPS na vila num aparelho real.

@@ -7,7 +7,7 @@
    plinto de pedra lavrada, térreo de cantaria com ABERTURAS REAIS (porta em arco recuada, janelas com caixilho, peitoril e verga),
    cunhais alternados, andar em enxaimel sobre balanço com mãos-francesas, telhado com espessura (chapas de junta em pé,
    cumeeira, beirais, calhas, condutores), empenas fechadas com óculo, chaminé com capelo, lanterna junto à porta e para-raios.
-   Materiais compartilhados por todas as casas (9 por casa, mesma família da Oficina dos Inventores). */
+   Materiais compartilhados por todas as casas (8 por casa, mesma família da Oficina dos Inventores). */
 function wallG(u0,u1,v0,v1,holes,t){const s=new T.Shape();s.moveTo(u0,v0);s.lineTo(u1,v0);s.lineTo(u1,v1);s.lineTo(u0,v1);s.lineTo(u0,v0);
   (holes||[]).forEach(h=>{const p=new T.Path();if(h.circ)p.absarc(h.u,h.v,h.r,0,Math.PI*2,true);
     else if(h.arch){p.moveTo(h.u0,h.v0);p.lineTo(h.u0,h.v1);p.absarc((h.u0+h.u1)/2,h.v1,(h.u1-h.u0)/2,Math.PI,0,true);p.lineTo(h.u1,h.v0);p.lineTo(h.u0,h.v0);}
@@ -23,7 +23,6 @@ I.houseMats=function(ctx){if(ctx.__casaM)return ctx.__casaM;const tx=MM.tex;
   const std=(name,t,o)=>new T.MeshStandardMaterial(Object.assign({name,map:t.map,normalMap:t.normalMap,roughnessMap:t.roughnessMap},o));
   const pm=tx.terra.map.clone();pm.needsUpdate=true;pm.repeat.set(.16,.16);
   ctx.__casaM={cant,lav,
-    wood:std('VilaMadeira',tx.madeira,{roughness:1,color:MM.C('#d4bb9c')}),
     woodD:std('VilaMadeiraEstrutural',tx.madeira,{roughness:1,color:MM.C('#7d604c')}),
     plaster:new T.MeshStandardMaterial({name:'VilaReboco',color:MM.C('#e2d4c0'),map:pm,roughness:.95}),
     roof:std('VilaChapaTelhado',tx.metal,{metalness:.6,roughness:.88,envMapIntensity:.5,color:MM.C('#4c5f6e')}),
