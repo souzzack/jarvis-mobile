@@ -51,7 +51,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 3. Doca de chegada e portal (primeira impressão). **Feito.**
 4. Barracas e Praça do Coletor, para fechar a vila. **Feito.**
 5. Santuário. **Feito.**
-6. Mirante do Penhasco.
+6. Mirante do Penhasco. **Feito.**
 7. Observatório.
 8. Plataformas elevadas.
 9. Ponte e ruínas, para resolver os amarelos.
@@ -317,3 +317,43 @@ Arquivo alterado: `Architecture/observatorio.js`, só a função `I.buildSanctua
 **Imagem:** `../../referencias/mapa-santuario-antes-depois.jpg`
 
 **Pendência no Roblox Studio:** conferir a passagem entre o pilar da entrada e os braseiros com um personagem de verdade.
+
+## 6ª estrutura: Mirante do Penhasco das Nuvens (feito, com mudança de posição justificada)
+
+Arquivo alterado: `Props/props.js`, só o bloco `STORM.ARCH.CLIFF.LOOKOUT`.
+
+**Defeito de posicionamento encontrado.** O mirante foi pensado como "deck em balanço sobre o penhasco, escorado na rocha" (é assim nas notas e na exceção de flutuação do diagnóstico). Na prática:
+- estava todo sobre terreno **plano**, 36 studs para dentro da borda;
+- a ponta apontava para o interior da ilha;
+- as escoras ficavam enterradas;
+- eram 5 caixas de metal com paredes cheias e sem colisão nos lados.
+
+**Correção:**
+- **Posição.** Ele foi levado até a borda leste, na mesma região do penhasco, a ~40 studs da posição antiga (pivô em 260, 49,6). A borda é encontrada no código: a busca anda do penhasco para leste até o terreno cair ou a ilha acabar. Assim são 12 studs de balanço de verdade sobre as nuvens.
+- **Acesso.** Uma trilha de lajes liga o fim da estrada P3 (214, 46) ao mirante. A rota de teste "mirante: P3 → deck" continua a mesma e passa.
+
+**A nova construção:**
+- encontro de cantaria em terra até o chão real;
+- 2 vigas de ferro (alma e mesas), transversinas e tabuado;
+- escoras de ferro até a encosta, com chapas de ancoragem rebitadas, e tirantes;
+- guarda-corpo de montantes de ferro com pomos e corrimão de cobre, mais 3 cabos, com colisão nos três lados;
+- luneta de latão em tripé, no mesmo ponto de antes;
+- para-raios com bobinas nas duas pontas;
+- 2 lanternas na entrada.
+
+**Grama.** A grama instanciada da superfície que atravessava o tabuado foi zerada só dentro da planta do mirante (3 instâncias). O resto da vegetação não mudou.
+
+**Caminhável.** O deck agora é uma superfície do tipo "ponte" com 4,6 studs de meia largura. Antes era um quadrado de 13 × 13 que não seguia o deck girado.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+- O mirante continua na lista de balanços intencionais.
+
+**Custo:** o mirante tem cerca de 5,3 mil triângulos, contra 200 antes. Na vista Vila ficou em 822 chamadas e 1.654.403 triângulos.
+
+**Imagem:** `../../referencias/mapa-mirante-antes-depois.jpg`. Em cima a posição antiga; embaixo a nova, com as câmeras na mesma posição relativa ao mirante.
+
+**Pendências no Roblox Studio:**
+- conferir se as escoras encostam na rocha do Terrain do Roblox (a encosta lá vem do heightmap e pode ter outra forma);
+- testar o guarda-corpo com um personagem de verdade.

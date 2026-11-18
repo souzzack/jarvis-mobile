@@ -75,13 +75,48 @@ I.buildProps=function(ctx){const M=ctx.mat,P=I.poi,out=[];const r=MM.rng(1212);
     [[-12.4,1.4],[-12.8,3.1]].forEach(([x,z])=>{add(new T.CylinderGeometry(.6,.6,1.6,10),K.woodD,x,.9,z);[.45,1.35].forEach(y=>add(new T.CylinderGeometry(.63,.63,.12,10),K.iron,x,y,z));});
     MM.box(o,-11.3,1,3,4,2,4.6);
     o.userData.walk=[{type:'rect',y:C.h+.1,x:C.x,z:C.z+6,sx:30,sz:26}];out.push(o);}
-  /* mirante do Penhasco das Nuvens: deck de metal em balanço sobre o vazio */
-  {const C=P.penhasco;const o=MM.obj('STORM.ARCH.CLIFF.LOOKOUT','Mirante do Penhasco das Nuvens','Architecture',{notes:'Deck caminhável em balanço (16 × 10 studs). Fragmentos de nuvem: STORM.COLLECT.02.'});o.userData.flutua='balanço intencional sobre o penhasco (escorado)';const x=C.x+6,z=C.z;const y=ctx.heightAt(C.x,C.z);o.position.set(x,y,z);o.rotation.y=-Math.PI/2+.35;
-    MM.mesh(new T.BoxGeometry(10,.8,18),M.metalEscuro,0,.4,8,o);for(let i=0;i<6;i++)MM.mesh(new T.BoxGeometry(10,.15,.3),M.metal,0,.85,2+i*2.6,o);
-    [-5,5].forEach(xx=>{MM.mesh(new T.BoxGeometry(.3,3.4,18),M.metal,xx,2.1,8,o);const st=MM.mesh(new T.BoxGeometry(.6,.6,13),M.metal,xx,-4,6,o);st.rotation.x=.55;});
-    MM.mesh(new T.BoxGeometry(10,3.4,.3),M.metal,0,2.1,17,o);const sc=MM.mesh(new T.CylinderGeometry(.5,.8,3,6),M.cobre,2,2.3,14,o);
-    const tl=MM.mesh(new T.CylinderGeometry(.5,.6,4,8),M.cobre,2,4.2,14.6,o);tl.rotation.x=1.1;
-    MM.box(o,0,.4,8,10,.8,18);out.push(o);o.updateMatrixWorld(true);const c0=o.localToWorld(new T.Vector3(0,0,8));o.userData.walk=[{type:'rect',y:y+.8,x:c0.x,z:c0.z,sx:13,sz:13}];}
+  /* mirante do Penhasco das Nuvens (Mapa V1). Antes: caixa de metal de paredes cheias sobre terreno PLANO, 36 studs para dentro da borda,
+     com a ponta virada para o interior e as escoras enterradas. Agora: levado até a borda leste (mesma região do penhasco, a ~40 studs),
+     em balanço de verdade sobre as nuvens. Encontro de cantaria em terra, vigas de ferro com tabuado, escoras até a rocha da encosta,
+     guarda-corpo de ferro e cobre, luneta de latão em tripé, para-raios nas pontas e trilha de lajes desde o fim da estrada P3. */
+  {const C=P.penhasco,K=I.houseMats(ctx),BB=MM.bevelBox;const o=MM.obj('STORM.ARCH.CLIFF.LOOKOUT','Mirante do Penhasco das Nuvens','Architecture',{notes:'Deck caminhável 10 × 18 studs, 12 em balanço sobre as nuvens, encontro de pedra em terra. Fragmentos de nuvem: STORM.COLLECT.02. Guarda-corpo com colisão.'});o.userData.flutua='balanço intencional sobre o penhasco (escorado)';
+    /* borda: segue para leste a partir do penhasco até o terreno cair ou acabar a ilha */
+    const a=80*Math.PI/180,x0=C.x+6,z0=C.z,h0=ctx.heightAt(x0,z0);let re=20;while(re<90&&ctx.inside(x0+Math.sin(a)*re,z0+Math.cos(a)*re)&&ctx.heightAt(x0+Math.sin(a)*re,z0+Math.cos(a)*re)>h0-2.5)re+=.5;
+    const px=x0+Math.sin(a)*(re-5),pz=z0+Math.cos(a)*(re-5);const ca=Math.cos(a),sa=Math.sin(a);const W=(lx,lz)=>[px+lx*ca+lz*sa,pz-lx*sa+lz*ca];const HL=(lx,lz)=>ctx.heightAt(...W(lx,lz));
+    const y=Math.max(...[[-5,-3],[5,-3],[-5,2],[5,2],[0,0]].map(([u,v])=>HL(u,v)))+.1;o.position.set(px,y,pz);o.rotation.y=a;o.userData.borda={raio:re,pivo:[+px.toFixed(1),+pz.toFixed(1)]};
+    const add=(g,m,x,yy,z)=>MM.mesh(g,m,x,yy,z,o);
+    /* encontro de cantaria em terra (do fundo das vigas até o chão real) */
+    {const gmin=Math.min(...[[-6,-4],[6,-4],[-6,4.5],[6,4.5],[0,0]].map(([u,v])=>HL(u,v)))-y;const top=-.45,bot=gmin-1;add(BB(13,top-bot,9,.15),K.cant,0,(top+bot)/2,0).userData.apoio=true;add(BB(13.6,.4,9.6,.08),K.lav,0,top-.1,0);MM.box(o,0,(top+bot)/2,0,13,top-bot,9);}
+    /* vigas de ferro, transversinas e tabuado */
+    [-4,4].forEach(x=>{add(new T.BoxGeometry(.5,1.1,19.4),K.iron,x,-.05,7.7);add(new T.BoxGeometry(1.1,.14,19.4),K.iron,x,.45,7.7);add(new T.BoxGeometry(1.1,.14,19.4),K.iron,x,-.55,7.7);});
+    for(let z=-1;z<=17;z+=2.25)add(new T.BoxGeometry(8.4,.5,.35),K.iron,0,-.1,z);
+    for(let k=0;k<26;k++){const z=-2+k*.75;add(new T.BoxGeometry(10,.16,.68),K.woodD,0,.6,z).castShadow=k%3===0;}
+    add(new T.BoxGeometry(10.4,.5,.25),K.iron,0,.5,17.45);
+    /* escoras: do terço da viga até a rocha da encosta, com chapa de ancoragem */
+    [-4,4].forEach(x=>{const A=new T.Vector3(x,-.55,13),B=new T.Vector3(x,-9.5,4.6);const L=A.distanceTo(B);const st=add(new T.BoxGeometry(.55,L,.55),K.iron,(A.x+B.x)/2,(A.y+B.y)/2,(A.z+B.z)/2);st.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),A.clone().sub(B).normalize());
+      add(BB(1.8,1.8,.6,.06),K.iron,x,-9.6,4.3);[[.6,.6],[-.6,.6],[.6,-.6],[-.6,-.6]].forEach(([u,v])=>add(new T.SphereGeometry(.13,6,4),K.copper,x+u,-9.6+v,4.62));
+      const tie=add(new T.BoxGeometry(.3,.3,9),K.iron,x,-5,8.8);tie.rotation.x=-.33;});
+    /* guarda-corpo: montantes de ferro, corrimão de cobre e três cabos (com colisão) */
+    {const rail=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),n=Math.max(1,Math.round(L/2));for(let i=0;i<=n;i++){const t=i/n,x=x0+(x1-x0)*t,z=z0+(z1-z0)*t;add(new T.BoxGeometry(.22,3.4,.22),K.iron,x,2.3,z);add(new T.SphereGeometry(.18,8,6),K.copper,x,4.05,z);}
+        const g=new T.Group();g.position.set((x0+x1)/2,0,(z0+z1)/2);g.rotation.y=Math.atan2(x1-x0,z1-z0);o.add(g);MM.mesh(new T.BoxGeometry(.24,.18,L),K.copper,0,3.95,0,g);[1.4,2.3,3.1].forEach(h=>MM.mesh(new T.CylinderGeometry(.05,.05,L,4),K.iron,0,h,0,g).rotation.x=Math.PI/2);
+        MM.box(o,(x0+x1)/2,2.3,(z0+z1)/2,Math.abs(x1-x0)+.3,3.4,Math.abs(z1-z0)+.3);};
+      rail(-4.9,1,-4.9,17.3);rail(4.9,1,4.9,17.3);rail(-4.9,17.3,4.9,17.3);}
+    /* luneta de latão em tripé (mesmo lugar, apontando para as nuvens) */
+    {const g=new T.Group();g.position.set(2,.68,14);o.add(g);for(let k=0;k<3;k++){const an=k/3*Math.PI*2;const l=MM.mesh(new T.CylinderGeometry(.07,.09,2.9,5),K.woodD,Math.cos(an)*.55,1.3,Math.sin(an)*.55,g);l.rotation.set(Math.sin(an)*.38,0,-Math.cos(an)*.38);}
+      MM.mesh(new T.CylinderGeometry(.22,.22,.3,8),K.iron,0,2.7,0,g);const tb=new T.Group();tb.position.set(0,2.95,0);tb.rotation.x=1.25;g.add(tb);
+      MM.mesh(new T.CylinderGeometry(.32,.26,3.2,14),K.copper,0,.4,0,tb);MM.mesh(new T.CylinderGeometry(.42,.42,.5,14),K.copper,0,2.1,0,tb);MM.mesh(new T.CylinderGeometry(.2,.2,.9,10),K.iron,0,-1.5,0,tb);[0,1.2].forEach(yy=>MM.mesh(new T.TorusGeometry(.33,.05,5,14),K.iron,0,yy,0,tb).rotation.x=Math.PI/2);
+      MM.box(o,2,1.7,14,1.4,3.4,1.4);}
+    /* para-raios nas pontas e lanternas na entrada */
+    [-1,1].forEach(s=>{const x=s*4.9,z=17.3;add(new T.CylinderGeometry(.12,.2,4.2,6),K.iron,x,6.1,z);[5.2,6.2].forEach(h=>add(new T.TorusGeometry(.42,.12,5,12),K.copper,x,h,z).rotation.x=Math.PI/2);add(new T.SphereGeometry(.35,10,8),K.copper,x,8.3,z);
+      const lz=-2.2;add(new T.CylinderGeometry(.42,.55,.5,8),K.iron,s*5.6,.2,lz);add(new T.CylinderGeometry(.14,.18,5.4,8),K.iron,s*5.6,2.9,lz);const gl=add(new T.CylinderGeometry(.3,.38,.9,6),K.glass,s*5.6,6,lz);gl.castShadow=false;add(new T.ConeGeometry(.5,.45,6),K.iron,s*5.6,6.65,lz);MM.box(o,s*5.6,2.9,lz,.6,5.8,.6);});
+    /* trilha de lajes do fim da estrada P3 até o mirante (decoração pisável, rente ao chão) */
+    {const S=[214,46],E=W(0,-5);const n=Math.max(2,Math.round(Math.hypot(E[0]-S[0],E[1]-S[1])/2.6));const rr=MM.rng(808);o.updateMatrixWorld(true);const inv=new T.Matrix4().copy(o.matrixWorld).invert();
+      for(let i=1;i<n;i++){const t=i/n;const wx=S[0]+(E[0]-S[0])*t+(rr()-.5)*.8,wz=S[1]+(E[1]-S[1])*t+(rr()-.5)*.8;const R=1.1;const g=Math.max(...[[0,0],[R,0],[-R,0],[0,R],[0,-R]].map(([u,v])=>ctx.heightAt(wx+u,wz+v)));
+        const lp=new T.Vector3(wx,g-.08,wz).applyMatrix4(inv);const sl=add(BB(2+rr()*.6,.3,1.6+rr()*.5,.08),K.lav,lp.x,lp.y,lp.z);sl.rotation.y=rr()*.6-.3;sl.castShadow=false;}}
+    /* grama instanciada (superfície e sub-bosque) que atravessava o tabuado e o encontro: some só dentro da planta do mirante (instâncias com escala zero) */
+    {o.updateMatrixWorld(true);const inv=new T.Matrix4().copy(o.matrixWorld).invert();let n=0;['STORM.VEG.UNDERGROWTH','STORM.TERRAIN.SURFACE'].forEach(id=>{const ug=ctx.reg&&ctx.reg.byId&&ctx.reg.byId[id];const mt=new T.Matrix4(),v=new T.Vector3(),zero=new T.Matrix4().makeScale(0,0,0);
+      if(ug)ug.traverse(m=>{if(!m.isInstancedMesh)return;m.updateMatrixWorld(true);let ch=false;for(let i=0;i<m.count;i++){m.getMatrixAt(i,mt);v.setFromMatrixPosition(mt).applyMatrix4(m.matrixWorld).applyMatrix4(inv);if(Math.abs(v.x)<7.2&&v.z>-5.6&&v.z<18.5){m.setMatrixAt(i,zero);ch=true;n++;}}if(ch)m.instanceMatrix.needsUpdate=true;});});o.userData.gramaRemovida=n;}
+    out.push(o);o.updateMatrixWorld(true);const A0=o.localToWorld(new T.Vector3(0,0,-1)),B0=o.localToWorld(new T.Vector3(0,0,17));o.userData.walk=[{type:'bridge',a:[A0.x,A0.z],b:[B0.x,B0.z],hw:4.6,y:()=>y+.68}];}
   /* linha de transmissão: torre → vila → estrada do penhasco */
   {const T0=P.torre;/* V2.3.1: torre de transmissão nunca na frente de porta nem colada em casa (antes a 3ª ficava na porta da casa 3) */
     /* V2.3.2: cada torre vai para o ponto livre mais próximo do planejado, testando também o VÃO do cabo até a torre anterior
