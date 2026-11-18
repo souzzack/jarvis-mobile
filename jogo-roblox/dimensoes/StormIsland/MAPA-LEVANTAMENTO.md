@@ -52,7 +52,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 4. Barracas e Praça do Coletor, para fechar a vila. **Feito.**
 5. Santuário. **Feito.**
 6. Mirante do Penhasco. **Feito.**
-7. Observatório.
+7. Observatório. **Feito.**
 8. Plataformas elevadas.
 9. Ponte e ruínas, para resolver os amarelos.
 10. Torres de transmissão.
@@ -357,3 +357,58 @@ Arquivo alterado: `Props/props.js`, só o bloco `STORM.ARCH.CLIFF.LOOKOUT`.
 **Pendências no Roblox Studio:**
 - conferir se as escoras encostam na rocha do Terrain do Roblox (a encosta lá vem do heightmap e pode ter outra forma);
 - testar o guarda-corpo com um personagem de verdade.
+
+## 7ª estrutura: Observatório Abandonado (feito)
+
+Arquivo alterado: `Architecture/observatorio.js`, só a função `I.buildObservatory`. O santuário, que fica no mesmo arquivo, não foi mexido.
+
+**O que não mudou:**
+- posição e assentamento;
+- raio do tambor;
+- porta em +Z, com a rota "observatório: P4 → porta";
+- os 4 colisores do tambor;
+- o grupo `Telescopio`, no mesmo ponto (puzzle STORM.PUZZLE.OBS).
+
+**Defeitos corrigidos:**
+- a argola da luneta flutuava acima da cúpula, solta;
+- as nervuras eram toros girados ao acaso que cruzavam a cúpula;
+- a porta era uma placa da altura do tambor, sem moldura;
+- o anexo eram 5 placas soltas no chão.
+
+**O que mudou:**
+- **Tambor:**
+  - plinto de pedra lavrada;
+  - tambor de cantaria com 2 cintas, 12 pilastras e cornija com trilho de ferro;
+  - janelas em arco tapadas com tábuas e travessas de ferro (é um lugar abandonado).
+- **Porta:** pórtico saliente com arco, fecho, soleira e folhas de tábua recuadas, com ferragens e argolas.
+- **Cúpula:**
+  - de chapa azul-escura (a mesma família de telhado da oficina e das casas);
+  - 16 nervuras meridianas de cobre de verdade e aro na base;
+  - fenda de observação ao norte, com trilhos de ferro e veneziana recolhida até a metade;
+  - um painel desabado a oés-sudoeste, com as placas caídas no chão.
+- **Interior visível pela fenda:**
+  - chão de tábuas;
+  - pilar de pedra e montagem em garfo;
+  - luneta de latão de 15 studs apontando pela fenda, com o aro da objetiva solto, pendurado (o "telescópio quebrado" do puzzle).
+- **Anexo em ruínas:**
+  - piso de lajes;
+  - paredes de cantaria com topo quebrado e aberturas em arco;
+  - pilares de canto;
+  - um arco partido que ligava o anexo ao tambor;
+  - entulho;
+  - colisores nas paredes.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+
+**Custo:**
+- o observatório tem cerca de 13,8 mil triângulos (antes, 2,5 mil);
+- na vista Vila ficou em 820 chamadas e 1.666.348 triângulos;
+- na vista Torre, onde ele aparece, ficou em 713 chamadas.
+
+**Imagem:** `../../referencias/mapa-observatorio-antes-depois.jpg`
+
+**Pendências no Roblox Studio:**
+- a cúpula é uma casca vista dos dois lados: conferir `DoubleSided` na MeshPart;
+- o puzzle de apontar a luneta deve girar o grupo `Telescopio` (garfo + tubo).
