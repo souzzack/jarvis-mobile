@@ -125,3 +125,22 @@ MM.zip=function(files){const crcT=[];for(let n=0;n<256;n++){let c=n;for(let k=0;
   let cs=0;cent.forEach(p=>cs+=p.byteLength||p.length);const E=new DataView(new ArrayBuffer(22));E.setUint32(0,0x06054b50,true);E.setUint16(8,files.length,true);E.setUint16(10,files.length,true);E.setUint32(12,cs,true);E.setUint32(16,off,true);
   return new Blob(parts.concat(cent,[E.buffer]));};
 })();
+(function(){const MM=window.MM,T=THREE;
+/* Mapa V1 — recorte da vegetação instanciada (o three r128 desenha TODAS as instâncias de um InstancedMesh, mesmo fora da câmera).
+   Cada InstancedMesh grande ganha "pedaços" de cell × cell studs, cada um com a própria esfera de limites (recorte pela câmera) e,
+   se a regra pedir, um THREE.LOD que esconde o pedaço além de 'dist' (grama e miudezas). O original continua na cena, na camada 1
+   (a câmera não o desenha) e é ele que a exportação GLB usa — o pacote para o Roblox não muda. Os pedaços são 'renderOnly'. */
+MM.chunkInstanced=function(root,rule,cell){cell=cell||64;const out={malhas:0,pedacos:0,instancias:0};const list=[];root.traverse(m=>{if(m.isInstancedMesh&&!m.userData.pedaco&&m.count>=40){const r=rule(m);if(r)list.push([m,r]);}});
+  const mt=new T.Matrix4(),v=new T.Vector3(),q=new T.Quaternion(),sc=new T.Vector3();
+  list.forEach(([m,r])=>{const g=m.geometry;if(!g.boundingSphere)g.computeBoundingSphere();const gr=g.boundingSphere.radius+g.boundingSphere.center.length();const cells=new Map();
+    for(let i=0;i<m.count;i++){m.getMatrixAt(i,mt);mt.decompose(v,q,sc);if(sc.x===0&&sc.y===0&&sc.z===0)continue;const k=Math.floor(v.x/cell)+','+Math.floor(v.z/cell);if(!cells.has(k))cells.set(k,[]);cells.get(k).push(mt.clone());}
+    const holder=new T.Group();holder.name=m.name+'_Pedacos';holder.userData.pedacos=true;holder.position.copy(m.position);holder.quaternion.copy(m.quaternion);holder.scale.copy(m.scale);m.parent.add(holder);
+    cells.forEach(mats=>{const c=new T.Vector3();mats.forEach(M=>c.add(v.setFromMatrixPosition(M)));c.divideScalar(mats.length);let rad=0;mats.forEach(M=>{M.decompose(v,q,sc);rad=Math.max(rad,v.distanceTo(c)+gr*Math.max(sc.x,sc.y,sc.z));});
+      const cg=new T.BufferGeometry();Object.keys(g.attributes).forEach(n=>cg.setAttribute(n,g.attributes[n]));if(g.index)cg.setIndex(g.index);cg.groups=g.groups;cg.boundingSphere=new T.Sphere(new T.Vector3(),rad);
+      const im=new T.InstancedMesh(cg,m.material,mats.length);im.name=m.name;im.castShadow=m.castShadow;im.receiveShadow=m.receiveShadow;im.userData.renderOnly=true;im.userData.pedaco=true;im.frustumCulled=true;
+      const off=new T.Matrix4().makeTranslation(-c.x,-c.y,-c.z);mats.forEach((M,i)=>im.setMatrixAt(i,off.clone().multiply(M)));im.instanceMatrix.needsUpdate=true;
+      if(r.dist){const lod=new T.LOD();lod.name=m.name+'_LOD';lod.position.copy(c);lod.addLevel(im,0);lod.addLevel(new T.Object3D(),r.dist+rad);/* distância até a borda do pedaço, não até o centro */holder.add(lod);}else{im.position.copy(c);holder.add(im);}
+      out.pedacos++;out.instancias+=mats.length;});
+    m.layers.set(1);out.malhas++;});
+  return out;};
+})();

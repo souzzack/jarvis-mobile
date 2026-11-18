@@ -21,6 +21,9 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
       if(k<n){rep[m.name]=n-k;m.count=k;m.instanceMatrix.needsUpdate=true;}});
     ['Pocas','DepositosCristal'].forEach(nm=>{const g=surf.getObjectByName(nm);if(!g)return;g.children.slice().forEach(c=>{c.getWorldPosition(v);if(hit(v,1.5)){g.remove(c);rep[nm]=(rep[nm]||0)+1;}});});
     surf.userData.recorte=rep;}
+  /* Mapa V1 (depois da limpeza acima, que mede o tamanho das plantas pela esfera da geometria): recorte da vegetação instanciada por pedaços (câmera) e, para as miudezas, por distância */
+  const vegRule=m=>{const g=m.geometry,tri=(g.index?g.index.count:g.attributes.position.count)/3*m.count;if(tri<15000)return null;/* só o que pesa: malhas leves ficam como estão (cada pedaço é uma chamada a mais) */const n=m.name||'';if(/^Grama/.test(n))return{dist:150};if(/^(Seixos|Cogumelos|PedrasDeBorda|Flores|Tufos)/.test(n))return{dist:170};if(/^(Arvores|Afloramentos|Contrafortes)/.test(n))return{};return{dist:200};};
+  const recVeg=MM.chunkInstanced(root,vegRule,128);
   /* funde peças estáticas por material (exceto terreno, marcadores e vegetação instanciada por forma) */
   reg.list.forEach(o=>{const id=o.userData.id;if(o.userData.cat==='Interactions'||id==='STORM.TERRAIN.MAIN'||id.startsWith('STORM.VEG.TREE.'))return;MM.bake(o);});/* árvores mantêm a geometria compartilhada (12 formas reaproveitadas, como num Roblox com MeshParts clonadas) */
   const fx=I.buildEffects(ctx);fx.light=light;
@@ -34,5 +37,5 @@ I.build=function(scene){const t0=performance.now();if(!MM.tex.rocha)MM.makeTextu
     'Torre':{pos:[120,90,90],tgt:[P.torre.x,P.torre.h+60,P.torre.z]},'Vila':{pos:[40,60,170],tgt:[P.vila.x,P.vila.h+6,P.vila.z]},'Floresta':{pos:[-60,60,90],tgt:[P.floresta.x,20,P.floresta.z]},
     'Caverna':{pos:[-128,44,-48],tgt:[-150,32,-104]},'Observatório':{pos:[210,110,-60],tgt:[P.observatorio.x,P.observatorio.h+8,P.observatorio.z]},'Penhasco':{pos:[300,40,120],tgt:[P.penhasco.x,P.penhasco.h,P.penhasco.z]},'Ponte':{pos:[150,40,130],tgt:[114,20,89]},'Santuário (secreto)':{pos:[-190,40,190],tgt:[P.santuario.x,P.santuario.h+4,P.santuario.z]},
     'Nível do jogador':(()=>{const h=terr.heightAt(40,46);return{pos:[40,h+5.2,46],tgt:[32,h+12,-4]};})(),'Montanhas':{pos:[90,150,60],tgt:[-60,60,-170]},'Montanhas (perto)':{pos:[-30,95,-80],tgt:[-96,80,-184]},'Bordas':{pos:[330,40,150],tgt:[210,-15,40]}};
-  return{id:I.id,nome:I.nome,root,reg,terrain:terr,light,fx,colliders,walks,views,spawn:new T.Vector3(P.chegada.x,P.chegada.h,P.chegada.z-2),ms:Math.round(performance.now()-t0),folders};};
+  return{id:I.id,nome:I.nome,root,reg,terrain:terr,light,fx,colliders,walks,views,recorteVegetacao:recVeg,spawn:new T.Vector3(P.chegada.x,P.chegada.h,P.chegada.z-2),ms:Math.round(performance.now()-t0),folders};};
 })();

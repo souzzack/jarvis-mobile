@@ -594,3 +594,40 @@ As 52 árvores continuam com as mesmas posições, escalas, giros e quantidade. 
 | **93** | **0** | **0** | 0 | 24 de 24 |
 
 **Imagem:** `../../referencias/mapa-floresta-antes-depois.jpg`
+
+## Extra: recorte da vegetação instanciada (autorizado)
+
+**Arquivos alterados:**
+- `nucleo/base.js`: nova função `MM.chunkInstanced`;
+- `StormIsland/ilha.js`: chamada da função, depois da limpeza de vegetação dentro das estruturas;
+- `nucleo/visualizador.js`: uma linha na exportação.
+
+**O problema.** O three r128 desenha todas as instâncias de um InstancedMesh, mesmo as que estão fora da câmera.
+
+**A solução:**
+- **Pedaços:** cada malha instanciada que pesa mais de 15 mil triângulos (10 malhas: grama, arbustos, plantas pequenas, raízes, seixos) ganha pedaços de 128 × 128 studs. Cada pedaço tem a própria esfera de limites e por isso é recortado pela câmera. São 142 pedaços.
+- **Distância:** grama, seixos e plantas pequenas também somem além de 150 a 200 studs. A distância é medida até a borda do pedaço, não até o centro.
+- **Malhas leves:** ficam como estavam, porque cada pedaço custa uma chamada a mais.
+- **Malhas originais:** continuam na cena, na camada 1, que a câmera não desenha. A exportação usa as originais e esconde os pedaços. O pacote GLB para o Roblox **não muda**: os arquivos têm o mesmo tamanho de antes. O `Architecture.glb` varia 12 bytes entre execuções iguais, com ou sem o recorte.
+
+**Problema encontrado e corrigido durante o trabalho.** Na primeira versão os pedaços eram criados antes da limpeza que tira vegetação de dentro das estruturas. Essa limpeza mede cada planta pela esfera da geometria, e a esfera de um pedaço tem uns 90 studs, então ~90% das plantas eram apagadas. Isso aparecia na vista do jogador como grama sumida perto da câmera. Agora os pedaços são criados depois da limpeza, e as vistas batem com as de antes.
+
+**Medição** (efeitos desligados, mesmas câmeras, navegador sem placa de vídeo):
+
+| Vista | Sem recorte (chamadas / triângulos) | Com recorte (chamadas / triângulos) | Triângulos |
+|---|---|---|---|
+| Três quartos | 1.073 / 1.534.696 | 1.063 / 1.162.556 | **−24%** |
+| Aérea | 1.079 / 1.535.476 | 1.069 / 1.163.336 | **−24%** |
+| Nível do jogador | 634 / 1.557.486 | 676 / 1.320.653 | **−15%** |
+| Torre | 737 / 1.616.907 | 773 / 1.409.488 | **−13%** |
+| Vila | 851 / 1.690.055 | 896 / 1.540.901 | **−9%** |
+
+Nas vistas de perto as chamadas sobem de 36 a 45 (+5%), porque os pedaços visíveis viram chamadas próprias. Nas vistas abertas as chamadas caem um pouco.
+
+**Validação:**
+- Diagnóstico: 93 verdes, 0 amarelos, 0 vermelhos, 0 interseções e 0 instâncias dentro de estruturas.
+- 24 de 24 rotas.
+
+**Imagem:** `../../referencias/mapa-recorte-vegetacao-antes-depois.jpg` (em cima sem recorte, embaixo com recorte, mesmas câmeras).
+
+**No Roblox** isso não se transfere direto: o motor tem o próprio recorte e o *StreamingEnabled*. O ganho vale para o visualizador e para as capturas.
