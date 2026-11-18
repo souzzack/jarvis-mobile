@@ -4,7 +4,7 @@
 (function(){const MM=window.MM,T=THREE;const I=MM.islands.StormIsland;
 function treeGeos(seed,big){const r=MM.rng(seed);const wood=[],veins=[],leaves=[];
   function branch(start,dir,len,rad,depth){const pts=[start.clone()];let p=start.clone(),d=dir.clone();const segs=6;
-    for(let i=1;i<=segs;i++){const twist=new T.Vector3((r()-.5)*.9,(r()-.2)*.35,(r()-.5)*.9);d.add(twist.multiplyScalar(.35)).normalize();p=p.clone().addScaledVector(d,len/segs);pts.push(p);}
+    for(let i=1;i<=segs;i++){const twist=new T.Vector3((r()-.5)*.9,(r()-.2)*.35,(r()-.5)*.9);d.add(twist.multiplyScalar(depth===0&&i<=2?.12:.35)).normalize();/* Mapa V1: os dois primeiros lances do tronco saem aprumados (a árvore 48 tinha o pé inclinado 1,7 stud acima do chão) */p=p.clone().addScaledVector(d,len/segs);pts.push(p);}
     const curve=new T.CatmullRomCurve3(pts);const TS=segs+2,RS=5;const tg=new T.TubeGeometry(curve,TS,rad,RS,false);/* V2.3.4: 8 × 5 segmentos (antes 12 × 6): −44% de triângulos nas árvores, a maior fonte de sombra da cena */
     /* afina até a ponta */const pa=tg.attributes.position;for(let i=0;i<pa.count;i++){const ring=Math.floor(i/(RS+1))/TS;const c=curve.getPointAt(Math.min(1,ring));const v=new T.Vector3(pa.getX(i),pa.getY(i),pa.getZ(i)).sub(c).multiplyScalar(1-.7*ring).add(c);pa.setXYZ(i,v.x,v.y,v.z);}
     tg.computeVertexNormals();wood.push(tg);
@@ -12,7 +12,7 @@ function treeGeos(seed,big){const r=MM.rng(seed);const wood=[],veins=[],leaves=[
     if(depth<(big?4:3)){const n=depth===0?(big?4:3):2+(r()<.4?1:0);for(let k=0;k<n;k++){const t=.45+r()*.5;const sp=curve.getPointAt(t);const nd=d.clone().add(new T.Vector3((r()-.5)*1.8,.3+r()*.6,(r()-.5)*1.8)).normalize();branch(sp,nd,len*(.55+r()*.2),rad*.55,depth+1);}}
     else if(r()<.5){/* tufo pontiagudo e pequeno (não guarda-chuva) */const lg=MM.rockGeo(seed*13+leaves.length,.9+r()*.9,1.1+r()*.9,.9+r()*.9,0);lg.translate(p.x,p.y+.4,p.z);leaves.push(lg);}}
   const H=big?22:9+r()*7;branch(new T.Vector3(0,-1,0),new T.Vector3((r()-.5)*.3,1,(r()-.5)*.3).normalize(),H,big?2.6:.75+r()*.45,0);
-  /* raízes aparentes */const nr=big?7:3;for(let k=0;k<nr;k++){const a=k/nr*Math.PI*2+r();const rp=[new T.Vector3(0,1.2,0),new T.Vector3(Math.cos(a)*1.4,.4,Math.sin(a)*1.4),new T.Vector3(Math.cos(a)*(big?6:2.6),-.6,Math.sin(a)*(big?6:2.6))];wood.push(new T.TubeGeometry(new T.CatmullRomCurve3(rp),6,big?1:.35,5,false));}
+  /* raízes aparentes (Mapa V1: nascem dentro do tronco, rente ao chão — antes saíam do centro a 1,2 stud e criavam um falso vão sob o tronco) */const nr=big?7:3;for(let k=0;k<nr;k++){const a=k/nr*Math.PI*2+r();const rp=[new T.Vector3(Math.cos(a)*.2,.2,Math.sin(a)*.2),new T.Vector3(Math.cos(a)*1.4,.3,Math.sin(a)*1.4),new T.Vector3(Math.cos(a)*(big?6:2.6),-.6,Math.sin(a)*(big?6:2.6))];wood.push(new T.TubeGeometry(new T.CatmullRomCurve3(rp),6,big?1:.35,5,false));}
   return{wood:MM.merge(wood),veins:veins.length?MM.merge(veins):null,leaves:leaves.length?MM.merge(leaves):null};}
 I.buildForest=function(ctx){const M=ctx.mat,F=I.poi.floresta,out=[];const variants=[];for(let v=0;v<12;v++)variants.push(treeGeos(1000+v*37,false));
   const r=MM.rng(808);let n=0;const placed=[];
@@ -28,6 +28,10 @@ I.buildForest=function(ctx){const M=ctx.mat,F=I.poi.floresta,out=[];const varian
     const vg=variants[n%variants.length];const o=MM.obj('STORM.VEG.TREE.'+String(n+1).padStart(2,'0'),'Árvore retorcida '+(n+1)+' (forma '+(n%12+1)+')','Vegetation',{notes:'Forma '+(n%12+1)+' de 12. Colisão só no tronco.'});
     const sc=.75+r()*.6;const R=3.4*sc;let ym=ctx.heightAt(x,z);for(let k=0;k<24;k++){const a2=k/24*6.283;ym=Math.min(ym,ctx.heightAt(x+Math.cos(a2)*R,z+Math.sin(a2)*R));}/* V2.3.1: raízes pelo ponto mais baixo do chão em volta, não pelo centro */
     o.position.set(x,ym-.15,z);o.rotation.y=r()*Math.PI*2;o.scale.setScalar(sc);
+    /* Mapa V1: assenta pela raiz — se algum ponto de baixo das raízes (y local < 0,35) ficar mais de 0,3 acima do chão, desce a árvore até
+       encostar (no máximo 1,2 stud). Só mexe nas árvores que flutuavam em encosta (antes: 25, 27 e 48 em amarelo); as demais não mudam. */
+    {o.updateMatrixWorld(true);const pa=vg.wood.attributes.position,v=new T.Vector3();let mx=-1e9;for(let i=0;i<pa.count;i++){if(pa.getY(i)>.35)continue;v.fromBufferAttribute(pa,i).applyMatrix4(o.matrixWorld);mx=Math.max(mx,v.y-ctx.heightAt(v.x,v.z));}
+      if(mx>.3){o.position.y-=Math.min(1.2,mx-.2);o.userData.assentadaPelaRaiz=+Math.min(1.2,mx-.2).toFixed(2);}}
     MM.mesh(vg.wood,M.casca,0,0,0,o);if(vg.veins){const vm=MM.mesh(vg.veins,M.veio,0,0,0,o);vm.castShadow=false;}if(vg.leaves)MM.mesh(vg.leaves,M.folhagem,0,0,0,o);
     MM.box(o,0,5,0,2.2,10,2.2);out.push(o);placed.push([x,z]);n++;}
   /* Árvore-Para-raios Ancestral: peça única no centro da floresta */

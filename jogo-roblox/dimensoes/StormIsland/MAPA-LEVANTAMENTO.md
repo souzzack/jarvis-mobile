@@ -571,3 +571,26 @@ As construções somaram cerca de 140 a 180 mil triângulos. O peso maior da cen
 - recortar a boca da caverna no Terrain;
 - ligar `AnelPortal` e `Telescopio` aos scripts;
 - medir o FPS em aparelho real.
+
+## Extra: árvores 25, 27 e 48 (amarelos resolvidos; diagnóstico 100% verde)
+
+Arquivo alterado: `Vegetation/floresta.js`, só a geração das formas (`treeGeos`).
+
+**Causas:**
+- **Árvores 25 e 27:** as raízes nasciam no centro do tronco a 1,2 stud de altura. A auditoria, que lança raios de baixo para cima, entrava pelo tronco aberto e batia na face de baixo da raiz, o que dava uma "folga" de 0,4–0,8 que não existe.
+- **Árvore 48 (e depois a 12, quando as formas mudaram):** os primeiros lances do tronco saíam bem inclinados, e um lado do pé ficava 1,7–1,95 stud acima do chão.
+
+**Correções:**
+- as raízes nascem dentro do tronco, rente ao chão;
+- os dois primeiros lances do tronco saem aprumados (torção 0,12 em vez de 0,35);
+- há uma checagem de "assentar pela raiz", que não precisou mover nenhuma árvore.
+
+As 52 árvores continuam com as mesmas posições, escalas, giros e quantidade. A forma muda de leve, com troncos menos tortos no pé.
+
+**Diagnóstico:**
+
+| Verdes | Amarelos | Vermelhos | Interseções | Rotas |
+|---|---|---|---|---|
+| **93** | **0** | **0** | 0 | 24 de 24 |
+
+**Imagem:** `../../referencias/mapa-floresta-antes-depois.jpg`
