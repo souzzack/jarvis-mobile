@@ -53,7 +53,7 @@ Os amarelos das árvores 25, 27 e 48 são da vegetação, não de construções.
 5. Santuário. **Feito.**
 6. Mirante do Penhasco. **Feito.**
 7. Observatório. **Feito.**
-8. Plataformas elevadas.
+8. Plataformas elevadas. **Feito.**
 9. Ponte e ruínas, para resolver os amarelos.
 10. Torres de transmissão.
 
@@ -412,3 +412,37 @@ Arquivo alterado: `Architecture/observatorio.js`, só a função `I.buildObserva
 **Pendências no Roblox Studio:**
 - a cúpula é uma casca vista dos dois lados: conferir `DoubleSided` na MeshPart;
 - o puzzle de apontar a luneta deve girar o grupo `Telescopio` (garfo + tubo).
+
+## 8ª estrutura: Plataformas elevadas 1 e 2 (feito)
+
+Arquivo alterado: `Architecture/pontes.js`, só o bloco das plataformas. A ponte suspensa não foi mexida.
+
+**O que não mudou:**
+- posição, altura (10 e 12 studs) e orientação (a 2 continua com a escada para o sul);
+- os 4 pés, cada um no chão real;
+- quantidade de degraus (11 e 12) e os colisores de cada degrau;
+- colisor do piso e área caminhável;
+- rotas "escada → piso".
+
+**Defeitos corrigidos:**
+- o "guarda-corpo" era um anel quadrado flutuando 3 studs acima do piso, sem nenhum montante, e não tinha colisão;
+- a escada era feita de colunas maciças de pedra.
+
+**O que mudou (torre de vigia de madeira):**
+- tabuado sobre vigas de borda e barrotes;
+- esteios com sapata de pedra e cintas de ferro, subindo até o telhado;
+- contraventamento em X nos três lados sem escada;
+- guarda-corpo de montantes, corrimão e travessa, com vão de 5,6 studs para a escada e colisão;
+- telhado de quatro águas na chapa azul-escura, com para-raios de cobre e lanterna pendurada;
+- escada de madeira com banzos, degraus de tábua, corrimãos com balaústres, apoios até o chão e patamar de pedra no pé.
+
+**Validação no visualizador (não no Studio):**
+- Diagnóstico: 88 verdes, os mesmos 5 amarelos, 0 vermelhos e 0 interseções.
+- 24 de 24 rotas.
+- A auditoria de apoio passou a acusar os degraus de tábua, as travessas baixas e as cintas, que agora não tocam o chão. Elas foram marcadas como apoiadas na estrutura, e não no chão, como já é feito com aduelas e abóbadas. Os banzos se apoiam no patamar de pedra e nos apoios.
+
+**Custo:** cerca de 1,9 mil triângulos por plataforma (antes, 560 e 590). Na vista Vila ficou em 834 chamadas e 1.671.636 triângulos.
+
+**Imagem:** `../../referencias/mapa-plataformas-antes-depois.jpg`
+
+**Pendência no Roblox Studio:** a escada sobe por colisores em bloco, então conferir com um personagem se a subida fica natural.
