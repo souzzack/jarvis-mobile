@@ -14,6 +14,7 @@ local ORDEM = {
 	"EfeitosDeVoo", -- FlightEffects
 	"HudDeLocomocao",
 	"TransformacaoDeArtefato", -- ArtifactTransformationController
+	"PainelDeCompanheiros", -- companheiros, montaria (MountController) e avisos de livros
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

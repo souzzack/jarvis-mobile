@@ -23,12 +23,13 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 09 | [docs/09-PLANO-ANIMACOES-EFEITOS.md](docs/09-PLANO-ANIMACOES-EFEITOS.md) | Animações de voo, transformações, criaturas e efeitos por qualidade |
 | 10 | [docs/10-TESTES-COMPLEMENTO.md](docs/10-TESTES-COMPLEMENTO.md) | 47 casos automáticos novos e roteiros no Studio (voo, artefato, multiplayer, mapas) |
 | 11 | [docs/11-RELATORIO-COMPLEMENTO.md](docs/11-RELATORIO-COMPLEMENTO.md) | Arquivos criados, verificações feitas e pendências |
+| 12 | [docs/12-RELATORIO-ETAPAS-6-A-9.md](docs/12-RELATORIO-ETAPAS-6-A-9.md) | Companheiros, montarias, livros e salvamento: o que foi feito sem o Studio |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + Sistemas (Combat, Enemy, MovementAbility, Movement, MetamorphicArtifact) + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, MetamorphicArtifact, Companion, Mount, MagicBook) + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo

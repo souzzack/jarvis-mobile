@@ -26,6 +26,21 @@ local TEXTOS: { [string]: string } = {
 	jovemDemais = "Ainda jovem demais para carregar alguém",
 	especieSemMontaria = "Esta criatura não pode ser montada",
 	Atordoado = "Atordoado",
+	montariaNaoVoa = "Esta montaria não voa",
+	longe = "Chegue mais perto",
+	semCriatura = "Nenhuma criatura ativa",
+	jaMontado = "Já está montado",
+	nomeInvalido = "Nome inválido",
+	nomeFiltrado = "Esse nome não é permitido",
+	jaLido = "Você já aprendeu com este livro",
+	livroBloqueado = "Você ainda não entende este livro",
+	cedoDemais = "Espere um pouco",
+	naoAdulto = "A criatura precisa ser adulta",
+	pontos = "Afinidade ainda insuficiente",
+	faltaRequisito = "Ainda faltam requisitos",
+	precisaRitual = "Trocar a afinidade exige o Ritual de Realinhamento",
+	indisponivel = "Esta afinidade ainda não está disponível",
+	especieIncompativel = "Esta espécie não desenvolve essa afinidade",
 }
 
 local Mensagens = {}

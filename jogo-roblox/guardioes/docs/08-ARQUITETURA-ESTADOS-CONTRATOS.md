@@ -148,3 +148,34 @@ tests/Specs/  MaquinaDeLocomocao  FisicaDeVoo  PerfilEfetivo  ValidadorDeDesloca
 3. **Detecção do chão.** A altura sobre o chão usa `HipHeight` + metade do HRP (R15). Personagens R6 ou escalados precisam de conferência.
 4. **Validação a pé desligada** (`VALIDAR_A_PE = false`), para não quebrar teleportes do tycoon. Deve ser ligada depois da auditoria do tycoon.
 5. **Som provisório.** O vento usa `rbxasset://sounds/action_falling.mp3`, um som que já vem com o Roblox. Ele precisa ser trocado por sons próprios.
+
+## 7. Atualização: Etapas 6 a 9 (feita sem o Studio)
+
+A tabela da seção 1 continua como registro histórico. A situação atual é esta:
+
+| Módulo | Arquivo | Situação agora |
+|---|---|---|
+| **PlayerDataSystem** (do plano original) | `Sistemas/PlayerDataSystem.luau` + `Dados/Perfil.luau` + `Dados/TravaDeSessao.luau` | **Escrito** (lógica pura com testes) |
+| CompanionSystem + CompanionAI | `Sistemas/CompanionSystem.luau` + `Companheiros/IADoCompanheiro.luau` | **Escrito** (IA pura com testes) |
+| CompanionGrowthSystem | `Crescimento` ligado ao `CompanionSystem` (EVOLUIR, salvo) | **Escrito** |
+| MountSystem | `Sistemas/MountSystem.luau` + `MovementSystem.montar/desmontar` | **Escrito** |
+| MountController | `ControleDeLocomocao` (voo da montaria) + `PainelDeCompanheiros` (montar e desmontar) | **Escrito** |
+| MagicBookSystem | `Sistemas/MagicBookSystem.luau` + `Util/Requisitos.luau` | **Escrito** (requisitos puros com testes) |
+| Interface de companheiros | `Controladores/PainelDeCompanheiros.luau` | **Escrita** (painel recolhível, cartões e placas de nome) |
+
+**Ordem de carga no servidor:** PlayerData → Enemy → Combat → MovementAbility → Movement → MetamorphicArtifact → Companion → Mount → MagicBook.
+
+**Persistência:**
+- **Já salvos:** habilidades (por origem), livros lidos, segredos revelados, criaturas (registro completo) e a criatura ativa.
+- **Nunca salvo:** o que é de **teste**. A validação do perfil recusa habilidade com origem "teste", e as criaturas de teste não entram no perfil.
+- **Artefatos:** continuam em memória até o InventorySystem existir.
+
+**Rede nova:**
+- `Companheiro`: ATIVAR, COMANDO, AFAGAR, RENOMEAR, EVOLUIR, ESPECIALIZAR → LISTA, REJEITADO, EVOLUIU.
+- `Montaria`: MONTAR, DESMONTAR → REJEITADO, MONTADO.
+- `Livro`: LIDO e RECUSADO. A leitura começa pelo ProximityPrompt no servidor.
+
+**Riscos novos a confirmar no Studio:**
+6. **Montaria:** o jogador "sobe" na sela aumentando `HipHeight`, com a criatura soldada embaixo, sem colisão e sem massa. É preciso conferir a aparência e se o personagem não flutua ou afunda.
+7. **Movimento das criaturas:** usa `AlignPosition` sem desvio de obstáculos, então a criatura pode atravessar paredes. O PathfindingService entra quando houver mapa real para testar.
+8. **DataStore no Studio:** precisa de *Enable Studio Access to API Services*. Sem isso, o sistema roda só em memória e avisa no Output.

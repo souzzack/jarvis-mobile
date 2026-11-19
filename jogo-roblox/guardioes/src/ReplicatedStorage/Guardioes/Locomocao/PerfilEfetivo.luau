@@ -19,7 +19,8 @@ local function aplica(fonte: Fonte, perfil: any): boolean
 		return false
 	end
 	for _, id in fonte.perfis :: { string } do
-		if id == perfil.id or (id == "*" and perfil.tipo == "Motorizado") then
+		-- "*" = voos do PRÓPRIO jogador; montarias mantêm o perfil da espécie
+		if id == perfil.id or (id == "*" and perfil.tipo == "Motorizado" and not perfil.montaria) then
 			return true
 		end
 	end

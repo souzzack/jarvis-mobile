@@ -56,7 +56,32 @@ Remotos.EventoArtefato = {
 	FORMA = 3, -- (guid, forma, transformando: boolean) só o dono (os outros leem atributos do personagem)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato" }
+-- companheiros (criaturas individuais; não confundir com Companhias = guildas)
+Remotos.Companheiro = {
+	ATIVAR = 1, -- (guid)
+	COMANDO = 2, -- (guid, "Acompanhar" | "Permanecer" | "Retornar")
+	AFAGAR = 3, -- (guid)
+	RENOMEAR = 4, -- (guid, nome) passa pelo filtro de texto do Roblox
+	EVOLUIR = 5, -- (guid) o servidor confere todos os requisitos
+	ESPECIALIZAR = 6, -- (guid, afinidadeId)
+}
+Remotos.EventoCompanheiro = {
+	LISTA = 1, -- (lista de cartões) só o dono
+	REJEITADO = 2, -- (acao, motivo)
+	EVOLUIU = 3, -- (guid, estagio)
+}
+
+-- montarias
+Remotos.Montaria = { MONTAR = 1, DESMONTAR = 2 }
+Remotos.EventoMontaria = { REJEITADO = 1, MONTADO = 2 } -- MONTADO: (montado: boolean, voadora: boolean)
+
+-- livros mágicos (a leitura começa por ProximityPrompt no servidor; só há eventos de volta)
+Remotos.EventoLivro = {
+	LIDO = 1, -- (livroId, nomeDoLivro, { nomes das habilidades aprendidas })
+	RECUSADO = 2, -- (livroId, textoPublico)
+}
+
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro" }
 
 local pasta: Folder? = nil
 

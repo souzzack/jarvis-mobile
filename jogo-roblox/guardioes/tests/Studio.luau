@@ -36,7 +36,14 @@ return function()
 			CaoTrovao = require(G.Config.Especies.CaoTrovao),
 			AxoloteNebular = require(G.Config.Especies.AxoloteNebular),
 			RaiaDasNuvens = require(G.Config.Especies.RaiaDasNuvens),
+			LebreDeFaisca = require(G.Config.Especies.LebreDeFaisca),
 		},
+		-- etapas 6 a 9 (servidor: Studio roda a barra de comandos no contexto do servidor)
+		IADoCompanheiro = require(G.Companheiros.IADoCompanheiro),
+		Requisitos = require(G.Util.Requisitos),
+		LivrosSecretos = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.Livros),
+		Perfil = require(game:GetService("ServerScriptService").Guardioes.Dados.Perfil),
+		TravaDeSessao = require(game:GetService("ServerScriptService").Guardioes.Dados.TravaDeSessao),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

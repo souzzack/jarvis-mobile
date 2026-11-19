@@ -77,3 +77,29 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 - [ ] **Correntes ascendentes:** pontos de corrente para o planador, perto das falésias e da Torre, como Parts com o atributo `GuardioesCorrente = força` (o FisicaDeVoo já aceita `correnteAscendente`; falta ler o marcador no cliente).
 - [ ] **Bibliotecas:** posição planejada da biblioteca no Observatório e da estante no topo da Torre, como marcadores (os modelos ficam para depois).
 - [ ] **Desempenho:** conferir FPS no celular voando sobre a vegetação instanciada da Ilha.
+
+## 6. Etapas 6 a 9: casos automáticos e roteiro no Studio
+
+**Automáticos novos:** 23 casos (no total, 104 em 16 specs).
+- `IADoCompanheiro.spec` (8): escolta por espécie, ritmo, teleporte, coragem, curiosidade, permanecer, retornar e montada.
+- `Requisitos.spec` (6): avaliador e os requisitos **reais** dos livros.
+- `PerfilSalvo.spec` (8): migração sem perda, validação e trava de sessão.
+- `PerfilEfetivo.spec` (+1): a montaria mantém o perfil da espécie.
+
+| # | Passo | Esperado |
+|---|---|---|
+| C1 | Play | O Output lista os 9 sistemas. Sem API do Studio, aparece o aviso "progresso SÓ EM MEMÓRIA". Uma criatura de teste aparece ao lado do personagem |
+| C2 | Andar e correr | A criatura segue do lado da espécie: o Cão à direita, trotando no chão; o Axolote à esquerda, flutuando; a Raia acima e atrás |
+| C3 | Teleportar o personagem para longe (mais de 80 studs) | A criatura reaparece ao lado |
+| C4 | Aproximar de uma Faísca com o Cão ativo | O Cão ataca. Com o Axolote ativo, ele se esconde atrás do jogador |
+| C5 | K → Ativar outra criatura | Troca; a anterior some |
+| C6 | T (comando) | Acompanhar → Permanecer (fica parada no lugar) → Retornar (corre de volta) → Acompanhar |
+| C7 | H perto da criatura | O vínculo sobe; repetir antes de 10 s → "Espere um pouco" |
+| C8 | Ativar o Nebu (Axolote filhote, XP 590, vínculo 290) e derrotar uma Faísca com ele por perto | A XP passa de 600 e o vínculo de 300, mas **ainda não** evolui: faltam os marcos. O cartão mostra o que falta |
+| C9 | Cão ativo, V | Monta: o jogador sobe, a velocidade passa a cerca de 34 e o pulo fica mais alto. V de novo desmonta |
+| C10 | Raia ativa, V, depois Espaço duas vezes | Monta e decola com o perfil da Raia (decolagem de 0,8 s). Os livros do jogador não mudam a Raia. V em voo → "Pouse primeiro" |
+| C11 | Montado, apertar E (artefato) | Recusado: um modo por vez |
+| C12 | Pedestais da arena: segurar B no Grimório | "Grimório dos Céus: aprendeu Voo mágico". Ler de novo → "Você já aprendeu com este livro" |
+| C13 | Códice da Leveza | Recusado com o texto público: "Disponível quando o Campo das Bolhas for liberado" |
+| C14 | Com acesso à API: ler o Grimório, sair, entrar de novo | O livro continua lido e a habilidade continua sabida (origem `livro:`) |
+| C15 | Dois servidores (Team Test) e o mesmo jogador | O segundo só carrega depois que o primeiro libera a trava; nada é duplicado |

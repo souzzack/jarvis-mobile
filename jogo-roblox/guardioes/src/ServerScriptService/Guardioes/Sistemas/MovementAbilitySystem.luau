@@ -2,9 +2,9 @@
 -- NÃO EXECUTADO NO STUDIO. MovementAbilitySystem: o que cada personagem SABE fazer (habilidades de movimento)
 -- e a raça. Fonte única da verdade no servidor; o cliente só recebe a lista para a interface.
 --
--- Persistência: ainda não existe PlayerDataSystem. Contrato (docs/08): no Init do PlayerDataSystem, este sistema
--- passará a ler perfil.habilidades / perfil.raca e a gravar por PlayerData.atualizar(p, fn). Até lá, com
--- ConfigServidor.concessoesDeTeste.ativa, cada jogador recebe um pacote de TESTE que não é salvo.
+-- Persistência: lê perfil.habilidades / perfil.raca quando o PlayerDataSystem carrega e grava cada habilidade
+-- nova por PlayerData.atualizar (transação). Concessões de TESTE (origem "teste") ficam só na memória e nunca
+-- entram no perfil; aprender de verdade algo que era de teste troca a origem e salva.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -25,6 +25,8 @@ MovementAbilitySystem.mudou = Sinal.novo() -- (p)
 
 local dados: { [Player]: Dados } = {}
 local evento: RemoteEvent
+local playerData: any
+local ctxSistemas: any = nil
 
 local function enviar(p: Player)
 	local d = dados[p]
@@ -66,8 +68,21 @@ end
 -- SÓ o servidor chama (livros, raça, missões, artefatos). Idempotente: aprender de novo não duplica nada.
 function MovementAbilitySystem.conceder(p: Player, id: string, origem: string): boolean
 	local d = dados[p]
-	if not d or not Habilidades.porId[id] or d.habilidades[id] then
+	if not d or not Habilidades.porId[id] then
 		return false
+	end
+	local atual = d.habilidades[id]
+	if atual and not (atual == "teste" and origem ~= "teste") then
+		return false
+	end
+	if origem ~= "teste" then
+		local ok = playerData.atualizar(p, function(perfil)
+			perfil.habilidades[id] = origem
+			return true
+		end)
+		if not ok then
+			return false
+		end
 	end
 	d.habilidades[id] = origem
 	MovementAbilitySystem.mudou.disparar(p)
@@ -90,12 +105,32 @@ function MovementAbilitySystem.fontes(p: Player): { any }
 	return f
 end
 
-function MovementAbilitySystem.Init(_ctx: any)
+function MovementAbilitySystem.Init(ctx: any)
+	ctxSistemas = ctx
 	evento = Remotos.evento("Locomocao")
 end
 
 function MovementAbilitySystem.Start()
+	playerData = ctxSistemas.obter("PlayerDataSystem")
 	local teste = ConfigServidor.concessoesDeTeste
+	-- perfil salvo chega depois (assíncrono): soma as habilidades salvas e a raça escolhida
+	local function somarPerfil(p: Player, perfil: any)
+		local d = dados[p]
+		if not d then
+			return
+		end
+		for id, origem in perfil.habilidades do
+			if Habilidades.porId[id] then
+				d.habilidades[id] = origem
+			end
+		end
+		if perfil.raca and Racas.porId[perfil.raca] then
+			d.raca = perfil.raca
+		end
+		MovementAbilitySystem.mudou.disparar(p)
+		enviar(p)
+	end
+	playerData.carregado.conectar(somarPerfil)
 	local function entrar(p: Player)
 		local d: Dados = { habilidades = {}, raca = "Humano" }
 		if teste and teste.ativa then
@@ -117,6 +152,10 @@ function MovementAbilitySystem.Start()
 			end
 		end
 		dados[p] = d
+		local salvo = playerData.obter(p) -- se o perfil já carregou antes deste ponto
+		if salvo then
+			somarPerfil(p, salvo)
+		end
 		MovementAbilitySystem.mudou.disparar(p)
 		enviar(p)
 		p.CharacterAdded:Connect(function()

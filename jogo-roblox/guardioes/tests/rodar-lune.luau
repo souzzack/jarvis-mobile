@@ -33,7 +33,14 @@ local M = {
 		CaoTrovao = require("../src/ReplicatedStorage/Guardioes/Config/Especies/CaoTrovao"),
 		AxoloteNebular = require("../src/ReplicatedStorage/Guardioes/Config/Especies/AxoloteNebular"),
 		RaiaDasNuvens = require("../src/ReplicatedStorage/Guardioes/Config/Especies/RaiaDasNuvens"),
+		LebreDeFaisca = require("../src/ReplicatedStorage/Guardioes/Config/Especies/LebreDeFaisca"),
 	},
+	-- etapas 6 a 9
+	IADoCompanheiro = require("../src/ReplicatedStorage/Guardioes/Companheiros/IADoCompanheiro"),
+	Requisitos = require("../src/ReplicatedStorage/Guardioes/Util/Requisitos"),
+	LivrosSecretos = require("../src/ServerScriptService/Guardioes/ConfigSecreta/Livros"),
+	Perfil = require("../src/ServerScriptService/Guardioes/Dados/Perfil"),
+	TravaDeSessao = require("../src/ServerScriptService/Guardioes/Dados/TravaDeSessao"),
 }
 
 local specs = {
@@ -50,6 +57,9 @@ local specs = {
 	{ nome = "MaquinaDeLocomocao.spec", fn = require("./Specs/MaquinaDeLocomocao.spec") },
 	{ nome = "PerfilEfetivo.spec", fn = require("./Specs/PerfilEfetivo.spec") },
 	{ nome = "ValidadorDeDeslocamento.spec", fn = require("./Specs/ValidadorDeDeslocamento.spec") },
+	{ nome = "IADoCompanheiro.spec", fn = require("./Specs/IADoCompanheiro.spec") },
+	{ nome = "PerfilSalvo.spec", fn = require("./Specs/PerfilSalvo.spec") },
+	{ nome = "Requisitos.spec", fn = require("./Specs/Requisitos.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

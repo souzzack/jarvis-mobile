@@ -48,6 +48,7 @@ local fis = Fisica.novo()
 local subir, descer, impulsoSegurado = false, false, false
 local ultimoEspaco = 0
 local alturaAtual = 0
+local montariaVoadora = false -- informado pelo PainelDeCompanheiros (evento MONTADO do servidor)
 
 local at: Attachment? = nil
 local lv: LinearVelocity? = nil
@@ -139,6 +140,13 @@ end
 
 -- ------------------------------------------------------------------ intenções (com previsão)
 local function tentarVoar(): boolean
+	if estado == "Montado" then
+		if not montariaVoadora then
+			return false
+		end
+		evento:FireServer(L.DECOLAR, "Montaria") -- sem previsão: o perfil da espécie vem do servidor
+		return true
+	end
 	local id = perfilVoo()
 	if not id then
 		return false
@@ -180,7 +188,7 @@ local function acaoEspaco(_n: string, s: Enum.UserInputState, _o: InputObject): 
 	if estado == "Planando" then
 		return if tentarVoar() then Enum.ContextActionResult.Sink else Enum.ContextActionResult.Pass
 	end
-	if estado == "Solo" then
+	if estado == "Solo" or estado == "Montado" then
 		local agora = os.clock()
 		if hum.FloorMaterial == Enum.Material.Air then
 			if tentarVoar() or tentarPlanar() then
@@ -269,7 +277,7 @@ local function atualizarToque()
 	local _, hum = corpo()
 	local noArAPe = estado == "Solo" and hum ~= nil and hum.FloorMaterial == Enum.Material.Air
 	local voando = VOANDO[estado] == true
-	if estado == "Solo" and perfilVoo() then
+	if (estado == "Solo" and perfilVoo()) or (estado == "Montado" and montariaVoadora) then
 		botaoToque("GuardioesToqueVoar", "Voar", UDim2.new(1, -310, 1, -150), function(s)
 			if s == Enum.UserInputState.Begin then
 				tentarVoar()
@@ -394,6 +402,10 @@ function ControleDeLocomocao.velocidade(): number
 end
 function ControleDeLocomocao.perfil(): any
 	return perfil
+end
+function ControleDeLocomocao.definirMontariaVoadora(v: boolean)
+	montariaVoadora = v
+	atualizarToque()
 end
 function ControleDeLocomocao.impulso(): boolean
 	return estado == "Impulso"

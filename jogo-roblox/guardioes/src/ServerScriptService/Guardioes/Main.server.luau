@@ -9,11 +9,15 @@ type Sistema = { Nome: string, Init: (ctx: any) -> (), Start: () -> () }
 
 -- ordem importa só para o Init; no Start todos já se conhecem
 local ORDEM = {
+	"PlayerDataSystem", -- perfil salvo (os outros escutam 'carregado')
 	"EnemySystem",
 	"CombatSystem",
 	"MovementAbilitySystem", -- habilidades e raça (antes do movimento, que lê os dois)
 	"MovementSystem", -- locomoção: voo, planador, prancha (núcleo único)
 	"MetamorphicArtifactSystem", -- formas dos artefatos (usa movimento e combate)
+	"CompanionSystem", -- criaturas companheiras, IA, crescimento
+	"MountSystem", -- montarias (usa companheiros e movimento)
+	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
 }
 
 local carregados: { [string]: Sistema } = {}

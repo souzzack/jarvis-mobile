@@ -20,6 +20,30 @@ local ConfigServidor = {
 		raca = "Humano",
 		habilidades = { "VooMagico", "CorrentesAstrais", "Planador" },
 		artefatos = { { id = "EspadaDoHorizonte", estagio = 2 }, { id = "EscudoDoFirmamento", estagio = 2 } },
+		-- criaturas de teste (marcadas 'teste': nunca vão para o perfil salvo)
+		criaturas = {
+			{ especie = "CaoTrovao", estagio = "Adulto", nome = "Trovisco" },
+			{ especie = "RaiaDasNuvens", estagio = "Adulto", nome = "Brisa" },
+			{ especie = "AxoloteNebular", estagio = "Filhote", nome = "Nebu", xp = 590, vinculo = 290 },
+		},
+		-- progresso fingido SÓ para ler os livros de teste (Grimório e Tomo). O Códice continua bloqueado
+		-- (exige o Campo das Bolhas) para mostrar a mensagem de requisito.
+		progressoLivros = {
+			missoes = { "AsAnotacoesDoAstronomo", "OsVentosDaTorre" },
+			restauracoes = { "Observatorio", "TorreMeteorologica" },
+			enigmas = { "LentesNaOrdem" },
+		},
+		-- pedestais de livros perto da arena (marcadores de teste; os mapas reais não são tocados)
+		livrosNaArena = { "GrimorioDosCeus", "TomoDasCorrentesAstrais", "CodiceDaLeveza" },
+	},
+	-- persistência (PlayerDataSystem). DataStore NOVA: o save do tycoon nunca é escrito.
+	-- Sem acesso a DataStore (Studio sem "Enable Studio Access to API Services"), roda só em memória e avisa.
+	dados = {
+		nomeStore = "Guardioes_Perfis_v2",
+		salvar = true,
+		autosaveSeg = 120,
+		travaSeg = 300, -- trava de sessão: outro servidor só assume depois disso (ou quando esta for liberada)
+		tentativasCarregar = 5,
 	},
 	-- zonas sem voo: Parts (caixas) dentro desta pasta do workspace. Dentro delas: sem decolar/planar/montar.
 	pastaZonasSemVoo = "GuardioesZonasSemVoo",

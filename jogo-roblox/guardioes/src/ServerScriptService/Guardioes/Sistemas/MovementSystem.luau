@@ -63,6 +63,8 @@ type Estado = {
 	ultimaEnergiaEnviada: number,
 	ultimoEnvioEnergia: number,
 	modoArtefato: string?,
+	perfilMontaria: string?, -- perfil de voo da montaria atual (nil = montaria terrestre)
+	velMontaria: number, -- velocidade no chão da montaria (para a conferência)
 }
 
 local MovementSystem = { Nome = "MovementSystem" }
@@ -157,7 +159,8 @@ local function limitesDe(st: Estado): Validador.Limites
 	local alturaMax = Regras.alturaMaxAbsoluta
 	if e == "Solo" or e == "Montado" or not st.perfil then
 		local s = Regras.solo
-		return { velHorizontal = s.velHorizontal, velSubida = s.velSubida, velQueda = s.velQueda, alturaMax = alturaMax }
+		local h = if e == "Montado" then math.max(s.velHorizontal, st.velMontaria * 1.1) else s.velHorizontal
+		return { velHorizontal = h, velSubida = s.velSubida, velQueda = s.velQueda, alturaMax = alturaMax }
 	end
 	local l = Fisica.limites(st.perfil)
 	if e == "Interrompido" or e == "Descida" or e == "Pouso" then
@@ -230,6 +233,8 @@ local function novoEstado(p: Player): Estado
 		ultimaEnergiaEnviada = -1,
 		ultimoEnvioEnergia = 0,
 		modoArtefato = nil,
+		perfilMontaria = nil,
+		velMontaria = 0,
 	}
 end
 
@@ -248,7 +253,21 @@ local function aoReceber(p: Player, tipo: any, a: any)
 		return
 	end
 	local ctx = medir(p, st, hrp, hum)
-	if tipo == L.DECOLAR then
+	if tipo == L.DECOLAR and a == "Montaria" then
+		-- voo da montaria: só montado numa espécie voadora (o perfil foi registrado pelo MountSystem)
+		local perfil = if st.perfilMontaria then perfilEfetivo(p, st.perfilMontaria) else nil
+		if not perfil then
+			rejeitar(p, tipo, if st.maq.estado == "Montado" then "montariaNaoVoa" else "semMontaria")
+			return
+		end
+		local ok, motivo = MaqLoc.decolar(st.maq, perfil, ctx, Regras.energia.minDecolar, agora)
+		if ok then
+			st.perfil = perfil
+			sincronizar(p, st)
+		else
+			rejeitar(p, tipo, motivo)
+		end
+	elseif tipo == L.DECOLAR then
 		if typeof(a) ~= "string" or ACESSO_DIRETO[a] == nil or a == "Planador" then
 			rejeitar(p, tipo, "perfilInvalido")
 			return
@@ -360,6 +379,10 @@ local function passoJogador(p: Player, st: Estado, agora: number)
 	if st.maq.modo == nil then
 		st.perfil = nil
 		st.modoArtefato = nil
+	end
+	if st.maq.montariaId == nil then
+		st.perfilMontaria = nil
+		st.velMontaria = 0
 	end
 	sincronizar(p, st, motivo)
 
@@ -479,6 +502,43 @@ function MovementSystem.sairModoDeArtefato(p: Player, duracaoQueda: number)
 		st.perfil = nil
 	end
 	sincronizar(p, st, "retornoAoCombate")
+end
+
+-- Montaria (chamado pelo MountSystem, que já validou criatura, estágio, distância e espaço da espécie)
+function MovementSystem.montar(p: Player, guid: string, perfilVooId: string?, velMax: number): (boolean, string)
+	local st = estados[p]
+	local hrp, hum = corpo(p)
+	if not st or not hrp or not hum then
+		return false, "semPersonagem"
+	end
+	local ok, motivo = MaqLoc.montar(st.maq, guid, medir(p, st, hrp, hum), os.clock())
+	if ok then
+		st.perfilMontaria = perfilVooId
+		st.velMontaria = velMax
+		st.perfil = nil
+		sincronizar(p, st)
+	end
+	return ok, motivo
+end
+
+function MovementSystem.desmontar(p: Player): (boolean, string)
+	local st = estados[p]
+	if not st then
+		return false, "semPersonagem"
+	end
+	local ok, motivo = MaqLoc.desmontar(st.maq, os.clock())
+	if ok then
+		st.perfilMontaria = nil
+		st.velMontaria = 0
+		st.perfil = nil
+		sincronizar(p, st)
+	end
+	return ok, motivo
+end
+
+function MovementSystem.montado(p: Player): string?
+	local st = estados[p]
+	return if st then st.maq.montariaId else nil
 end
 
 -- teleporte legítimo do servidor (portal, renascer): volta ao chão e reancora a conferência

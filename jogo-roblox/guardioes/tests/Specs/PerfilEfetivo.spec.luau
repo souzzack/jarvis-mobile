@@ -41,4 +41,12 @@ return function(T, M)
 		local g = PE.calcular(planador, { H.CorrentesAstrais })
 		T.igual(g.velImpulso, 0)
 	end)
+
+	T.caso("montaria mantém o perfil da espécie (livros do jogador não mudam a criatura)", function()
+		local raia = table.clone(M.Especies.RaiaDasNuvens.montaria.perfilVoo)
+		raia.montaria = true
+		local p = PE.calcular(raia, { H.Leveza, H.CorrentesAstrais })
+		T.igual(p.custoPorSeg, 3)
+		T.igual(p.velImpulso, 52)
+	end)
 end
