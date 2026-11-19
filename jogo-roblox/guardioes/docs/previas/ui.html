@@ -1,0 +1,63 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+/* Reprodução da interface PROVISÓRIA criada pelos controladores Luau (posições/tamanhos/cores do código),
+   sobre uma tela 1600×900. Fonte Gotham (Roblox) ≈ "Helvetica/Arial bold" aqui. */
+body{margin:0;width:1600px;height:900px;position:relative;overflow:hidden;font-family:Arial,Helvetica,sans-serif;
+ background:linear-gradient(#9ec9ec 0 32%,#7d8f6a 32% 100%)}
+.abs{position:absolute}.b{font-weight:bold}.w{color:#fff}
+.barra{position:absolute;left:24px;width:260px;background:#141622}
+.botao{position:absolute;height:32px;background:#262e4a;color:#fff;font:bold 14px Arial;display:flex;align-items:center;justify-content:center}
+.painel{position:absolute;background:rgba(18,20,32,.9);color:#fff}
+.card{margin:4px;padding:6px 8px;background:#1a1e2e}.card.at{background:#262e4a}
+.mini{display:inline-block;height:26px;padding:0 10px;margin:4px 6px 0 0;background:#343c5c;font:bold 13px Arial;line-height:26px}
+.toque{position:absolute;width:70px;height:70px;border-radius:50%;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.5);color:#fff;font:bold 13px Arial;display:flex;align-items:center;justify-content:center}
+.aviso{position:absolute;left:640px;top:270px;width:320px;text-align:center;font:bold 26px Arial;color:#fff;text-shadow:0 2px 3px #000}
+.tag{position:absolute;font:11px Arial;color:#103;background:#ffe9a8;padding:1px 5px;border-radius:3px}
+</style></head><body>
+<!-- HudDeProgresso: nível e XP -->
+<div class="abs b w" style="left:24px;top:12px;font-size:18px">Nv 4</div>
+<div class="abs" style="left:90px;top:18px;width:180px;height:8px;background:#141622"><div style="width:62%;height:100%;background:#ffcd50"></div></div>
+<!-- HudDeChefe -->
+<div class="abs b w" style="left:590px;top:30px;width:420px;text-align:center;font-size:16px">Rainha-Bobina — 9 s</div>
+<div class="abs" style="left:590px;top:52px;width:420px;height:16px;background:#141622"><div style="width:58%;height:100%;background:#7fe7ff"></div></div>
+<div class="tag" style="left:1016px;top:52px">imune (carga)</div>
+<!-- missões -->
+<div class="abs" style="left:1320px;top:80px;width:260px;color:#dce1f0;font-size:13px;line-height:16px">
+ <div class="b" style="color:#ffdc8c;font-size:15px">O Horizonte Partido</div>• Faíscas derrotadas 3/5<br><br>
+ <div class="b" style="color:#ffdc8c;font-size:15px">A Rainha da caverna</div>• Rainha-Bobina derrotada 0/1</div>
+<!-- abas -->
+<div class="botao" style="left:24px;top:250px;width:120px">Criaturas (K)</div>
+<div class="botao" style="left:152px;top:250px;width:120px">Bolsa (I)</div>
+<div class="botao" style="left:280px;top:250px;width:120px">Viagem (M)</div>
+<div class="botao" style="left:408px;top:250px;width:140px">Personagem (P)</div>
+<!-- painel de criaturas aberto -->
+<div class="painel" style="left:24px;top:290px;width:320px;height:360px;font-size:13px">
+ <div class="card at"><div class="b" style="font-size:15px">Trovisco — Cão-Trovão (Adulto) · teste</div>
+  <div style="color:#bec8e6">Vínculo 0 · XP 0 · Vida 120 · Dano 10 · Acompanhar</div>
+  <div style="color:#e6c88c;font-size:12px">Estágio máximo</div><div style="color:#a0c8ff;font-size:12px">Montaria terrestre</div>
+  <span class="mini">Comando</span><span class="mini">Afagar</span><span class="mini">Montar</span></div>
+ <div class="card"><div class="b" style="font-size:15px">Nebu — Axolote Nebular (Filhote) · teste</div>
+  <div style="color:#bec8e6">Vínculo 2 · XP 590 · Vida 33 · Dano 2</div>
+  <div style="color:#e6c88c;font-size:12px">Para evoluir: XP 590/600 · Vínculo 2/3 · Marco: Axo Primeira Constelacao</div>
+  <span class="mini">Ativar</span></div>
+ <div class="card"><div class="b" style="font-size:15px">Brisa — Raia-das-Nuvens (Adulto) · teste</div>
+  <div style="color:#bec8e6">Vínculo 0 · XP 0 · Vida 90 · Dano 4</div><div style="color:#a0c8ff;font-size:12px">Montaria voadora</div><span class="mini">Ativar</span></div>
+</div>
+<!-- HudDeLocomocao (energia) + HudDeCombate (vida, estamina) -->
+<div class="abs b w" style="left:24px;top:796px;font-size:14px">Voando</div>
+<div class="barra" style="top:816px;height:8px"><div style="width:71%;height:100%;background:#6ebeff"></div></div>
+<div class="barra" style="top:836px;height:14px"><div style="width:84%;height:100%;background:#e64650"></div></div>
+<div class="barra" style="top:856px;height:14px"><div style="width:55%;height:100%;background:#78dc8c"></div></div>
+<div class="tag" style="left:290px;top:812px">energia de voo</div><div class="tag" style="left:290px;top:836px">vida</div><div class="tag" style="left:290px;top:856px">estamina</div>
+<!-- aviso -->
+<div class="aviso">+2 Fragmento de Faísca</div>
+<!-- botões de toque contextuais (em voo: combate some, aparecem os de voo) -->
+<div class="toque" style="left:1415px;top:635px">Subir</div>
+<div class="toque" style="left:1415px;top:715px">Descer</div>
+<div class="toque" style="left:1335px;top:745px">Impulso</div>
+<div class="toque" style="left:1255px;top:715px">Pousar</div>
+<div class="toque" style="left:1175px;top:715px">Forma</div>
+<div class="tag" style="left:1180px;top:620px">celular, em voo</div>
+<div class="abs" style="left:24px;top:8px"></div>
+<script>window.__pronto = true</script>
+</body></html>
