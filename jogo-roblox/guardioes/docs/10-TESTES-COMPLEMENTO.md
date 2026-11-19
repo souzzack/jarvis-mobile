@@ -342,3 +342,28 @@ Dois jogadores na mesma companhia (seção 14).
 | E8 | Abrir a câmara sob o altar (seção 15, S12) | Também "Relíquia nova: Lasca da Sétima Estrela"; ativar enche energia de voo e estamina; recarga 180 s |
 | E9 | Pedir pelo console DESMONTAR do GUID de uma relíquia | "Relíquias não se desmontam" |
 | E10 | Atordoado e apertar Z | "Atordoado" e a recarga não começa |
+
+## 19. Portais entre dimensões (places): casos e roteiro
+
+**Automáticos novos:** 4 casos em `Portal.spec` (total: 202 em 30 specs).
+
+**No Studio (um place só):**
+
+| # | Passo | Esperado |
+|---|---|---|
+| X1 | Ir ao portal de teste (arco roxo perto da arena) → B "Atravessar" | A janela de viagem abre com as dimensões: Ilha das Tempestades "você está aqui"; Campo das Bolhas "em construção" (placeId 0) |
+| X2 | Clicar num destino que não está "atravessar" | Nada é enviado |
+| X3 | Pelo console, `ATRAVESSAR "CampoDasBolhas"` longe do portal | "Chegue mais perto" |
+| X4 | Pelo console, perto do portal | "Este portal ainda não abre: a dimensão está em construção"; **o perfil continua aceitando mudanças** (nada foi liberado) |
+| X5 | Tecla M depois de usar o portal | Volta a mostrar a viagem rápida (pontos e "Minha base") |
+
+**Publicado, com dois places no mesmo experience** (só quando o segundo place existir):
+
+| # | Passo | Esperado |
+|---|---|---|
+| X6 | Preencher os `placeId` em `Config/Dimensoes`; vencer o Guardião (segredo DiarioDoGuardiao) | Campo das Bolhas passa de "bloqueada" (com o requisito público) para "atravessar" |
+| X7 | Atravessar | "Atravessando para Campo das Bolhas…"; o jogador chega **ao lado do portal** do outro place, com o progresso igual (sem esperar a trava de 5 min) |
+| X8 | No outro place, abrir a Bolsa e a Viagem | Tudo igual; "Campo das Bolhas" marcado como visitado (o Códice da Leveza passa a contar essa dimensão) |
+| X9 | Voltar pelo portal ao hub | Sempre permitido |
+| X10 | Forçar falha do teleporte (placeId inválido numa cópia) | "O portal falhou. Seu progresso está salvo; tente de novo"; o jogador continua jogando e salvando normalmente |
+| X11 | Atravessar com dano recente / em voo / montado | "Em combate…" / "Indisponível enquanto se desloca" |

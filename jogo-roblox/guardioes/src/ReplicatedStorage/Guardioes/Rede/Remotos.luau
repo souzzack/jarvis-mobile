@@ -131,12 +131,14 @@ Remotos.EventoBase = {
 	COLHEU = 4, -- (itens { id → qtd }, teto)
 }
 -- viagem rápida
-Remotos.Viagem = { VIAJAR = 1, LISTAR = 2 } -- VIAJAR: (pontoId | "MinhaBase")
+Remotos.Viagem = { VIAJAR = 1, LISTAR = 2, ATRAVESSAR = 3 } -- VIAJAR: (pontoId | "MinhaBase"); ATRAVESSAR: (dimensaoId)
 Remotos.EventoViagem = {
 	LISTA = 1, -- (lista { id, nome })
 	DESCOBERTO = 2, -- (nome)
 	REJEITADO = 3, -- (motivo)
 	CHEGOU = 4, -- (pontoId)
+	PORTAL = 5, -- (lista { id, nome, estado = "aqui" | "ok" | "bloqueada" | "emConstrucao", requisito? })
+	ATRAVESSANDO = 6, -- (nomeDaDimensao) o teleporte começou
 }
 
 -- habilidades especiais de armas e escudos

@@ -75,6 +75,8 @@ local ConfigServidor = {
 			-- corrente ascendente (funciona para o planador mesmo sem ver; a Raia a mostra)
 			{ revela = "SentirCorrente", deslocamento = Vector3.new(30, 20, 60), tamanho = Vector3.new(14, 60, 14), corrente = 14 },
 		},
+		-- portal entre dimensões (DimensionSystem); placeIds em Config/Dimensoes
+		portal = Vector3.new(-20, 1, -20),
 		-- segredo ??? do Ato 1 (SecretDiscoverySystem): telescópio e lentes ao lado do Observatório de teste,
 		-- Santuário e altar com 6 pilares atrás da arena
 		segredos = {
@@ -122,7 +124,7 @@ local ConfigServidor = {
 		{ id = "Caverna", nome = "Câmara da Rainha", deslocamento = Vector3.new(0, 0, -60) },
 		{ id = "Floresta", nome = "Floresta do Alfa", deslocamento = Vector3.new(-60, 0, -30) },
 	},
-	viagem = { raioDescoberta = 15, semCombateSeg = 8, recargaSeg = 30 },
+	viagem = { raioDescoberta = 15, semCombateSeg = 8, recargaSeg = 30, raioPortal = 14 },
 	-- zonas sem voo: Parts (caixas) dentro desta pasta do workspace. Dentro delas: sem decolar/planar/montar.
 	pastaZonasSemVoo = "GuardioesZonasSemVoo",
 	-- pontos de surgimento no mapa: Parts com o atributo "GuardioesSurgimento" = id do inimigo, dentro desta pasta

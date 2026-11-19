@@ -20,7 +20,7 @@ local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
 
 local CFG = ConfigServidor.dados
 
-type Sessao = { perfil: any, somenteLeitura: boolean, sujo: boolean, salvando: boolean }
+type Sessao = { perfil: any, somenteLeitura: boolean, sujo: boolean, salvando: boolean, saindo: boolean? }
 
 local PlayerDataSystem = { Nome = "PlayerDataSystem" }
 PlayerDataSystem.carregado = Sinal.novo() -- (p, perfil)
@@ -95,13 +95,13 @@ local function carregar(p: Player)
 	PlayerDataSystem.carregado.disparar(p, perfil)
 end
 
-local function salvar(p: Player, liberar: boolean)
+local function salvar(p: Player, liberar: boolean): string
 	local s = sessoes[p]
 	if not s or s.somenteLeitura or not store or not CFG.salvar then
-		return
+		return "semStore"
 	end
-	if s.salvando then
-		return
+	while s.salvando do
+		task.wait(0.1) -- um autosave em andamento: espera (a saída por portal precisa do resultado)
 	end
 	-- grava mesmo sem mudança: o autosave também RENOVA a trava (senão ela expiraria com o jogador online)
 	s.salvando = true
@@ -124,6 +124,7 @@ local function salvar(p: Player, liberar: boolean)
 		s.somenteLeitura = true
 		warn("[Guardioes] trava perdida para " .. p.Name .. "; sessão virou somente leitura")
 	end
+	return if ok then motivo else "erro"
 end
 
 -- ------------------------------------------------------------------ API
@@ -137,11 +138,66 @@ function PlayerDataSystem.obter(p: Player): any?
 	return if s then Perfil.copiar(s.perfil) else nil
 end
 
+-- PORTAL (outro place): grava e LIBERA a trava antes do teleporte, para o servidor de destino carregar na hora.
+-- Daqui em diante a sessão não aceita mudanças (nada se perde entre a gravação e a saída). (ok)
+function PlayerDataSystem.liberarParaPortal(p: Player): boolean
+	local s = sessoes[p]
+	if not s or s.saindo then
+		return false
+	end
+	s.saindo = true
+	if somenteMemoria or not store or not CFG.salvar then
+		return true -- sem DataStore não há trava (no Studio o teleporte nem acontece)
+	end
+	if s.somenteLeitura then
+		s.saindo = false
+		return false -- perfil de versão futura ou trava perdida: não sai por portal
+	end
+	local r = salvar(p, true)
+	if r ~= "liberado" then
+		s.saindo = false
+		return false
+	end
+	s.somenteLeitura = true -- a trava agora é de quem vier depois
+	return true
+end
+
+-- o teleporte falhou: pega a trava de volta e volta a aceitar mudanças (o perfil em memória é o que foi salvo)
+function PlayerDataSystem.retomarAposPortal(p: Player): boolean
+	local s = sessoes[p]
+	if not s or not s.saindo then
+		return false
+	end
+	if somenteMemoria or not store or not CFG.salvar then
+		s.saindo = false
+		return true
+	end
+	local estado = "erro"
+	tentar(function()
+		(store :: DataStore):UpdateAsync(chave(p), function(atual)
+			local novo, pegou, motivo = Trava.adquirir(atual, servidor, os.time(), CFG.travaSeg)
+			estado = motivo
+			return if pegou then novo else nil
+		end)
+		return true
+	end, 3)
+	if estado ~= "ok" then
+		-- outro servidor já pegou (o teleporte deu certo afinal, ou o jogador entrou por outro lado): fica só leitura
+		return false
+	end
+	s.somenteLeitura = false
+	s.saindo = false
+	return true
+end
+
 -- transação: fn(copia) altera a cópia; retorna false para desistir. Devolve (ok, motivo).
 function PlayerDataSystem.atualizar(p: Player, fn: (any) -> boolean?): (boolean, string?)
 	local s = sessoes[p]
 	if not s then
 		return false, "naoCarregado"
+	end
+	if s.saindo then
+		return false, "saindo" -- atravessando um portal: o perfil já foi entregue ao próximo servidor
 	end
 	local copia = Perfil.copiar(s.perfil)
 	local ok, r = pcall(fn, copia)

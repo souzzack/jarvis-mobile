@@ -2,6 +2,8 @@
 -- NÃO EXECUTADO NO STUDIO. Viagem rápida (cliente) + avisos da base pessoal.
 --  * Tecla M ou aba "Viagem (M)": lista os pontos descobertos e "Minha base"; o servidor valida tudo
 --    (descoberto, a pé, sem combate recente, recarga).
+--  * Portal ("Atravessar" no portal): a mesma janela lista as DIMENSÕES com o estado de cada uma
+--    (aqui, liberada, bloqueada com o requisito público, em construção). O servidor confere tudo de novo.
 --  * Base: avisos de melhoria, de colheita e do que falta para o próximo nível.
 
 local Players = game:GetService("Players")
@@ -27,15 +29,42 @@ local janela: Frame
 local lista: ScrollingFrame
 local aba: TextButton
 local pontos: { any } = {}
+local destinos: { any }? = nil -- lista do portal (quando a janela foi aberta por um portal)
+local ROTULO = { aqui = "você está aqui", ok = "atravessar", bloqueada = "bloqueada", emConstrucao = "em construção" }
 
 local function nomeMat(id: string): string
 	local m = Materiais.porId[id]
 	return if m then m.nome else id
 end
 
+local function desenharPortal(ds: { any })
+	for i, d in ds do
+		local b = Instance.new("TextButton")
+		b.Size, b.Position = UDim2.new(1, -8, 0, 52), UDim2.fromOffset(4, (i - 1) * 56)
+		b.BackgroundColor3 = if d.estado == "ok" then Color3.fromRGB(70, 52, 120) else Color3.fromRGB(30, 30, 42)
+		b.TextColor3 = if d.estado == "ok" then Color3.new(1, 1, 1) else Color3.fromRGB(150, 150, 165)
+		b.Font = Enum.Font.GothamBold
+		b.TextSize = 13
+		b.TextWrapped = true
+		b.Text = string.format("%s — %s%s", d.nome, ROTULO[d.estado] or d.estado, if d.requisito then "\n" .. d.requisito else "")
+		b.AutoButtonColor = d.estado == "ok"
+		b.Parent = lista
+		b.Activated:Connect(function()
+			if d.estado == "ok" then
+				evViagem:FireServer(VI.ATRAVESSAR, d.id)
+			end
+		end)
+	end
+	lista.CanvasSize = UDim2.fromOffset(0, #ds * 56)
+end
+
 local function desenhar()
 	for _, f in lista:GetChildren() do
 		f:Destroy()
+	end
+	if destinos then
+		desenharPortal(destinos)
+		return
 	end
 	for i, pt in pontos do
 		local b = Instance.new("TextButton")
@@ -54,6 +83,7 @@ local function desenhar()
 end
 
 local function alternar()
+	destinos = nil -- a tecla M sempre abre a viagem rápida
 	janela.Visible = not janela.Visible
 	aba.Text = if janela.Visible then "Fechar (M)" else "Viagem (M)"
 	if janela.Visible then
@@ -108,6 +138,15 @@ function JanelaDeViagem.Start()
 		elseif tipo == EV.CHEGOU then
 			janela.Visible = false
 			aba.Text = "Viagem (M)"
+		elseif tipo == EV.PORTAL and typeof(a) == "table" then
+			destinos = a
+			janela.Visible = true
+			aba.Text = "Fechar (M)"
+			desenhar()
+		elseif tipo == EV.ATRAVESSANDO then
+			janela.Visible = false
+			aba.Text = "Viagem (M)"
+			hud.aviso("Atravessando para " .. tostring(a) .. "…")
 		end
 	end)
 	Remotos.evento("Base").OnClientEvent:Connect(function(tipo: number, a: any, b: any)

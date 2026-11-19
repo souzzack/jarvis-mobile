@@ -77,6 +77,8 @@ local M = {
 	ObjetivosSemanais = require("../src/ReplicatedStorage/Guardioes/Config/ObjetivosSemanais"),
 	Reliquia = require("../src/ReplicatedStorage/Guardioes/Equipamento/Reliquia"),
 	ReliquiasSecretas = require("../src/ServerScriptService/Guardioes/ConfigSecreta/ReliquiasSecretas"),
+	Portal = require("../src/ReplicatedStorage/Guardioes/Viagem/Portal"),
+	Dimensoes = require("../src/ReplicatedStorage/Guardioes/Config/Dimensoes"),
 }
 
 local specs = {
@@ -109,6 +111,7 @@ local specs = {
 	{ nome = "BancadaDeposito.spec", fn = require("./Specs/BancadaDeposito.spec") },
 	{ nome = "Semanal.spec", fn = require("./Specs/Semanal.spec") },
 	{ nome = "Reliquia.spec", fn = require("./Specs/Reliquia.spec") },
+	{ nome = "Portal.spec", fn = require("./Specs/Portal.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

@@ -80,6 +80,8 @@ return function()
 		ObjetivosSemanais = require(G.Config.ObjetivosSemanais),
 		Reliquia = require(G.Equipamento.Reliquia),
 		ReliquiasSecretas = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.ReliquiasSecretas),
+		Portal = require(G.Viagem.Portal),
+		Dimensoes = require(G.Config.Dimensoes),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do
