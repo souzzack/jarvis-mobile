@@ -26,6 +26,7 @@ local ORDEM = {
 	"DiarioDeDescobertas", -- segredos ???: diário, margens, constelação, contemplação (Y)
 	"BarraDeConsumiveis", -- consumíveis da Bancada (2, 3, 4 / L1 / toque)
 	"ControleDeReliquia", -- relíquia equipada (Z / R3 / toque)
+	"AtlasDosArquivistas", -- diário de investigação dos mistérios (L / toque)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

@@ -169,6 +169,8 @@ local function listaDoPortal(p: Player)
 	evento:FireClient(p, EV.PORTAL, lista)
 end
 
+local teleportar: (Player, any) -> (boolean, string)
+
 local function atravessar(p: Player, id: string)
 	local perfil = playerData.obter(p)
 	local d = Portal.porId(Dimensoes.lista, id)
@@ -184,19 +186,31 @@ local function atravessar(p: Player, id: string)
 		evento:FireClient(p, EV.REJEITADO, if estado == "aqui" then "jaEstaAqui" elseif estado == "emConstrucao" then "emConstrucao" else "dimensaoBloqueada")
 		return
 	end
+	teleportar(p, d)
+end
+
+-- regras da viagem + gravação segura + TeleportAsync. Usado pelo portal comum e pelas passagens secretas
+-- (SecretDimensionService), para existir UM caminho de viagem entre places só. (ok, motivo)
+teleportar = function(p: Player, d: any): (boolean, string)
+	if atravessando[p] then
+		return false, "ocupado"
+	end
+	if type(d.placeId) ~= "number" or d.placeId <= 0 then
+		return false, "emConstrucao" -- nunca teleporta para um lugar que não existe
+	end
 	local okRegra, motivo = Viagem.pode({
 		descoberto = true, estado = movimento.estado(p) or "Solo", montado = montarias.montado(p), agora = os.clock(),
 		ultimoDano = ultimoDano[p] or -math.huge, ultimaViagem = -math.huge, semCombateSeg = CFG.semCombateSeg, recargaSeg = 0,
 	})
 	if not okRegra then
 		evento:FireClient(p, EV.REJEITADO, motivo)
-		return
+		return false, motivo
 	end
 	atravessando[p] = true
 	if not playerData.liberarParaPortal(p) then
 		atravessando[p] = nil
 		evento:FireClient(p, EV.REJEITADO, "gravacao")
-		return
+		return false, "gravacao"
 	end
 	evento:FireClient(p, EV.ATRAVESSANDO, d.nome)
 	local opcoes = Instance.new("TeleportOptions")
@@ -209,7 +223,14 @@ local function atravessar(p: Player, id: string)
 		playerData.retomarAposPortal(p)
 		atravessando[p] = nil
 		evento:FireClient(p, EV.REJEITADO, "teleporteFalhou")
+		return false, "teleporteFalhou"
 	end
+	return true, "ok"
+end
+
+-- passagem secreta (SecretDimensionService): quem chama já conferiu descoberta, condições e distância
+function DimensionSystem.atravessarPara(p: Player, destino: any): (boolean, string)
+	return teleportar(p, destino)
 end
 
 function DimensionSystem.Init(ctx: any)

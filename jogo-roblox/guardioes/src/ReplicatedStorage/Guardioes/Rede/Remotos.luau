@@ -205,6 +205,17 @@ Remotos.EventoSegredo = {
 	CONSTELACAO = 4, -- (cores hex na ordem do anel, índice da estrela que brilha)
 	CONTEMPLANDO = 5, -- (segundos; 0 = terminou ou foi interrompida)
 }
+-- mistérios (Atlas dos Arquivistas). Pistas, enigmas e portais vêm de ProximityPrompts; aqui só o diário e a
+-- fabricação secreta. Nada de solução, ordem ou id interno de enigma é enviado.
+Remotos.Misterio = { VER_DIARIO = 1, FABRICAR_SECRETO = 2 } -- FABRICAR_SECRETO: (receitaId)
+Remotos.EventoMisterio = {
+	DIARIO = 1, -- (visão do diário: só o que o jogador descobriu)
+	AVISO = 2, -- (texto)
+	DESCOBERTA = 3, -- (nome) pista, portal…
+	ENIGMA = 4, -- (marcaId, "certo" | "errado" | "completo" | "semEfeito" | "invalida", motivo?)
+	REACAO = 5, -- (posição, animação) a criatura ativa reagiu a algo escondido
+	REJEITADO = 6, -- (motivo, faltando?)
+}
 -- raça
 Remotos.Raca = { ESCOLHER = 1 } -- (racaId)
 Remotos.EventoRaca = {
@@ -213,7 +224,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia", "Segredo", "Consumivel" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia", "Segredo", "Consumivel", "Misterio" }
 
 local pasta: Folder? = nil
 

@@ -367,3 +367,30 @@ Dois jogadores na mesma companhia (seção 14).
 | X9 | Voltar pelo portal ao hub | Sempre permitido |
 | X10 | Forçar falha do teleporte (placeId inválido numa cópia) | "O portal falhou. Seu progresso está salvo; tente de novo"; o jogador continua jogando e salvando normalmente |
 | X11 | Atravessar com dano recente / em voo / montado | "Em combate…" / "Indisponível enquanto se desloca" |
+
+## 20. Mistérios: Atlas dos Arquivistas (complemento 03)
+
+**Automáticos novos:** 21 casos (`Investigacao.spec` 6, `Enigma.spec` 7, `Misterios.spec` 8). Total: 223 em 33 specs.
+
+Sala de teste: blocos neutros a (70, −3, 70) do centro da arena. Tecla **L** abre o Atlas.
+
+| # | Tipo | Passo | Esperado |
+|---|---|---|---|
+| M1 | Integração | Entrar e abrir o Atlas (L) | "Nenhuma investigação ainda…" (nada vazado) |
+| M2 | Integração | B na folha de diário antes da inscrição | "Há algo aqui, mas você ainda não sabe o que procurar." |
+| M3 | Integração | B na inscrição | "Anotado no Atlas: Inscrição no Observatório"; o Atlas mostra a investigação "Investigando", a pista com **o nome de um marco** |
+| M4 | Criatura | Chegar perto do símbolo com o Nebu (Axolote) ativo | "Sua criatura reage a algo escondido aqui perto!" + brilho; B no símbolo registra a pista |
+| M5 | Alternativa | Sem criatura, sem livro e sem Amuleto: B no símbolo | "Parece só uma parede…"; com o Grimório lido: registra |
+| M6 | Integração | Folha de diário | Estado "Pronta para resolver"; objetivo "Ativar os três marcos" aparece |
+| M7 | Enigma | Tocar um marco antes de M6 (outro jogador) | "Nada acontece. Falta entender alguma coisa." |
+| M8 | Enigma | Ordem errada | "Os marcos se apagam." e recomeça |
+| M9 | Enigma | Ordem certa (a das pistas) | "Os marcos acendem juntos…"; +1 Folha de Registro, registro e receita no Atlas, +150 XP |
+| M10 | Segurança | Tocar os marcos de novo / pedir FABRICAR de receita não revelada pelo console | Nada acontece / "Você ainda não conhece esta receita" |
+| M11 | Semente | Dois jogadores comparando as pistas | Ordens diferentes; a ordem de um não funciona para o outro |
+| M12 | Fabricação | Atlas → Fabricar Tinta longe da Bancada; depois perto, com 2 Cascas | "Falta: Bancada nível 1"; depois a Tinta na bolsa e a pesquisa avança |
+| M13 | Portal | B na porta escura | "Anotado: Porta sem moldura"; "Algo ainda falta…"; no Atlas: "selada" |
+| M14 | Salvamento | Sair no meio da sequência e voltar (com API) | Pistas salvas; a sequência recomeça; a recompensa não repete |
+| M15 | Recuperação | Forçar erro entre concluir o capítulo e pagar (numa cópia) e entrar de novo | A recompensa é paga ao entrar, uma vez só |
+| M16 | Segurança | Disparar o ProximityPrompt de longe por exploit (teleporte local) | "Chegue mais perto." (distância do servidor) |
+| M17 | Frequência | Spam de B nos marcos | Parte dos pedidos é ignorada (limite por jogador) |
+| M18 | Multiplayer | Dois jogadores na sala ao mesmo tempo | Estados independentes; um não avança o enigma do outro |

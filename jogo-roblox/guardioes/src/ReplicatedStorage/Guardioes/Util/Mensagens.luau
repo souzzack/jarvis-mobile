@@ -80,6 +80,8 @@ local TEXTOS: { [string]: string } = {
 	retireAntes = "Retire o item antes de desmontar",
 	reliquiaUnica = "Relíquias não se desmontam",
 	semReliquia = "Nenhuma relíquia equipada",
+	-- mistérios
+	receitaDesconhecida = "Você ainda não conhece esta receita",
 	-- portais
 	jaEstaAqui = "Você já está nesta dimensão",
 	emConstrucao = "Este portal ainda não abre: a dimensão está em construção",

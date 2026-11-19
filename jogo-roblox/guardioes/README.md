@@ -40,12 +40,15 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 25 | [docs/25-RELATORIO-RELIQUIAS.md](docs/25-RELATORIO-RELIQUIAS.md) | Relíquias: encaixe ativo com recarga longa (Guardião e segredo) |
 | 26 | [docs/26-RELATORIO-PORTAIS.md](docs/26-RELATORIO-PORTAIS.md) | Portais entre dimensões (places): trava de sessão no teleporte, chegada e "em construção" |
 | 27 | [docs/27-REVISAO-DE-CODIGO.md](docs/27-REVISAO-DE-CODIGO.md) | Revisão de código: 4 falhas graves das companhias corrigidas, vazamentos e laços protegidos |
+| 28 | [docs/28-AUDITORIA-MISTERIOS.md](docs/28-AUDITORIA-MISTERIOS.md) | Complemento 03: inventário de dependências e o que foi reaproveitado |
+| 29 | [docs/29-SISTEMA-DE-MISTERIOS.md](docs/29-SISTEMA-DE-MISTERIOS.md) | Complemento 03: arquitetura, dados, protótipo, diário, artefatos ???, integração, testes e limites |
+| — | [docs/lore/ARQUIVISTAS.md](docs/lore/ARQUIVISTAS.md) | Cânone versionado dos Arquivistas do Atlas |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + 25 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, Equipment, Transport, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest, Company, SecretDiscovery, Consumable) + Dados + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + 26 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, Equipment, Transport, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest, Company, SecretDiscovery, Consumable, Mystery) + MysterySystems/ + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo

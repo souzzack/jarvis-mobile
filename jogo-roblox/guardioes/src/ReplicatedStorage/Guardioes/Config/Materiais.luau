@@ -15,6 +15,9 @@ local lista = {
 	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Colosso das Ruínas (turbinas antigas)" },
 	{ id = "NucleoEnferrujado", nome = "Núcleo Enferrujado", origem = "Colosso das Ruínas (material Druida)" },
 	{ id = "LenteEspectral", nome = "Lente Espectral", origem = "Espectro do Observatório (material Druida)" },
+	-- investigações (MysterySystems): itens de TESTE do protótipo do Atlas dos Arquivistas
+	{ id = "FolhaDeRegistro", nome = "Folha de Registro Antigo", origem = "Investigações dos Arquivistas" },
+	{ id = "TintaDoArquivista", nome = "Tinta do Arquivista", origem = "Receita secreta (Bancada)" },
 	-- consumíveis (Config/Consumiveis): ficam na bolsa como materiais e são usados pela barra (teclas 2, 3 e 4)
 	{ id = "BalsamoDeCasca", nome = "Bálsamo de Casca", origem = "Bancada da base", consumivel = true },
 	{ id = "TonicoDeVento", nome = "Tônico de Vento", origem = "Bancada da base", consumivel = true },

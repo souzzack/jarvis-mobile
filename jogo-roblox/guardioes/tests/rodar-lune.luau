@@ -79,6 +79,17 @@ local M = {
 	ReliquiasSecretas = require("../src/ServerScriptService/Guardioes/ConfigSecreta/ReliquiasSecretas"),
 	Portal = require("../src/ReplicatedStorage/Guardioes/Viagem/Portal"),
 	Dimensoes = require("../src/ReplicatedStorage/Guardioes/Config/Dimensoes"),
+	-- mistérios (complemento 03)
+	Investigacao = require("../src/ReplicatedStorage/Guardioes/MysterySystems/Investigacao"),
+	Enigma = require("../src/ReplicatedStorage/Guardioes/MysterySystems/Enigma"),
+	Pesquisa = require("../src/ReplicatedStorage/Guardioes/MysterySystems/Pesquisa"),
+	PortalSecreto = require("../src/ReplicatedStorage/Guardioes/MysterySystems/PortalSecreto"),
+	DiarioMisterios = require("../src/ReplicatedStorage/Guardioes/MysterySystems/Diario"),
+	InvestigationChapters = require("../src/ServerScriptService/Guardioes/MysterySystems/Config/InvestigationChapters"),
+	Puzzles = require("../src/ServerScriptService/Guardioes/MysterySystems/Config/Puzzles"),
+	Secrets = require("../src/ServerScriptService/Guardioes/MysterySystems/Config/Secrets"),
+	HiddenDimensions = require("../src/ServerScriptService/Guardioes/MysterySystems/Config/HiddenDimensions"),
+	SecretArtifacts = require("../src/ServerScriptService/Guardioes/MysterySystems/Config/SecretArtifacts"),
 }
 
 local specs = {
@@ -112,6 +123,9 @@ local specs = {
 	{ nome = "Semanal.spec", fn = require("./Specs/Semanal.spec") },
 	{ nome = "Reliquia.spec", fn = require("./Specs/Reliquia.spec") },
 	{ nome = "Portal.spec", fn = require("./Specs/Portal.spec") },
+	{ nome = "Investigacao.spec", fn = require("./Specs/Investigacao.spec") },
+	{ nome = "Enigma.spec", fn = require("./Specs/Enigma.spec") },
+	{ nome = "Misterios.spec", fn = require("./Specs/Misterios.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

@@ -34,6 +34,7 @@ local ORDEM = {
 	"CompanySystem", -- companhias (guildas de jogadores): cofre, cargos, convites
 	"SecretDiscoverySystem", -- cadeia ??? do Ato 1 (enigmas, diário, ritual do Arco)
 	"ConsumableSystem", -- consumíveis da Bancada (bálsamo, tônico, infusão)
+	"MysterySystem", -- mistérios: investigações, enigmas, diário dos Arquivistas, portais secretos (MysterySystems/)
 }
 
 local carregados: { [string]: Sistema } = {}

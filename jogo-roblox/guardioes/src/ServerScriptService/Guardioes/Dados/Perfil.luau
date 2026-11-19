@@ -28,7 +28,21 @@ export type Perfil = {
 	equipado: { [string]: string }, -- encaixe → guid
 	transportes: { [string]: boolean }, -- transportes comuns possuídos (prancha de viagem…)
 	transportePreferido: string?,
-	reliquiaRecargaAte: number, -- os.time() em que a relíquia equipada fica pronta (salvo: sair não zera)
+	reliquiaRecargaAte: number,
+	-- Mistérios (complemento 03): investigações, enigmas resolvidos, recompensas já pagas (nunca pagam 2×),
+	-- registros de lore, conhecimentos, receitas secretas, portais descobertos e fabricações secretas
+	misterios: {
+		versao: number,
+		investigacoes: { [string]: any },
+		enigmas: { [string]: boolean },
+		recompensas: { [string]: boolean },
+		registros: { [string]: boolean },
+		conhecimentos: { [string]: boolean },
+		receitas: { [string]: boolean },
+		portais: { [string]: string },
+		fabricados: { [string]: number },
+		evolucoes: { [string]: boolean },
+	}, -- os.time() em que a relíquia equipada fica pronta (salvo: sair não zera)
 	companhia: string?, -- id da companhia (guilda); a verdade fica na store das companhias
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
@@ -42,6 +56,16 @@ Perfil.VERSAO = 2
 Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
 local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos", "transportes" }
+
+Perfil.MISTERIOS_VERSAO = 1
+Perfil.ESTADOS_INVESTIGACAO = { Undiscovered = true, Discovered = true, Investigating = true, ReadyToSolve = true, Completed = true }
+
+function Perfil.misteriosNovo(): any
+	return {
+		versao = Perfil.MISTERIOS_VERSAO, investigacoes = {}, enigmas = {}, recompensas = {}, registros = {},
+		conhecimentos = {}, receitas = {}, portais = {}, fabricados = {}, evolucoes = {},
+	}
+end
 
 function Perfil.novo(agora: number): Perfil
 	return {
@@ -71,6 +95,7 @@ function Perfil.novo(agora: number): Perfil
 		transportes = {},
 		transportePreferido = nil,
 		reliquiaRecargaAte = 0,
+		misterios = Perfil.misteriosNovo(),
 		companhia = nil,
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
@@ -119,6 +144,15 @@ function Perfil.migrar(bruto: any, agora: number): (Perfil, string)
 		if p[k] == nil and v ~= nil then
 			p[k] = v
 			completou = true
+		end
+	end
+	-- mistérios: subcampos novos também são completados (evolução do formato sem perder nada)
+	if type(p.misterios) == "table" then
+		for k, v in Perfil.misteriosNovo() do
+			if p.misterios[k] == nil then
+				p.misterios[k] = v
+				completou = true
+			end
 		end
 	end
 	return p, if completou then "completado" else "ok"
@@ -224,6 +258,31 @@ function Perfil.validar(p: any): (boolean, string?)
 	end
 	if type(p.reliquiaRecargaAte) ~= "number" or p.reliquiaRecargaAte ~= p.reliquiaRecargaAte then
 		return false, "reliquia"
+	end
+	local m = p.misterios
+	if type(m) ~= "table" or type(m.versao) ~= "number" or m.versao > Perfil.MISTERIOS_VERSAO then
+		return false, "misterios"
+	end
+	for _, campo in { "investigacoes", "enigmas", "recompensas", "registros", "conhecimentos", "receitas", "portais", "fabricados", "evolucoes" } do
+		if type(m[campo]) ~= "table" then
+			return false, "misterios"
+		end
+	end
+	for id, inv in m.investigacoes do
+		if type(id) ~= "string" or type(inv) ~= "table" or not Perfil.ESTADOS_INVESTIGACAO[inv.estado] or type(inv.capitulo) ~= "number"
+			or type(inv.pistas) ~= "table" or type(inv.objetivos) ~= "table" or type(inv.capitulosConcluidos) ~= "table" then
+			return false, "investigacao"
+		end
+	end
+	for id, estado in m.portais do
+		if type(id) ~= "string" or (estado ~= "descoberto") then
+			return false, "portal"
+		end
+	end
+	for id, n in m.fabricados do
+		if type(id) ~= "string" or type(n) ~= "number" or n < 0 or n ~= math.floor(n) then
+			return false, "fabricados"
+		end
 	end
 	if p.companhia ~= nil and (type(p.companhia) ~= "string" or #p.companhia > 64) then
 		return false, "companhia"

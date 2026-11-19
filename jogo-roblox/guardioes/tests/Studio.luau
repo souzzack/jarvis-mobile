@@ -82,6 +82,17 @@ return function()
 		ReliquiasSecretas = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.ReliquiasSecretas),
 		Portal = require(G.Viagem.Portal),
 		Dimensoes = require(G.Config.Dimensoes),
+		-- mistérios (complemento 03)
+		Investigacao = require(G.MysterySystems.Investigacao),
+		Enigma = require(G.MysterySystems.Enigma),
+		Pesquisa = require(G.MysterySystems.Pesquisa),
+		PortalSecreto = require(G.MysterySystems.PortalSecreto),
+		DiarioMisterios = require(G.MysterySystems.Diario),
+		InvestigationChapters = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.InvestigationChapters),
+		Puzzles = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.Puzzles),
+		Secrets = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.Secrets),
+		HiddenDimensions = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.HiddenDimensions),
+		SecretArtifacts = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.SecretArtifacts),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

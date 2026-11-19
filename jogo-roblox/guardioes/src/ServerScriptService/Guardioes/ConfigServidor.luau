@@ -75,6 +75,9 @@ local ConfigServidor = {
 			-- corrente ascendente (funciona para o planador mesmo sem ver; a Raia a mostra)
 			{ revela = "SentirCorrente", deslocamento = Vector3.new(30, 20, 60), tamanho = Vector3.new(14, 60, 14), corrente = 14 },
 		},
+		-- sala de TESTE abstrata dos mistérios (MysterySystems/DiscoveryService): inscrição, símbolo, diário,
+		-- 3 marcos e a porta sem moldura — blocos neutros, longe da arena; nenhum mapa é alterado
+		misterios = { origem = Vector3.new(70, -3, 70) },
 		-- portal entre dimensões (DimensionSystem); placeIds em Config/Dimensoes
 		portal = Vector3.new(-20, 1, -20),
 		-- segredo ??? do Ato 1 (SecretDiscoverySystem): telescópio e lentes ao lado do Observatório de teste,
