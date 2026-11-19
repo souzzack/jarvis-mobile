@@ -28,6 +28,8 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 14 | [docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md](docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md) | Fabricação, restauração de estruturas e a Rainha-Bobina |
 | 15 | [docs/15-RELATORIO-BASE-VIAGEM-ALFA.md](docs/15-RELATORIO-BASE-VIAGEM-ALFA.md) | Base pessoal, viagem rápida e o Cão-Trovão Alfa |
 | 16 | [docs/16-CONFERENCIA-DO-COMPLEMENTO.md](docs/16-CONFERENCIA-DO-COMPLEMENTO.md) | Conferência do prompt complementar item por item, lacunas fechadas e o que falta |
+| — | [docs/previas/](docs/previas/LEIA-ME.md) | Prévias visuais reconstruídas a partir do código (não são capturas do Studio) |
+| 17 | [docs/17-RELATORIO-GUARDIAO.md](docs/17-RELATORIO-GUARDIAO.md) | Guardião da Tormenta e o Códice Arcano |
 
 ## Código
 

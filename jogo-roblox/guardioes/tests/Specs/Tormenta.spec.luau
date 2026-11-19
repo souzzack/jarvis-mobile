@@ -1,0 +1,75 @@
+-- NÃO EXECUTADO. Guardião da Tormenta: fases, para-raios (acerto, errado, falha) e padrões do chão.
+
+return function(T, M)
+	local Q = M.Tormenta
+	local cfg = { paraRaios = 4, janelaCarga = 5, intervaloCarga = 6, telegrafia = 1.2, intervaloPadrao = 2.8 }
+	local function fixo(v: number)
+		return function()
+			return v
+		end
+	end
+
+	T.caso("fases por vida: 1 acima de 65%, 2 até 30%, 3 abaixo", function()
+		T.igual(Q.faseDe(0.9), 1)
+		T.igual(Q.faseDe(0.65), 2)
+		T.igual(Q.faseDe(0.31), 2)
+		T.igual(Q.faseDe(0.30), 3)
+	end)
+
+	T.caso("fase 2: carrega um para-raios; acertar derruba; errado não", function()
+		local e = Q.novo(0)
+		local ev = Q.atualizar(e, 10, 0.6, cfg, fixo(0.5))
+		T.igual(ev[1].tipo, "Fase")
+		T.igual(ev[1].fase, 2)
+		T.igual(#Q.atualizar(e, 11, 0.6, cfg, fixo(0.5)), 0, "1,5 s de respiro antes da primeira carga")
+		local c = Q.atualizar(e, 11.5, 0.6, cfg, fixo(0.5))
+		T.igual(c[1].tipo, "Carga")
+		T.igual(c[1].idx, 3, "0,5 × 4 = 2 → para-raios 3")
+		T.igual(Q.ativar(e, 1, 12, cfg), "Errado")
+		T.igual(e.carregado, 3, "errar não descarrega")
+		T.igual(Q.ativar(e, 3, 12, cfg), "Acerto")
+		T.igual(e.carregado, nil)
+		T.igual(e.proximaCarga, 18)
+	end)
+
+	T.caso("ninguém ativa a tempo: o raio falha (cai em volta do para-raios)", function()
+		local e = Q.novo(0)
+		Q.atualizar(e, 10, 0.6, cfg, fixo(0))
+		Q.atualizar(e, 11.5, 0.6, cfg, fixo(0))
+		T.igual(e.carregado, 1)
+		local ev = Q.atualizar(e, 16.5, 0.6, cfg, fixo(0))
+		T.igual(ev[1].tipo, "RaioFalhou")
+		T.igual(ev[1].idx, 1)
+		T.igual(e.proximaCarga, 22.5)
+	end)
+
+	T.caso("fase 3: padrão telegrafado e depois descarregado; para-raios não funcionam mais", function()
+		local e = Q.novo(0)
+		Q.atualizar(e, 10, 0.2, cfg, fixo(0.4))
+		T.igual(e.fase, 3)
+		T.igual(Q.ativar(e, 1, 10, cfg), nil)
+		local t = Q.atualizar(e, 12, 0.2, cfg, fixo(0.4))
+		T.igual(t[1].tipo, "Telegrafa")
+		T.igual(t[1].padrao, "Anel")
+		T.igual(#Q.atualizar(e, 13, 0.2, cfg, fixo(0.4)), 0)
+		local d = Q.atualizar(e, 13.2, 0.2, cfg, fixo(0.4))
+		T.igual(d[1].tipo, "Descarrega")
+		T.perto(e.proximoPadrao, 16, 1e-9)
+	end)
+
+	T.caso("áreas dos padrões", function()
+		T.verdade(Q.noPadrao("Centro", 3, 4))
+		T.falso(Q.noPadrao("Centro", 9, 0))
+		T.verdade(Q.noPadrao("Anel", 0, 14))
+		T.falso(Q.noPadrao("Anel", 0, 5))
+		T.verdade(Q.noPadrao("Cruz", 2, 15))
+		T.falso(Q.noPadrao("Cruz", 10, 10))
+	end)
+
+	T.caso("nunca volta de fase (curar não desfaz)", function()
+		local e = Q.novo(0)
+		Q.atualizar(e, 1, 0.2, cfg, fixo(0))
+		Q.atualizar(e, 2, 0.9, cfg, fixo(0))
+		T.igual(e.fase, 3)
+	end)
+end

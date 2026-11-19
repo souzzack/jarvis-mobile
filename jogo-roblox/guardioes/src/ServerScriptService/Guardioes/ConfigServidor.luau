@@ -38,6 +38,8 @@ local ConfigServidor = {
 		},
 		-- pedestais de livros perto da arena (marcadores de teste; os mapas reais não são tocados)
 		livrosNaArena = { "GrimorioDosCeus", "TomoDasCorrentesAstrais", "CodiceDaLeveza" },
+		-- SÓ TESTE: deixa entrar na arena do Guardião sem a Torre restaurada (desligue para testar a trava)
+		ignorarTravasDeChefe = true,
 	},
 	-- persistência (PlayerDataSystem). DataStore NOVA: o save do tycoon nunca é escrito.
 	-- Sem acesso a DataStore (Studio sem "Enable Studio Access to API Services"), roda só em memória e avisa.
@@ -68,6 +70,13 @@ local ConfigServidor = {
 	-- chefes: arena = centro + raio; quem está dentro participa das fases (descarga, pilares)
 	chefes = {
 		{ id = "RainhaBobina", mecanica = "Carga", deslocamento = Vector3.new(0, 0, -90), raioArena = 40, retornoSeg = 300, duracaoCarga = 12, pilares = 3, descarga = { dano = 45, postura = 30 } },
+		{
+			id = "GuardiaoDaTormenta", mecanica = "Tormenta", deslocamento = Vector3.new(110, 0, -90), raioArena = 32, retornoSeg = 600,
+			exigeRestauracao = "TorreMeteorologica", -- arena = topo da Torre religada
+			tormenta = { paraRaios = 4, raioParaRaios = 20, janelaCarga = 5, intervaloCarga = 6, telegrafia = 1.2, intervaloPadrao = 2.8 },
+			raioDoParaRaio = { danoNoGuardiao = 480, atordoamento = 3, falhou = { dano = 30, postura = 20, raio = 10 }, errado = { dano = 10, postura = 5 } },
+			chao = { dano = 35, postura = 25 },
+		},
 		{ id = "CaoTrovaoAlfa", mecanica = "Matilha", deslocamento = Vector3.new(-90, 0, -60), raioArena = 45, retornoSeg = 300, matilhaPorChamada = 2, corrida = { intervalo = 14, duracao = 4 }, atordoamento = 4 },
 	},
 	-- base pessoal: Parts com o atributo "GuardioesParcela" (= número) na pasta GuardioesParcelas. No place

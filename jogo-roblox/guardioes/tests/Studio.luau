@@ -64,6 +64,7 @@ return function()
 		-- especiais
 		Especial = require(G.Combate.Especial),
 		Especiais = require(G.Config.Especiais),
+		Tormenta = require(G.Chefes.Tormenta),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

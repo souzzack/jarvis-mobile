@@ -113,6 +113,10 @@ Remotos.EventoChefe = {
 	DERROTADO = 4, -- (nome)
 	MATILHA = 5, -- (quantos cães)
 	CORRIDA = 6, -- (duracao) Alfa imune: apare o golpe dele
+	FASE = 7, -- (fase) Guardião: 2 = para-raios; 3 = olho da tempestade
+	PARA_RAIO = 8, -- (idx, "Carregado" | "Acerto" | "Falhou" | "Errado")
+	PADRAO = 9, -- (nome, duracaoDaTelegrafia)
+	BLOQUEADO = 10, -- (motivo) não pode entrar na arena
 }
 
 -- base pessoal (ações pelos prompts da parcela; só eventos de volta)

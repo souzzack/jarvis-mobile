@@ -9,6 +9,7 @@ local Workspace = game:GetService("Workspace")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Remotos = require(G.Rede.Remotos)
+local Mensagens = require(G.Util.Mensagens)
 
 local EC = Remotos.EventoChefe
 local jogador = Players.LocalPlayer
@@ -79,6 +80,26 @@ function HudDeChefe.Start()
 		elseif tipo == EC.CORRIDA then
 			cargaAte = os.clock() + (a or 0)
 			hud.aviso("Corrida carregada! Nada o fere — APARE o golpe dele")
+		elseif tipo == EC.FASE then
+			hud.aviso(if a == 2 then "Fase 2: a tempestade o protege — use o para-raios que acender!" else "Fase 3: o olho da tempestade fecha! Fuja das áreas vermelhas")
+		elseif tipo == EC.PARA_RAIO then
+			if b == "Carregado" then
+				cargaAte = os.clock() + 5
+				hud.aviso("Para-raios " .. tostring(a) .. " carregado! Ative (B)")
+			elseif b == "Acerto" then
+				cargaAte = 0
+				hud.aviso("O raio atingiu o Guardião! Ataque agora!")
+			elseif b == "Falhou" then
+				cargaAte = 0
+				hud.aviso("O raio caiu na arena!")
+			elseif b == "Errado" then
+				hud.aviso("Esse não estava carregado!")
+			end
+		elseif tipo == EC.PADRAO then
+			cargaAte = os.clock() + (b or 0)
+			hud.aviso(if a == "Centro" then "Saia do centro!" elseif a == "Anel" then "Fuja do anel!" else "Saia das linhas da cruz!")
+		elseif tipo == EC.BLOQUEADO then
+			hud.aviso(Mensagens.texto(a))
 		elseif tipo == EC.DERROTADO then
 			hud.aviso("Vitória: " .. tostring(a))
 		end

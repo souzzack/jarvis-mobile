@@ -23,6 +23,17 @@ local lista = {
 		materiais = { GlandulaDeBobinaViva = 4, SementeFlutuante = 3, CascaAntiga = 2 },
 		resultado = { tipo = "artefato", id = "EscudoDoFirmamento", estagio = 1 },
 	},
+	{
+		-- GDD 7.3: derrota do Guardião → Códice Arcano; fabricar exige material Arcano do Guardião + 2 materiais
+		-- Druida da mesma dimensão + a Oficina restaurada. (Exemplo 4 do complemento: Guardião → espada-prancha.)
+		id = "CodiceArcano_EspadaDoHorizonte",
+		nome = "Espada do Horizonte (Arcano)",
+		estacao = "OficinaDosInventores",
+		conhecidaDesdeInicio = false,
+		requisitos = { restauracoes = { "OficinaDosInventores" } },
+		materiais = { CoracaoDaTormenta = 1, PenaDoRelampagoAntigo = 2, GlandulaDeBobinaViva = 2, JubaEstatica = 2 },
+		resultado = { tipo = "artefato", id = "EspadaDoHorizonte", estagio = 1 },
+	},
 }
 
 local porId: { [string]: any } = {}

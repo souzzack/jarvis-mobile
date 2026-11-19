@@ -87,6 +87,14 @@ local lista = {
 		objetivos = { { id = "forja", tipo = "melhorarBase", alvo = "Forja3", qtd = 1, descricao = "Forja nível 3" } },
 		recompensas = { xp = 150 },
 	},
+	{
+		id = "OGuardiaoDaTormenta",
+		nome = "O Guardião da Tormenta",
+		descricao = "No topo da Torre religada, o Guardião espera. Use os para-raios contra ele.",
+		requisitos = { restauracoes = { "TorreMeteorologica" } },
+		objetivos = { { id = "guardiao", tipo = "derrotar", alvo = "GuardiaoDaTormenta", qtd = 1, descricao = "Guardião derrotado" } },
+		recompensas = { xp = 500 },
+	},
 }
 
 local porId: { [string]: any } = {}

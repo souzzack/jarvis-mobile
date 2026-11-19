@@ -3,6 +3,8 @@
 --   "Carga"   → RAINHA-BOBINA (abaixo)
 --   "Matilha" → CÃO-TROVÃO ALFA: chama 2 cães em 70% e 40%; a cada ~14 s corre carregado por 4 s (imune);
 --               só um APARO de um golpe dele quebra a corrida e o derruba (EnemySystem.aparado).
+--   "Tormenta"→ GUARDIÃO DA TORMENTA (Chefes/Tormenta): arena = topo da Torre restaurada; fase 2 com
+--               para-raios (ativar o carregado derruba o Guardião); fase 3 com chão eletrificado em padrões.
 -- Toda vitória: troféu no Expositor da base de cada participante (PersonalBaseSystem.darTrofeu).
 --  * A Rainha usa a IA comum do EnemySystem (perseguir, telegrafar, ferrão/pulso/investida).
 --  * Fases de carga (Chefes/CargaDaRainha): em 75%, 50% e 25% de vida ela fica IMUNE e 3 pilares de cristal
@@ -19,13 +21,19 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Carga = require(G.Chefes.CargaDaRainha)
 local Matilha = require(G.Chefes.MatilhaDoAlfa)
+local Tormenta = require(G.Chefes.Tormenta)
+local Workspace = game:GetService("Workspace")
 local Saque = require(G.Loot.Saque)
 local Loot = require(G.Config.Loot)
 local Remotos = require(G.Rede.Remotos)
 local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
 
 local EC = Remotos.EventoChefe
-local ESBOCO: { [string]: string } = { RainhaBobina = "EsbocoDruida_RainhaBobina" }
+-- conhecimento aprendido na PRIMEIRA vitória (esboço Druida de miniboss; Códice Arcano do Guardião)
+local ESBOCO: { [string]: { receita: string, texto: string } } = {
+	RainhaBobina = { receita = "EsbocoDruida_RainhaBobina", texto = "Esboço Druida aprendido!" },
+	GuardiaoDaTormenta = { receita = "CodiceArcano_EspadaDoHorizonte", texto = "Códice Arcano aprendido! E nas páginas do diário dele… um nome riscado." },
+}
 
 type Chefe = {
 	cfg: any,
@@ -33,6 +41,10 @@ type Chefe = {
 	id: string?,
 	carga: Carga.Estado,
 	matilha: Matilha.Estado?,
+	tormenta: Tormenta.Estado?,
+	paraRaios: { BasePart }, -- Guardião: os para-raios da arena (fixos)
+	vulneravelAte: number, -- Guardião na fase 2: janela depois do raio
+	telegrafia: { Instance }, -- áreas do chão eletrificado sendo avisadas
 	pilares: { [string]: boolean }, -- pilares (Carga) ou cães chamados (Matilha): somem no reset/derrota
 	vazioDesde: number?,
 }
@@ -45,6 +57,8 @@ local inimigos: any
 local combate: any
 local fabricacao: any
 local base: any
+local restauracao: any
+local playerData: any
 local ctxSistemas: any = nil
 
 local function naArena(c: Chefe): { Player }
@@ -72,8 +86,58 @@ local function limparPilares(c: Chefe)
 	c.pilares = {}
 end
 
+local CORES_PARA_RAIO = { normal = Color3.fromHex("#5B6B7A"), carregado = Color3.fromHex("#FFE45C") }
+
+local function limparTelegrafia(c: Chefe)
+	for _, i in c.telegrafia do
+		i:Destroy()
+	end
+	c.telegrafia = {}
+end
+
+local function criarParaRaios(c: Chefe)
+	if #c.paraRaios > 0 then
+		return
+	end
+	local t = c.cfg.tormenta
+	for i = 1, t.paraRaios do
+		local ang = (i / t.paraRaios) * math.pi * 2
+		local pr = Instance.new("Part")
+		pr.Name = "ParaRaios" .. i
+		pr.Anchored = true
+		pr.Size = Vector3.new(1.2, 10, 1.2)
+		pr.Material = Enum.Material.Metal
+		pr.Color = CORES_PARA_RAIO.normal
+		pr.CFrame = CFrame.new(c.centro + Vector3.new(math.cos(ang) * t.raioParaRaios, 1, math.sin(ang) * t.raioParaRaios))
+		pr.Parent = Workspace
+		local pp = Instance.new("ProximityPrompt")
+		pp.ActionText = "Ativar para-raios"
+		pp.ObjectText = "Para-raios " .. i
+		pp.KeyboardKeyCode = Enum.KeyCode.B
+		pp.GamepadKeyCode = Enum.KeyCode.DPadUp
+		pp.HoldDuration = 0.3
+		pp.MaxActivationDistance = 8
+		pp.Parent = pr
+		local idx = i
+		pp.Triggered:Connect(function(p: Player)
+			BossSystem.ativarParaRaio(c, idx, p)
+		end)
+		table.insert(c.paraRaios, pr)
+	end
+end
+
 local function surgirChefe(c: Chefe)
 	c.carga = Carga.novo()
+	c.tormenta = if c.cfg.mecanica == "Tormenta" then Tormenta.novo(os.clock()) else nil
+	c.vulneravelAte = 0
+	limparTelegrafia(c)
+	if c.cfg.mecanica == "Tormenta" then
+		criarParaRaios(c)
+		for _, pr in c.paraRaios do
+			pr.Color = CORES_PARA_RAIO.normal
+			pr.Material = Enum.Material.Metal
+		end
+	end
 	c.matilha = if c.cfg.mecanica == "Matilha" then Matilha.novo(os.clock(), c.cfg.corrida.intervalo) else nil
 	c.vazioDesde = nil
 	c.id = inimigos.surgirEm(c.cfg.id, CFrame.new(c.centro + Vector3.new(0, 4, 0)))
@@ -135,6 +199,138 @@ local function passoMatilha(c: Chefe, info: any, agora: number)
 	end
 end
 
+-- mecânica "Tormenta" (Guardião)
+local function telegrafar(c: Chefe, padrao: string, duracao: number)
+	limparTelegrafia(c)
+	local function area(tam: Vector3, cf: CFrame, forma: Enum.PartType?)
+		local a = Instance.new("Part")
+		a.Anchored, a.CanCollide, a.CanQuery, a.CanTouch, a.CastShadow = true, false, false, false, false
+		a.Material = Enum.Material.Neon
+		a.Color = Color3.fromHex("#FF5A5A")
+		a.Transparency = 0.6
+		if forma then
+			a.Shape = forma
+		end
+		a.Size = tam
+		a.CFrame = cf
+		a.Parent = Workspace
+		table.insert(c.telegrafia, a)
+	end
+	local chao = CFrame.new(c.centro + Vector3.new(0, 0.2, 0))
+	if padrao == "Centro" then
+		area(Vector3.new(0.3, 16, 16), chao * CFrame.Angles(0, 0, math.rad(90)), Enum.PartType.Cylinder)
+	elseif padrao == "Cruz" then
+		area(Vector3.new(6, 0.3, c.cfg.raioArena * 2), chao)
+		area(Vector3.new(c.cfg.raioArena * 2, 0.3, 6), chao)
+	else -- Anel: 16 segmentos entre os raios 10 e 18
+		for i = 1, 16 do
+			local ang = (i / 16) * math.pi * 2
+			area(Vector3.new(8, 0.3, 4.2), chao * CFrame.Angles(0, -ang, 0) * CFrame.new(14, 0, 0))
+		end
+	end
+	local _ = duracao
+end
+
+function BossSystem.ativarParaRaio(c: Chefe, idx: number, p: Player)
+	local t = c.tormenta
+	if not t or not c.id then
+		return
+	end
+	local agora = os.clock()
+	local r = Tormenta.ativar(t, idx, agora, c.cfg.tormenta)
+	local pr = c.paraRaios[idx]
+	if r == "Acerto" then
+		pr.Color = CORES_PARA_RAIO.normal
+		pr.Material = Enum.Material.Metal
+		-- o raio desce no Guardião: dano grande e atordoado (janela para os golpes de todos)
+		inimigos.definirInvulneravel(c.id, false)
+		local dr = c.cfg.raioDoParaRaio
+		inimigos.receberGolpe(c.id, { dano = dr.danoNoGuardiao, postura = 0, bonusPostura = 0, multiplicador = 1, atacante = p })
+		if c.id then
+			inimigos.atordoarPor(c.id, dr.atordoamento)
+			c.vulneravelAte = agora + dr.atordoamento
+		end
+		avisar(c, EC.PARA_RAIO, idx, "Acerto")
+	elseif r == "Errado" then
+		local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if hrp then
+			combate.danoAoJogador(p, pr.Position, c.cfg.raioDoParaRaio.errado, c.id :: string)
+		end
+		evento:FireClient(p, EC.PARA_RAIO, idx, "Errado")
+	end
+end
+
+local function passoTormenta(c: Chefe, info: any, agora: number)
+	local t = c.tormenta :: Tormenta.Estado
+	local cfg = c.cfg
+	for _, ev in Tormenta.atualizar(t, agora, info.vida / info.vidaMax, cfg.tormenta, math.random) do
+		if ev.tipo == "Fase" then
+			avisar(c, EC.FASE, ev.fase)
+			inimigos.definirInvulneravel(c.id, ev.fase == 2) -- fase 2: só o raio fere; fase 3: volta a ser ferível
+		elseif ev.tipo == "Carga" then
+			local pr = c.paraRaios[ev.idx :: number]
+			pr.Color = CORES_PARA_RAIO.carregado
+			pr.Material = Enum.Material.Neon
+			avisar(c, EC.PARA_RAIO, ev.idx, "Carregado")
+		elseif ev.tipo == "RaioFalhou" then
+			local pr = c.paraRaios[ev.idx :: number]
+			pr.Color = CORES_PARA_RAIO.normal
+			pr.Material = Enum.Material.Metal
+			local f = cfg.raioDoParaRaio.falhou
+			for _, p in naArena(c) do
+				local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if hrp and ((hrp :: BasePart).Position - pr.Position).Magnitude <= f.raio then
+					combate.danoAoJogador(p, pr.Position, f, c.id :: string)
+				end
+			end
+			avisar(c, EC.PARA_RAIO, ev.idx, "Falhou")
+		elseif ev.tipo == "Telegrafa" then
+			telegrafar(c, ev.padrao :: string, cfg.tormenta.telegrafia)
+			avisar(c, EC.PADRAO, ev.padrao, cfg.tormenta.telegrafia)
+		elseif ev.tipo == "Descarrega" then
+			for _, p in naArena(c) do
+				local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if hrp then
+					local d = (hrp :: BasePart).Position - c.centro
+					if Tormenta.noPadrao(ev.padrao :: string, d.X, d.Z) then
+						combate.danoAoJogador(p, c.centro, cfg.chao, c.id :: string)
+					end
+				end
+			end
+			for _, a in c.telegrafia do
+				(a :: BasePart).Transparency = 0.1
+			end
+			task.delay(0.25, function()
+				limparTelegrafia(c)
+			end)
+		end
+	end
+	-- fim da janela do raio na fase 2: volta a ficar imune
+	if t.fase == 2 and c.vulneravelAte > 0 and agora >= c.vulneravelAte then
+		c.vulneravelAte = 0
+		inimigos.definirInvulneravel(c.id, true)
+	end
+end
+
+-- arena do Guardião: só entra quem restaurou a Torre (ou em teste, com a trava desligada)
+local function travaDaArena(c: Chefe)
+	local req = c.cfg.exigeRestauracao
+	local teste = ConfigServidor.concessoesDeTeste
+	if not req or (teste and teste.ativa and teste.ignorarTravasDeChefe) then
+		return
+	end
+	for _, p in naArena(c) do
+		if not restauracao.restaurada(p, req) then
+			local ch = p.Character :: Model
+			local hrp = ch:FindFirstChild("HumanoidRootPart") :: BasePart
+			local fora = (hrp.Position - c.centro) * Vector3.new(1, 0, 1)
+			fora = if fora.Magnitude > 0.1 then fora.Unit else Vector3.xAxis
+			ch:PivotTo(CFrame.new(c.centro + fora * (c.cfg.raioArena + 8) + Vector3.new(0, 4, 0)))
+			evento:FireClient(p, EC.BLOQUEADO, "torreSemEnergia")
+		end
+	end
+end
+
 local function passo(c: Chefe, agora: number)
 	if not c.id then
 		return
@@ -147,14 +343,20 @@ local function passo(c: Chefe, agora: number)
 	-- ninguém na arena por 20 s: reseta (vida cheia, sem pilares)
 	if presentes == 0 then
 		c.vazioDesde = c.vazioDesde or agora
-		if agora - (c.vazioDesde :: number) > 20 and (info.vida < info.vidaMax or c.carga.emCarga) then
+		if agora - (c.vazioDesde :: number) > 20 and (info.vida < info.vidaMax or c.carga.emCarga or (c.tormenta ~= nil and c.tormenta.fase > 1)) then
 			limparPilares(c)
+			limparTelegrafia(c)
 			inimigos.remover(c.id)
 			surgirChefe(c)
 		end
 		return
 	end
 	c.vazioDesde = nil
+	travaDaArena(c)
+	if c.cfg.mecanica == "Tormenta" then
+		passoTormenta(c, info, agora)
+		return
+	end
 	if c.cfg.mecanica == "Matilha" then
 		passoMatilha(c, info, agora)
 		return
@@ -178,6 +380,8 @@ function BossSystem.Start()
 	combate = ctxSistemas.obter("CombatSystem")
 	fabricacao = ctxSistemas.obter("CraftingSystem")
 	base = ctxSistemas.obter("PersonalBaseSystem")
+	restauracao = ctxSistemas.obter("RestorationSystem")
+	playerData = ctxSistemas.obter("PlayerDataSystem")
 	-- aparo durante a corrida do Alfa: quebra a corrida e derruba
 	inimigos.aparado.conectar(function(inimigoId: string)
 		for _, c in chefes do
@@ -192,7 +396,10 @@ function BossSystem.Start()
 		return -- (Etapa 14) no mapa real, os chefes virão de marcadores em workspace.GuardioesChefes
 	end
 	for _, cfg in ConfigServidor.chefes do
-		local c: Chefe = { cfg = cfg, centro = ConfigServidor.arenaDeTeste.centro + cfg.deslocamento, id = nil, carga = Carga.novo(), pilares = {}, vazioDesde = nil }
+		local c: Chefe = {
+			cfg = cfg, centro = ConfigServidor.arenaDeTeste.centro + cfg.deslocamento, id = nil, carga = Carga.novo(),
+			matilha = nil, tormenta = nil, paraRaios = {}, vulneravelAte = 0, telegrafia = {}, pilares = {}, vazioDesde = nil,
+		}
 		table.insert(chefes, c)
 		surgirChefe(c)
 	end
@@ -206,11 +413,19 @@ function BossSystem.Start()
 			elseif c.id == ini.id then
 				c.id = nil
 				limparPilares(c)
+				limparTelegrafia(c)
 				avisar(c, EC.DERROTADO, ini.cfg.nome)
 				local esboco = ESBOCO[ini.cfg.id]
 				for _, p in Saque.elegiveis(contribuicao, Loot.minimoDeContribuicao) do
-					if esboco and fabricacao.aprenderReceita(p, esboco) then
-						evento:FireClient(p, EC.DERROTADO, ini.cfg.nome .. " — Esboço Druida aprendido!")
+					if esboco and fabricacao.aprenderReceita(p, esboco.receita) then
+						evento:FireClient(p, EC.DERROTADO, ini.cfg.nome .. " — " .. esboco.texto)
+						if ini.cfg.id == "GuardiaoDaTormenta" then
+							-- primeira pista do Ato 1 (segredo de história, não de item)
+							playerData.atualizar(p, function(pf)
+								pf.segredos.DiarioDoGuardiao = true
+								return true
+							end)
+						end
 					end
 					base.darTrofeu(p, ini.cfg.id)
 				end

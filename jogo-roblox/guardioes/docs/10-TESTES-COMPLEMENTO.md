@@ -168,3 +168,19 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | A4 | Aparar um golpe dele durante a corrida (defender no instante do impacto) | "Caiu! Ataque agora!": ele fica atordoado por 4 s |
 | A5 | Vencer | Juba Estática (3 a 5), XP, missão *O Alfa da matilha*; aparece um troféu no Expositor da base |
 | A6 | Forja ao nível 3 (Juba e Núcleos) e esboço da Rainha | O Escudo Druida pode ser fabricado **na Forja da base** (a Oficina não serve mais para ele) |
+
+## 10. Guardião da Tormenta: casos e roteiro
+
+**Automáticos novos:** 6 casos em `Tormenta.spec` (total: 140 em 21 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| G1 | Com `ignorarTravasDeChefe = false` e sem a Torre restaurada, ir à arena (x +110, z −90 da arena) | É empurrado para fora: "A Torre ainda não tem energia…" |
+| G2 | Com a Torre restaurada (ou a trava de teste ligada) | Barra do Guardião; lança, investida aérea e trovão |
+| G3 | Baixar a vida a 65% | "Fase 2…": a barra fica azul (imune) e golpes dão "Imune". Um dos 4 para-raios acende (amarelo) |
+| G4 | Ativar (B) o para-raios aceso | "O raio atingiu o Guardião!": cerca de 480 de dano, atordoado por 3 s e ferível nessa janela; depois volta a ficar imune |
+| G5 | Ativar um apagado | Choque de 10 em quem ativou |
+| G6 | Deixar o aceso sem ativar por 5 s | "O raio caiu na arena!": 30 de dano em quem estiver a até 10 studs dele |
+| G7 | Baixar a 30% | "Fase 3": áreas vermelhas no chão (centro, anel ou cruz) por 1,2 s e depois descarga de 35 em quem ficou nelas (esquivar no instante evita) |
+| G8 | Vencer | Coração da Tormenta e Penas do Relâmpago Antigo, 800 de XP, missão, troféu. Na primeira vez: "Códice Arcano aprendido!…" e o segredo de história *DiarioDoGuardiao* |
+| G9 | Oficina restaurada, com Coração, 2 Penas, 2 Glândulas e 2 Jubas | Fabricar a **Espada do Horizonte (Arcano)**: um artefato novo na Bolsa, que vira prancha a partir do estágio 2 (Exemplo 4 do complemento) |
