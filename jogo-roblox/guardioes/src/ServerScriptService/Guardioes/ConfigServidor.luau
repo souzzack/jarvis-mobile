@@ -27,6 +27,7 @@ local ConfigServidor = {
 			{ especie = "CaoTrovao", estagio = "Adulto", nome = "Trovisco" },
 			{ especie = "RaiaDasNuvens", estagio = "Adulto", nome = "Brisa" },
 			{ especie = "AxoloteNebular", estagio = "Filhote", nome = "Nebu", xp = 590, vinculo = 290 },
+			{ especie = "LebreDeFaisca", estagio = "Adulto", nome = "Pipoca" },
 		},
 		-- progresso fingido SÓ para ler os livros de teste (Grimório e Tomo). O Códice continua bloqueado
 		-- (exige o Campo das Bolhas) para mostrar a mensagem de requisito.
@@ -52,6 +53,12 @@ local ConfigServidor = {
 	marcadoresDeTeste = {
 		ativa = true,
 		estacoes = { { id = "OficinaDosInventores", deslocamento = Vector3.new(30, 0, -10) } },
+		-- escondidos: só aparecem para o dono quando a criatura ativa sabe a habilidade (e está perto)
+		ocultos = {
+			{ revela = "TrilhaEscondida", deslocamento = Vector3.new(-30, 2, 40), tamanho = Vector3.new(4, 1, 18) },
+			-- corrente ascendente (funciona para o planador mesmo sem ver; a Raia a mostra)
+			{ revela = "SentirCorrente", deslocamento = Vector3.new(30, 20, 60), tamanho = Vector3.new(14, 60, 14), corrente = 14 },
+		},
 		estruturas = {
 			{ id = "OficinaDosInventores", deslocamento = Vector3.new(30, 0, -4) },
 			{ id = "Observatorio", deslocamento = Vector3.new(38, 0, -4) },

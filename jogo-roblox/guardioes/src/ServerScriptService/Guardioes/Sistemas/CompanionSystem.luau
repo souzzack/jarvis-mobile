@@ -45,7 +45,7 @@ end
 
 -- (T) valores provisórios
 local VEL_POR_ESTILO: { [string]: number } = { Flutua = 14, Saltita = 18, Trota = 20, Plana = 22 }
-local DANO_POR_ESTAGIO: { [string]: number } = { Filhote = 3, Juvenil = 6, Adulto = 10 }
+local RAIO_REVELAR = 25
 local XP_POR_VITORIA = 20
 local VINCULO_BATALHA = 10
 local VINCULO_AFAGO = 15
@@ -142,6 +142,7 @@ local function cartao(j: Jogador, c: any): any
 		podeEvoluir = pode, faltando = faltando,
 		podeMontar = montavel, montariaTipo = if esp.montaria then esp.montaria.tipo else nil,
 		especializacao = c.especializacao, afinidades = c.afinidades, habilidades = Vinculo.habilidadesEfetivas(c, Afinidades),
+		atributos = Crescimento.atributos(c, esp),
 		teste = j.teste[c.guid] == true,
 	}
 end
@@ -334,9 +335,8 @@ local function pensar(p: Player, j: Jogador, agora: number)
 		destino = alvoPos + dir * ((inimigo.raio or 1.5) + a.raiz.Size.Z / 2 + 0.5)
 		if (pos - alvoPos).Magnitude <= (inimigo.raio or 1.5) + a.raiz.Size.Z / 2 + 3 and agora >= a.proximoAtaque then
 			a.proximoAtaque = agora + 1.2
-			local fator = if esp.papel == "Combate" then 1 else 0.5
 			inimigos.receberGolpe(inimigo.id, {
-				dano = math.floor((DANO_POR_ESTAGIO[c.estagio] or 3) * fator + 0.5),
+				dano = Crescimento.atributos(c, esp).dano,
 				postura = 6, bonusPostura = 0, multiplicador = 1, atacante = p,
 			})
 		end
@@ -455,6 +455,15 @@ function CompanionSystem.ativa(p: Player): (any?, any?, BasePart?)
 	end
 	local c = j.criaturas[j.ativa.guid]
 	return c, especies[c.especie], j.ativa.raiz
+end
+
+-- a criatura ativa sabe esta habilidade? (estágio + especialização)
+function CompanionSystem.ativaTemHabilidade(p: Player, habilidade: string): boolean
+	local c = CompanionSystem.ativa(p)
+	if not c then
+		return false
+	end
+	return table.find(Vinculo.habilidadesEfetivas(c, Afinidades), habilidade) ~= nil
 end
 
 -- usada pelo MountSystem: liga/desliga a IA e devolve as peças da criatura ativa
@@ -606,6 +615,75 @@ function CompanionSystem.Start()
 				Dados.ganharVinculo(c, "Batalha", VINCULO_BATALHA, hoje())
 				gravar(p, j, a.guid)
 				j.listaPendente = true
+			end
+		end
+	end)
+
+	-- REVELAR: lugares escondidos (trilhas, correntes) que só aparecem para o dono quando a criatura ativa
+	-- tem a habilidade certa e está perto. Parts com o atributo "RevelaCom" = habilidade, nas pastas
+	-- GuardioesOcultos / GuardioesCorrentes. O cliente do dono mostra (e deixa pisar, se for trilha).
+	local marc = ConfigServidor.marcadoresDeTeste
+	if marc and marc.ativa and ConfigServidor.arenaDeTeste.ativa and marc.ocultos then
+		local pastaOcultos = Workspace:FindFirstChild("GuardioesOcultos") or Instance.new("Folder")
+		pastaOcultos.Name = "GuardioesOcultos"
+		pastaOcultos.Parent = Workspace
+		for _, o in marc.ocultos do
+			local part = Instance.new("Part")
+			part.Name = "Oculto_" .. o.revela
+			part.Anchored = true
+			part.CanCollide = false
+			part.Transparency = 1
+			part.Size = o.tamanho
+			part.Color = Color3.fromHex("#C9B26B")
+			part.CFrame = CFrame.new(ConfigServidor.arenaDeTeste.centro + o.deslocamento)
+			part:SetAttribute("RevelaCom", o.revela)
+			if o.corrente then
+				part:SetAttribute("GuardioesCorrente", o.corrente)
+			end
+			part.Parent = if o.corrente then (Workspace:FindFirstChild("GuardioesCorrentes") or (function()
+				local f = Instance.new("Folder")
+				f.Name = "GuardioesCorrentes"
+				f.Parent = Workspace
+				return f
+			end)()) else pastaOcultos
+		end
+	end
+	local revelados: { [Player]: { [Instance]: boolean } } = {}
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			for p, j in jogadores do
+				local a = j.ativa
+				if a and not a.montada then
+					local c = j.criaturas[a.guid]
+					local sabe = {}
+					for _, h in Vinculo.habilidadesEfetivas(c, Afinidades) do
+						sabe[h] = true
+					end
+					local novos = {}
+					revelados[p] = revelados[p] or {}
+					for _, nomePasta in { "GuardioesOcultos", "GuardioesCorrentes" } do
+						local pasta = Workspace:FindFirstChild(nomePasta)
+						if pasta then
+							for _, d in pasta:GetDescendants() do
+								local h = d:GetAttribute("RevelaCom")
+								if d:IsA("BasePart") and typeof(h) == "string" and sabe[h] and not revelados[p][d]
+									and (d.Position - a.raiz.Position).Magnitude <= RAIO_REVELAR + d.Size.Magnitude / 2 then
+									revelados[p][d] = true
+									table.insert(novos, d)
+								end
+							end
+						end
+					end
+					if #novos > 0 then
+						evento:FireClient(p, EC.REVELAR, novos, c.nome)
+					end
+				end
+			end
+			for p in revelados do
+				if not p.Parent then
+					revelados[p] = nil
+				end
 			end
 		end
 	end)

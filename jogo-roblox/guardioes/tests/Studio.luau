@@ -61,6 +61,9 @@ return function()
 		CfgBase = require(G.Config.Base),
 		Viagem = require(G.Viagem.Viagem),
 		MatilhaDoAlfa = require(G.Chefes.MatilhaDoAlfa),
+		-- especiais
+		Especial = require(G.Combate.Especial),
+		Especiais = require(G.Config.Especiais),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

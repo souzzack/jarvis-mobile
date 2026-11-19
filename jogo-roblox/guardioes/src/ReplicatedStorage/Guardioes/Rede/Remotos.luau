@@ -79,6 +79,7 @@ Remotos.EventoCompanheiro = {
 	LISTA = 1, -- (lista de cartões) só o dono
 	REJEITADO = 2, -- (acao, motivo)
 	EVOLUIU = 3, -- (guid, estagio)
+	REVELAR = 4, -- (lista de Parts escondidas, nomeDaCriatura): o cliente do dono mostra
 }
 
 -- montarias
@@ -89,6 +90,7 @@ Remotos.EventoMontaria = { REJEITADO = 1, MONTADO = 2 } -- MONTADO: (montado: bo
 Remotos.EventoLivro = {
 	LIDO = 1, -- (livroId, nomeDoLivro, { nomes das habilidades aprendidas })
 	RECUSADO = 2, -- (livroId, textoPublico)
+	LISTA = 3, -- (lista { id, nome, ensina, lido, requisito }) — livros ocultos aparecem como "???"
 }
 
 -- fabricação (a janela abre pelo ProximityPrompt da estação; o pedido FABRICAR é validado no servidor)
@@ -129,7 +131,23 @@ Remotos.EventoViagem = {
 	CHEGOU = 4, -- (pontoId)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem" }
+-- habilidades especiais de armas e escudos
+Remotos.Especial = { USAR = 1 }
+Remotos.EventoEspecial = {
+	USOU = 1, -- (id, tipo, recarga, avanco, impulsoVertical, duracao) só o dono: faz o impulso do corpo
+	REJEITADO = 2, -- (motivo)
+	ACERTO = 3, -- (inimigoId, tipo, dano) para todos
+	EFEITO = 4, -- (userId, tipo) para todos: brilho no personagem
+}
+-- raça
+Remotos.Raca = { ESCOLHER = 1 } -- (racaId)
+Remotos.EventoRaca = {
+	LISTA = 1, -- (raças, racaAtual?, podeTrocar, precisaEscolher)
+	DEFINIDA = 2, -- (id, nome)
+	REJEITADO = 3, -- (motivo)
+}
+
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca" }
 
 local pasta: Folder? = nil
 

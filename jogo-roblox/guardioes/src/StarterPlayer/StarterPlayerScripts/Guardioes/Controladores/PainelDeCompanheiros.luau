@@ -122,6 +122,9 @@ local function redesenhar()
 		cartao.Parent = rolagem
 		rotulo(cartao, string.format("%s — %s (%s)%s", c.nome, c.especieNome, c.estagio, if c.teste then " · teste" else ""), 6, 15)
 		local linha = string.format("Vínculo %d · XP %d", c.nivelVinculo, c.xp)
+		if c.atributos then
+			linha ..= string.format(" · Vida %d · Dano %d", c.atributos.vida, c.atributos.dano)
+		end
 		if c.especializacao then
 			linha ..= " · " .. legivel(c.especializacao)
 		end
@@ -256,6 +259,18 @@ function PainelDeCompanheiros.Start()
 			hud.aviso(if b == "faltaRequisito" then "Ainda faltam requisitos" else Mensagens.texto(b))
 		elseif tipo == EC.EVOLUIU then
 			hud.aviso("Sua criatura cresceu: " .. tostring(b) .. "!")
+		elseif tipo == EC.REVELAR and typeof(a) == "table" then
+			-- só para este jogador: o lugar escondido aparece (e a trilha passa a ser pisável para ele)
+			for _, parte in a do
+				if typeof(parte) == "Instance" and parte:IsA("BasePart") then
+					parte.Transparency = if parte:GetAttribute("GuardioesCorrente") then 0.85 else 0.1
+					parte.Material = Enum.Material.Neon
+					if not parte:GetAttribute("GuardioesCorrente") then
+						parte.CanCollide = true
+					end
+				end
+			end
+			hud.aviso(tostring(b) .. " encontrou algo escondido!")
 		end
 	end)
 	evMontaria.OnClientEvent:Connect(function(tipo: number, a: any, b: any)

@@ -16,9 +16,11 @@ local ORDEM = {
 	"MovementSystem", -- locomoção: voo, planador, prancha (núcleo único)
 	"InventorySystem", -- materiais e artefatos com GUID (salvos + teste em memória)
 	"MetamorphicArtifactSystem", -- formas dos artefatos (usa movimento, combate e inventário)
+	"SpecialAbilitySystem", -- habilidades especiais de armas e escudos
 	"CompanionSystem", -- criaturas companheiras, IA, crescimento
 	"MountSystem", -- montarias (usa companheiros e movimento)
 	"ProgressionSystem", -- nível, XP e vida por raça
+	"RaceSystem", -- escolha de raça (provisória até o balanceamento)
 	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
 	"CraftingSystem", -- fabricação nas estações (transação atômica no inventário)
 	"RestorationSystem", -- restauração de estruturas por jogador, com ajuda cooperativa

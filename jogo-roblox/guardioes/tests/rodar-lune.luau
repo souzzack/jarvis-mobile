@@ -58,6 +58,9 @@ local M = {
 	CfgBase = require("../src/ReplicatedStorage/Guardioes/Config/Base"),
 	Viagem = require("../src/ReplicatedStorage/Guardioes/Viagem/Viagem"),
 	MatilhaDoAlfa = require("../src/ReplicatedStorage/Guardioes/Chefes/MatilhaDoAlfa"),
+	-- especiais
+	Especial = require("../src/ReplicatedStorage/Guardioes/Combate/Especial"),
+	Especiais = require("../src/ReplicatedStorage/Guardioes/Config/Especiais"),
 }
 
 local specs = {
@@ -80,6 +83,7 @@ local specs = {
 	{ nome = "Inventario.spec", fn = require("./Specs/Inventario.spec") },
 	{ nome = "FabricacaoRestauracaoChefe.spec", fn = require("./Specs/FabricacaoRestauracaoChefe.spec") },
 	{ nome = "BaseViagemAlfa.spec", fn = require("./Specs/BaseViagemAlfa.spec") },
+	{ nome = "EspeciaisAtributos.spec", fn = require("./Specs/EspeciaisAtributos.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

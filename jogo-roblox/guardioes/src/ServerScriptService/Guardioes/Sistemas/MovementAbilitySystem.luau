@@ -90,6 +90,55 @@ function MovementAbilitySystem.conceder(p: Player, id: string, origem: string): 
 	return true
 end
 
+-- aplica a raça na memória: tira as habilidades de raça antigas, põe as novas e as restrições
+local function aplicarRaca(d: Dados, racaId: string)
+	for id, origem in d.habilidades do
+		if origem == "raca" then
+			d.habilidades[id] = nil
+		end
+	end
+	d.raca = racaId
+	local raca = Racas.porId[racaId]
+	if raca then
+		for _, id in raca.habilidadesIniciais do
+			d.habilidades[id] = "raca"
+		end
+		for _, r in raca.restricoes do
+			if r == "SemPlanador" then
+				d.habilidades["Planador"] = nil -- só em memória: se trocar de raça, volta a valer o que foi salvo
+			end
+		end
+	end
+end
+
+-- RaceSystem chama depois de validar a escolha; grava perfil.raca (transação)
+function MovementAbilitySystem.definirRaca(p: Player, racaId: string): boolean
+	local d = dados[p]
+	if not d or not Racas.porId[racaId] then
+		return false
+	end
+	local ok = playerData.atualizar(p, function(perfil)
+		perfil.raca = racaId
+		return true
+	end)
+	if not ok then
+		return false
+	end
+	-- recoloca as habilidades salvas (a restrição de uma raça antiga pode ter tirado alguma da memória)
+	local perfil = playerData.obter(p)
+	if perfil then
+		for id, origem in perfil.habilidades do
+			if Habilidades.porId[id] then
+				d.habilidades[id] = origem
+			end
+		end
+	end
+	aplicarRaca(d, racaId)
+	MovementAbilitySystem.mudou.disparar(p)
+	enviar(p)
+	return true
+end
+
 -- fontes de modificadores para PerfilEfetivo (habilidades com 'mods' ou 'liberaImpulso')
 function MovementAbilitySystem.fontes(p: Player): { any }
 	local f = {}
@@ -125,7 +174,7 @@ function MovementAbilitySystem.Start()
 			end
 		end
 		if perfil.raca and Racas.porId[perfil.raca] then
-			d.raca = perfil.raca
+			aplicarRaca(d, perfil.raca)
 		end
 		MovementAbilitySystem.mudou.disparar(p)
 		enviar(p)

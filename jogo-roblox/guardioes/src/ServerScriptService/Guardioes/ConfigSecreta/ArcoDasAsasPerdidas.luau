@@ -38,6 +38,11 @@ return {
 		pesado = { nome = "ChuvaDeLuz", preparo = 0.70, golpe = 0.15, recuperacao = 0.60, alcance = 30, arcoGraus = 40, dano = 26, postura = 24, custoEstamina = 22, animacao = "ArcoChuva" },
 		bonusPosturaComboPerfeito = 0.25,
 	},
+	-- especial (só servidor)
+	especial = {
+		forma = "Arco", id = "FlechaEstelar", nome = "Flecha Estelar", tipo = "Disparo",
+		recarga = 14, custoEstamina = 22, alcance = 45, arcoGraus = 6, dano = 40, postura = 30, usoEmVoo = 1, animacao = "ArcoEstelar",
+	},
 	perfil = {
 		id = "AsasPerdidas", nome = "Asas Perdidas", tipo = "Motorizado",
 		velMax = 46, velImpulso = 70, aceleracao = 55, desaceleracao = 40, velVerticalMax = 24, acelVertical = 48,

@@ -337,6 +337,33 @@ function MetamorphicArtifactSystem.avaliarEvolucao(p: Player, guid: string, prog
 	return Progressao.avaliar(cfgDe(inst), inst.estagio, progresso)
 end
 
+-- artefato equipado: (id, estágio, forma ativa ou nil, tipo ativo ou nil)
+function MetamorphicArtifactSystem.equipado(p: Player): (string?, number, string?, string?)
+	local inst, cfg = equipada(p)
+	if not inst or not cfg then
+		return nil, 0, nil, nil
+	end
+	return inst.id, inst.estagio, MaqArt.formaAtiva(inst), MaqArt.tipoAtivo(inst, cfg)
+end
+
+-- "Corte em Voo": sai da forma de locomoção para a de combate NA HORA (sem os 0,6 s de troca), com a queda
+-- amortecida do retorno ao combate. Só o servidor chama (SpecialAbilitySystem, depois de validar o estágio).
+function MetamorphicArtifactSystem.forcarFormaDeCombate(p: Player): boolean
+	local inst, cfg = equipada(p)
+	if not inst or not cfg or inst.alvo then
+		return false
+	end
+	local destino = MaqArt.formaDoTipo(cfg, "Combate") or MaqArt.formaDoTipo(cfg, "Defesa")
+	if not destino then
+		return false
+	end
+	movimento.sairModoDeArtefato(p, cfg.retornoAoCombate.duracaoMax)
+	inst.forma = destino
+	aplicarForma(p, inst, cfg)
+	publicar(p, inst)
+	return true
+end
+
 function MetamorphicArtifactSystem.formaAtiva(p: Player): (string?, string?)
 	local inst, cfg = equipada(p)
 	if not inst or not cfg then

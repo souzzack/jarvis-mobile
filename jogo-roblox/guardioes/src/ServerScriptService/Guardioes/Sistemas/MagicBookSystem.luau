@@ -52,6 +52,25 @@ local function progressoDe(p: Player, perfil: any): any
 	return Requisitos.unir(base)
 end
 
+-- lista do "grimório pessoal": públicos com o requisito em texto; ocultos só viram nome depois de lidos
+local function enviarLista(p: Player)
+	local perfil = playerData.obter(p)
+	if not perfil then
+		return
+	end
+	local l = {}
+	for _, livro in Livros.lista do
+		local lido = perfil.livrosLidos[livro.id] == true
+		local esconder = livro.oculto and not lido
+		table.insert(l, {
+			id = livro.id, nome = if esconder then "???" else livro.nome, lido = lido,
+			ensina = if esconder then nil else (Habilidades.porId[livro.ensina] and Habilidades.porId[livro.ensina].nome),
+			requisito = if lido then nil else livro.requisitoPublico,
+		})
+	end
+	evento:FireClient(p, EL.LISTA, l)
+end
+
 local function ler(p: Player, livroId: string, parte: BasePart)
 	local agora = os.clock()
 	if agora - (ultimaLeitura[p] or -math.huge) < RECARGA then
@@ -96,6 +115,7 @@ local function ler(p: Player, livroId: string, parte: BasePart)
 	end
 	evento:FireClient(p, EL.LIDO, livroId, if publico.oculto then "???" else publico.nome, nomes)
 	MagicBookSystem.lido.disparar(p, livroId)
+	enviarLista(p)
 end
 
 local function prepararLivro(parte: BasePart)
@@ -177,6 +197,9 @@ function MagicBookSystem.Start()
 	end)
 	Players.PlayerRemoving:Connect(function(pl)
 		ultimaLeitura[pl] = nil
+	end)
+	playerData.carregado.conectar(function(pl: Player)
+		enviarLista(pl)
 	end)
 end
 

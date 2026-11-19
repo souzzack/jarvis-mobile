@@ -27,12 +27,13 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 13 | [docs/13-RELATORIO-INVENTARIO-MISSOES.md](docs/13-RELATORIO-INVENTARIO-MISSOES.md) | Inventário, saque, missões, nível, armas novas e correção da previsão de golpes |
 | 14 | [docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md](docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md) | Fabricação, restauração de estruturas e a Rainha-Bobina |
 | 15 | [docs/15-RELATORIO-BASE-VIAGEM-ALFA.md](docs/15-RELATORIO-BASE-VIAGEM-ALFA.md) | Base pessoal, viagem rápida e o Cão-Trovão Alfa |
+| 16 | [docs/16-CONFERENCIA-DO-COMPLEMENTO.md](docs/16-CONFERENCIA-DO-COMPLEMENTO.md) | Conferência do prompt complementar item por item, lacunas fechadas e o que falta |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + 18 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, Companion, Mount, Progression, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest) + Dados + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + 20 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest) + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo

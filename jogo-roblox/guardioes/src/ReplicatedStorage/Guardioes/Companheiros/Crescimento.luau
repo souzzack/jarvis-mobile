@@ -60,6 +60,22 @@ function C.evoluir(c: any, especie: any): (boolean, { Falta })
 	return true, faltando
 end
 
+-- Atributos DERIVADOS (não salvos: recalculados de espécie + estágio + vínculo, então nunca ficam
+-- inconsistentes após um balanceamento). Papel da espécie dá a base; estágio multiplica; vínculo soma 2%/nível.
+local BASE_PAPEL: { [string]: { vida: number, dano: number } } = {
+	Combate = { vida = 120, dano = 10 },
+	Suporte = { vida = 80, dano = 4 },
+	Coleta = { vida = 70, dano = 5 },
+	Exploracao = { vida = 90, dano = 4 },
+}
+local MULT_ESTAGIO: { [string]: number } = { Filhote = 0.4, Juvenil = 0.7, Adulto = 1.0 }
+
+function C.atributos(c: any, especie: any): { vida: number, dano: number }
+	local base = BASE_PAPEL[especie.papel] or { vida = 80, dano = 5 }
+	local m = (MULT_ESTAGIO[c.estagio] or 0.4) * (1 + 0.02 * nivelVinculo(c))
+	return { vida = math.floor(base.vida * m + 0.5), dano = math.floor(base.dano * m + 0.5) }
+end
+
 -- pode servir de montaria? (espécie com montaria + estágio mínimo)
 function C.podeMontar(c: any, especie: any): (boolean, string)
 	if not especie.montaria then

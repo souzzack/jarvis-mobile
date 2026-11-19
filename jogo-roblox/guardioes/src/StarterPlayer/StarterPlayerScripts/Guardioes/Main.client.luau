@@ -19,6 +19,8 @@ local ORDEM = {
 	"JanelaDeFabricacao", -- fabricação e avisos de restauração
 	"HudDeChefe", -- barra do chefe e fase de carga
 	"JanelaDeViagem", -- viagem rápida (M) e avisos da base pessoal
+	"ControleDeEspecial", -- habilidade especial da arma/escudo (1 / R1 / toque)
+	"JanelaDoPersonagem", -- raça, habilidades aprendidas e livros (P)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

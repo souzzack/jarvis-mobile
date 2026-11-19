@@ -48,6 +48,8 @@ local guardas: { Guarda } = {}
 CombatSystem.jogadorAtingido = Sinal.novo()
 -- arma escolhida por jogador (sobrevive ao renascer); nil = Espada padrão
 local armas: { [Player]: any } = {}
+-- Bastião (especial do Escudo): até quando golpes de frente viram aparo
+local bastiaoAte: { [Player]: number } = {}
 
 local estados: { [Player]: EstadoJogador } = {}
 local evento: RemoteEvent
@@ -161,7 +163,7 @@ function CombatSystem.danoAoJogador(p: Player, origem: Vector3, a: AtaqueRecebid
 		danoBase = a.dano, multiplicador = 1, defesaAlvo = 0,
 		postura = a.postura,
 		alvoInvulneravel = MaquinaDeCombo.invulneravel(st.maquina, Cfg, agora),
-		alvoAparando = MaquinaDeCombo.aparando(st.maquina, Cfg, agora),
+		alvoAparando = MaquinaDeCombo.aparando(st.maquina, Cfg, agora) or agora < (bastiaoAte[p] or 0),
 		alvoDefendendo = MaquinaDeCombo.defendendo(st.maquina),
 		frontal = frontal,
 		reducaoDefesa = Cfg.defesa.reducao,
@@ -181,6 +183,38 @@ function CombatSystem.danoAoJogador(p: Player, origem: Vector3, a: AtaqueRecebid
 		CombatSystem.jogadorAtingido.disparar(p, r.dano, r.tipo)
 	end
 	return r
+end
+
+-- ---- API para habilidades especiais (SpecialAbilitySystem)
+function CombatSystem.estamina(p: Player): number
+	local st = estados[p]
+	if not st then
+		return 0
+	end
+	Estamina.atualizar(st.estamina, Cfg.estamina, os.clock())
+	return st.estamina.valor
+end
+
+function CombatSystem.gastarEstamina(p: Player, quanto: number): boolean
+	local st = estados[p]
+	return st ~= nil and Estamina.gastar(st.estamina, Cfg.estamina, quanto, os.clock())
+end
+
+-- pode agir agora? (vivo, não atordoado, sem golpe em andamento, guardas de locomoção/artefato ok)
+function CombatSystem.livreParaEspecial(p: Player): (boolean, string?)
+	local st = estados[p]
+	if not st or not raizDe(p) then
+		return false, "semPersonagem"
+	end
+	local e = st.maquina.estado
+	if e ~= "Ocioso" and e ~= "Defesa" then
+		return false, e
+	end
+	return true, nil
+end
+
+function CombatSystem.ativarBastiao(p: Player, duracao: number)
+	bastiaoAte[p] = os.clock() + duracao
 end
 
 function CombatSystem.registrarGuarda(fn: Guarda)
@@ -317,6 +351,7 @@ function CombatSystem.Start()
 	Players.PlayerRemoving:Connect(function(p)
 		estados[p] = nil
 		armas[p] = nil
+		bastiaoAte[p] = nil
 	end)
 	evento.OnServerEvent:Connect(aoReceber)
 	RunService.Heartbeat:Connect(passo)

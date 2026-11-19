@@ -25,6 +25,7 @@ function LootSystem.Start()
 	local inimigos = ctxSistemas.obter("EnemySystem")
 	local inventario = ctxSistemas.obter("InventorySystem")
 	local progressao = ctxSistemas.obter("ProgressionSystem")
+	local companheiros = ctxSistemas.obter("CompanionSystem")
 	inimigos.morreu.conectar(function(ini: any, contribuicao: { [Player]: number })
 		local tabela = Loot.porInimigo[ini.cfg.id]
 		if not tabela then
@@ -36,6 +37,19 @@ function LootSystem.Start()
 				local meu = azar[p][ini.cfg.id] or {}
 				azar[p][ini.cfg.id] = meu
 				local itens = Saque.rolar(tabela, meu, math.random)
+				-- criatura farejadora por perto: 30% de chance de +1 no primeiro material do saque
+				local _, _, raiz = companheiros.ativa(p)
+				local onde = ini.raiz and ini.raiz.Position
+				if next(itens) and raiz and onde and (raiz.Position - onde).Magnitude <= 40
+					and (companheiros.ativaTemHabilidade(p, "FarejarMaterial") or companheiros.ativaTemHabilidade(p, "FaroDeCristal"))
+					and math.random() < 0.3 then
+					local ids = {}
+					for id in itens do
+						table.insert(ids, id)
+					end
+					table.sort(ids)
+					itens[ids[1]] += 1
+				end
 				if next(itens) then
 					inventario.darMateriais(p, itens, "saque:" .. ini.cfg.id)
 				end

@@ -65,6 +65,26 @@ local function corpo(): (BasePart?, Humanoid?)
 	return ch:FindFirstChild("HumanoidRootPart") :: BasePart?, ch:FindFirstChildOfClass("Humanoid")
 end
 
+-- correntes ascendentes (Parts com "GuardioesCorrente" = força, em workspace.GuardioesCorrentes): o planador sobe
+local function correnteEm(pos: Vector3): number
+	local pasta = Workspace:FindFirstChild("GuardioesCorrentes")
+	if not pasta then
+		return 0
+	end
+	local forca = 0
+	for _, d in pasta:GetDescendants() do
+		local f = d:GetAttribute("GuardioesCorrente")
+		if d:IsA("BasePart") and typeof(f) == "number" then
+			local rel = d.CFrame:PointToObjectSpace(pos)
+			local s = d.Size / 2
+			if math.abs(rel.X) <= s.X and math.abs(rel.Y) <= s.Y and math.abs(rel.Z) <= s.Z then
+				forca = math.max(forca, f)
+			end
+		end
+	end
+	return forca
+end
+
 local function medirAltura(hrp: BasePart, hum: Humanoid): number
 	raycast.FilterDescendantsInstances = { jogador.Character :: Instance }
 	local r = Workspace:Raycast(hrp.Position, Vector3.new(0, -300, 0), raycast)
@@ -385,7 +405,8 @@ local function passo(dt: number)
 			local lk = cam.CFrame.LookVector
 			fis.rumo = math.atan2(lk.X, lk.Z)
 		end
-		Fisica.passo(fis, perfil, ent, dt, { alturaSobreSolo = alturaAtual, correnteAscendente = 0 })
+		local corrente = if estado == "Planando" then correnteEm(hrp.Position) else 0
+		Fisica.passo(fis, perfil, ent, dt, { alturaSobreSolo = alturaAtual, correnteAscendente = corrente })
 	end
 	if lv and ao then
 		lv.VectorVelocity = Vector3.new(fis.vx, fis.vy, fis.vz)
