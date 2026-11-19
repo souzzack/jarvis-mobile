@@ -1,0 +1,18 @@
+{
+ "objetos": [
+  "CB_Terreno_Afloramentos_PedraLilas",
+  "CB_Terreno_AltarIsland_Terreno",
+  "CB_Terreno_BaseRochosa_RochaBase",
+  "CB_Terreno_CristaisBase_Cristal",
+  "CB_Terreno_Ilha_Terreno",
+  "CB_Terreno_Ilhota1_Terreno",
+  "CB_Terreno_Ilhota2_Terreno",
+  "CB_Terreno_Ilhota3_Terreno",
+  "CB_Terreno_Lagos_Agua",
+  "CB_Terreno_Muretas_DouradoEscovado",
+  "CB_Terreno_Muretas_PedraLilas",
+  "CB_Terreno_Muretas_PedraPerolada",
+  "CB_Terreno_ObsIsland_Terreno"
+ ],
+ "triangulos": 254244
+}

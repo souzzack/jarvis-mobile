@@ -1,0 +1,15 @@
+{
+ "arquivo": "CB_Heightmap_IlhaPrincipal.png",
+ "resolucao": 512,
+ "studs_x": [
+  -195.49999999999997,
+  195.49999999999997
+ ],
+ "studs_y_norte": [
+  -172.5,
+  172.5
+ ],
+ "altura_preto": -10.0,
+ "altura_branco": 60.0,
+ "nota": "16 bits; fora da ilha = 0 (preto). Topo da ilha principal apenas (sem base rochosa)."
+}

@@ -1,0 +1,81 @@
+{
+ "id": "Portal",
+ "titulo": "Portal Dimensional",
+ "arquivos": [
+  "Portal/CB_Portal.blend",
+  "Exports/glTF/CB_Portal.glb",
+  "Exports/FBX/CB_Portal.fbx",
+  "Exports/glTF/CB_Portal_Colisores.glb"
+ ],
+ "objetos": 19,
+ "colisores": 5,
+ "triangulos": 38020,
+ "materiais": [
+  "Bolha",
+  "Cristal",
+  "CristalRosa",
+  "Dourado",
+  "DouradoEscovado",
+  "EnergiaRosa",
+  "EnergiaTurquesa",
+  "Folha",
+  "Inscricao",
+  "PedraPerolada",
+  "Perola",
+  "Petala",
+  "PetalaLilas"
+ ],
+ "limites_min": [
+  -13.09,
+  -13.09,
+  -0.33
+ ],
+ "limites_max": [
+  13.09,
+  13.09,
+  25.98
+ ],
+ "tamanho_studs": [
+  26.18,
+  26.18,
+  26.32
+ ],
+ "pivo": "centro da base, no chão (0,0,0); frente para -Y",
+ "partes_animaveis": [
+  "AnelSuspenso1",
+  "AnelSuspenso2",
+  "Nucleo",
+  "Petalas"
+ ],
+ "flutuantes_intencionais": [
+  "AnelSuspenso1",
+  "AnelSuspenso2"
+ ],
+ "hierarquia": [
+  "CB_Portal (EMPTY)",
+  "  CB_Portal_AnelSuspenso1_Dourado (MESH, 1920 tri)",
+  "  CB_Portal_AnelSuspenso2_DouradoEscovado (MESH, 1536 tri)",
+  "  CB_Portal_Anel_PedraPerolada (MESH, 108 tri)",
+  "  CB_Portal_Anel_Perola (MESH, 3840 tri)",
+  "  CB_Portal_Cristais_Cristal (MESH, 160 tri)",
+  "  CB_Portal_Cristais_CristalRosa (MESH, 160 tri)",
+  "  CB_Portal_Estrutura_PedraPerolada (MESH, 864 tri)",
+  "  CB_Portal_Frisos_Dourado (MESH, 9416 tri)",
+  "  CB_Portal_Inscricoes_Inscricao (MESH, 8712 tri)",
+  "  CB_Portal_Luminarias_Bolha (MESH, 1056 tri)",
+  "  CB_Portal_Luminarias_EnergiaRosa (MESH, 336 tri)",
+  "  CB_Portal_Luminarias_PedraPerolada (MESH, 352 tri)",
+  "  CB_Portal_Nucleo_EnergiaRosa (MESH, 768 tri)",
+  "  CB_Portal_Nucleo_EnergiaTurquesa (MESH, 960 tri)",
+  "  CB_Portal_Pelicula_Bolha (MESH, 380 tri)",
+  "  CB_Portal_Petalas_Petala (MESH, 2976 tri)",
+  "  CB_Portal_Petalas_PetalaLilas (MESH, 2232 tri)",
+  "  CB_Portal_Sepalas_Folha (MESH, 2232 tri)",
+  "  COL_AnelLado-1 (MESH, 12 tri)",
+  "  COL_AnelLado1 (MESH, 12 tri)",
+  "  COL_AnelTopo (MESH, 12 tri)",
+  "  COL_Estrado_A (MESH, 12 tri)",
+  "  COL_Estrado_B (MESH, 12 tri)",
+  "  TRG_Teleporte (MESH, 12 tri)"
+ ]
+}
