@@ -43,4 +43,10 @@ function Estamina.drenar(r: Recurso, cfg: ConfigRecurso, quanto: number, agora: 
 	return false
 end
 
+-- recuperação instantânea (consumível): não reinicia o atraso de recuperação; nunca passa do máximo
+function Estamina.recuperar(r: Recurso, cfg: ConfigRecurso, quanto: number, agora: number)
+	Estamina.atualizar(r, cfg, agora)
+	r.valor = math.min(r.max, r.valor + math.max(0, quanto))
+end
+
 return Estamina

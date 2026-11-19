@@ -74,6 +74,8 @@ return function()
 		Descoberta = require(G.Segredos.Descoberta),
 		SegredosAto1 = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.SegredosAto1),
 		Materiais = require(G.Config.Materiais),
+		Consumivel = require(G.Consumiveis.Consumivel),
+		Consumiveis = require(G.Config.Consumiveis),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

@@ -37,6 +37,7 @@ local materiais: { any } = {}
 local artefatos: { any } = {}
 local equipamentos: { any } = {}
 local totaisEquip: any = nil
+local capacidadeEquip: any = nil
 local evEquip: RemoteEvent
 local faltas: { [string]: string } = {}
 
@@ -132,7 +133,8 @@ local function desenharJanela()
 	end
 	-- equipamentos (armaduras e acessórios)
 	y += 6
-	texto(listaJanela, "Equipamentos", UDim2.fromOffset(8, y), UDim2.new(1, -16, 0, 20), 15, Color3.fromRGB(255, 220, 140))
+	local titulo = if capacidadeEquip then string.format("Equipamentos (%d/%d no Depósito)", capacidadeEquip.tem, capacidadeEquip.cabe) else "Equipamentos"
+	texto(listaJanela, titulo, UDim2.fromOffset(8, y), UDim2.new(1, -16, 0, 20), 15, Color3.fromRGB(255, 220, 140))
 	y += 22
 	if totaisEquip then
 		texto(listaJanela, string.format("Defesa %d · Vida +%d · Energia de voo +%d", totaisEquip.defesa, totaisEquip.vidaBonus, totaisEquip.energiaVoo), UDim2.fromOffset(12, y), UDim2.new(1, -16, 0, 16), 12, Color3.fromRGB(190, 200, 230))
@@ -173,6 +175,32 @@ local function desenharJanela()
 			end)
 		end
 		texto(c, table.concat(partes, " · ") .. (if it.efeito then " — " .. it.efeito else ""), UDim2.fromOffset(8, 20), UDim2.new(1, -110, 0, 30), 11, Color3.fromRGB(190, 200, 230))
+		if not it.encaixe then
+			-- desmontar abre espaço no Depósito; pede um segundo clique (devolve só parte do material)
+			local d = Instance.new("TextButton")
+			d.Position, d.Size = UDim2.new(1, -190, 0, 46), UDim2.fromOffset(88, 14)
+			d.BackgroundColor3 = Color3.fromRGB(80, 40, 44)
+			d.TextColor3 = Color3.new(1, 1, 1)
+			d.Font = Enum.Font.GothamBold
+			d.TextSize = 11
+			d.Text = "Desmontar"
+			d.Parent = c
+			local armado = false
+			d.Activated:Connect(function()
+				if not armado then
+					armado = true
+					d.Text = "Confirmar?"
+					task.delay(3, function()
+						if d.Parent then
+							armado = false
+							d.Text = "Desmontar"
+						end
+					end)
+					return
+				end
+				evEquip:FireServer(Remotos.Equipamento.DESMONTAR, it.guid)
+			end)
+		end
 		local b = Instance.new("TextButton")
 		b.Position, b.Size = UDim2.new(1, -96, 0, 18), UDim2.fromOffset(88, 26)
 		b.BackgroundColor3 = Color3.fromRGB(52, 60, 92)
@@ -287,14 +315,17 @@ function HudDeProgresso.Start()
 		end
 	end)
 	evEquip = Remotos.evento("Equipamento")
-	evEquip.OnClientEvent:Connect(function(tipo: number, a: any, b: any)
+	evEquip.OnClientEvent:Connect(function(tipo: number, a: any, b: any, c: any)
 		if tipo == Remotos.EventoEquipamento.LISTA and typeof(a) == "table" then
 			equipamentos, totaisEquip = a, b
+			capacidadeEquip = if typeof(c) == "table" then c else nil
 			if janela.Visible then
 				desenharJanela()
 			end
 		elseif tipo == Remotos.EventoEquipamento.REJEITADO then
 			hud.aviso(require(G.Util.Mensagens).texto(a))
+		elseif tipo == Remotos.EventoEquipamento.DESMONTOU then
+			hud.aviso(tostring(a) .. " desmontado")
 		elseif tipo == Remotos.EventoEquipamento.MELHOROU then
 			hud.aviso(string.format("%s agora +%d", tostring(a), b or 0))
 		elseif tipo == Remotos.EventoEquipamento.FALTA and typeof(b) == "table" then

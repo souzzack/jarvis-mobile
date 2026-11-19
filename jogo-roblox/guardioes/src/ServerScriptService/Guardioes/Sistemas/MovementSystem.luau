@@ -453,6 +453,16 @@ function MovementSystem.gastarEnergia(p: Player, quanto: number): boolean
 	return st ~= nil and Estamina.gastar(st.energia, st.cfgEnergia, quanto, os.clock())
 end
 
+-- recuperação instantânea (consumível): nunca passa do máximo
+function MovementSystem.recuperarEnergia(p: Player, quanto: number): boolean
+	local st = estados[p]
+	if not st then
+		return false
+	end
+	Estamina.recuperar(st.energia, st.cfgEnergia, quanto, os.clock())
+	return true
+end
+
 -- pode começar um modo de artefato agora? (checado ANTES de iniciar a transformação)
 function MovementSystem.podeEntrarModo(p: Player, perfilId: string): (boolean, string)
 	local st = estados[p]

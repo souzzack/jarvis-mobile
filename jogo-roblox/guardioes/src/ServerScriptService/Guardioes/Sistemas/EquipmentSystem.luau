@@ -15,6 +15,8 @@ local Eq = require(G.Equipamento.Equipamento)
 local Melhoria = require(G.Equipamento.Melhoria)
 local Catalogo = require(G.Config.Equipamentos)
 local Raridades = require(G.Config.Raridades)
+local BaseLogica = require(G.Base.Base)
+local CfgBase = require(G.Config.Base)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
 local Remotos = require(G.Rede.Remotos)
 
@@ -59,7 +61,38 @@ local function aplicar(p: Player)
 	table.sort(itens, function(a, b)
 		return a.nome < b.nome
 	end)
-	evento:FireClient(p, EE.LISTA, itens, t)
+	evento:FireClient(p, EE.LISTA, itens, t, { tem = #itens, cabe = BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito) })
+end
+
+-- desmontar: só item NÃO equipado; devolve parte do material (Eq.desmontar) na MESMA gravação que o remove
+local function desmontar(p: Player, guid: string)
+	local perfil = playerData.obter(p)
+	local item = perfil and perfil.equipamentos[guid]
+	local cfg = item and Catalogo.porId[item.id]
+	if not perfil or not item or not cfg then
+		evento:FireClient(p, EE.REJEITADO, "naoPossui")
+		return
+	end
+	if Eq.ondeEsta(perfil.equipado, guid) then
+		evento:FireClient(p, EE.REJEITADO, "retireAntes")
+		return
+	end
+	local ok = inventario.transacao(p, {
+		darMateriais = Eq.desmontar(cfg),
+		alterarPerfil = function(pf)
+			if not pf.equipamentos[guid] or Eq.ondeEsta(pf.equipado, guid) then
+				return false
+			end
+			pf.equipamentos[guid] = nil
+			return true
+		end,
+	})
+	if ok then
+		evento:FireClient(p, EE.DESMONTOU, cfg.nome)
+		aplicar(p)
+	else
+		evento:FireClient(p, EE.REJEITADO, "gravacao")
+	end
 end
 
 local function equipar(p: Player, guid: string, encaixe: string)
@@ -191,6 +224,8 @@ function EquipmentSystem.Start()
 			retirar(p, a)
 		elseif tipo == EQ.MELHORAR and typeof(a) == "string" and #a <= 64 then
 			melhorar(p, a)
+		elseif tipo == EQ.DESMONTAR and typeof(a) == "string" and #a <= 64 then
+			desmontar(p, a)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(p)

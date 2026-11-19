@@ -11,6 +11,15 @@ function B.nivel(base: any, espacoId: string, cfgEspaco: any): number
 	return base.espacos[espacoId] or cfgEspaco.nivelInicial or 1
 end
 
+-- quantos equipamentos o jogador pode ter (Depósito). Sem config de Depósito: sem limite prático.
+function B.capacidadeDoDeposito(base: any, cfgDeposito: any?): number
+	if not cfgDeposito or not cfgDeposito.capacidade then
+		return math.huge
+	end
+	local n = math.clamp(B.nivel(base, "Deposito", cfgDeposito), 1, #cfgDeposito.capacidade)
+	return cfgDeposito.capacidade[n]
+end
+
 -- (pode, faltando, consumir) para subir do nível atual para o próximo
 function B.avaliarMelhoria(cfgEspaco: any, nivelAtual: number, nivelJogador: number, materiais: { [string]: number }): (boolean, { Falta }, { [string]: number })
 	local proximo = cfgEspaco.niveis and cfgEspaco.niveis[nivelAtual + 1]

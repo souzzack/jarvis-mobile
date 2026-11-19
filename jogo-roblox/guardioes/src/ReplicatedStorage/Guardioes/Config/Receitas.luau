@@ -61,6 +61,23 @@ local lista = {
 		id = "EsbocoDruida_Espectro", nome = "Amuleto Espectral (Druida)", estacao = "Forja", estacaoNivel = 3, conhecidaDesdeInicio = false, requisitos = {},
 		materiais = { LenteEspectral = 3, NucleoDeTempestade = 1 }, resultado = { tipo = "equipamento", id = "AmuletoEspectral" },
 	},
+	-- Bancada da base (GDD 9: consumíveis e acessórios). Ingredientes do Jardim: a base alimenta a si mesma.
+	{
+		id = "BalsamoDeCasca", nome = "Bálsamo de Casca ×2", estacao = "Bancada", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { CascaAntiga = 2, SementeFlutuante = 1 }, resultado = { tipo = "material", id = "BalsamoDeCasca", qtd = 2 },
+	},
+	{
+		id = "TonicoDeVento", nome = "Tônico de Vento ×2", estacao = "Bancada", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { SementeFlutuante = 2, PenaDeRaia = 1 }, resultado = { tipo = "material", id = "TonicoDeVento", qtd = 2 },
+	},
+	{
+		id = "InfusaoDeFaisca", nome = "Infusão de Faísca ×2", estacao = "Bancada", estacaoNivel = 2, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { FragmentoDeFaisca = 4, SementeFlutuante = 1 }, resultado = { tipo = "material", id = "InfusaoDeFaisca", qtd = 2 },
+	},
+	{
+		id = "PingenteDePena", nome = "Pingente de Pena", estacao = "Bancada", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { PenaDeRaia = 3, FragmentoDeFaisca = 4 }, resultado = { tipo = "equipamento", id = "PingenteDePena" },
+	},
 }
 
 local porId: { [string]: any } = {}

@@ -148,12 +148,19 @@ Remotos.EventoEspecial = {
 	EFEITO = 4, -- (userId, tipo) para todos: brilho no personagem
 }
 -- equipamentos (armaduras e acessórios)
-Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2, MELHORAR = 3 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe); MELHORAR: (guid)
+Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2, MELHORAR = 3, DESMONTAR = 4 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe); MELHORAR/DESMONTAR: (guid)
 Remotos.EventoEquipamento = {
-	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, melhoria, proximaMelhoria, atributos, efeito, encaixe? }, totais)
+	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, melhoria, proximaMelhoria, atributos, efeito, encaixe? }, totais, { tem, cabe })
 	REJEITADO = 2, -- (motivo)
 	MELHOROU = 3, -- (nome, nivel)
 	FALTA = 4, -- (guid, lista do que falta)
+	DESMONTOU = 5, -- (nome)
+}
+-- consumíveis da Bancada (barra: teclas 2, 3 e 4)
+Remotos.Consumivel = { USAR = 1 } -- (consumivelId)
+Remotos.EventoConsumivel = {
+	USOU = 1, -- (id, recargaAte em segundos a partir de agora, tipo do efeito)
+	REJEITADO = 2, -- (motivo)
 }
 -- transportes (tela de gerenciamento)
 Remotos.Transporte = { LISTAR = 1, PREFERIR = 2 } -- PREFERIR: (transporteId)
@@ -202,7 +209,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia", "Segredo" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia", "Segredo", "Consumivel" }
 
 local pasta: Folder? = nil
 

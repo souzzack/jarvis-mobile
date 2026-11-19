@@ -71,6 +71,8 @@ local M = {
 	Descoberta = require("../src/ReplicatedStorage/Guardioes/Segredos/Descoberta"),
 	SegredosAto1 = require("../src/ServerScriptService/Guardioes/ConfigSecreta/SegredosAto1"),
 	Materiais = require("../src/ReplicatedStorage/Guardioes/Config/Materiais"),
+	Consumivel = require("../src/ReplicatedStorage/Guardioes/Consumiveis/Consumivel"),
+	Consumiveis = require("../src/ReplicatedStorage/Guardioes/Config/Consumiveis"),
 }
 
 local specs = {
@@ -100,6 +102,7 @@ local specs = {
 	{ nome = "MelhoriaTransporte.spec", fn = require("./Specs/MelhoriaTransporte.spec") },
 	{ nome = "Companhia.spec", fn = require("./Specs/Companhia.spec") },
 	{ nome = "Descoberta.spec", fn = require("./Specs/Descoberta.spec") },
+	{ nome = "BancadaDeposito.spec", fn = require("./Specs/BancadaDeposito.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

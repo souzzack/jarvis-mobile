@@ -75,6 +75,9 @@ local TEXTOS: { [string]: string } = {
 	jaAgendada = "A dissolução já está agendada",
 	gravacao = "Não foi possível salvar agora; tente de novo",
 	companhiaOcupada = "Aguarde a ação anterior terminar",
+	-- base: Depósito e consumíveis
+	depositoCheio = "Depósito cheio: desmonte um equipamento ou melhore o Depósito da base",
+	retireAntes = "Retire o item antes de desmontar",
 }
 
 local Mensagens = {}

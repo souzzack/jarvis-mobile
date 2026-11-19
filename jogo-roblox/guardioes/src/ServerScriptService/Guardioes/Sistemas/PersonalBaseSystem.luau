@@ -3,8 +3,8 @@
 --  * Cada jogador recebe uma PARCELA livre do servidor (Parts com "GuardioesParcela" em workspace.GuardioesParcelas;
 --    no place real, os terrenos do tycoon recebem esse atributo — docs/04). Os NÍVEIS da base ficam no perfil
 --    (perfil.base), então a base volta igual em qualquer parcela/servidor.
---  * Espaços: Forja (estação "Forja" com Dono e Nível → CraftingSystem), Jardim (colheita com teto) e Expositor
---    (troféus de chefes). Prompts: "Melhorar" (N) em cada placa; "Colher" no Jardim; "Fabricar" na Forja.
+--  * Espaços: Forja e Bancada (estações com Dono e Nível → CraftingSystem), Jardim (colheita com teto),
+--    Expositor (troféus de chefes) e Depósito (capacidade de equipamentos, conferida no InventorySystem). Prompts: "Melhorar" (N) em cada placa; "Colher" no Jardim; "Fabricar" na Forja.
 --  * Melhorar = transação atômica do inventário (consome e sobe o nível juntos).
 --  * Visual PROVISÓRIO (blocos que crescem com o nível); modelos reais (e o galpão/funcionários migrados do
 --    tycoon) entram com o Studio. Nenhum modelo existente é tocado.
@@ -36,7 +36,18 @@ local parcelaDe: { [Player]: BasePart } = {}
 local modeloDe: { [Player]: Model } = {}
 local ultimoUso: { [Player]: number } = {}
 
-local CORES: { [string]: string } = { Forja = "#B4553A", Jardim = "#5DBB63", Expositor = "#C9B26B" }
+local CORES: { [string]: string } = { Forja = "#B4553A", Jardim = "#5DBB63", Expositor = "#C9B26B", Bancada = "#8A6A4A", Deposito = "#5A6478" }
+-- espaços que são ESTAÇÕES de fabricação da base (só o dono usa; CraftingSystem lê Dono e Nível)
+local ESTACOES: { [string]: boolean } = { Forja = true, Bancada = true }
+local rotuloDeposito: { [Player]: TextLabel } = {}
+
+local function textoDeposito(perfil: any): string
+	local n = 0
+	for _ in perfil.equipamentos do
+		n += 1
+	end
+	return string.format("Equipamentos %d/%d", n, BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito))
+end
 
 local function textoBase(p: Player, perfil: any): any
 	local espacos = {}
@@ -179,23 +190,39 @@ construir = function(p: Player)
 	local centro = parcela.CFrame * CFrame.new(0, parcela.Size.Y / 2, 0)
 	for id, cfg in CfgBase.espacos do
 		local n = BaseLogica.nivel(perfil.base, id, cfg)
-		local onde = centro * CFrame.new(CfgBase.layout[id] or Vector3.zero)
+		local pos = CfgBase.layout[id] or { 0, 0, 0 }
+		local onde = centro * CFrame.new(pos[1], pos[2], pos[3])
 		local bloco = Instance.new("Part")
 		bloco.Name = id
 		bloco.Anchored = true
 		bloco.Size = Vector3.new(4 + n, 2 + n * 0.6, 4 + n)
 		bloco.CFrame = onde * CFrame.new(0, bloco.Size.Y / 2, 0)
 		bloco.Color = Color3.fromHex(CORES[id] or "#888888")
-		bloco.Parent = if id == "Forja" then pastaEstacoes else m
-		if id == "Forja" then
+		bloco.Parent = if ESTACOES[id] then pastaEstacoes else m
+		if ESTACOES[id] then
 			-- estação da base: só o dono usa (CraftingSystem lê Dono e Nível)
-			bloco:SetAttribute("GuardioesEstacao", "Forja")
+			bloco:SetAttribute("GuardioesEstacao", id)
 			bloco:SetAttribute("Dono", p.UserId)
 			bloco:SetAttribute("Nivel", n)
 		elseif id == "Jardim" then
 			prompt(bloco, "GuardioesColher", "Colher", cfg.nome, Enum.KeyCode.B, function(quem)
 				colher(p, quem)
 			end)
+		elseif id == "Deposito" then
+			local g = Instance.new("BillboardGui")
+			g.Size = UDim2.fromOffset(140, 24)
+			g.StudsOffset = Vector3.new(0, bloco.Size.Y / 2 + 1.5, 0)
+			g.MaxDistance = 40
+			local t = Instance.new("TextLabel")
+			t.Size = UDim2.fromScale(1, 1)
+			t.BackgroundTransparency = 1
+			t.TextScaled = true
+			t.Font = Enum.Font.GothamBold
+			t.TextColor3 = Color3.new(1, 1, 1)
+			t.Text = textoDeposito(perfil)
+			t.Parent = g
+			rotuloDeposito[p] = t
+			g.Parent = bloco
 		elseif id == "Expositor" then
 			local i = 0
 			for trofeu in perfil.base.trofeus do
@@ -334,7 +361,16 @@ function PersonalBaseSystem.Start()
 		end
 		enviar(p)
 	end)
+	-- o contador do Depósito acompanha a bolsa (fabricou, desmontou)
+	inventario.mudou.conectar(function(p: Player)
+		local t = rotuloDeposito[p]
+		local perfil = playerData.obter(p)
+		if t and t.Parent and perfil then
+			t.Text = textoDeposito(perfil)
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(p)
+		rotuloDeposito[p] = nil
 		if modeloDe[p] then
 			modeloDe[p]:Destroy()
 		end

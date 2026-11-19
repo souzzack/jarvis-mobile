@@ -24,6 +24,7 @@ local ORDEM = {
 	"JanelaDeTransportes", -- transportes disponíveis, requisitos e preferido (J)
 	"JanelaDaCompanhia", -- companhia (guilda): membros, cofre, registro (U)
 	"DiarioDeDescobertas", -- segredos ???: diário, margens, constelação, contemplação (Y)
+	"BarraDeConsumiveis", -- consumíveis da Bancada (2, 3, 4 / L1 / toque)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

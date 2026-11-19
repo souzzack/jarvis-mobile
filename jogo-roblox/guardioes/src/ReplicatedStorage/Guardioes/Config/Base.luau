@@ -1,7 +1,7 @@
 --!strict
 -- NÃO EXECUTADO. Base pessoal, fase 1: espaços predefinidos com níveis (GDD 9). Só dados (T).
--- Nesta etapa: Forja (1–5), Jardim (1–3) e Expositor de troféus. Bancada e Depósito entram quando existirem
--- consumíveis e limite de inventário por espaço.
+-- Forja (1–5), Jardim (1–3), Expositor de troféus, Bancada (1–3: consumíveis e acessórios) e Depósito (1–4:
+-- quantos equipamentos o jogador guarda).
 
 return {
 	espacos = {
@@ -28,6 +28,28 @@ return {
 			},
 			producao = { porNivelPorHora = 3, teto = 12, materiais = { "SementeFlutuante", "CascaAntiga" } },
 		},
+		Bancada = {
+			nome = "Bancada",
+			funcao = "Consumíveis (bálsamo, tônico, infusão) e acessórios simples",
+			nivelInicial = 1,
+			max = 3,
+			niveis = {
+				[2] = { nivelJogador = 4, materiais = { CascaAntiga = 4, FragmentoDeFaisca = 6 } },
+				[3] = { nivelJogador = 8, materiais = { EssenciaDeVento = 2, LigaArcana = 1 } },
+			},
+		},
+		Deposito = {
+			nome = "Depósito",
+			funcao = "Guarda equipamentos: cada nível aumenta quantos você pode ter",
+			nivelInicial = 1,
+			max = 4,
+			capacidade = { 30, 45, 60, 80 }, -- equipamentos (armaduras e acessórios) por nível
+			niveis = {
+				[2] = { nivelJogador = 3, materiais = { CascaAntiga = 4, FragmentoDeFaisca = 8 } },
+				[3] = { nivelJogador = 7, materiais = { NucleoEnferrujado = 2, CascaAntiga = 6 } },
+				[4] = { nivelJogador = 12, materiais = { LigaArcana = 2, NucleoEnferrujado = 3 } },
+			},
+		},
 		Expositor = {
 			nome = "Expositor de troféus",
 			funcao = "Mostra os minibosses e Guardiões vencidos",
@@ -36,10 +58,13 @@ return {
 			niveis = {},
 		},
 	},
-	-- posição de cada espaço dentro da parcela (studs, relativo ao centro da parcela)
+	-- posição de cada espaço dentro da parcela { x, y, z } em studs, relativo ao centro da parcela
+	-- (números, não Vector3: este módulo também roda fora do Roblox, nos testes do Lune)
 	layout = {
-		Forja = Vector3.new(-10, 0, 0),
-		Jardim = Vector3.new(10, 0, 0),
-		Expositor = Vector3.new(0, 0, -10),
+		Forja = { -10, 0, 0 },
+		Jardim = { 10, 0, 0 },
+		Expositor = { 0, 0, -10 },
+		Bancada = { -10, 0, 10 },
+		Deposito = { 10, 0, 10 },
 	},
 }

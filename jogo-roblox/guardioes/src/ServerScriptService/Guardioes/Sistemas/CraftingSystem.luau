@@ -100,9 +100,10 @@ local function fabricar(p: Player, receitaId: string)
 	elseif r.resultado.tipo == "artefato" then
 		t.darArtefato = { id = r.resultado.id, estagio = r.resultado.estagio }
 	end
-	local ok = inventario.transacao(p, t)
+	local ok, faltando = inventario.transacao(p, t)
 	if not ok then
-		evento:FireClient(p, EF.REJEITADO, receitaId, "faltaRequisito")
+		local f = faltando and faltando[1]
+		evento:FireClient(p, EF.REJEITADO, receitaId, if f and f.id == "depositoCheio" then "depositoCheio" else "faltaRequisito")
 		return
 	end
 	evento:FireClient(p, EF.FEITO, r.nome)

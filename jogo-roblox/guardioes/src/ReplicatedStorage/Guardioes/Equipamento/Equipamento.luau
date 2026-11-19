@@ -67,4 +67,13 @@ function Eq.totais(equipado: { [string]: string }, itens: { [string]: any }, cat
 	return t
 end
 
+-- desmontar um item (para abrir espaço no Depósito): devolve uma parte do material, nunca o custo das melhorias
+function Eq.desmontar(cfgItem: any): { [string]: number }
+	local t: { [string]: number } = { FragmentoDeFaisca = 2 }
+	if cfgItem.materialDeOrigem then
+		t[cfgItem.materialDeOrigem] = 1
+	end
+	return t
+end
+
 return Eq

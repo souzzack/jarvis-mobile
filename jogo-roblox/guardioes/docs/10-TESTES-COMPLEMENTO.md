@@ -287,3 +287,23 @@ Os marcadores de teste ficam perto da arena: telescópio e 3 lentes ao lado do O
 | S14 | Com o Axolote ativo durante S8 e S11 | Marcos AxoPrimeiraConstelacao e AxoSeteEstrelas e o desafio AxoNoiteDeTormenta registrados (o painel de companheiros mostra o progresso para Adulto) |
 | S15 | Sair e entrar (com API) | Etapas feitas continuam no diário; as ordens do jogador são as mesmas |
 | S16 | Pelo console, mandar `EXAMINAR_MARGEM` de um livro não lido, ou com id falso | Nada acontece |
+
+## 16. Bancada, Depósito e consumíveis: casos e roteiro
+
+**Automáticos novos:** 7 casos em `BancadaDeposito.spec` (total: 184 em 27 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| D1 | Entrar e ir à base | Dois espaços novos: **Bancada** (estação) e **Depósito** (letreiro "Equipamentos N/30") |
+| D2 | B na Bancada | Lista: Bálsamo de Casca ×2, Tônico de Vento ×2, Pingente de Pena (a Infusão pede a Bancada nível 2) |
+| D3 | Fabricar 2 Bálsamos com Cascas e Sementes do Jardim | Aparecem na bolsa; a **barra de consumíveis** surge acima das barras de vida |
+| D4 | Tomar dano e apertar 2 (ou L1, ou tocar) | Cura 35 de vida em 3 s (6 pulsos); a barra mostra a recarga (20 s) |
+| D5 | Apertar 2 de novo durante a recarga | "Aguarde a recarga"; nada é consumido |
+| D6 | Em voo, apertar 3 (Tônico) | Energia de voo +40 na hora |
+| D7 | Em voo, apertar 4 (Infusão) | "Pouse primeiro" |
+| D8 | Atordoado (aparo do chefe falhou) e usar | "Atordoado" |
+| D9 | Bolsa (I) → um equipamento não equipado → "Desmontar" → "Confirmar?" | Item some; volta Fragmento de Faísca ×2 (e 1 do material de origem nos Druida); o letreiro do Depósito diminui |
+| D10 | Tentar desmontar um item equipado (console) | "Retire o item antes de desmontar" |
+| D11 | Com o Depósito cheio (30), fabricar outro equipamento | "Depósito cheio: desmonte um equipamento ou melhore o Depósito da base"; **nenhum material consumido** |
+| D12 | Melhorar o Depósito (N na placa) para o nível 2 | Capacidade 45; o título da Bolsa mostra "(N/45 no Depósito)" |
+| D13 | Sair e entrar (com API) | Consumíveis, níveis e capacidade salvos; recargas zeradas (ficam só em memória, de propósito) |

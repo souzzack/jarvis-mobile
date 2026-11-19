@@ -8,6 +8,7 @@ local lista = {
 	{ id = "BotasDeViajante", nome = "Botas de Viajante", tipo = "Pernas", raridade = "Comum", atributos = { defesa = 4 } },
 	{ id = "ElmoDaMatilha", nome = "Elmo da Matilha", tipo = "Cabeca", raridade = "Druida", materialDeOrigem = "JubaEstatica", atributos = { defesa = 10, janelaAparar = 0.03 }, efeito = "Aparo um pouco mais tolerante (lição do Alfa)" },
 	{ id = "CouracaDasRuinas", nome = "Couraça das Ruínas", tipo = "Corpo", raridade = "Druida", materialDeOrigem = "NucleoEnferrujado", atributos = { defesa = 18, vidaBonus = 30 }, efeito = "Couraça do Colosso" },
+	{ id = "PingenteDePena", nome = "Pingente de Pena", tipo = "Acessorio", raridade = "Comum", atributos = { energiaVoo = 6 }, efeito = "Um pouco mais de energia de voo" },
 	{ id = "AmuletoEspectral", nome = "Amuleto Espectral", tipo = "Acessorio", raridade = "Druida", materialDeOrigem = "LenteEspectral", atributos = { defesa = 3, energiaVoo = 15 }, efeito = "Mais energia de voo (leveza do Espectro)" },
 }
 

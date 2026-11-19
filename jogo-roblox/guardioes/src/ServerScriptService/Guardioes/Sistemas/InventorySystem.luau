@@ -14,6 +14,8 @@ local HttpService = game:GetService("HttpService")
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Bolsa = require(G.Inventario.Bolsa)
 local Materiais = require(G.Config.Materiais)
+local BaseLogica = require(G.Base.Base)
+local CfgBase = require(G.Config.Base)
 local Sinal = require(G.Util.Sinal)
 local Remotos = require(G.Rede.Remotos)
 local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
@@ -145,6 +147,7 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 		return false, { { id = "artefato", tem = 0, precisa = 1 } }
 	end
 	-- 1) parte salva (transação do PlayerData: tudo ou nada)
+	local motivoFalha = "gravacao"
 	local ok = playerData.atualizar(p, function(perfil)
 		local b = { materiais = perfil.materiais, artefatos = perfil.artefatos }
 		Bolsa.aplicarConsumo(b, plano[2])
@@ -167,6 +170,15 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 			perfil.transportes[t.darTransporte] = true
 		end
 		if t.darEquipamento then
+			-- Depósito da base: quantos equipamentos cabem (nada é consumido se não couber)
+			local n = 0
+			for _ in perfil.equipamentos do
+				n += 1
+			end
+			if n >= BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito) then
+				motivoFalha = "depositoCheio"
+				return false
+			end
 			perfil.equipamentos[HttpService:GenerateGUID(false)] = { id = t.darEquipamento }
 		end
 		-- mudança extra no perfil na MESMA gravação (ex.: progresso de restauração pago com estes materiais)
@@ -176,7 +188,7 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 		return true
 	end)
 	if not ok then
-		return false, { { id = "gravacao", tem = 0, precisa = 1 } }
+		return false, { { id = motivoFalha, tem = 0, precisa = 1 } }
 	end
 	-- 2) parte de teste (memória; não falha)
 	if tb then

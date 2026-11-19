@@ -204,6 +204,15 @@ function CombatSystem.gastarEstamina(p: Player, quanto: number): boolean
 	return st ~= nil and Estamina.gastar(st.estamina, Cfg.estamina, quanto, os.clock())
 end
 
+function CombatSystem.recuperarEstamina(p: Player, quanto: number): boolean
+	local st = estados[p]
+	if not st then
+		return false
+	end
+	Estamina.recuperar(st.estamina, Cfg.estamina, quanto, os.clock())
+	return true
+end
+
 -- pode agir agora? (vivo, não atordoado, sem golpe em andamento, guardas de locomoção/artefato ok)
 function CombatSystem.livreParaEspecial(p: Player): (boolean, string?)
 	local st = estados[p]

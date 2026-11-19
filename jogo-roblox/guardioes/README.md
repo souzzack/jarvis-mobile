@@ -35,12 +35,13 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 20 | [docs/20-RELATORIO-MELHORIAS-TRANSPORTES.md](docs/20-RELATORIO-MELHORIAS-TRANSPORTES.md) | Melhorias +1 a +10, prancha de viagem e a tela de transportes |
 | 21 | [docs/21-RELATORIO-COMPANHIAS.md](docs/21-RELATORIO-COMPANHIAS.md) | Companhias (guildas): cargos, cofre com limites, devoluções, liderança e dissolução |
 | 22 | [docs/22-RELATORIO-SEGREDOS.md](docs/22-RELATORIO-SEGREDOS.md) | Segredo ??? do Ato 1: lentes, margens, contemplação, pilares, altar e o ritual do Arco |
+| 23 | [docs/23-RELATORIO-BANCADA-DEPOSITO.md](docs/23-RELATORIO-BANCADA-DEPOSITO.md) | Bancada (consumíveis e acessório), Depósito (capacidade de equipamentos) e desmontar |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + 24 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, Equipment, Transport, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest, Company, SecretDiscovery) + Dados + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + 25 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, Equipment, Transport, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest, Company, SecretDiscovery, Consumable) + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo

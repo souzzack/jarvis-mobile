@@ -15,6 +15,10 @@ local lista = {
 	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Colosso das Ruínas (turbinas antigas)" },
 	{ id = "NucleoEnferrujado", nome = "Núcleo Enferrujado", origem = "Colosso das Ruínas (material Druida)" },
 	{ id = "LenteEspectral", nome = "Lente Espectral", origem = "Espectro do Observatório (material Druida)" },
+	-- consumíveis (Config/Consumiveis): ficam na bolsa como materiais e são usados pela barra (teclas 2, 3 e 4)
+	{ id = "BalsamoDeCasca", nome = "Bálsamo de Casca", origem = "Bancada da base", consumivel = true },
+	{ id = "TonicoDeVento", nome = "Tônico de Vento", origem = "Bancada da base", consumivel = true },
+	{ id = "InfusaoDeFaisca", nome = "Infusão de Faísca", origem = "Bancada da base, nível 2", consumivel = true },
 }
 
 local porId: { [string]: any } = {}
