@@ -1,8 +1,7 @@
 --!strict
 -- NÃO EXECUTADO. Receitas (GDD 7.3). Só dados (T). Receitas ??? não ficam aqui (SecretDiscoverySystem).
 -- resultado.tipo: "material" (vai para a bolsa) | "artefato" (novo GUID no inventário).
--- Desvio PROVISÓRIO do GDD: a receita Druida pede a Forja da base nível 3; enquanto a base pessoal (Etapa H)
--- não existe, ela usa a Oficina dos Inventores restaurada. Trocar 'estacao' quando a Forja existir.
+-- estacaoNivel: nível mínimo da estação. A Forja é da BASE PESSOAL (só o dono usa a dele).
 
 local lista = {
 	{
@@ -17,9 +16,10 @@ local lista = {
 	{
 		id = "EsbocoDruida_RainhaBobina",
 		nome = "Escudo do Firmamento (Druida)",
-		estacao = "OficinaDosInventores",
+		estacao = "Forja",
+		estacaoNivel = 3, -- GDD 7.3: receitas Druida exigem a Forja da base no nível 3
 		conhecidaDesdeInicio = false, -- esboço aprendido na PRIMEIRA vitória contra a Rainha-Bobina
-		requisitos = { restauracoes = { "OficinaDosInventores" } },
+		requisitos = {},
 		materiais = { GlandulaDeBobinaViva = 4, SementeFlutuante = 3, CascaAntiga = 2 },
 		resultado = { tipo = "artefato", id = "EscudoDoFirmamento", estagio = 1 },
 	},

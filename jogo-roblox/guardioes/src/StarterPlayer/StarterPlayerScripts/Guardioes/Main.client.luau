@@ -18,6 +18,7 @@ local ORDEM = {
 	"HudDeProgresso", -- nível, missões, saque e bolsa (artefatos: equipar/evoluir)
 	"JanelaDeFabricacao", -- fabricação e avisos de restauração
 	"HudDeChefe", -- barra do chefe e fase de carga
+	"JanelaDeViagem", -- viagem rápida (M) e avisos da base pessoal
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

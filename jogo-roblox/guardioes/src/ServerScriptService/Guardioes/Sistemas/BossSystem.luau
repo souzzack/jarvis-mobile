@@ -1,5 +1,9 @@
 --!strict
--- NÃO EXECUTADO NO STUDIO. BossSystem (Etapa E): minibosses com fases. Primeiro: RAINHA-BOBINA.
+-- NÃO EXECUTADO NO STUDIO. BossSystem (Etapa E): minibosses com fases, cada um com a sua MECÂNICA:
+--   "Carga"   → RAINHA-BOBINA (abaixo)
+--   "Matilha" → CÃO-TROVÃO ALFA: chama 2 cães em 70% e 40%; a cada ~14 s corre carregado por 4 s (imune);
+--               só um APARO de um golpe dele quebra a corrida e o derruba (EnemySystem.aparado).
+-- Toda vitória: troféu no Expositor da base de cada participante (PersonalBaseSystem.darTrofeu).
 --  * A Rainha usa a IA comum do EnemySystem (perseguir, telegrafar, ferrão/pulso/investida).
 --  * Fases de carga (Chefes/CargaDaRainha): em 75%, 50% e 25% de vida ela fica IMUNE e 3 pilares de cristal
 --    surgem na arena. Quebrar todos a tempo = Rainha atordoada (dano +30%). Tempo esgotado = DESCARGA em todos
@@ -14,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Carga = require(G.Chefes.CargaDaRainha)
+local Matilha = require(G.Chefes.MatilhaDoAlfa)
 local Saque = require(G.Loot.Saque)
 local Loot = require(G.Config.Loot)
 local Remotos = require(G.Rede.Remotos)
@@ -27,7 +32,8 @@ type Chefe = {
 	centro: Vector3,
 	id: string?,
 	carga: Carga.Estado,
-	pilares: { [string]: boolean },
+	matilha: Matilha.Estado?,
+	pilares: { [string]: boolean }, -- pilares (Carga) ou cães chamados (Matilha): somem no reset/derrota
 	vazioDesde: number?,
 }
 
@@ -38,6 +44,7 @@ local evento: RemoteEvent
 local inimigos: any
 local combate: any
 local fabricacao: any
+local base: any
 local ctxSistemas: any = nil
 
 local function naArena(c: Chefe): { Player }
@@ -67,6 +74,7 @@ end
 
 local function surgirChefe(c: Chefe)
 	c.carga = Carga.novo()
+	c.matilha = if c.cfg.mecanica == "Matilha" then Matilha.novo(os.clock(), c.cfg.corrida.intervalo) else nil
 	c.vazioDesde = nil
 	c.id = inimigos.surgirEm(c.cfg.id, CFrame.new(c.centro + Vector3.new(0, 4, 0)))
 end
@@ -102,6 +110,31 @@ local function terminarCarga(c: Chefe, resultado: string)
 	avisar(c, EC.FIM_CARGA, resultado)
 end
 
+-- mecânica "Matilha" (Alfa)
+local function passoMatilha(c: Chefe, info: any, agora: number)
+	local m = c.matilha :: Matilha.Estado
+	if Matilha.deveChamar(m, info.vida / info.vidaMax) then
+		Matilha.registrarChamada(m)
+		for i = 1, c.cfg.matilhaPorChamada do
+			local ang = math.random() * math.pi * 2
+			local onde = info.posicao + Vector3.new(math.cos(ang) * 10, 2, math.sin(ang) * 10)
+			local id = inimigos.surgirEm("CaoDaMatilha", CFrame.new(onde))
+			if id then
+				c.pilares[id] = true
+			end
+			local _ = i
+		end
+		avisar(c, EC.MATILHA, c.cfg.matilhaPorChamada)
+	end
+	local r = Matilha.atualizar(m, agora, c.cfg.corrida.intervalo, c.cfg.corrida.duracao)
+	if r == "IniciaCorrida" then
+		inimigos.definirInvulneravel(c.id, true)
+		avisar(c, EC.CORRIDA, c.cfg.corrida.duracao)
+	elseif r == "FimCorrida" then
+		inimigos.definirInvulneravel(c.id, false)
+	end
+end
+
 local function passo(c: Chefe, agora: number)
 	if not c.id then
 		return
@@ -122,6 +155,10 @@ local function passo(c: Chefe, agora: number)
 		return
 	end
 	c.vazioDesde = nil
+	if c.cfg.mecanica == "Matilha" then
+		passoMatilha(c, info, agora)
+		return
+	end
 	if Carga.deveCarregar(c.carga, info.vida / info.vidaMax) then
 		iniciarCarga(c, agora)
 	end
@@ -140,6 +177,17 @@ function BossSystem.Start()
 	inimigos = ctxSistemas.obter("EnemySystem")
 	combate = ctxSistemas.obter("CombatSystem")
 	fabricacao = ctxSistemas.obter("CraftingSystem")
+	base = ctxSistemas.obter("PersonalBaseSystem")
+	-- aparo durante a corrida do Alfa: quebra a corrida e derruba
+	inimigos.aparado.conectar(function(inimigoId: string)
+		for _, c in chefes do
+			if c.id == inimigoId and c.matilha and Matilha.aparado(c.matilha, os.clock(), c.cfg.corrida.intervalo) then
+				inimigos.definirInvulneravel(c.id, false)
+				inimigos.atordoarPor(c.id, c.cfg.atordoamento)
+				avisar(c, EC.FIM_CARGA, "Sucesso")
+			end
+		end
+	end)
 	if not ConfigServidor.arenaDeTeste.ativa then
 		return -- (Etapa 14) no mapa real, os chefes virão de marcadores em workspace.GuardioesChefes
 	end
@@ -152,18 +200,19 @@ function BossSystem.Start()
 		for _, c in chefes do
 			if c.pilares[ini.id] then
 				c.pilares[ini.id] = nil
-				Carga.pilarQuebrado(c.carga)
+				if c.cfg.mecanica ~= "Matilha" then
+					Carga.pilarQuebrado(c.carga)
+				end
 			elseif c.id == ini.id then
 				c.id = nil
 				limparPilares(c)
 				avisar(c, EC.DERROTADO, ini.cfg.nome)
 				local esboco = ESBOCO[ini.cfg.id]
-				if esboco then
-					for _, p in Saque.elegiveis(contribuicao, Loot.minimoDeContribuicao) do
-						if fabricacao.aprenderReceita(p, esboco) then
-							evento:FireClient(p, EC.DERROTADO, ini.cfg.nome .. " — Esboço Druida aprendido!")
-						end
+				for _, p in Saque.elegiveis(contribuicao, Loot.minimoDeContribuicao) do
+					if esboco and fabricacao.aprenderReceita(p, esboco) then
+						evento:FireClient(p, EC.DERROTADO, ini.cfg.nome .. " — Esboço Druida aprendido!")
 					end
+					base.darTrofeu(p, ini.cfg.id)
 				end
 				task.delay(c.cfg.retornoSeg, function()
 					surgirChefe(c)
@@ -185,14 +234,16 @@ function BossSystem.Start()
 	end)
 	-- quem entra na arena vê a barra do chefe
 	task.spawn(function()
-		local vistos: { [Player]: boolean } = {}
+		-- por jogador E por chefe (id muda quando o chefe volta): cada arena nova mostra a sua barra
+		local vistos: { [Player]: { [string]: boolean } } = {}
 		while true do
 			task.wait(1)
 			for _, c in chefes do
 				if c.id then
 					for _, p in naArena(c) do
-						if not vistos[p] then
-							vistos[p] = true
+						vistos[p] = vistos[p] or {}
+						if not vistos[p][c.id :: string] then
+							vistos[p][c.id :: string] = true
 							evento:FireClient(p, EC.INICIO, c.id, c.cfg.id)
 						end
 					end

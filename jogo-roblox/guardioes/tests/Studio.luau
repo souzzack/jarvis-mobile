@@ -56,6 +56,11 @@ return function()
 		Restauracao = require(G.Restauracao.Restauracao),
 		Restauracoes = require(G.Config.Restauracoes),
 		CargaDaRainha = require(G.Chefes.CargaDaRainha),
+		-- base pessoal, viagem, Alfa
+		Base = require(G.Base.Base),
+		CfgBase = require(G.Config.Base),
+		Viagem = require(G.Viagem.Viagem),
+		MatilhaDoAlfa = require(G.Chefes.MatilhaDoAlfa),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

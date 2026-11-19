@@ -14,6 +14,14 @@ return {
 		},
 		BonecoDeTreino = { xp = 0, entradas = {} },
 		PilarDeCristal = { xp = 0, entradas = {} },
+		CaoDaMatilha = { xp = 8, entradas = { { id = "FragmentoDeFaisca", chance = 0.4, min = 1, max = 1 } } },
+		CaoTrovaoAlfa = {
+			xp = 280,
+			entradas = {
+				{ id = "JubaEstatica", chance = 1, min = 3, max = 5 },
+				{ id = "NucleoDeTempestade", chance = 0.5, min = 1, max = 1 },
+			},
+		},
 		RainhaBobina = {
 			xp = 300,
 			entradas = {

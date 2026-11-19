@@ -224,3 +224,30 @@ Cada uma dessas entregas é uma transação separada no seu sistema.
 - A Torre usa a Glândula da Rainha.
 
 **Desvio provisório do GDD:** a receita Druida deveria pedir a Forja da base pessoal no nível 3. Até a base existir, ela usa a Oficina restaurada. Isso está anotado em `Config/Receitas.luau`.
+
+## 10. Atualização: base pessoal, viagem rápida e Cão-Trovão Alfa (sem o Studio)
+
+| Sistema | Arquivos | Situação |
+|---|---|---|
+| **PersonalBaseSystem** | `Sistemas/PersonalBaseSystem.luau` + `Base/Base.luau` + `Config/Base.luau` | **Escrito.** Uma parcela por jogador no servidor; níveis salvos em `perfil.base`; Forja (estação com Dono e Nível), Jardim (colheita com teto), Expositor (troféus); melhoria por transação atômica |
+| **DimensionSystem** (parte 1) | `Sistemas/DimensionSystem.luau` + `Viagem/Viagem.luau` | **Escrito.** Pontos descobertos por proximidade (salvos), viagem só a pé, fora de combate e com recarga, mais "Minha base". `liberada(p, dimensao)` pronto para portais entre places |
+| **BossSystem** (generalizado) | `Chefes/MatilhaDoAlfa.luau` + `Config/Inimigos/CaoTrovaoAlfa.luau` + `CaoDaMatilha.luau` | **Escrito.** Cada chefe declara a sua `mecanica` (Carga ou Matilha). O Alfa chama a matilha em 70% e 40% e corre carregado (imune): só **aparar** quebra a corrida. Toda vitória dá troféu |
+
+**Mudanças em sistemas existentes:**
+- **Receita Druida:** agora segue o GDD (Forja da base nível 3). O desvio provisório da Oficina foi **removido**.
+- **CraftingSystem:** passa a considerar o nível da estação e o dono.
+- **EnemySystem:** ganhou o sinal `aparado`.
+- **Perfil:** ganhou `base` e `pontosDescobertos`.
+- **QuestSystem:** ganhou o evento `melhorarBase`.
+
+**Progressão encadeada:**
+1. Vencer o Alfa dá a Juba.
+2. A Juba leva a Forja ao nível 3.
+3. Vencer a Rainha dá o esboço e as Glândulas.
+4. Com isso, fabrica-se o Escudo Druida na Forja 3.
+
+O Jardim produz as Sementes e Cascas da receita.
+
+**Ordem de carga:** … Crafting → Restoration → PersonalBase → Boss → Dimension → Loot → Quest.
+
+**Migração do tycoon (docs/04):** basta dar o atributo `GuardioesParcela` aos terrenos 1 a 6, sem trocar nenhum modelo. O galpão e os funcionários continuam como estão; o reaproveitamento visual deles na base fica para quando o Studio estiver disponível.

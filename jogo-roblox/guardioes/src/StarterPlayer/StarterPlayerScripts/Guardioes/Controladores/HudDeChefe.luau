@@ -1,5 +1,5 @@
 --!strict
--- NÃO EXECUTADO NO STUDIO. Barra do chefe (topo da tela) e aviso da fase de carga.
+-- NÃO EXECUTADO NO STUDIO. Barra do chefe (topo da tela) e avisos das mecânicas (carga, matilha, corrida).
 -- A vida vem dos atributos replicados do modelo (Vida/VidaMax/Imune); a barra some longe do chefe.
 
 local Players = game:GetService("Players")
@@ -73,9 +73,14 @@ function HudDeChefe.Start()
 			hud.aviso(string.format("Os pilares acenderam! Quebre os %d antes da descarga", b or 0))
 		elseif tipo == EC.FIM_CARGA then
 			cargaAte = 0
-			hud.aviso(if a == "Sucesso" then "A Rainha caiu! Ataque agora!" else "DESCARGA!")
+			hud.aviso(if a == "Sucesso" then "Caiu! Ataque agora!" else "DESCARGA!")
+		elseif tipo == EC.MATILHA then
+			hud.aviso("O Alfa chamou a matilha!")
+		elseif tipo == EC.CORRIDA then
+			cargaAte = os.clock() + (a or 0)
+			hud.aviso("Corrida carregada! Nada o fere — APARE o golpe dele")
 		elseif tipo == EC.DERROTADO then
-			hud.aviso(tostring(a) .. " derrotada")
+			hud.aviso("Vitória: " .. tostring(a))
 		end
 	end)
 	RunService.Heartbeat:Connect(function()
@@ -92,7 +97,7 @@ function HudDeChefe.Start()
 		local imune = m:GetAttribute("Imune") == true
 		enche.BackgroundColor3 = if imune then Color3.fromRGB(127, 231, 255) else Color3.fromRGB(184, 140, 255)
 		local resta = cargaAte - os.clock()
-		nome.Text = tostring(m:GetAttribute("Nome") or "Chefe") .. (if resta > 0 then string.format("  — carga %.0f s", resta) else "")
+		nome.Text = tostring(m:GetAttribute("Nome") or "Chefe") .. (if resta > 0 then string.format("  — %.0f s", resta) else "")
 	end)
 end
 

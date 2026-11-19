@@ -5,10 +5,11 @@ local lista = {
 	{ id = "FragmentoDeFaisca", nome = "Fragmento de Faísca", origem = "Faíscas Errantes (Ilha das Tempestades)" },
 	{ id = "NucleoDeTempestade", nome = "Núcleo de Tempestade", origem = "Raro das Faíscas; missão O Horizonte Partido" },
 	{ id = "PenaDeRaia", nome = "Pena de Raia", origem = "Afagar uma Raia-das-Nuvens adulta" },
-	{ id = "LigaArcana", nome = "Liga Arcana", origem = "Fabricação na Oficina (Etapa F)" },
-	{ id = "SementeFlutuante", nome = "Semente Flutuante", origem = "Santuário (Etapa F/G)" },
-	{ id = "CascaAntiga", nome = "Casca Antiga", origem = "Santuário (Etapa F/G)" },
+	{ id = "LigaArcana", nome = "Liga Arcana", origem = "Fabricação na Oficina dos Inventores restaurada" },
+	{ id = "SementeFlutuante", nome = "Semente Flutuante", origem = "Jardim da base; Santuário" },
+	{ id = "CascaAntiga", nome = "Casca Antiga", origem = "Jardim da base; Santuário" },
 	{ id = "GlandulaDeBobinaViva", nome = "Glândula de Bobina Viva", origem = "Rainha-Bobina (material Druida)" },
+	{ id = "JubaEstatica", nome = "Juba Estática", origem = "Cão-Trovão Alfa (material Druida)" },
 	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Torre Meteorológica (Etapa G)" },
 }
 

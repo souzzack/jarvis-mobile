@@ -23,6 +23,8 @@ export type Perfil = {
 	xp: number,
 	missoesProgresso: { [string]: { [string]: number } }, -- missão → objetivo → contagem
 	receitas: { [string]: boolean }, -- receitas aprendidas (esboços Druida, códices…)
+	pontosDescobertos: { [string]: boolean }, -- viagem rápida
+	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
 	criadoEm: number,
@@ -33,7 +35,7 @@ local Perfil = {}
 Perfil.VERSAO = 2
 Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
-local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas" }
+local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos" }
 
 function Perfil.novo(agora: number): Perfil
 	return {
@@ -57,6 +59,8 @@ function Perfil.novo(agora: number): Perfil
 		missoesProgresso = {},
 		receitas = {},
 		restauracoesProgresso = {},
+		pontosDescobertos = {},
+		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
 		criadoEm = agora,
 		atualizadoEm = agora,
@@ -179,6 +183,15 @@ function Perfil.validar(p: any): (boolean, string?)
 	for id, r in p.restauracoesProgresso do
 		if type(id) ~= "string" or type(r) ~= "table" or type(r.etapa) ~= "number" or r.etapa < 0 or type(r.entregue) ~= "table" then
 			return false, "restauracao"
+		end
+	end
+	local b = p.base
+	if type(b) ~= "table" or type(b.espacos) ~= "table" or type(b.trofeus) ~= "table" or type(b.jardimColhidoEm) ~= "number" then
+		return false, "base"
+	end
+	for id, n in b.espacos do
+		if type(id) ~= "string" or type(n) ~= "number" or n < 1 or n > 10 or n ~= math.floor(n) then
+			return false, "base"
 		end
 	end
 	if type(p.nivel) ~= "number" or p.nivel < 1 or p.nivel > Perfil.LIMITES.nivelMax or type(p.xp) ~= "number" or p.xp < 0 then

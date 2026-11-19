@@ -33,8 +33,9 @@ local ctxSistemas: any = nil
 local pasta: Folder
 local baldes: { [Player]: LimiteDeTaxa.Balde } = {}
 
-local function estacoesPerto(p: Player): { [string]: boolean }
-	local perto: { [string]: boolean } = {}
+-- estações por perto: id → maior nível. Estação com atributo "Dono" só vale para o dono (Forja da base).
+local function estacoesPerto(p: Player): { [string]: number }
+	local perto: { [string]: number } = {}
 	local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if not hrp then
 		return perto
@@ -42,8 +43,10 @@ local function estacoesPerto(p: Player): { [string]: boolean }
 	for _, d in pasta:GetDescendants() do
 		if d:IsA("BasePart") then
 			local id = d:GetAttribute("GuardioesEstacao")
-			if typeof(id) == "string" and (d.Position - (hrp :: BasePart).Position).Magnitude <= DISTANCIA_ESTACAO then
-				perto[id] = true
+			local dono = d:GetAttribute("Dono")
+			if typeof(id) == "string" and (dono == nil or dono == p.UserId) and (d.Position - (hrp :: BasePart).Position).Magnitude <= DISTANCIA_ESTACAO then
+				local nivel = (d:GetAttribute("Nivel") :: number?) or 1
+				perto[id] = math.max(perto[id] or 0, nivel)
 			end
 		end
 	end
@@ -133,6 +136,11 @@ local function prepararEstacao(parte: BasePart)
 	prompt.MaxActivationDistance = 10
 	prompt.Parent = parte
 	prompt.Triggered:Connect(function(p: Player)
+		local dono = parte:GetAttribute("Dono")
+		if dono ~= nil and dono ~= p.UserId then
+			evento:FireClient(p, EF.REJEITADO, "", "naoEhSua")
+			return
+		end
 		enviarLista(p, id)
 	end)
 end

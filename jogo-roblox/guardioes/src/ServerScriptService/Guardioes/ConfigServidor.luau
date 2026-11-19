@@ -60,8 +60,20 @@ local ConfigServidor = {
 	},
 	-- chefes: arena = centro + raio; quem está dentro participa das fases (descarga, pilares)
 	chefes = {
-		{ id = "RainhaBobina", deslocamento = Vector3.new(0, 0, -90), raioArena = 40, retornoSeg = 300, duracaoCarga = 12, pilares = 3, descarga = { dano = 45, postura = 30 } },
+		{ id = "RainhaBobina", mecanica = "Carga", deslocamento = Vector3.new(0, 0, -90), raioArena = 40, retornoSeg = 300, duracaoCarga = 12, pilares = 3, descarga = { dano = 45, postura = 30 } },
+		{ id = "CaoTrovaoAlfa", mecanica = "Matilha", deslocamento = Vector3.new(-90, 0, -60), raioArena = 45, retornoSeg = 300, matilhaPorChamada = 2, corrida = { intervalo = 14, duracao = 4 }, atordoamento = 4 },
 	},
+	-- base pessoal: Parts com o atributo "GuardioesParcela" (= número) na pasta GuardioesParcelas. No place
+	-- real, os terrenos do tycoon recebem esse atributo (docs/04). Sem parcelas, a arena cria 2 de TESTE.
+	parcelasDeTeste = { Vector3.new(-70, 0, 40), Vector3.new(-70, 0, 90) },
+	-- viagem rápida: Parts com "GuardioesPontoDeViagem" (= id) e "Nome" na pasta GuardioesViagem
+	pontosDeViagemDeTeste = {
+		{ id = "Arena", nome = "Arena de teste", deslocamento = Vector3.new(0, 0, 12) },
+		{ id = "Oficina", nome = "Oficina (marcadores)", deslocamento = Vector3.new(36, 0, 8) },
+		{ id = "Caverna", nome = "Câmara da Rainha", deslocamento = Vector3.new(0, 0, -60) },
+		{ id = "Floresta", nome = "Floresta do Alfa", deslocamento = Vector3.new(-60, 0, -30) },
+	},
+	viagem = { raioDescoberta = 15, semCombateSeg = 8, recargaSeg = 30 },
 	-- zonas sem voo: Parts (caixas) dentro desta pasta do workspace. Dentro delas: sem decolar/planar/montar.
 	pastaZonasSemVoo = "GuardioesZonasSemVoo",
 	-- pontos de surgimento no mapa: Parts com o atributo "GuardioesSurgimento" = id do inimigo, dentro desta pasta

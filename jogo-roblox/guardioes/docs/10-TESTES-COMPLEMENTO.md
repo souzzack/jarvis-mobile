@@ -144,3 +144,27 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | B5 | Vencer | Glândulas (3 a 5), XP, missão *A Rainha da caverna* e, na primeira vez, "Esboço Druida aprendido!". A receita aparece na bancada |
 | B6 | Fabricar o Escudo do Firmamento Druida | Um artefato **novo** (GUID salvo) aparece na Bolsa, no estágio 1 |
 | B7 | Sair da arena por 20 s no meio da luta | A Rainha volta com a vida cheia e os pilares somem |
+
+## 9. Base pessoal, viagem rápida e Cão-Trovão Alfa: casos e roteiro
+
+**Automáticos novos:** 8 casos (total: 130 em 19 specs).
+- `BaseViagemAlfa.spec` (7): melhoria da Forja, Forja 3 exige Juba, nível máximo, jardim (sobra e teto), divisão da colheita, regras de viagem, chamadas da matilha e corrida carregada com aparo.
+- `PerfilSalvo.spec` (+1): base inválida.
+- Também mudou: o caso Druida de `FabricacaoRestauracaoChefe.spec` agora exige a Forja nível 3.
+
+| # | Passo | Esperado |
+|---|---|---|
+| H1 | Play | Aparece uma parcela de teste com "Base de <nome>", com Forja, Jardim, Expositor e placas |
+| H2 | Placa da Forja → N ("Melhorar") com nível 1 de jogador | "Para melhorar falta: Nível 1/3" |
+| H3 | Subir ao nível 3 e ter 10 Fragmentos → N | "Forja agora no nível 2"; o bloco cresce; os Fragmentos são consumidos |
+| H4 | Jardim → B ("Colher") logo ao entrar | "O jardim ainda está crescendo" (ou algumas Sementes e Cascas, se houve tempo) |
+| H5 | Forja da base de **outro** jogador → "Fabricar" | "Esta base não é sua" |
+| H6 | M ("Viagem") | Lista com "Minha base". Andar perto dos discos azuis → "Ponto de viagem descoberto" |
+| H7 | Viajar para a Arena; tentar de novo logo depois | Teleporta; a criatura chega junto. Segunda tentativa → "Aguarde a recarga" |
+| H8 | Levar dano e tentar viajar | "Não dá para viajar em combate" |
+| A1 | Arena do Alfa (x −90, z −60) | Barra do chefe; ataques rápidos (mordida, bote carregado) |
+| A2 | Levar o Alfa a 70% | "O Alfa chamou a matilha!" e 2 cães aparecem |
+| A3 | Esperar a corrida carregada | Barra azul ("imune"); golpes dão "Imune" |
+| A4 | Aparar um golpe dele durante a corrida (defender no instante do impacto) | "Caiu! Ataque agora!": ele fica atordoado por 4 s |
+| A5 | Vencer | Juba Estática (3 a 5), XP, missão *O Alfa da matilha*; aparece um troféu no Expositor da base |
+| A6 | Forja ao nível 3 (Juba e Núcleos) e esboço da Rainha | O Escudo Druida pode ser fabricado **na Forja da base** (a Oficina não serve mais para ele) |

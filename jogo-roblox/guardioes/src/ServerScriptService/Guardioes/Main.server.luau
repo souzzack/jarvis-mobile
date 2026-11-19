@@ -22,7 +22,9 @@ local ORDEM = {
 	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
 	"CraftingSystem", -- fabricação nas estações (transação atômica no inventário)
 	"RestorationSystem", -- restauração de estruturas por jogador, com ajuda cooperativa
-	"BossSystem", -- minibosses com fases (Rainha-Bobina)
+	"PersonalBaseSystem", -- base pessoal: parcela, Forja, Jardim, Expositor
+	"BossSystem", -- minibosses com mecânicas (Rainha-Bobina: carga; Cão-Trovão Alfa: matilha)
+	"DimensionSystem", -- viagem rápida (pontos descobertos e a própria base)
 	"LootSystem", -- saque pessoal com proteção contra azar
 	"QuestSystem", -- missões por eventos (usa quase todos os anteriores)
 }

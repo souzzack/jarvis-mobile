@@ -7,7 +7,7 @@
 export type Falta = { tipo: string, id: string, tem: number, precisa: number }
 export type Contexto = {
 	conhecidas: { [string]: boolean },
-	estacoesPerto: { [string]: boolean },
+	estacoesPerto: { [string]: number | boolean }, -- estação → maior nível por perto (true = nível 1)
 	requisitosOk: boolean,
 	faltasDeRequisito: { { tipo: string, id: string } },
 	materiais: { [string]: number }, -- quanto o jogador tem de cada material pedido
@@ -25,8 +25,13 @@ function R.avaliar(receita: any, ctx: Contexto): (boolean, { Falta }, { [string]
 	if not R.conhecida(receita, ctx.conhecidas) then
 		table.insert(faltando, { tipo = "receita", id = receita.id, tem = 0, precisa = 1 })
 	end
-	if receita.estacao and not ctx.estacoesPerto[receita.estacao] then
-		table.insert(faltando, { tipo = "estacao", id = receita.estacao, tem = 0, precisa = 1 })
+	if receita.estacao then
+		local v = ctx.estacoesPerto[receita.estacao]
+		local nivel = if v == true then 1 elseif type(v) == "number" then v else 0
+		local precisa = receita.estacaoNivel or 1
+		if nivel < precisa then
+			table.insert(faltando, { tipo = "estacao", id = receita.estacao, tem = nivel, precisa = precisa })
+		end
 	end
 	if not ctx.requisitosOk then
 		for _, f in ctx.faltasDeRequisito do

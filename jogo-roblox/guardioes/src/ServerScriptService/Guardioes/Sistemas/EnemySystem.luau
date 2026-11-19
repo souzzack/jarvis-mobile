@@ -41,6 +41,7 @@ type Inimigo = {
 
 local EnemySystem = { Nome = "EnemySystem" }
 EnemySystem.morreu = Sinal.novo() -- (inimigo, contribuicao): o LootSystem (Etapa E) escuta aqui
+EnemySystem.aparado = Sinal.novo() -- (inimigoId, jogador): um golpe desta criatura foi APARADO (mecânicas de chefe)
 
 local configs: { [string]: any } = {}
 local ativos: { [string]: Inimigo } = {}
@@ -341,6 +342,9 @@ local function impacto(ini: Inimigo, a: Ataque)
 			if hrp and math.abs(hrp.Position.Y - p.Y) <= 6 and Alcance.noArco(p.X, p.Z, f.X, f.Z, hrp.Position.X, hrp.Position.Z, a.alcance, a.arcoGraus, 1.2) then
 				ini.atingidos[pl] = true
 				local r = combate.danoAoJogador(pl, p, { dano = a.dano, postura = a.postura }, ini.id)
+				if r and r.tipo == "Aparado" then
+					EnemySystem.aparado.disparar(ini.id, pl)
+				end
 				if r and r.tipo == "Aparado" and r.posturaNoAtacante > 0 then
 					if Postura.receber(ini.postura, CfgCombate.postura, r.posturaNoAtacante, os.clock()) then
 						atordoar(ini, os.clock())

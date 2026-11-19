@@ -83,3 +83,16 @@ Mesmo depois disso, os scripts antigos ficam em `ServerStorage.Magnata_Arquivo`.
 - [ ] Confirmar se algum script do tycoon usa `workspace.GuardioesInimigos`, `ReplicatedStorage.Remotos` ou nomes iguais aos do RPG. Esperado: nenhum.
 - [ ] Ver se algum script do tycoon mexe no `Humanoid.Health` ou na velocidade do personagem, o que interferiria no combate.
 - [ ] Guardar o `.rbxl` de backup e anotar o caminho no `06-RELATORIO.md`.
+
+## 7. Atualização (base pessoal escrita, sem o Studio)
+
+O `PersonalBaseSystem` já procura parcelas em `workspace.GuardioesParcelas` (Parts com o atributo `GuardioesParcela` = número).
+
+**Para ligar os terrenos do tycoon:**
+1. Fazer o backup `.rbxl`.
+2. Mover (ou referenciar) as Parts de chão dos terrenos 1 a 6 para essa pasta e dar a cada uma o atributo.
+3. Nenhum script do tycoon precisa ser apagado. A base nova constrói os espaços dela por cima da parcela, num Model separado (`Base_<UserId>`).
+
+**Pendências:**
+- Conferir no Studio se algum script do tycoon também constrói por cima do terreno. Se construir, desligar (não apagar) só aquela parte, como manda a seção 1.
+- Reaproveitar o galpão e os funcionários como visual da base.

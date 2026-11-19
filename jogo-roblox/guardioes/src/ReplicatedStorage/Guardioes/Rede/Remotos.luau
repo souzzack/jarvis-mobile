@@ -109,9 +109,27 @@ Remotos.EventoChefe = {
 	CARGA = 2, -- (duracao, pilares)
 	FIM_CARGA = 3, -- ("Sucesso" | "Descarga")
 	DERROTADO = 4, -- (nome)
+	MATILHA = 5, -- (quantos cães)
+	CORRIDA = 6, -- (duracao) Alfa imune: apare o golpe dele
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe" }
+-- base pessoal (ações pelos prompts da parcela; só eventos de volta)
+Remotos.EventoBase = {
+	ESTADO = 1, -- ({ espacos = { id, nome, nivel, max, funcao }, trofeus, temParcela })
+	REJEITADO = 2, -- (espacoId | motivo, faltando)
+	MELHOROU = 3, -- (nomeDoEspaco, nivel)
+	COLHEU = 4, -- (itens { id → qtd }, teto)
+}
+-- viagem rápida
+Remotos.Viagem = { VIAJAR = 1, LISTAR = 2 } -- VIAJAR: (pontoId | "MinhaBase")
+Remotos.EventoViagem = {
+	LISTA = 1, -- (lista { id, nome })
+	DESCOBERTO = 2, -- (nome)
+	REJEITADO = 3, -- (motivo)
+	CHEGOU = 4, -- (pontoId)
+}
+
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem" }
 
 local pasta: Folder? = nil
 

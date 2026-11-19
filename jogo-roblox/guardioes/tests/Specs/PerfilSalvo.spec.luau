@@ -66,6 +66,9 @@ return function(T, M)
 		local rp = P.novo(1)
 		rp.restauracoesProgresso.Observatorio = { etapa = -1, entregue = {} }
 		T.igual(select(2, P.validar(rp)), "restauracao")
+		local bp = P.novo(1)
+		bp.base.espacos.Forja = 0
+		T.igual(select(2, P.validar(bp)), "base")
 		local ok = P.novo(1)
 		ok.artefatos["g"] = { id = "EspadaDoHorizonte", estagio = 2 }
 		ok.artefatoEquipado = "g"

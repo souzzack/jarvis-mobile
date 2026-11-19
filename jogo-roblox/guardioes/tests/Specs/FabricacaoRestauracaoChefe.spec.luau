@@ -33,13 +33,20 @@ return function(T, M)
 		T.igual(falta[2].tem, 3)
 	end)
 
-	T.caso("receita Druida: só depois do esboço (primeira vitória contra a Rainha)", function()
+	T.caso("receita Druida: só depois do esboço (primeira vitória contra a Rainha) e na Forja nível 3", function()
 		local mats = { GlandulaDeBobinaViva = 4, SementeFlutuante = 3, CascaAntiga = 2 }
-		local ok, falta = R.avaliar(Rc.EsbocoDruida_RainhaBobina, ctx({ materiais = mats }))
+		local forja3 = { Forja = 3 }
+		local ok, falta = R.avaliar(Rc.EsbocoDruida_RainhaBobina, ctx({ materiais = mats, estacoesPerto = forja3 }))
 		T.falso(ok)
 		T.igual(#falta, 1)
 		T.igual(falta[1].tipo, "receita")
-		T.verdade((R.avaliar(Rc.EsbocoDruida_RainhaBobina, ctx({ materiais = mats, conhecidas = { EsbocoDruida_RainhaBobina = true } }))))
+		local sabe = { EsbocoDruida_RainhaBobina = true }
+		T.verdade((R.avaliar(Rc.EsbocoDruida_RainhaBobina, ctx({ materiais = mats, conhecidas = sabe, estacoesPerto = forja3 }))))
+		local ok2, falta2 = R.avaliar(Rc.EsbocoDruida_RainhaBobina, ctx({ materiais = mats, conhecidas = sabe, estacoesPerto = { Forja = 2 } }))
+		T.falso(ok2)
+		T.igual(falta2[1].tipo, "estacao")
+		T.igual(falta2[1].tem, 2)
+		T.igual(falta2[1].precisa, 3)
 	end)
 
 	T.caso("requisito de mundo faltando aparece na lista", function()

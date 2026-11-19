@@ -71,6 +71,22 @@ local lista = {
 		objetivos = { { id = "rainha", tipo = "derrotar", alvo = "RainhaBobina", qtd = 1, descricao = "Rainha-Bobina derrotada" } },
 		recompensas = { xp = 200 },
 	},
+	{
+		id = "OAlfaDaMatilha",
+		nome = "O Alfa da matilha",
+		descricao = "O Alfa corre carregado e nada o fere. Apare o bote dele na hora certa.",
+		requisitos = {},
+		objetivos = { { id = "alfa", tipo = "derrotar", alvo = "CaoTrovaoAlfa", qtd = 1, descricao = "Alfa derrotado" } },
+		recompensas = { xp = 200 },
+	},
+	{
+		id = "FogoNaForja",
+		nome = "Fogo na forja",
+		descricao = "Leve a Forja da sua base ao nível 3 para fabricar equipamentos Druida.",
+		requisitos = {},
+		objetivos = { { id = "forja", tipo = "melhorarBase", alvo = "Forja3", qtd = 1, descricao = "Forja nível 3" } },
+		recompensas = { xp = 150 },
+	},
 }
 
 local porId: { [string]: any } = {}
