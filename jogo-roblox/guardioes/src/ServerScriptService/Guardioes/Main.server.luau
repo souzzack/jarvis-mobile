@@ -32,6 +32,7 @@ local ORDEM = {
 	"LootSystem", -- saque pessoal com proteção contra azar
 	"QuestSystem", -- missões por eventos (usa quase todos os anteriores)
 	"CompanySystem", -- companhias (guildas de jogadores): cofre, cargos, convites
+	"SecretDiscoverySystem", -- cadeia ??? do Ato 1 (enigmas, diário, ritual do Arco)
 }
 
 local carregados: { [string]: Sistema } = {}

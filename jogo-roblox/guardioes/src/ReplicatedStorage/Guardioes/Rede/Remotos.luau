@@ -185,6 +185,15 @@ Remotos.EventoCompanhia = {
 	REJEITADO = 3, -- (motivo)
 	AVISO = 4, -- (texto) "Dissolução agendada", "Você virou líder"…
 }
+-- segredos ??? (os lugares usam ProximityPrompt; só o diário e as margens passam por aqui)
+Remotos.Segredo = { DIARIO = 1, EXAMINAR_MARGEM = 2 } -- EXAMINAR_MARGEM: (livroId) só livros já lidos
+Remotos.EventoSegredo = {
+	DIARIO = 1, -- (lista { nome, texto?, feita, outroMundo? }, artefato?: texto parcial, margens { livro, examinada, texto? })
+	AVISO = 2, -- (texto)
+	DESCOBERTA = 3, -- (nome, texto) uma etapa nova
+	CONSTELACAO = 4, -- (cores hex na ordem do anel, índice da estrela que brilha)
+	CONTEMPLANDO = 5, -- (segundos; 0 = terminou ou foi interrompida)
+}
 -- raça
 Remotos.Raca = { ESCOLHER = 1 } -- (racaId)
 Remotos.EventoRaca = {
@@ -193,7 +202,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia", "Segredo" }
 
 local pasta: Folder? = nil
 

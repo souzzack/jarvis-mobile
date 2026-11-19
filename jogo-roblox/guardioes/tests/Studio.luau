@@ -71,6 +71,9 @@ return function()
 		Equipamentos = require(G.Config.Equipamentos),
 		Melhoria = require(G.Equipamento.Melhoria),
 		Companhia = require(G.Companhias.Companhia),
+		Descoberta = require(G.Segredos.Descoberta),
+		SegredosAto1 = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.SegredosAto1),
+		Materiais = require(G.Config.Materiais),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

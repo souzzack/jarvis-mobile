@@ -42,6 +42,11 @@ local ConfigServidor = {
 		ignorarTravasDeChefe = true,
 		-- SÓ TESTE: o Espectro aparece a qualquer hora (desligue para testar a regra da noite)
 		ignorarNoite = true,
+		-- SÓ TESTE: o Santuário conta como "sob chuva" a qualquer hora (desligue para testar o ciclo de chuva)
+		ignorarChuva = true,
+		-- SÓ TESTE: contemplar sem o Axolote Juvenil+ ativo (o Nebu de teste é Filhote). Desligue para testar a
+		-- regra; os marcos do Axolote só contam com ele ativo de qualquer forma.
+		ignorarAxolote = true,
 	},
 	-- persistência (PlayerDataSystem). DataStore NOVA: o save do tycoon nunca é escrito.
 	-- Sem acesso a DataStore (Studio sem "Enable Studio Access to API Services"), roda só em memória e avisa.
@@ -68,6 +73,14 @@ local ConfigServidor = {
 			{ revela = "TrilhaEscondida", deslocamento = Vector3.new(-30, 2, 40), tamanho = Vector3.new(4, 1, 18) },
 			-- corrente ascendente (funciona para o planador mesmo sem ver; a Raia a mostra)
 			{ revela = "SentirCorrente", deslocamento = Vector3.new(30, 20, 60), tamanho = Vector3.new(14, 60, 14), corrente = 14 },
+		},
+		-- segredo ??? do Ato 1 (SecretDiscoverySystem): telescópio e lentes ao lado do Observatório de teste,
+		-- Santuário e altar com 6 pilares atrás da arena
+		segredos = {
+			telescopio = Vector3.new(38, 2, 4),
+			lentes = { Vector3.new(36, 3, 6), Vector3.new(38, 3, 6), Vector3.new(40, 3, 6) },
+			santuario = Vector3.new(-40, -3.7, 70),
+			altar = Vector3.new(-40, -3, 100),
 		},
 		estruturas = {
 			{ id = "OficinaDosInventores", deslocamento = Vector3.new(30, 0, -4) },

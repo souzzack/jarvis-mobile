@@ -23,6 +23,7 @@ local ORDEM = {
 	"JanelaDoPersonagem", -- raça, habilidades aprendidas e livros (P)
 	"JanelaDeTransportes", -- transportes disponíveis, requisitos e preferido (J)
 	"JanelaDaCompanhia", -- companhia (guilda): membros, cofre, registro (U)
+	"DiarioDeDescobertas", -- segredos ???: diário, margens, constelação, contemplação (Y)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

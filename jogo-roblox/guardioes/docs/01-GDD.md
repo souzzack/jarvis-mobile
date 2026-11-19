@@ -361,7 +361,7 @@ Cada dimensão nova entra **por configuração**: dados de regiões, criaturas, 
 6. **Revelação parcial.** O Guardião não causou a Fratura; ele a **tentou impedir**. O diário dele aponta o Campo das Bolhas e cita as Sete Estrelas.
 
 **Segredo ??? do Ato 1 (interno, não divulgar):**
-1. Com o Axolote Nebular equipado, fazer a Contemplação Celestial no Santuário sob chuva.
+1. Com o Axolote Nebular ativo (Juvenil ou Adulto), contemplar o céu no Santuário sob chuva. É uma ação do jogador, não a habilidade Contemplação Celestial do Axolote adulto: a habilidade exige o marco "Sete Estrelas", que só existe depois desta cadeia (ver `22-RELATORIO-SEGREDOS.md`).
 2. Isso revela a constelação.
 3. A ordem de ativação dos 6 pilares segue as cores das Sete Estrelas.
 4. Abre-se a câmara sob o altar, com o **Artefato Desconhecido nº 1**.

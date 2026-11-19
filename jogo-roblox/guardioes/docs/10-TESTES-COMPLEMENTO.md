@@ -262,3 +262,28 @@ Os roteiros abaixo pedem **dois jogadores** (Test → Clients and Servers → 2 
 | K18 | Apertar várias ações seguidas muito rápido | Algumas recusadas com "Aguarde a ação anterior terminar" (uma ação por vez por jogador) |
 | K19 | Bolsa cheia (9999) e retirar | "Bolsa cheia: N ficaram guardados para você."; entregues ao abrir espaço e entrar de novo |
 | K20 | Dois servidores (com API, publicado em teste privado) | Mudanças feitas num servidor aparecem no outro em até 60 s |
+
+## 15. Segredo ??? do Ato 1: casos e roteiro
+
+**Automáticos novos:** 9 casos em `Descoberta.spec` (total: 177 em 26 specs).
+
+Os marcadores de teste ficam perto da arena: telescópio e 3 lentes ao lado do Observatório de teste, Santuário (placa plana) e altar com 6 pilares coloridos atrás da arena. Com `ignorarChuva` e `ignorarAxolote` ligados (padrão do teste), dá para fazer a cadeia até o altar sem esperar a chuva nem ter um Axolote Juvenil.
+
+| # | Passo | Esperado |
+|---|---|---|
+| S1 | Y ("Descobertas") logo ao entrar | Lista de "???"; as que já estão ao alcance mostram só a dica vaga (ex.: "O telescópio do Observatório parece desalinhado.") |
+| S2 | B no telescópio | Anotação do astrônomo citando **3 mundos** (sem cores). Outro jogador vê **outra ordem** |
+| S3 | Girar as lentes na ordem errada | "A luz se espalha pelo vidro e some…" e recomeça |
+| S4 | Ligar mundo → cor pela constelação (Tempestades = azul, Vulcões = vermelha, Gigante = dourada) e girar na ordem certa | "Descoberta: O vidro que lembra do céu"; o diário mostra nome e texto |
+| S5 | Desligar o Observatório (perfil sem a restauração e `progressoLivros` sem ele) e girar | "A lente está emperrada." |
+| S6 | Ler um livro e, no diário, "Examinar as margens" | Texto a lápis; o botão some. O Códice exige o Campo das Bolhas, então "Anotações nas margens" **não fecha** agora (esperado) |
+| S7 | B no Santuário e andar antes de 11 s | "A contemplação foi interrompida." |
+| S8 | B no Santuário e ficar parado 11 s | Contagem na tela; depois, a constelação aparece por 10 s com uma estrela maior; "Descoberta: Sete estrelas sob a chuva" |
+| S9 | Com `ignorarChuva = false` e fora da chuva | "As estrelas piscam, tímidas…" (sem descoberta). Com `Workspace.GuardioesChuva = true`, funciona |
+| S10 | Com `ignorarAxolote = false` e sem o Axolote Juvenil+ ativo | "…falta alguém para olhar com você." |
+| S11 | Tocar os pilares a partir da estrela maior, dando a volta no anel | "O pilar … acende" a cada um; errar apaga todos; completar → "Os seis pilares" |
+| S12 | B no altar | "A câmara sob o altar se abre." → Artefato Desconhecido nº 1; o diário mostra a descrição com parte das palavras como "???" |
+| S13 | B no altar de novo | "O artefato vibra, mas algo ainda falta." (o Orvalho entre mundos é do Campo das Bolhas: **bloqueado até essa dimensão existir**) |
+| S14 | Com o Axolote ativo durante S8 e S11 | Marcos AxoPrimeiraConstelacao e AxoSeteEstrelas e o desafio AxoNoiteDeTormenta registrados (o painel de companheiros mostra o progresso para Adulto) |
+| S15 | Sair e entrar (com API) | Etapas feitas continuam no diário; as ordens do jogador são as mesmas |
+| S16 | Pelo console, mandar `EXAMINAR_MARGEM` de um livro não lido, ou com id falso | Nada acontece |
