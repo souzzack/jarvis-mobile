@@ -1,0 +1,20 @@
+{
+  "name": "GuardioesDoMultiverso",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Guardioes": { "$path": "src/ReplicatedStorage/Guardioes" }
+    },
+    "ServerScriptService": {
+      "Guardioes": { "$path": "src/ServerScriptService/Guardioes" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "Guardioes": { "$path": "src/StarterPlayer/StarterPlayerScripts/Guardioes" }
+      }
+    },
+    "ServerStorage": {
+      "GuardioesTestes": { "$path": "tests" }
+    }
+  }
+}
