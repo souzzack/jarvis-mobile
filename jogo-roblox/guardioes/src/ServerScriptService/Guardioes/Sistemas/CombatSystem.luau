@@ -21,6 +21,7 @@ local Estamina = require(G.Combate.Estamina)
 local Alcance = require(G.Combate.Alcance)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
 local Remotos = require(G.Rede.Remotos)
+local Sinal = require(G.Util.Sinal)
 
 local C = Remotos.Combate
 local E = Remotos.EventoCombate
@@ -38,6 +39,16 @@ type EstadoJogador = {
 
 local CombatSystem = { Nome = "CombatSystem" }
 
+-- Integração (docs/08): outros sistemas não mexem no estado interno do combate; usam estes pontos.
+-- Guardas: funções (p) -> (permitido, motivo). Ex.: locomoção bloqueia ataque em voo; artefato bloqueia
+-- ataque durante a troca de forma ou na forma de prancha.
+type Guarda = (Player) -> (boolean, string?)
+local guardas: { Guarda } = {}
+-- disparado quando um jogador recebe dano > 0 de uma criatura: (p, dano, tipo)
+CombatSystem.jogadorAtingido = Sinal.novo()
+-- arma escolhida por jogador (sobrevive ao renascer); nil = Espada padrão
+local armas: { [Player]: any } = {}
+
 local estados: { [Player]: EstadoJogador } = {}
 local evento: RemoteEvent
 local inimigos: any
@@ -49,7 +60,7 @@ local function novoEstado(): EstadoJogador
 		maquina = MaquinaDeCombo.nova(agora),
 		estamina = Estamina.nova(Cfg.estamina.max, agora),
 		balde = LimiteDeTaxa.novo(Cfg.rede.capacidadeBalde, Cfg.rede.recargaPorSeg, agora),
-		arma = Espada, -- Etapa D: virá do equipamento
+		arma = Espada, -- trocada por CombatSystem.definirArma (artefatos); Etapa D: equipamento
 		alvoPedido = nil,
 		ultimoEnvioEstamina = 0,
 		ultimaEstaminaEnviada = -1,
@@ -166,7 +177,41 @@ function CombatSystem.danoAoJogador(p: Player, origem: Vector3, a: AtaqueRecebid
 		hum:TakeDamage(r.dano)
 	end
 	evento:FireClient(p, E.RECEBEU_GOLPE, r.tipo, r.dano, origemId)
+	if r.dano > 0 then
+		CombatSystem.jogadorAtingido.disparar(p, r.dano, r.tipo)
+	end
 	return r
+end
+
+function CombatSystem.registrarGuarda(fn: Guarda)
+	table.insert(guardas, fn)
+end
+
+local function guardasPermitem(p: Player): (boolean, string?)
+	for _, g in guardas do
+		local ok, motivo = g(p)
+		if not ok then
+			return false, motivo
+		end
+	end
+	return true, nil
+end
+
+function CombatSystem.atordoado(p: Player): boolean
+	local st = estados[p]
+	return st ~= nil and st.maquina.estado == "Atordoado"
+end
+
+-- troca a arma do jogador (só entre golpes: volta a máquina a Ocioso para não misturar tempos de armas)
+function CombatSystem.definirArma(p: Player, arma: any)
+	armas[p] = arma
+	local st = estados[p]
+	if st and st.arma ~= arma then
+		st.arma = arma
+		if st.maquina.estado ~= "Atordoado" then
+			st.maquina = MaquinaDeCombo.nova(os.clock())
+		end
+	end
 end
 
 -- ----------------------------------------------------------------- intenções do cliente
@@ -184,6 +229,13 @@ local function aoReceber(p: Player, tipo: any, a: any, b: any)
 	end
 	avancar(p, st, agora)
 	local m = st.maquina
+	if tipo ~= C.DEFESA_FIM then
+		local ok, motivo = guardasPermitem(p)
+		if not ok then
+			rejeitar(p, tipo, motivo or "bloqueado")
+			return
+		end
+	end
 	if tipo == C.ATACAR or tipo == C.PESADO then
 		st.alvoPedido = if typeof(a) == "string" and #a <= 12 then a else nil
 		local estavaOcioso = m.estado == "Ocioso"
@@ -251,7 +303,9 @@ function CombatSystem.Start()
 	local function entrar(p: Player)
 		estados[p] = novoEstado()
 		p.CharacterAdded:Connect(function()
-			estados[p] = novoEstado() -- renascer zera o combate
+			local st = novoEstado() -- renascer zera o combate (mas mantém a arma escolhida)
+			st.arma = armas[p] or Espada
+			estados[p] = st
 		end)
 	end
 	for _, p in Players:GetPlayers() do
@@ -260,6 +314,7 @@ function CombatSystem.Start()
 	Players.PlayerAdded:Connect(entrar)
 	Players.PlayerRemoving:Connect(function(p)
 		estados[p] = nil
+		armas[p] = nil
 	end)
 	evento.OnServerEvent:Connect(aoReceber)
 	RunService.Heartbeat:Connect(passo)

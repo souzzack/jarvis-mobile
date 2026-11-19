@@ -66,3 +66,7 @@ Isso **não substitui** a execução real. Erros de tipo do `--!strict` e erros 
 | G | QuestSystem e DimensionSystem |
 | H | RestorationSystem, PersonalBaseSystem e a migração dos terrenos, do galpão e dos funcionários |
 | I | CompanySystem e SecretDiscoverySystem (a raridade ???, sem Robux e sem depender só de sorte) |
+
+## Atualização: complemento oficial (criaturas, voo e artefatos)
+
+O que foi feito, verificado e pendente no complemento está em [`11-RELATORIO-COMPLEMENTO.md`](11-RELATORIO-COMPLEMENTO.md).

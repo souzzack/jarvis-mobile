@@ -1,0 +1,80 @@
+-- NÃO EXECUTADO. Artefato metamórfico (Espada do Horizonte): formas, troca, recarga, cancelamento, estágios.
+-- Troca 0,6 s · recarga 1,5 s · prancha exige estágio 2.
+
+return function(T, M)
+	local A = M.MaquinaDeArtefato
+	local P = M.ProgressaoDeArtefato
+	local cfg = M.ArtefatoEspadaDoHorizonte
+
+	T.caso("nasce na forma inicial; prancha bloqueada no estágio 1", function()
+		local i = A.nova("g1", cfg, 1)
+		T.igual(i.forma, "Espada")
+		local ok, mot = A.transformar(i, cfg, "Prancha", 0)
+		T.falso(ok)
+		T.igual(mot, "bloqueada")
+	end)
+
+	T.caso("durante a troca nenhuma forma está ativa; depois ativa a nova", function()
+		local i = A.nova("g1", cfg, 2)
+		T.verdade((A.transformar(i, cfg, "Prancha", 0)))
+		T.igual(A.formaAtiva(i), nil)
+		T.igual(A.tipoAtivo(i, cfg), nil)
+		T.igual(A.atualizar(i, cfg, 0.3), nil)
+		local ev = A.atualizar(i, cfg, 0.6)
+		T.igual(ev and ev.forma, "Prancha")
+		T.igual(A.tipoAtivo(i, cfg), "Locomocao")
+		T.igual(i.guid, "g1", "mesmo item, sem cópia")
+	end)
+
+	T.caso("recarga entre trocas; pedidos inválidos recusados", function()
+		local i = A.nova("g1", cfg, 2)
+		A.transformar(i, cfg, "Prancha", 0)
+		A.atualizar(i, cfg, 0.6)
+		local _, mot = A.transformar(i, cfg, "Espada", 1.0)
+		T.igual(mot, "recarga")
+		T.verdade((A.transformar(i, cfg, "Espada", 2.2)))
+		local _, m2 = A.transformar(i, cfg, "Asas", 3)
+		T.igual(m2, "formaInexistente")
+		local _, m3 = A.transformar(i, cfg, "Espada", 3)
+		T.igual(m3, "transformando")
+		A.atualizar(i, cfg, 3)
+		local _, m4 = A.transformar(i, cfg, "Espada", 9)
+		T.igual(m4, "jaNaForma")
+	end)
+
+	T.caso("golpe durante a troca cancela: volta à forma anterior com meia recarga", function()
+		local i = A.nova("g1", cfg, 2)
+		A.transformar(i, cfg, "Prancha", 0)
+		T.verdade(A.cancelar(i, cfg, 0.2))
+		T.igual(A.formaAtiva(i), "Espada")
+		T.perto(i.recargaAte, 0.95)
+		T.falso(A.cancelar(i, cfg, 0.3), "nada para cancelar")
+	end)
+
+	T.caso("forma de combate para o retorno ao combate", function()
+		T.igual(A.formaDoTipo(cfg, "Combate"), "Espada")
+		T.igual(A.formaDoTipo(cfg, "Locomocao"), "Prancha")
+	end)
+
+	T.caso("evolução: missão, depois materiais (lista o que falta e o que consumir)", function()
+		local vazio = { missoes = {}, desafios = {}, materiais = {} }
+		local ok, falta = P.avaliar(cfg, 1, vazio)
+		T.falso(ok)
+		T.igual(falta[1].tipo, "missao")
+		T.verdade((P.avaliar(cfg, 1, { missoes = { OHorizontePartido = true }, desafios = {}, materiais = {} })))
+		local ok3, falta3, consumir = P.avaliar(cfg, 2, { missoes = {}, desafios = {}, materiais = { NucleoDeTempestade = 3, PenaDeRaia = 2 } })
+		T.falso(ok3)
+		T.igual(#falta3, 2, "faltam penas e liga")
+		T.igual(consumir.PenaDeRaia, 6)
+		local okMax, faltaMax = P.avaliar(cfg, 4, vazio)
+		T.falso(okMax)
+		T.igual(faltaMax[1].tipo, "maximo")
+	end)
+
+	T.caso("bônus de estágio viram fontes para o perfil da prancha", function()
+		T.igual(#P.fontesDeBonus(cfg, 2), 0)
+		local f = P.fontesDeBonus(cfg, 3)
+		T.igual(#f, 1)
+		T.igual(f[1].perfis[1], "PranchaHorizonte")
+	end)
+end

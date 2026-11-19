@@ -18,13 +18,18 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 04 | [docs/04-MIGRACAO-TYCOON.md](docs/04-MIGRACAO-TYCOON.md) | Migração sem destruir nada |
 | 05 | [docs/05-PLANO-DE-TESTES-STUDIO.md](docs/05-PLANO-DE-TESTES-STUDIO.md) | Testes passo a passo no Studio |
 | 06 | [docs/06-RELATORIO.md](docs/06-RELATORIO.md) | O que está concluído e o que falta |
+| 07 | [docs/07-COMPLEMENTO-CRIATURAS-VOO-ARTEFATOS.md](docs/07-COMPLEMENTO-CRIATURAS-VOO-ARTEFATOS.md) | Complemento oficial: companheiros, evolução, Vínculo Dimensional, montarias, voo, raças, livros, transportes, artefatos |
+| 08 | [docs/08-ARQUITETURA-ESTADOS-CONTRATOS.md](docs/08-ARQUITETURA-ESTADOS-CONTRATOS.md) | Os 20 módulos pedidos, estados e transições, contratos, rede, riscos |
+| 09 | [docs/09-PLANO-ANIMACOES-EFEITOS.md](docs/09-PLANO-ANIMACOES-EFEITOS.md) | Animações de voo, transformações, criaturas e efeitos por qualidade |
+| 10 | [docs/10-TESTES-COMPLEMENTO.md](docs/10-TESTES-COMPLEMENTO.md) | 47 casos automáticos novos e roteiros no Studio (voo, artefato, multiplayer, mapas) |
+| 11 | [docs/11-RELATORIO-COMPLEMENTO.md](docs/11-RELATORIO-COMPLEMENTO.md) | Arquivos criados, verificações feitas e pendências |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + Sistemas (CombatSystem, EnemySystem)
-src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (entrada e HUD)
+src/ServerScriptService/Guardioes/    Main + Sistemas (Combat, Enemy, MovementAbility, Movement, MetamorphicArtifact) + ConfigSecreta
+src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo
 ```

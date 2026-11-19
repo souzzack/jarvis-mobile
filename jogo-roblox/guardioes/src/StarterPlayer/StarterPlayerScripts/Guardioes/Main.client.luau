@@ -6,7 +6,15 @@ local Controladores = script.Parent:WaitForChild("Controladores")
 
 type Controlador = { Nome: string, Init: (ctx: any) -> (), Start: () -> () }
 
-local ORDEM = { "HudDeCombate", "ControleDeCombate" }
+local ORDEM = {
+	"HudDeCombate", -- avisos compartilhados
+	"ControleDeLocomocao", -- voo, planador (FlightController/GliderController)
+	"ControleDeCombate",
+	"CameraDeVoo", -- FlightCamera
+	"EfeitosDeVoo", -- FlightEffects
+	"HudDeLocomocao",
+	"TransformacaoDeArtefato", -- ArtifactTransformationController
+}
 local carregados: { [string]: Controlador } = {}
 local ctx = {}
 function ctx.obter(nome: string): any

@@ -143,3 +143,9 @@ Config/Dimensoes/StormIsland/
 ```
 
 **Regra:** dados de segredos e de receitas ??? ficam em `ServerStorage`, e não em `ReplicatedStorage`, para o cliente não poder ler.
+
+## Complemento (criaturas, voo, montarias, raças, livros, transportes e artefatos)
+
+Os módulos novos, estados, contratos e pastas estão em [`08-ARQUITETURA-ESTADOS-CONTRATOS.md`](08-ARQUITETURA-ESTADOS-CONTRATOS.md). Os princípios deste documento continuam valendo.
+
+**Sistemas novos no servidor:** MovementAbilitySystem, MovementSystem e MetamorphicArtifactSystem.

@@ -8,7 +8,13 @@ local Sistemas = script.Parent:WaitForChild("Sistemas")
 type Sistema = { Nome: string, Init: (ctx: any) -> (), Start: () -> () }
 
 -- ordem importa só para o Init; no Start todos já se conhecem
-local ORDEM = { "EnemySystem", "CombatSystem" }
+local ORDEM = {
+	"EnemySystem",
+	"CombatSystem",
+	"MovementAbilitySystem", -- habilidades e raça (antes do movimento, que lê os dois)
+	"MovementSystem", -- locomoção: voo, planador, prancha (núcleo único)
+	"MetamorphicArtifactSystem", -- formas dos artefatos (usa movimento e combate)
+}
 
 local carregados: { [string]: Sistema } = {}
 local ctx = {}

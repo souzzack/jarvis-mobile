@@ -18,6 +18,7 @@ local Cfg = require(G.Config.Combate)
 local Espada = require(G.Config.Armas.Espada)
 local MaquinaDeCombo = require(G.Combate.MaquinaDeCombo)
 local Remotos = require(G.Rede.Remotos)
+local Mensagens = require(G.Util.Mensagens)
 
 local C = Remotos.Combate
 local E = Remotos.EventoCombate
@@ -212,12 +213,23 @@ function ControleDeCombate.Start()
 	ContextActionService:SetPosition("GuardioesPesado", UDim2.new(1, -230, 1, -120))
 	ContextActionService:SetPosition("GuardioesDefender", UDim2.new(1, -150, 1, -230))
 	ContextActionService:SetPosition("GuardioesEsquivar", UDim2.new(1, -230, 1, -200))
+	-- no voo os botões de combate somem (menos botões na tela; o servidor recusaria de qualquer jeito)
+	local loco = ctxSalvo.obter("ControleDeLocomocao")
+	loco.mudouEstado.conectar(function(estado: string)
+		local mostrar = estado == "Solo"
+		for _, nome in { "GuardioesAtacar", "GuardioesPesado", "GuardioesDefender", "GuardioesEsquivar" } do
+			local botao = ContextActionService:GetButton(nome)
+			if botao then
+				botao.Visible = mostrar
+			end
+		end
+	end)
 
 	evento.OnClientEvent:Connect(function(tipo: number, a: any, b: any, c: any)
 		if tipo == E.REJEITADO then
 			-- servidor discordou: volta ao estado neutro (o ESTADO oficial chega logo em seguida)
 			maquina = MaquinaDeCombo.nova(os.clock())
-			hud.aviso(if b == "estamina" then "Sem estamina" else nil)
+			hud.aviso(Mensagens.texto(b))
 		elseif tipo == E.ESTADO then
 			if a == "Ocioso" and maquina.estado ~= "Ocioso" and maquina.estado ~= "Defesa" then
 				maquina.estado = "Ocioso"

@@ -27,7 +27,36 @@ Remotos.EventoCombate = {
 	INIMIGO_MORREU = 7, -- (inimigoId)
 }
 
-local NOMES = { "Combate" }
+-- locomoção (cliente → servidor): só INTENÇÕES; posição/velocidade nunca são aceitas do cliente
+Remotos.Locomocao = {
+	DECOLAR = 1, -- (perfilId: string) "VooMagico" | "AsasNaturais"
+	POUSAR = 2,
+	IMPULSO = 3, -- (ligar: boolean)
+	PLANADOR_ABRIR = 4,
+	PLANADOR_FECHAR = 5,
+}
+
+-- eventos da locomoção (servidor → cliente)
+Remotos.EventoLocomocao = {
+	ESTADO = 1, -- (estado, modo, motivo?) correção do estado oficial (só o dono)
+	PERFIL = 2, -- (perfil: tabela) perfil EFETIVO calculado no servidor para o modo ativo (só o dono)
+	ENERGIA = 3, -- (valor, max) no máximo 5×/s
+	REJEITADO = 4, -- (acao, motivo)
+	CORRECAO = 5, -- (x, y, z) o servidor devolveu o personagem à última posição válida
+	HABILIDADES = 6, -- (lista de ids, raca) o que o personagem sabe (para a interface)
+}
+
+-- artefatos metamórficos
+Remotos.Artefato = {
+	TRANSFORMAR = 1, -- (guid: string, forma: string)
+}
+Remotos.EventoArtefato = {
+	INVENTARIO = 1, -- (lista { guid, id, estagio, forma }) só o dono
+	REJEITADO = 2, -- (guid, motivo)
+	FORMA = 3, -- (guid, forma, transformando: boolean) só o dono (os outros leem atributos do personagem)
+}
+
+local NOMES = { "Combate", "Locomocao", "Artefato" }
 
 local pasta: Folder? = nil
 
