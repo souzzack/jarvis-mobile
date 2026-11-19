@@ -38,7 +38,7 @@ local function disponivel(p: Player, perfil: any, m: any): boolean
 	for _, id in habilidades.lista(p) do
 		hab[id] = true
 	end
-	local prog = Requisitos.unir({ missoes = perfil.missoes, habilidades = hab, livros = perfil.livrosLidos, restauracoes = perfil.restauracoes, dimensoes = perfil.dimensoes, segredos = perfil.segredos })
+	local prog = Requisitos.unir({ missoes = perfil.missoes, habilidades = hab, livros = perfil.livrosLidos, restauracoes = perfil.restauracoes, dimensoes = perfil.dimensoes, segredos = perfil.segredos, receitas = perfil.receitas })
 	return (Requisitos.avaliar(m.requisitos or {}, prog))
 end
 
@@ -130,6 +130,15 @@ function QuestSystem.Start()
 	local inimigos = ctxSistemas.obter("EnemySystem")
 	local livros = ctxSistemas.obter("MagicBookSystem")
 	local movimento = ctxSistemas.obter("MovementSystem")
+	local restauracao = ctxSistemas.obter("RestorationSystem")
+	local fabricacao = ctxSistemas.obter("CraftingSystem")
+	restauracao.restaurou.conectar(function(p: Player, id: string)
+		QuestSystem.registrar(p, { tipo = "restaurar", alvo = id })
+		enviar(p) -- requisitos de restauração podem liberar missões novas
+	end)
+	fabricacao.fabricou.conectar(function(p: Player, receitaId: string)
+		QuestSystem.registrar(p, { tipo = "fabricar", alvo = receitaId })
+	end)
 
 	inimigos.morreu.conectar(function(ini: any, contribuicao: { [Player]: number })
 		local onde = ini.raiz and ini.raiz.Position

@@ -47,6 +47,30 @@ local lista = {
 		objetivos = { { id = "planar", tipo = "planar", alvo = "*", qtd = 3, descricao = "Planeios" } },
 		recompensas = { xp = 60, objetivoDimensional = "TempSobreviverTormenta" },
 	},
+	{
+		id = "AFornalhaDosInventores",
+		nome = "A fornalha dos inventores",
+		descricao = "Restaure a Oficina dos Inventores para voltar a fabricar.",
+		requisitos = {},
+		objetivos = { { id = "oficina", tipo = "restaurar", alvo = "OficinaDosInventores", qtd = 1, descricao = "Oficina restaurada" } },
+		recompensas = { xp = 150 },
+	},
+	{
+		id = "LigaDosInventores",
+		nome = "A liga dos inventores",
+		descricao = "Fabrique a primeira Liga Arcana na Oficina.",
+		requisitos = { restauracoes = { "OficinaDosInventores" } },
+		objetivos = { { id = "liga", tipo = "fabricar", alvo = "LigaArcana", qtd = 1, descricao = "Liga Arcana fabricada" } },
+		recompensas = { xp = 80 },
+	},
+	{
+		id = "ARainhaDaCaverna",
+		nome = "A Rainha da caverna",
+		descricao = "A Rainha-Bobina bloqueia os veios da mina. Quebre os pilares antes da descarga.",
+		requisitos = {},
+		objetivos = { { id = "rainha", tipo = "derrotar", alvo = "RainhaBobina", qtd = 1, descricao = "Rainha-Bobina derrotada" } },
+		recompensas = { xp = 200 },
+	},
 }
 
 local porId: { [string]: any } = {}

@@ -13,5 +13,13 @@ return {
 			},
 		},
 		BonecoDeTreino = { xp = 0, entradas = {} },
+		PilarDeCristal = { xp = 0, entradas = {} },
+		RainhaBobina = {
+			xp = 300,
+			entradas = {
+				{ id = "GlandulaDeBobinaViva", chance = 1, min = 3, max = 5 },
+				{ id = "NucleoDeTempestade", chance = 0.5, min = 1, max = 2 },
+			},
+		},
 	},
 }

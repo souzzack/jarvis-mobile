@@ -22,6 +22,8 @@ export type Perfil = {
 	nivel: number,
 	xp: number,
 	missoesProgresso: { [string]: { [string]: number } }, -- missão → objetivo → contagem
+	receitas: { [string]: boolean }, -- receitas aprendidas (esboços Druida, códices…)
+	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
 	criadoEm: number,
 	atualizadoEm: number,
@@ -31,7 +33,7 @@ local Perfil = {}
 Perfil.VERSAO = 2
 Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
-local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas" }
+local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas" }
 
 function Perfil.novo(agora: number): Perfil
 	return {
@@ -53,6 +55,8 @@ function Perfil.novo(agora: number): Perfil
 		nivel = 1,
 		xp = 0,
 		missoesProgresso = {},
+		receitas = {},
+		restauracoesProgresso = {},
 		legadoMagnata = nil,
 		criadoEm = agora,
 		atualizadoEm = agora,
@@ -168,6 +172,14 @@ function Perfil.validar(p: any): (boolean, string?)
 	end
 	if p.artefatoEquipado ~= nil and p.artefatos[p.artefatoEquipado] == nil then
 		return false, "artefatoEquipado"
+	end
+	if type(p.restauracoesProgresso) ~= "table" then
+		return false, "estrutura"
+	end
+	for id, r in p.restauracoesProgresso do
+		if type(id) ~= "string" or type(r) ~= "table" or type(r.etapa) ~= "number" or r.etapa < 0 or type(r.entregue) ~= "table" then
+			return false, "restauracao"
+		end
 	end
 	if type(p.nivel) ~= "number" or p.nivel < 1 or p.nivel > Perfil.LIMITES.nivelMax or type(p.xp) ~= "number" or p.xp < 0 then
 		return false, "nivel"

@@ -47,6 +47,21 @@ local ConfigServidor = {
 		travaSeg = 300, -- trava de sessão: outro servidor só assume depois disso (ou quando esta for liberada)
 		tentativasCarregar = 5,
 	},
+	-- marcadores de TESTE perto da arena (os mapas reais não são tocados; no mapa real, Parts com os mesmos
+	-- atributos nas pastas GuardioesEstacoes / GuardioesEstruturas / GuardioesChefes)
+	marcadoresDeTeste = {
+		ativa = true,
+		estacoes = { { id = "OficinaDosInventores", deslocamento = Vector3.new(30, 0, -10) } },
+		estruturas = {
+			{ id = "OficinaDosInventores", deslocamento = Vector3.new(30, 0, -4) },
+			{ id = "Observatorio", deslocamento = Vector3.new(38, 0, -4) },
+			{ id = "TorreMeteorologica", deslocamento = Vector3.new(46, 0, -4) },
+		},
+	},
+	-- chefes: arena = centro + raio; quem está dentro participa das fases (descarga, pilares)
+	chefes = {
+		{ id = "RainhaBobina", deslocamento = Vector3.new(0, 0, -90), raioArena = 40, retornoSeg = 300, duracaoCarga = 12, pilares = 3, descarga = { dano = 45, postura = 30 } },
+	},
 	-- zonas sem voo: Parts (caixas) dentro desta pasta do workspace. Dentro delas: sem decolar/planar/montar.
 	pastaZonasSemVoo = "GuardioesZonasSemVoo",
 	-- pontos de surgimento no mapa: Parts com o atributo "GuardioesSurgimento" = id do inimigo, dentro desta pasta

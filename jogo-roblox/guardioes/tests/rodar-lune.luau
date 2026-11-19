@@ -47,6 +47,12 @@ local M = {
 	Missao = require("../src/ReplicatedStorage/Guardioes/Missoes/Missao"),
 	Missoes = require("../src/ReplicatedStorage/Guardioes/Config/Missoes"),
 	Nivel = require("../src/ReplicatedStorage/Guardioes/Progressao/Nivel"),
+	-- fabricação, restauração, chefe
+	Receita = require("../src/ReplicatedStorage/Guardioes/Fabricacao/Receita"),
+	Receitas = require("../src/ReplicatedStorage/Guardioes/Config/Receitas"),
+	Restauracao = require("../src/ReplicatedStorage/Guardioes/Restauracao/Restauracao"),
+	Restauracoes = require("../src/ReplicatedStorage/Guardioes/Config/Restauracoes"),
+	CargaDaRainha = require("../src/ReplicatedStorage/Guardioes/Chefes/CargaDaRainha"),
 }
 
 local specs = {
@@ -67,6 +73,7 @@ local specs = {
 	{ nome = "PerfilSalvo.spec", fn = require("./Specs/PerfilSalvo.spec") },
 	{ nome = "Requisitos.spec", fn = require("./Specs/Requisitos.spec") },
 	{ nome = "Inventario.spec", fn = require("./Specs/Inventario.spec") },
+	{ nome = "FabricacaoRestauracaoChefe.spec", fn = require("./Specs/FabricacaoRestauracaoChefe.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

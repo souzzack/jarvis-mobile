@@ -36,6 +36,7 @@ type Inimigo = {
 	atordoadoAte: number,
 	atingidos: { [Player]: boolean },
 	contribuicao: { [Player]: number },
+	invulneravel: boolean?, -- fases de chefe (BossSystem)
 }
 
 local EnemySystem = { Nome = "EnemySystem" }
@@ -215,6 +216,13 @@ local function morrer(ini: Inimigo, agora: number)
 	evento:FireAllClients(E.INIMIGO_MORREU, ini.id)
 	EnemySystem.morreu.disparar(ini, ini.contribuicao)
 	local cfgId, onde, retorno = ini.cfg.id, ini.surgimento, ini.cfg.retornoSeg
+	if not retorno then -- chefes e mecanismos: quem decide se volta é o BossSystem
+		task.delay(1.5, function()
+			ini.modelo:Destroy()
+			ativos[ini.id] = nil
+		end)
+		return
+	end
 	task.delay(1.5, function()
 		ini.modelo:Destroy()
 		ativos[ini.id] = nil
@@ -238,6 +246,9 @@ function EnemySystem.receberGolpe(id: string, g: GolpeRecebido): any?
 	local ini = ativos[id]
 	if not ini or ini.estado == "Morto" then
 		return nil
+	end
+	if ini.invulneravel then
+		return { tipo = "Imune", dano = 0, posturaNoAlvo = 0, estaminaDoAlvo = 0, posturaNoAtacante = 0 }
 	end
 	local agora = os.clock()
 	local r = Dano.resolver({
@@ -265,6 +276,47 @@ function EnemySystem.receberGolpe(id: string, g: GolpeRecebido): any?
 end
 
 export type Proximo = { id: string, posicao: Vector3, raio: number }
+
+-- ----------------------------------------------------------------- API para chefes e mecanismos (servidor)
+function EnemySystem.surgirEm(cfgId: string, onde: CFrame): string?
+	local ini = surgir(cfgId, onde)
+	return if ini then ini.id else nil
+end
+
+function EnemySystem.definirInvulneravel(id: string, v: boolean)
+	local ini = ativos[id]
+	if ini then
+		ini.invulneravel = v
+		ini.modelo:SetAttribute("Imune", v)
+	end
+end
+
+-- derruba por um tempo (janela de dano do chefe); dano recebido atordoado já tem o bônus de +30%
+function EnemySystem.atordoarPor(id: string, duracao: number)
+	local ini = ativos[id]
+	if ini and ini.estado ~= "Morto" then
+		local agora = os.clock()
+		atordoar(ini, agora)
+		ini.atordoadoAte = agora + duracao
+	end
+end
+
+function EnemySystem.info(id: string): { vida: number, vidaMax: number, posicao: Vector3, estado: string }?
+	local ini = ativos[id]
+	if not ini then
+		return nil
+	end
+	return { vida = ini.vida, vidaMax = ini.cfg.vida, posicao = ini.raiz.Position, estado = ini.estado }
+end
+
+-- some sem morrer (sem saque, sem missão): pilares que sobraram, chefe resetado
+function EnemySystem.remover(id: string)
+	local ini = ativos[id]
+	if ini then
+		ativos[id] = nil
+		ini.modelo:Destroy()
+	end
+end
 
 function EnemySystem.proximos(pos: Vector3, raio: number): { Proximo }
 	local lista: { Proximo } = {}

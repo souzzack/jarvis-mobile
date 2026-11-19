@@ -50,6 +50,12 @@ return function()
 		Missao = require(G.Missoes.Missao),
 		Missoes = require(G.Config.Missoes),
 		Nivel = require(G.Progressao.Nivel),
+		-- fabricação, restauração, chefe
+		Receita = require(G.Fabricacao.Receita),
+		Receitas = require(G.Config.Receitas),
+		Restauracao = require(G.Restauracao.Restauracao),
+		Restauracoes = require(G.Config.Restauracoes),
+		CargaDaRainha = require(G.Chefes.CargaDaRainha),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

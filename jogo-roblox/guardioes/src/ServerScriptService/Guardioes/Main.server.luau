@@ -20,6 +20,9 @@ local ORDEM = {
 	"MountSystem", -- montarias (usa companheiros e movimento)
 	"ProgressionSystem", -- nível, XP e vida por raça
 	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
+	"CraftingSystem", -- fabricação nas estações (transação atômica no inventário)
+	"RestorationSystem", -- restauração de estruturas por jogador, com ajuda cooperativa
+	"BossSystem", -- minibosses com fases (Rainha-Bobina)
 	"LootSystem", -- saque pessoal com proteção contra azar
 	"QuestSystem", -- missões por eventos (usa quase todos os anteriores)
 }

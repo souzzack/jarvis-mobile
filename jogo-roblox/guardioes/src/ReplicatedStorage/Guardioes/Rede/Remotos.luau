@@ -91,7 +91,27 @@ Remotos.EventoLivro = {
 	RECUSADO = 2, -- (livroId, textoPublico)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao" }
+-- fabricação (a janela abre pelo ProximityPrompt da estação; o pedido FABRICAR é validado no servidor)
+Remotos.Fabricacao = { FABRICAR = 1 } -- (receitaId)
+Remotos.EventoFabricacao = {
+	LISTA = 1, -- (estacaoId, lista { id, nome, pode, faltando, resultado })
+	FEITO = 2, -- (nomeDaReceita)
+	REJEITADO = 3, -- (receitaId, motivo)
+}
+-- restauração (ação pelo ProximityPrompt da estrutura; só eventos de volta)
+Remotos.EventoRestauracao = {
+	ESTADO = 1, -- (estruturaId, { nome, estado, etapa, total, etapaNome, falta = { material → qtd } })
+	AJUDOU = 2, -- (estruturaId, nomeDeQuemConcluiu)
+}
+-- chefes (para todos na arena)
+Remotos.EventoChefe = {
+	INICIO = 1, -- (chefeId inimigo, nome)
+	CARGA = 2, -- (duracao, pilares)
+	FIM_CARGA = 3, -- ("Sucesso" | "Descarga")
+	DERROTADO = 4, -- (nome)
+}
+
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe" }
 
 local pasta: Folder? = nil
 

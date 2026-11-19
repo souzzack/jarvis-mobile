@@ -126,8 +126,9 @@ function InventorySystem.darArtefato(p: Player, id: string, estagio: number): st
 	return guid
 end
 
--- Transação atômica: consome materiais e (opcional) muda o estágio de um artefato. (ok, faltando)
-function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number }?, artefato: string?, estagio: number? }): (boolean, { any })
+-- Transação atômica: consome materiais, (opcional) muda o estágio de um artefato e (opcional) ENTREGA
+-- materiais / um artefato novo — tudo na mesma gravação. (ok, faltando)
+function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number }?, artefato: string?, estagio: number?, darMateriais: { [string]: number }?, darArtefato: { id: string, estagio: number }?, alterarPerfil: ((any) -> boolean?)? }): (boolean, { any })
 	local bs = bolsas(p)
 	local okPlano, plano, faltando = Bolsa.planejarConsumo(bs, t.consumir or {})
 	if not okPlano then
@@ -145,6 +146,19 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 		Bolsa.aplicarConsumo(b, plano[2])
 		if guid and not artefatoDeTeste and t.estagio then
 			perfil.artefatos[guid].estagio = t.estagio
+		end
+		for id, q in t.darMateriais or {} do
+			local _, sobra = Bolsa.adicionarMaterial(b, id, q, Perfil.LIMITES.pilha)
+			if sobra > 0 then
+				return false -- pilha cheia: desfaz tudo (nada consumido)
+			end
+		end
+		if t.darArtefato then
+			perfil.artefatos[HttpService:GenerateGUID(false)] = { id = t.darArtefato.id, estagio = t.darArtefato.estagio }
+		end
+		-- mudança extra no perfil na MESMA gravação (ex.: progresso de restauração pago com estes materiais)
+		if t.alterarPerfil and t.alterarPerfil(perfil) == false then
+			return false
 		end
 		return true
 	end)

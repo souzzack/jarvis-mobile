@@ -123,3 +123,24 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | P9 | Afagar a Raia adulta algumas vezes (a cada 10 s) | Às vezes: "+1 Pena de Raia" |
 | P10 | Golpes da Espada do Horizonte em ritmo rápido | Sem recusas "cedo" frequentes (a correção da arma no cliente) |
 | P11 | Com acesso à API: subir de nível, sair e voltar | Nível, XP, materiais salvos e missões concluídas continuam. Os artefatos e materiais de **teste** não são salvos |
+
+## 8. Fabricação, restauração e Rainha-Bobina: casos e roteiro
+
+**Automáticos novos:** 8 casos (total: 123 em 18 specs).
+- `FabricacaoRestauracaoChefe.spec` (7): Liga Arcana, faltas listadas, esboço Druida, requisito de mundo, etapas da restauração, ajuda cooperativa, cargas da Rainha.
+- `PerfilSalvo.spec` (+1): progresso de restauração inválido.
+
+| # | Passo | Esperado |
+|---|---|---|
+| F1 | Marcadores cinza (x +30 a +46 da arena) → segurar B em "Oficina dos Inventores" | "Oficina — etapa 1/2: Tirar os destroços… Falta: Fragmento de Faísca × 4" |
+| F2 | Derrotar Faíscas e voltar ao marcador | Entrega parcial; ao completar, etapa 2. Depois de concluir a etapa 2: "Oficina dos Inventores restaurada!" e a missão *A fornalha dos inventores* concluída |
+| F3 | Dois jogadores: o B entrega 1 fragmento da etapa 1; o A conclui a mesma etapa com o B por perto | O B recebe "Etapa concluída com a ajuda de A" |
+| F4 | Bancada marrom → B "Fabricar" | A janela mostra a Liga Arcana (com o que falta). Fabricar consome 6 fragmentos e 1 núcleo e entrega 1 Liga Arcana; a missão *A liga dos inventores* é concluída |
+| F5 | Restaurar o Observatório e a Torre | Os livros do Grimório e do Tomo passam a abrir por requisito **real** (sem depender do progresso de teste) |
+| B1 | Ir até a arena da Rainha (z −90 da arena) | Aparece a barra do chefe; ela persegue e telegrafa ferrão, pulso e investida |
+| B2 | Baixar a vida até 75% | "Os pilares acenderam!": a barra fica azul (imune), surgem 3 pilares e uma contagem de 12 s |
+| B3 | Quebrar os 3 pilares a tempo | "A Rainha caiu! Ataque agora!": ela fica atordoada por 4 s e leva +30% de dano |
+| B4 | Deixar o tempo acabar e esquivar no instante | "DESCARGA!" quem esquivou não leva dano; quem não esquivou leva 45 |
+| B5 | Vencer | Glândulas (3 a 5), XP, missão *A Rainha da caverna* e, na primeira vez, "Esboço Druida aprendido!". A receita aparece na bancada |
+| B6 | Fabricar o Escudo do Firmamento Druida | Um artefato **novo** (GUID salvo) aparece na Bolsa, no estágio 1 |
+| B7 | Sair da arena por 20 s no meio da luta | A Rainha volta com a vida cheia e os pilares somem |

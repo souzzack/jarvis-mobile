@@ -201,3 +201,26 @@ A tabela da seção 1 continua como registro histórico. A situação atual é e
 Cada uma dessas entregas é uma transação separada no seu sistema.
 
 **Esquema do perfil v2 completado** (perfis já salvos ganham os campos sozinhos na migração): `materiais`, `artefatoEquipado`, `nivel`, `xp`, `missoesProgresso`.
+
+## 9. Atualização: fabricação, restauração e primeiro chefe (sem o Studio)
+
+| Sistema | Arquivos | Situação |
+|---|---|---|
+| **CraftingSystem** | `Sistemas/CraftingSystem.luau` + `Fabricacao/Receita.luau` + `Config/Receitas.luau` | **Escrito.** Estações por marcador; receita conhecida + estação + requisitos + materiais; consumo e entrega numa transação |
+| **RestorationSystem** | `Sistemas/RestorationSystem.luau` + `Restauracao/Restauracao.luau` + `Config/Restauracoes.luau` | **Escrito.** Por jogador, com etapas e entrega parcial; pagamento e progresso na mesma transação; ajuda cooperativa (≥ 25% dentro de 30 studs); melhoria global por maioria |
+| **BossSystem** | `Sistemas/BossSystem.luau` + `Chefes/CargaDaRainha.luau` + `Config/Inimigos/RainhaBobina.luau` + `PilarDeCristal.luau` | **Escrito.** Rainha-Bobina com 3 cargas (75/50/25%), pilares, descarga esquivável, reset com a arena vazia, esboço Druida na primeira vitória |
+
+**Mudanças em sistemas existentes:**
+- **EnemySystem:** ganhou `surgirEm`, `definirInvulneravel` (golpes viram "Imune"), `atordoarPor`, `info` e `remover`. Inimigos sem `retornoSeg` não renascem sozinhos.
+- **InventorySystem.transacao:** agora também entrega materiais e artefatos e aceita `alterarPerfil`, tudo na mesma gravação. Pilha cheia desfaz tudo.
+- **QuestSystem:** ganhou os eventos `restaurar` e `fabricar`.
+- **Perfil:** ganhou `receitas` e `restauracoesProgresso`.
+
+**Ordem de carga:** … MagicBook → Crafting → Restoration → Boss → Loot → Quest.
+
+**Integração com o que já existia:**
+- Os livros pedem a restauração do Observatório e da Torre, que agora dá para fazer de verdade.
+- O estágio 3 da Espada pede Liga Arcana, que agora pode ser fabricada.
+- A Torre usa a Glândula da Rainha.
+
+**Desvio provisório do GDD:** a receita Druida deveria pedir a Forja da base pessoal no nível 3. Até a base existir, ela usa a Oficina restaurada. Isso está anotado em `Config/Receitas.luau`.

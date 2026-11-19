@@ -8,6 +8,7 @@ local lista = {
 	{ id = "LigaArcana", nome = "Liga Arcana", origem = "Fabricação na Oficina (Etapa F)" },
 	{ id = "SementeFlutuante", nome = "Semente Flutuante", origem = "Santuário (Etapa F/G)" },
 	{ id = "CascaAntiga", nome = "Casca Antiga", origem = "Santuário (Etapa F/G)" },
+	{ id = "GlandulaDeBobinaViva", nome = "Glândula de Bobina Viva", origem = "Rainha-Bobina (material Druida)" },
 	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Torre Meteorológica (Etapa G)" },
 }
 

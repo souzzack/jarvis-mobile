@@ -25,12 +25,13 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 11 | [docs/11-RELATORIO-COMPLEMENTO.md](docs/11-RELATORIO-COMPLEMENTO.md) | Arquivos criados, verificações feitas e pendências |
 | 12 | [docs/12-RELATORIO-ETAPAS-6-A-9.md](docs/12-RELATORIO-ETAPAS-6-A-9.md) | Companheiros, montarias, livros e salvamento: o que foi feito sem o Studio |
 | 13 | [docs/13-RELATORIO-INVENTARIO-MISSOES.md](docs/13-RELATORIO-INVENTARIO-MISSOES.md) | Inventário, saque, missões, nível, armas novas e correção da previsão de golpes |
+| 14 | [docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md](docs/14-RELATORIO-FABRICACAO-RESTAURACAO-CHEFE.md) | Fabricação, restauração de estruturas e a Rainha-Bobina |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + 13 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, Companion, Mount, Progression, MagicBook, Loot, Quest) + Dados + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + 16 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, Companion, Mount, Progression, MagicBook, Crafting, Restoration, Boss, Loot, Quest) + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo
