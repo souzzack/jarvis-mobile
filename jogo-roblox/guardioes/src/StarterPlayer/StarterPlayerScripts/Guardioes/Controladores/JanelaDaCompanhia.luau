@@ -12,6 +12,7 @@ local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Remotos = require(G.Rede.Remotos)
 local Mensagens = require(G.Util.Mensagens)
 local Companhia = require(G.Companhias.Companhia)
+local Materiais = require(G.Config.Materiais)
 
 local CO = Remotos.Companhia
 local EV = Remotos.EventoCompanhia
@@ -162,6 +163,23 @@ local function desenharComCompanhia(s: any)
 	if s.dissolucao then
 		local quando = if s.dissolucao.ate then string.format("Dissolução em %.0f h (os depósitos voltam a quem depositou)", math.max(0, s.dissolucao.ate - os.time()) / 3600) else "Dissolução pedida: confirme ou cancele"
 		texto(quando, 16)
+	end
+	-- objetivos da semana (cooperativos: precisam de pelo menos 2 pessoas contribuindo)
+	if s.semanal then
+		local sem = s.semanal
+		texto(string.format("Objetivos da semana (termina em %dd %dh)", sem.terminaEm // 86400, (sem.terminaEm % 86400) // 3600), 18, true)
+		for _, o in sem.objetivos do
+			local premio = {}
+			for mat, q in o.recompensa do
+				local m = Materiais.porId[mat]
+				table.insert(premio, string.format("%s ×%d", if m then m.nome else mat, q))
+			end
+			local situacao = if o.concluido then "✔ concluído"
+				else string.format("%d/%d · você: %d · %d pessoa(s)", o.feito, o.alvo, o.minha, o.pessoas)
+			texto(string.format("%s — %s", o.nome, situacao), 14)
+			texto(string.format("   Prêmio: +%d XP da companhia; para quem ajudou: %s", o.xp, table.concat(premio, ", ")), 28)
+		end
+		texto(string.format("Precisa de pelo menos %d pessoas ajudando. O progresso aparece em até 30 s.", sem.minContribuintes), 28)
 	end
 	-- membros
 	texto("Membros", 18, true)

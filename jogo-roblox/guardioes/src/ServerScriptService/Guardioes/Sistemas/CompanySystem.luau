@@ -22,6 +22,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Companhia = require(G.Companhias.Companhia)
+local Semanal = require(G.Companhias.Semanal)
+local CfgSemanal = require(G.Config.ObjetivosSemanais)
 local Materiais = require(G.Config.Materiais)
 local Saque = require(G.Loot.Saque)
 local Loot = require(G.Config.Loot)
@@ -45,6 +47,9 @@ local memoria: { [string]: any } = {}
 local cache: { [string]: Companhia.Registro } = {}
 local baldes: { [Player]: LimiteDeTaxa.Balde } = {}
 local ocupado: { [Player]: boolean } = {}
+-- progresso semanal acumulado em memória e gravado a cada CFG.semanalSeg (uma escrita por companhia, não uma por
+-- inimigo). Se o servidor cair, perde-se no máximo esse intervalo de progresso — nunca recompensas já gravadas.
+local pendentes: { [string]: { [string]: { [string]: number } } } = {} -- companhia → tipo → uid → qtd
 local CHEFES: { [string]: boolean } = {}
 for _, c in ConfigServidor.chefes do
 	CHEFES[c.id] = true
@@ -207,6 +212,39 @@ local function despachar(id: string)
 end
 
 -- ------------------------------------------------------------------ visão e avisos
+local function contarMembros(c: Companhia.Registro): number
+	local n = 0
+	for _ in c.membros do
+		n += 1
+	end
+	return n
+end
+
+-- objetivos da semana para o painel (se a semana virou e ninguém gravou ainda, mostra os novos zerados)
+local function visaoSemanal(c: Companhia.Registro, p: Player): any
+	local agora = os.time()
+	local est = Semanal.preparar(c.semanal, c.id, agora, contarMembros(c), CfgSemanal)
+	local lista = {}
+	for _, o in est.objetivos do
+		local cfg
+		for _, x in CfgSemanal.lista do
+			if x.id == o.id then
+				cfg = x
+			end
+		end
+		local contrib = est.contribuicao[o.id] or {}
+		local pessoas = 0
+		for _ in contrib do
+			pessoas += 1
+		end
+		table.insert(lista, {
+			nome = if cfg then cfg.nome else o.id, feito = o.feito, alvo = o.alvo, concluido = o.concluido,
+			minha = contrib[tostring(p.UserId)] or 0, pessoas = pessoas, recompensa = if cfg then cfg.recompensa else {}, xp = if cfg then cfg.xp else 0,
+		})
+	end
+	return { objetivos = lista, terminaEm = Semanal.fimDaSemana(est.semana) - agora, minContribuintes = CfgSemanal.minContribuintes }
+end
+
 local function visao(c: Companhia.Registro, p: Player): any
 	local membros = {}
 	for uid, m in c.membros do
@@ -238,6 +276,7 @@ local function visao(c: Companhia.Registro, p: Player): any
 		retiradoHoje = if r and r.dia == hoje then r.qtd else 0,
 		limiteDiario = if cargo and cargo ~= "Lider" then Companhia.PERM[cargo].limiteDiario else nil,
 		transferencia = c.transferencia, dissolucao = c.dissolucao,
+		semanal = visaoSemanal(c, p),
 	}
 end
 
@@ -310,6 +349,81 @@ function CompanySystem.ganharXp(id: string, quanto: number)
 	if res.motivo == "subiu" and cache[id] then
 		for _, p in membrosOnline(cache[id]) do
 			evento:FireClient(p, EV.AVISO, "A companhia subiu para o nível " .. cache[id].nivel .. "!")
+		end
+	end
+end
+
+-- conta progresso semanal (só em memória; gravado pelo ciclo)
+function CompanySystem.registrarSemanal(p: Player, tipo: string, qtd: number)
+	local id = CompanySystem.idDe(p)
+	if not id or qtd <= 0 then
+		return
+	end
+	local porTipo = pendentes[id] or {}
+	pendentes[id] = porTipo
+	local porUid = porTipo[tipo] or {}
+	porTipo[tipo] = porUid
+	local uid = tostring(p.UserId)
+	porUid[uid] = (porUid[uid] or 0) + qtd
+end
+
+-- grava o progresso pendente de uma companhia; objetivos concluídos pagam XP e recompensas NA MESMA gravação
+-- (as recompensas entram em aDevolver e seguem o mesmo caminho seguro das devoluções)
+local function gravarSemanal(id: string)
+	local lote = pendentes[id]
+	if not lote then
+		return
+	end
+	pendentes[id] = nil
+	local concluidos: { string } = {}
+	local _, res = mudar(id, function(c, agora)
+		concluidos = {}
+		local n = contarMembros(c)
+		local est = Semanal.preparar(c.semanal, c.id, agora, n, CfgSemanal)
+		est = Perfil.copiar(est) -- nunca altera o estado antigo dentro da tentativa
+		for tipo, porUid in lote do
+			for uid, q in porUid do
+				if c.membros[uid] then -- quem saiu no meio não conta
+					Semanal.registrar(est, tipo, uid, q)
+				end
+			end
+		end
+		for _, novo in Semanal.concluir(est, n, CfgSemanal) do
+			for _, cfg in CfgSemanal.lista do
+				if cfg.id == novo.id then
+					Companhia.ganharXp(c, cfg.xp)
+					for _, uid in novo.contribuintes do
+						Companhia.guardarDevolucao(c, tonumber(uid) :: number, cfg.recompensa)
+					end
+					table.insert(concluidos, cfg.nome)
+				end
+			end
+		end
+		c.semanal = est
+		return true, "ok", nil
+	end)
+	if not res.ok and res.motivo ~= "gravacao" then
+		return -- companhia dissolvida ou inexistente: o progresso não tem para onde ir
+	end
+	if not res.ok then
+		-- não gravou: devolve o lote para a próxima tentativa (somando ao que chegou nesse meio-tempo)
+		local atual = pendentes[id] or {}
+		for tipo, porUid in lote do
+			atual[tipo] = atual[tipo] or {}
+			for uid, q in porUid do
+				atual[tipo][uid] = (atual[tipo][uid] or 0) + q
+			end
+		end
+		pendentes[id] = atual
+		return
+	end
+	publicar(id, res)
+	local c = cache[id]
+	if c then
+		for _, nome in concluidos do
+			for _, p in membrosOnline(c) do
+				evento:FireClient(p, EV.AVISO, "Objetivo semanal concluído: " .. nome .. "!")
+			end
 		end
 	end
 end
@@ -621,6 +735,34 @@ function CompanySystem.Start()
 		end
 		for id, xp in porCompanhia do
 			task.spawn(CompanySystem.ganharXp, id, xp)
+		end
+	end)
+
+	-- objetivos semanais: derrotas (quem contribuiu o mínimo do saque), aparos e fabricações
+	inimigos.morreu.conectar(function(ini: any, contribuicao: { [Player]: number })
+		if not (ini and ini.cfg) then
+			return
+		end
+		local tipo = if CHEFES[ini.cfg.id] then "DerrotarChefe" else "DerrotarComum"
+		for _, p in Saque.elegiveis(contribuicao, Loot.minimoDeContribuicao) do
+			CompanySystem.registrarSemanal(p, tipo, 1)
+		end
+	end)
+	inimigos.aparado.conectar(function(_inimigoId: any, p: Player)
+		CompanySystem.registrarSemanal(p, "Aparar", 1)
+	end)
+	ctxSistemas.obter("CraftingSystem").fabricou.conectar(function(p: Player)
+		CompanySystem.registrarSemanal(p, "Fabricar", 1)
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(CFG.semanalSeg)
+			for id in pendentes do
+				local ok, erro = pcall(gravarSemanal, id)
+				if not ok then
+					warn("[Guardioes] companhia (semanal): " .. tostring(erro))
+				end
+			end
 		end
 	end)
 

@@ -73,6 +73,8 @@ local M = {
 	Materiais = require("../src/ReplicatedStorage/Guardioes/Config/Materiais"),
 	Consumivel = require("../src/ReplicatedStorage/Guardioes/Consumiveis/Consumivel"),
 	Consumiveis = require("../src/ReplicatedStorage/Guardioes/Config/Consumiveis"),
+	Semanal = require("../src/ReplicatedStorage/Guardioes/Companhias/Semanal"),
+	ObjetivosSemanais = require("../src/ReplicatedStorage/Guardioes/Config/ObjetivosSemanais"),
 }
 
 local specs = {
@@ -103,6 +105,7 @@ local specs = {
 	{ nome = "Companhia.spec", fn = require("./Specs/Companhia.spec") },
 	{ nome = "Descoberta.spec", fn = require("./Specs/Descoberta.spec") },
 	{ nome = "BancadaDeposito.spec", fn = require("./Specs/BancadaDeposito.spec") },
+	{ nome = "Semanal.spec", fn = require("./Specs/Semanal.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

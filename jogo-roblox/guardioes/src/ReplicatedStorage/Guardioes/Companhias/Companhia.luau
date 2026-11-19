@@ -24,6 +24,7 @@ export type Registro = {
 	-- itens a devolver (saiu, expulso, dissolução), gravados NA MESMA escrita que os tirou do cofre; o servidor
 	-- depois os move para a chave de devolução de cada pessoa. Nunca somem entre uma gravação e outra.
 	aDevolver: { [string]: { [string]: number } },
+	semanal: any?, -- objetivos da semana (Companhias/Semanal)
 	versao: number,
 }
 export type Devolucao = { [number]: { [string]: number } } -- userId → material → qtd

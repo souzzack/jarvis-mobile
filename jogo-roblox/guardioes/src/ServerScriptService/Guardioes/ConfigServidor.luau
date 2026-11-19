@@ -62,6 +62,7 @@ local ConfigServidor = {
 		nomeStore = "Guardioes_Companhias_v1",
 		xpPorChefe = 120, -- por membro que contribuiu (≥ mínimo de contribuição do saque)
 		cicloSeg = 60, -- relê as companhias com membros online (prazos e mudanças de outros servidores)
+		semanalSeg = 30, -- grava o progresso dos objetivos semanais (uma escrita por companhia)
 	},
 	-- marcadores de TESTE perto da arena (os mapas reais não são tocados; no mapa real, Parts com os mesmos
 	-- atributos nas pastas GuardioesEstacoes / GuardioesEstruturas / GuardioesChefes)

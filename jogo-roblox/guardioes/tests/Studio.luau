@@ -76,6 +76,8 @@ return function()
 		Materiais = require(G.Config.Materiais),
 		Consumivel = require(G.Consumiveis.Consumivel),
 		Consumiveis = require(G.Config.Consumiveis),
+		Semanal = require(G.Companhias.Semanal),
+		ObjetivosSemanais = require(G.Config.ObjetivosSemanais),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

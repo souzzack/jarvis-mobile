@@ -307,3 +307,21 @@ Os marcadores de teste ficam perto da arena: telescópio e 3 lentes ao lado do O
 | D11 | Com o Depósito cheio (30), fabricar outro equipamento | "Depósito cheio: desmonte um equipamento ou melhore o Depósito da base"; **nenhum material consumido** |
 | D12 | Melhorar o Depósito (N na placa) para o nível 2 | Capacidade 45; o título da Bolsa mostra "(N/45 no Depósito)" |
 | D13 | Sair e entrar (com API) | Consumíveis, níveis e capacidade salvos; recargas zeradas (ficam só em memória, de propósito) |
+
+## 17. Objetivos semanais das companhias: casos e roteiro
+
+**Automáticos novos:** 8 casos em `Semanal.spec` (total: 192 em 28 specs).
+
+Dois jogadores na mesma companhia (seção 14).
+
+| # | Passo | Esperado |
+|---|---|---|
+| W1 | U → painel da companhia | Seção "Objetivos da semana" com 3 objetivos, quanto falta para a semana acabar, prêmio e "você: 0 · 0 pessoa(s)" |
+| W2 | Num segundo servidor (teste privado), abrir o painel da mesma companhia | Os **mesmos** 3 objetivos (sorteio fixo por companhia e semana) |
+| W3 | Jogador 1 derrota Faíscas / fabrica / apara golpes | Em até 30 s, o progresso do objetivo do tipo certo sobe; "você" mostra a parte dele |
+| W4 | Só o jogador 1 completa o alvo | O objetivo fica no alvo mas **não conclui** ("precisa de pelo menos 2 pessoas") |
+| W5 | Jogador 2 contribui com 1 | Em até 30 s: "Objetivo semanal concluído: …"; XP da companhia sobe; **os dois** recebem os materiais do prêmio |
+| W6 | Um contribuinte offline na hora da conclusão | Recebe o prêmio ao entrar (mesma chave de devolução das companhias) |
+| W7 | Continuar fazendo a mesma coisa depois de concluído | Nada mais soma; o prêmio não se repete |
+| W8 | Virar a semana (mudar o relógio numa cópia de teste, ou esperar segunda 00:00 UTC) | 3 objetivos novos, zerados |
+| W9 | Sair da companhia com progresso pendente (antes dos 30 s) | O progresso pendente dessa pessoa não conta |

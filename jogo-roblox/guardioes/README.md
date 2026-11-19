@@ -36,6 +36,7 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 21 | [docs/21-RELATORIO-COMPANHIAS.md](docs/21-RELATORIO-COMPANHIAS.md) | Companhias (guildas): cargos, cofre com limites, devoluções, liderança e dissolução |
 | 22 | [docs/22-RELATORIO-SEGREDOS.md](docs/22-RELATORIO-SEGREDOS.md) | Segredo ??? do Ato 1: lentes, margens, contemplação, pilares, altar e o ritual do Arco |
 | 23 | [docs/23-RELATORIO-BANCADA-DEPOSITO.md](docs/23-RELATORIO-BANCADA-DEPOSITO.md) | Bancada (consumíveis e acessório), Depósito (capacidade de equipamentos) e desmontar |
+| 24 | [docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md](docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md) | Objetivos semanais cooperativos das companhias |
 
 ## Código
 
