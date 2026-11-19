@@ -1,6 +1,6 @@
 --!strict
 -- NÃO EXECUTADO. Receitas (GDD 7.3). Só dados (T). Receitas ??? não ficam aqui (SecretDiscoverySystem).
--- resultado.tipo: "material" (vai para a bolsa) | "artefato" (novo GUID no inventário).
+-- resultado.tipo: "material" (vai para a bolsa) | "artefato" (novo GUID) | "equipamento" (novo GUID, Config/Equipamentos).
 -- estacaoNivel: nível mínimo da estação. A Forja é da BASE PESSOAL (só o dono usa a dele).
 
 local lista = {
@@ -33,6 +33,28 @@ local lista = {
 		requisitos = { restauracoes = { "OficinaDosInventores" } },
 		materiais = { CoracaoDaTormenta = 1, PenaDoRelampagoAntigo = 2, GlandulaDeBobinaViva = 2, JubaEstatica = 2 },
 		resultado = { tipo = "artefato", id = "EspadaDoHorizonte", estagio = 1 },
+	},
+	-- equipamentos comuns (Forja nível 1)
+	{
+		id = "CapuzDeViajante", nome = "Capuz de Viajante", estacao = "Forja", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { FragmentoDeFaisca = 4 }, resultado = { tipo = "equipamento", id = "CapuzDeViajante" },
+	},
+	{
+		id = "BotasDeViajante", nome = "Botas de Viajante", estacao = "Forja", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { FragmentoDeFaisca = 4 }, resultado = { tipo = "equipamento", id = "BotasDeViajante" },
+	},
+	-- esboços Druida dos minibosses (primeira vitória) — Forja nível 3 (GDD 7.3)
+	{
+		id = "EsbocoDruida_CaoAlfa", nome = "Elmo da Matilha (Druida)", estacao = "Forja", estacaoNivel = 3, conhecidaDesdeInicio = false, requisitos = {},
+		materiais = { JubaEstatica = 4, FragmentoDeFaisca = 6 }, resultado = { tipo = "equipamento", id = "ElmoDaMatilha" },
+	},
+	{
+		id = "EsbocoDruida_Colosso", nome = "Couraça das Ruínas (Druida)", estacao = "Forja", estacaoNivel = 3, conhecidaDesdeInicio = false, requisitos = {},
+		materiais = { NucleoEnferrujado = 4, FragmentoDeFaisca = 8 }, resultado = { tipo = "equipamento", id = "CouracaDasRuinas" },
+	},
+	{
+		id = "EsbocoDruida_Espectro", nome = "Amuleto Espectral (Druida)", estacao = "Forja", estacaoNivel = 3, conhecidaDesdeInicio = false, requisitos = {},
+		materiais = { LenteEspectral = 3, NucleoDeTempestade = 1 }, resultado = { tipo = "equipamento", id = "AmuletoEspectral" },
 	},
 }
 

@@ -24,6 +24,8 @@ export type Perfil = {
 	missoesProgresso: { [string]: { [string]: number } }, -- missão → objetivo → contagem
 	receitas: { [string]: boolean }, -- receitas aprendidas (esboços Druida, códices…)
 	pontosDescobertos: { [string]: boolean }, -- viagem rápida
+	equipamentos: { [string]: { id: string } }, -- guid → armadura/acessório (EquipmentSystem)
+	equipado: { [string]: string }, -- encaixe → guid
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
@@ -60,6 +62,8 @@ function Perfil.novo(agora: number): Perfil
 		receitas = {},
 		restauracoesProgresso = {},
 		pontosDescobertos = {},
+		equipamentos = {},
+		equipado = {},
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
 		criadoEm = agora,
@@ -184,6 +188,16 @@ function Perfil.validar(p: any): (boolean, string?)
 		if type(id) ~= "string" or type(r) ~= "table" or type(r.etapa) ~= "number" or r.etapa < 0 or type(r.entregue) ~= "table" then
 			return false, "restauracao"
 		end
+	end
+	if type(p.equipamentos) ~= "table" or type(p.equipado) ~= "table" then
+		return false, "estrutura"
+	end
+	local usados: { [string]: boolean } = {}
+	for encaixe, guid in p.equipado do
+		if type(encaixe) ~= "string" or type(guid) ~= "string" or p.equipamentos[guid] == nil or usados[guid] then
+			return false, "equipado" -- item inexistente ou o mesmo item em dois encaixes
+		end
+		usados[guid] = true
 	end
 	local b = p.base
 	if type(b) ~= "table" or type(b.espacos) ~= "table" or type(b.trofeus) ~= "table" or type(b.jardimColhidoEm) ~= "number" then

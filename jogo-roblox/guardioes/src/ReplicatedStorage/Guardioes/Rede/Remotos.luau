@@ -147,6 +147,12 @@ Remotos.EventoEspecial = {
 	ACERTO = 3, -- (inimigoId, tipo, dano) para todos
 	EFEITO = 4, -- (userId, tipo) para todos: brilho no personagem
 }
+-- equipamentos (armaduras e acessórios)
+Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe)
+Remotos.EventoEquipamento = {
+	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, atributos, efeito, encaixe? }, totais)
+	REJEITADO = 2, -- (motivo)
+}
 -- raça
 Remotos.Raca = { ESCOLHER = 1 } -- (racaId)
 Remotos.EventoRaca = {
@@ -155,7 +161,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento" }
 
 local pasta: Folder? = nil
 

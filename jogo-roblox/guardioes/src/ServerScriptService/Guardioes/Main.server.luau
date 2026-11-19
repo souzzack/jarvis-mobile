@@ -21,6 +21,7 @@ local ORDEM = {
 	"MountSystem", -- montarias (usa companheiros e movimento)
 	"ProgressionSystem", -- nível, XP e vida por raça
 	"RaceSystem", -- escolha de raça (provisória até o balanceamento)
+	"EquipmentSystem", -- armaduras e acessórios (defesa, vida, aparo, energia)
 	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
 	"CraftingSystem", -- fabricação nas estações (transação atômica no inventário)
 	"RestorationSystem", -- restauração de estruturas por jogador, com ajuda cooperativa

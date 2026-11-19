@@ -67,6 +67,8 @@ return function()
 		Tormenta = require(G.Chefes.Tormenta),
 		Colosso = require(G.Chefes.Colosso),
 		Espectro = require(G.Chefes.Espectro),
+		Equipamento = require(G.Equipamento.Equipamento),
+		Equipamentos = require(G.Config.Equipamentos),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

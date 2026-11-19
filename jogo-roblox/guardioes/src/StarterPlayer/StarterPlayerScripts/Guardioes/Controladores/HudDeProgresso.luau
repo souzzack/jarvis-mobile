@@ -35,6 +35,9 @@ local listaJanela: ScrollingFrame
 local abaBolsa: TextButton
 local materiais: { any } = {}
 local artefatos: { any } = {}
+local equipamentos: { any } = {}
+local totaisEquip: any = nil
+local evEquip: RemoteEvent
 local faltas: { [string]: string } = {}
 
 local function texto(pai: Instance, t: string, pos: UDim2, tam: UDim2, tamanhoFonte: number, cor: Color3?): TextLabel
@@ -127,6 +130,57 @@ local function desenharJanela()
 		end
 		y += 110
 	end
+	-- equipamentos (armaduras e acessórios)
+	y += 6
+	texto(listaJanela, "Equipamentos", UDim2.fromOffset(8, y), UDim2.new(1, -16, 0, 20), 15, Color3.fromRGB(255, 220, 140))
+	y += 22
+	if totaisEquip then
+		texto(listaJanela, string.format("Defesa %d · Vida +%d · Energia de voo +%d", totaisEquip.defesa, totaisEquip.vidaBonus, totaisEquip.energiaVoo), UDim2.fromOffset(12, y), UDim2.new(1, -16, 0, 16), 12, Color3.fromRGB(190, 200, 230))
+		y += 20
+	end
+	if #equipamentos == 0 then
+		texto(listaJanela, "(nenhum — fabrique na Forja da base)", UDim2.fromOffset(12, y), UDim2.new(1, -16, 0, 16), 13)
+		y += 18
+	end
+	local ocupados: { [string]: boolean } = {}
+	for _, it in equipamentos do
+		if it.encaixe then
+			ocupados[it.encaixe] = true
+		end
+	end
+	for _, it in equipamentos do
+		local c = Instance.new("Frame")
+		c.Position, c.Size = UDim2.fromOffset(4, y), UDim2.new(1, -8, 0, 62)
+		c.BackgroundColor3 = if it.encaixe then Color3.fromRGB(38, 46, 74) else Color3.fromRGB(26, 30, 46)
+		c.BorderSizePixel = 0
+		c.Parent = listaJanela
+		local partes = {}
+		for k, v in it.atributos do
+			table.insert(partes, string.format("%s %s", k, tostring(v)))
+		end
+		texto(c, string.format("%s · %s · %s%s", it.nome, it.raridade, it.tipo, if it.encaixe then " (equipado)" else ""), UDim2.fromOffset(8, 4), UDim2.new(1, -16, 0, 16), 13)
+		texto(c, table.concat(partes, " · ") .. (if it.efeito then " — " .. it.efeito else ""), UDim2.fromOffset(8, 20), UDim2.new(1, -110, 0, 30), 11, Color3.fromRGB(190, 200, 230))
+		local b = Instance.new("TextButton")
+		b.Position, b.Size = UDim2.new(1, -96, 0, 18), UDim2.fromOffset(88, 26)
+		b.BackgroundColor3 = Color3.fromRGB(52, 60, 92)
+		b.TextColor3 = Color3.new(1, 1, 1)
+		b.Font = Enum.Font.GothamBold
+		b.TextSize = 13
+		b.Text = if it.encaixe then "Retirar" else "Equipar"
+		b.Parent = c
+		b.Activated:Connect(function()
+			if it.encaixe then
+				evEquip:FireServer(Remotos.Equipamento.RETIRAR, it.encaixe)
+			else
+				local encaixe = it.tipo
+				if it.tipo == "Acessorio" then
+					encaixe = if ocupados.Acessorio1 then "Acessorio2" else "Acessorio1"
+				end
+				evEquip:FireServer(Remotos.Equipamento.EQUIPAR, it.guid, encaixe)
+			end
+		end)
+		y += 68
+	end
 	listaJanela.CanvasSize = UDim2.fromOffset(0, y)
 end
 
@@ -217,6 +271,17 @@ function HudDeProgresso.Start()
 				table.insert(partes, string.format("+%d %s", q, nomeMaterial(id)))
 			end
 			hud.aviso(table.concat(partes, "  "))
+		end
+	end)
+	evEquip = Remotos.evento("Equipamento")
+	evEquip.OnClientEvent:Connect(function(tipo: number, a: any, b: any)
+		if tipo == Remotos.EventoEquipamento.LISTA and typeof(a) == "table" then
+			equipamentos, totaisEquip = a, b
+			if janela.Visible then
+				desenharJanela()
+			end
+		elseif tipo == Remotos.EventoEquipamento.REJEITADO then
+			hud.aviso(require(G.Util.Mensagens).texto(a))
 		end
 	end)
 	evArtefato.OnClientEvent:Connect(function(tipo: number, a: any, b: any)

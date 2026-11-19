@@ -93,6 +93,8 @@ local function fabricar(p: Player, receitaId: string)
 	local t: any = { consumir = consumir }
 	if r.resultado.tipo == "material" then
 		t.darMateriais = { [r.resultado.id] = r.resultado.qtd }
+	elseif r.resultado.tipo == "equipamento" then
+		t.darEquipamento = r.resultado.id
 	elseif r.resultado.tipo == "artefato" then
 		t.darArtefato = { id = r.resultado.id, estagio = r.resultado.estagio }
 	end

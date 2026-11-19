@@ -201,3 +201,18 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | E3 | Telescópio no centro, segurar B | Sem o Observatório restaurado (e com a trava de teste desligada): "O telescópio está quebrado…". Com ele restaurado: "O reflexo revelou o Espectro!": ferível por 6 s, atordoado por 2 s, sem teleporte nesse tempo; recarga de 15 s |
 | E4 | Vencer | Lente Espectral (2 a 3), XP, missão (que exige o Observatório restaurado) e troféu. Ele só volta depois de 300 s **e** de noite |
 | E5 | Amanhecer sem ninguém lutando | Ele some e volta na próxima noite |
+
+## 12. Equipamentos (armaduras e acessórios): casos e roteiro
+
+**Automáticos novos:** 5 casos em `Equipamento.spec` (total: 150 em 23 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| Q1 | Forja da base (nível 1) → Fabricar | Aparecem Capuz e Botas de Viajante (4 Fragmentos cada). Fabricar põe o item na Bolsa → Equipamentos |
+| Q2 | Bolsa (I) → Equipar o Capuz | "Defesa 4" nos totais; golpes recebidos causam um pouco menos de dano (100/(100+4)) |
+| Q3 | Vencer o Alfa, o Colosso e o Espectro (primeira vez) | "Esboço Druida aprendido: Elmo da Matilha / Couraça das Ruínas / Amuleto Espectral!" |
+| Q4 | Forja nível 3 → fabricar os três Druida | Itens com raridade Druida (atributos × 1,42) |
+| Q5 | Equipar Elmo + Couraça + Botas + Amuleto | Totais: **Defesa 48 · Vida +43 · Energia de voo +21**; a vida máxima sobe 43; a barra de energia fica maior |
+| Q6 | Com o Elmo, aparar um pouco "atrasado" (até 0,21 s depois de começar a defender) | Ainda conta como aparo (0,18 + 0,03) |
+| Q7 | Pedir pelo console para equipar um GUID falso ou o Elmo no Corpo | "Item não encontrado" / "Esse item não vai nesse lugar" |
+| Q8 | Sair e entrar (com API) | Itens e encaixes salvos e reaplicados |

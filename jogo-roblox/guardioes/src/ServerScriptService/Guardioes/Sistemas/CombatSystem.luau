@@ -50,6 +50,9 @@ CombatSystem.jogadorAtingido = Sinal.novo()
 local armas: { [Player]: any } = {}
 -- Bastião (especial do Escudo): até quando golpes de frente viram aparo
 local bastiaoAte: { [Player]: number } = {}
+-- equipamento (EquipmentSystem): defesa e tolerância extra do aparo
+local defesaDe: { [Player]: number } = {}
+local aparoExtraDe: { [Player]: number } = {}
 
 local estados: { [Player]: EstadoJogador } = {}
 local evento: RemoteEvent
@@ -160,10 +163,11 @@ function CombatSystem.danoAoJogador(p: Player, origem: Vector3, a: AtaqueRecebid
 	local f = hrp.CFrame.LookVector
 	local frontal = Alcance.frontal(hrp.Position.X, hrp.Position.Z, f.X, f.Z, origem.X, origem.Z, Cfg.defesa.arcoGraus)
 	local r = Dano.resolver({
-		danoBase = a.dano, multiplicador = 1, defesaAlvo = 0,
+		danoBase = a.dano, multiplicador = 1, defesaAlvo = defesaDe[p] or 0,
 		postura = a.postura,
 		alvoInvulneravel = MaquinaDeCombo.invulneravel(st.maquina, Cfg, agora),
-		alvoAparando = MaquinaDeCombo.aparando(st.maquina, Cfg, agora) or agora < (bastiaoAte[p] or 0),
+		alvoAparando = MaquinaDeCombo.aparando(st.maquina, Cfg, agora) or agora < (bastiaoAte[p] or 0)
+			or (st.maquina.estado == "Defesa" and agora - st.maquina.defesaDesde <= Cfg.aparar.janela + (aparoExtraDe[p] or 0)),
 		alvoDefendendo = MaquinaDeCombo.defendendo(st.maquina),
 		frontal = frontal,
 		reducaoDefesa = Cfg.defesa.reducao,
@@ -211,6 +215,11 @@ function CombatSystem.livreParaEspecial(p: Player): (boolean, string?)
 		return false, e
 	end
 	return true, nil
+end
+
+function CombatSystem.definirEquipamento(p: Player, defesa: number, aparoExtra: number)
+	defesaDe[p] = defesa
+	aparoExtraDe[p] = aparoExtra
 end
 
 function CombatSystem.ativarBastiao(p: Player, duracao: number)
@@ -352,6 +361,7 @@ function CombatSystem.Start()
 		estados[p] = nil
 		armas[p] = nil
 		bastiaoAte[p] = nil
+		defesaDe[p], aparoExtraDe[p] = nil, nil
 	end)
 	evento.OnServerEvent:Connect(aoReceber)
 	RunService.Heartbeat:Connect(passo)

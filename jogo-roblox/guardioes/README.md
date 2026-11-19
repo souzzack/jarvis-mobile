@@ -31,12 +31,13 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | — | [docs/previas/](docs/previas/LEIA-ME.md) | Prévias visuais reconstruídas a partir do código (não são capturas do Studio) |
 | 17 | [docs/17-RELATORIO-GUARDIAO.md](docs/17-RELATORIO-GUARDIAO.md) | Guardião da Tormenta e o Códice Arcano |
 | 18 | [docs/18-RELATORIO-COLOSSO-ESPECTRO.md](docs/18-RELATORIO-COLOSSO-ESPECTRO.md) | Colosso das Ruínas e Espectro do Observatório (os 4 minibosses completos) |
+| 19 | [docs/19-RELATORIO-EQUIPAMENTOS.md](docs/19-RELATORIO-EQUIPAMENTOS.md) | EquipmentSystem: armaduras, acessórios e os esboços Druida dos minibosses |
 
 ## Código
 
 ```
 src/ReplicatedStorage/Guardioes/      config, lógica pura de combate, rede (compartilhado)
-src/ServerScriptService/Guardioes/    Main + 20 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest) + Dados + ConfigSecreta
+src/ServerScriptService/Guardioes/    Main + 21 Sistemas (PlayerData, Enemy, Combat, MovementAbility, Movement, Inventory, MetamorphicArtifact, SpecialAbility, Companion, Mount, Progression, Race, Equipment, MagicBook, Crafting, Restoration, PersonalBase, Boss, Dimension, Loot, Quest) + Dados + ConfigSecreta
 src/StarterPlayer/StarterPlayerScripts/Guardioes/   Main + Controladores (combate, voo, câmera, efeitos, artefato, HUDs)
 tests/                                testes dos módulos puros (Studio ou Lune)
 default.project.json                  mapa do Rojo

@@ -205,6 +205,8 @@ local function rejeitar(p: Player, acao: number, motivo: string)
 	evento:FireClient(p, EL.REJEITADO, acao, motivo)
 end
 
+local energiaExtra: { [Player]: number } = {} -- equipamento (EquipmentSystem)
+
 local function novoEstado(p: Player): Estado
 	local agora = os.clock()
 	local raca = habilidades.raca(p)
@@ -216,7 +218,7 @@ local function novoEstado(p: Player): Estado
 			end
 		end
 	end
-	local cfgEnergia = { max = Regras.energia.max * mult, recuperacaoPorSeg = Regras.energia.recuperacaoPorSeg, atrasoRecuperacao = Regras.energia.atrasoRecuperacao }
+	local cfgEnergia = { max = Regras.energia.max * mult + (energiaExtra[p] or 0), recuperacaoPorSeg = Regras.energia.recuperacaoPorSeg, atrasoRecuperacao = Regras.energia.atrasoRecuperacao }
 	return {
 		maq = MaqLoc.nova(agora),
 		energia = Estamina.nova(cfgEnergia.max, agora),
@@ -539,6 +541,26 @@ end
 function MovementSystem.montado(p: Player): string?
 	local st = estados[p]
 	return if st then st.maq.montariaId else nil
+end
+
+-- bônus de energia máxima de voo vindo do equipamento (aplica na hora, sem dar energia de graça)
+function MovementSystem.definirEnergiaExtra(p: Player, extra: number)
+	energiaExtra[p] = extra
+	local st = estados[p]
+	if st then
+		local raca = habilidades.raca(p)
+		local mult = 1
+		if raca then
+			for _, mod in raca.mods do
+				if mod.campo == "energiaMax" and mod.multiplicar then
+					mult *= mod.multiplicar
+				end
+			end
+		end
+		st.cfgEnergia.max = Regras.energia.max * mult + extra
+		st.energia.max = st.cfgEnergia.max
+		st.energia.valor = math.min(st.energia.valor, st.energia.max)
+	end
 end
 
 -- teleporte legítimo do servidor (portal, renascer): volta ao chão e reancora a conferência

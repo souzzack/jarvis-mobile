@@ -39,6 +39,9 @@ local EC = Remotos.EventoChefe
 -- conhecimento aprendido na PRIMEIRA vitória (esboço Druida de miniboss; Códice Arcano do Guardião)
 local ESBOCO: { [string]: { receita: string, texto: string } } = {
 	RainhaBobina = { receita = "EsbocoDruida_RainhaBobina", texto = "Esboço Druida aprendido!" },
+	CaoTrovaoAlfa = { receita = "EsbocoDruida_CaoAlfa", texto = "Esboço Druida aprendido: Elmo da Matilha!" },
+	ColossoDasRuinas = { receita = "EsbocoDruida_Colosso", texto = "Esboço Druida aprendido: Couraça das Ruínas!" },
+	EspectroDoObservatorio = { receita = "EsbocoDruida_Espectro", texto = "Esboço Druida aprendido: Amuleto Espectral!" },
 	GuardiaoDaTormenta = { receita = "CodiceArcano_EspadaDoHorizonte", texto = "Códice Arcano aprendido! E nas páginas do diário dele… um nome riscado." },
 }
 

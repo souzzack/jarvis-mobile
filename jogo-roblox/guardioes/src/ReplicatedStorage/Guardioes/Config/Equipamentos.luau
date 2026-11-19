@@ -1,0 +1,19 @@
+--!strict
+-- NÃO EXECUTADO. Catálogo de armaduras e acessórios (GDD 7.4). Só dados (T).
+-- tipo: "Cabeca" | "Corpo" | "Pernas" | "Acessorio". Atributos BASE (antes do multiplicador da raridade).
+-- Os Druida saem dos esboços dos minibosses (primeira vitória) e pedem a Forja da base nível 3.
+
+local lista = {
+	{ id = "CapuzDeViajante", nome = "Capuz de Viajante", tipo = "Cabeca", raridade = "Comum", atributos = { defesa = 4 } },
+	{ id = "BotasDeViajante", nome = "Botas de Viajante", tipo = "Pernas", raridade = "Comum", atributos = { defesa = 4 } },
+	{ id = "ElmoDaMatilha", nome = "Elmo da Matilha", tipo = "Cabeca", raridade = "Druida", atributos = { defesa = 10, janelaAparar = 0.03 }, efeito = "Aparo um pouco mais tolerante (lição do Alfa)" },
+	{ id = "CouracaDasRuinas", nome = "Couraça das Ruínas", tipo = "Corpo", raridade = "Druida", atributos = { defesa = 18, vidaBonus = 30 }, efeito = "Couraça do Colosso" },
+	{ id = "AmuletoEspectral", nome = "Amuleto Espectral", tipo = "Acessorio", raridade = "Druida", atributos = { defesa = 3, energiaVoo = 15 }, efeito = "Mais energia de voo (leveza do Espectro)" },
+}
+
+local porId: { [string]: any } = {}
+for _, e in lista do
+	porId[e.id] = e
+end
+
+return { lista = lista, porId = porId }

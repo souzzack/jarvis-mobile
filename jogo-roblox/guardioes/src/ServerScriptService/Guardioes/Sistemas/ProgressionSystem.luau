@@ -20,6 +20,7 @@ local evento: RemoteEvent
 local playerData: any
 local habilidades: any
 local ctxSistemas: any = nil
+local vidaExtra: { [Player]: number } = {} -- equipamento (EquipmentSystem)
 
 local function dados(p: Player): (number, number)
 	local perfil = playerData.obter(p)
@@ -37,7 +38,7 @@ local function aplicarVida(p: Player, curar: boolean)
 	end
 	local raca = habilidades.raca(p)
 	local nivel = dados(p)
-	local vida = Nivel.vidaMaxima(nivel, if raca then raca.modsVida else nil)
+	local vida = Nivel.vidaMaxima(nivel, if raca then raca.modsVida else nil) + (vidaExtra[p] or 0)
 	hum.MaxHealth = vida
 	hum.Health = if curar then vida else math.min(hum.Health, vida)
 end
@@ -45,6 +46,11 @@ end
 local function enviar(p: Player, subiu: boolean)
 	local nivel, xp = dados(p)
 	evento:FireClient(p, EP.NIVEL, nivel, xp, Nivel.xpParaProximo(nivel), subiu)
+end
+
+function ProgressionSystem.definirVidaExtra(p: Player, extra: number)
+	vidaExtra[p] = extra
+	aplicarVida(p, false)
 end
 
 function ProgressionSystem.nivel(p: Player): number

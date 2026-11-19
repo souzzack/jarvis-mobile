@@ -64,6 +64,8 @@ local M = {
 	Tormenta = require("../src/ReplicatedStorage/Guardioes/Chefes/Tormenta"),
 	Colosso = require("../src/ReplicatedStorage/Guardioes/Chefes/Colosso"),
 	Espectro = require("../src/ReplicatedStorage/Guardioes/Chefes/Espectro"),
+	Equipamento = require("../src/ReplicatedStorage/Guardioes/Equipamento/Equipamento"),
+	Equipamentos = require("../src/ReplicatedStorage/Guardioes/Config/Equipamentos"),
 }
 
 local specs = {
@@ -89,6 +91,7 @@ local specs = {
 	{ nome = "EspeciaisAtributos.spec", fn = require("./Specs/EspeciaisAtributos.spec") },
 	{ nome = "Tormenta.spec", fn = require("./Specs/Tormenta.spec") },
 	{ nome = "ColossoEspectro.spec", fn = require("./Specs/ColossoEspectro.spec") },
+	{ nome = "Equipamento.spec", fn = require("./Specs/Equipamento.spec") },
 }
 
 local _, falhou = Rodar(M, specs)
