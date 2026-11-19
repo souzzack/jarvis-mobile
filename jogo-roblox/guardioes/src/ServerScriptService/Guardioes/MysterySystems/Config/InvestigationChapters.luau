@@ -81,7 +81,26 @@ return {
 				},
 				recompensa = "RecCap3_Torres",
 			},
-			{ n = 4, nome = "A Chave Incompleta", lancado = false, pistas = {}, objetivos = {} },
+			{
+				-- as três torres abriram um nicho; três dentes de uma chave estão espalhados (um no alto: voar OU
+				-- subir pelos degraus — o voo não é obrigatório). A chave não funciona por inteiro na Ilha.
+				n = 4, nome = "A Chave Incompleta", lancado = true,
+				pistas = {
+					NichoDasTorres = {
+						ordem = 1, nome = "O nicho das três vozes", categoria = "A",
+						texto = "Quando as torres falaram juntas, um nicho se abriu na pedra. Dentro, o encaixe de uma chave de três dentes.",
+					},
+					AnotacaoDosDentes = {
+						ordem = 2, nome = "Anotação sobre os dentes", categoria = "A",
+						texto = "\"Separei os dentes: um fica com o vento, outro no chão do raio, o último no alto, onde só chega quem voa ou quem sobe com paciência.\" — A.",
+					},
+				},
+				objetivos = {
+					{ id = "OndeEstaoOsDentes", nome = "Descobrir onde estão os dentes", tipo = "pistas", pistas = { "NichoDasTorres", "AnotacaoDosDentes" } },
+					{ id = "DentesDaChave", nome = "Reunir os três dentes da chave", tipo = "enigma", puzzle = "DentesDaChave", visivelApos = "OndeEstaoOsDentes" },
+				},
+				recompensa = "RecCap4_Chave",
+			},
 			{ n = 5, nome = "A Mensagem Entre Dimensões", lancado = false, pistas = {}, objetivos = {}, dimensao = "CampoDasBolhas" },
 			{ n = 6, nome = "A Biblioteca do Vazio", lancado = false, pistas = {}, objetivos = {}, dimensao = "BibliotecaDoVazio" },
 			{ n = 7, nome = "A Primeira Receita ???", lancado = false, pistas = {}, objetivos = {} },

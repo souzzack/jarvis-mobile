@@ -35,6 +35,9 @@ function S.conceder(p: Player, recompensaId: string): (boolean, string)
 			for _, id in cfg.receitas or {} do
 				m.receitas[id] = true
 			end
+			for _, id in cfg.marcas or {} do
+				m.marcas[id] = true -- marca interdimensional (enigmas Interdimensionais em outras dimensões)
+			end
 			return true
 		end,
 	})

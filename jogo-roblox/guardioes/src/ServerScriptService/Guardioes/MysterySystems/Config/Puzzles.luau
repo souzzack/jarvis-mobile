@@ -31,6 +31,14 @@ return {
 		semRequisito = "As torres estão sem energia. Talvez outra torre precise acordar antes.",
 		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "TresTorres" },
 	},
+	-- capítulo 4: coleta dos três dentes (qualquer ordem). O dente do alto exige ESTAR lá (o servidor mede a
+	-- distância do prompt): voo, planador, montaria ou os degraus da sala.
+	DentesDaChave = {
+		tipo = "Coleta", escopo = "individual", raio = 8,
+		itens = { "DenteDoVento", "DenteDoRaio", "DenteDoAlto" },
+		nomes = { DenteDoVento = "dente do vento", DenteDoRaio = "dente do raio", DenteDoAlto = "dente do alto" },
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "DentesDaChave" },
+	},
 	-- EXEMPLOS de cada tipo (configs válidas, testadas no spec; ainda sem lugar no mapa)
 	ExemploAlinhamento = { tipo = "Alinhamento", escopo = "individual", raio = 10, elementos = { "EspelhoA", "EspelhoB", "EspelhoC" }, posicoes = 4 },
 	ExemploColeta = { tipo = "Coleta", escopo = "individual", raio = 10, itens = { "Pagina1", "Pagina2", "Pagina3" } },

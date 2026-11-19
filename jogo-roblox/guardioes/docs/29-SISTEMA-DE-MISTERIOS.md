@@ -20,7 +20,8 @@ Este é o terceiro complemento. Ele **não substitui** o GDD, o complemento de c
 | Fase J: testes | ✔ | 21 casos automáticos + roteiros M1 a M18 | **Não rodaram** |
 | Fase K: expansão | ✔ | — | — (seção 10) |
 | Capítulos 2 e 3 | ✔ | ✔ (doc 30) | Spec; **Studio: não** |
-| Capítulos 4 a 7, 4 dimensões ocultas, 3 artefatos ??? jogáveis | ✔ | Dados; **sem conteúdo jogável** | — |
+| Capítulo 4 | ✔ | ✔ (doc 31) | Spec; **Studio: não** |
+| Capítulos 5 a 7, 4 dimensões ocultas, 3 artefatos ??? jogáveis | ✔ | Dados; **sem conteúdo jogável** | — |
 
 ## 2. Diagrama de arquitetura
 

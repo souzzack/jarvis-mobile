@@ -414,3 +414,20 @@ Na sala de teste: o Vigia (bloco azul-claro), dois símbolos e três cristais à
 | V9 | Tocar uma torre com `progressoLivros` sem a Torre Meteorológica (cópia de teste) | "As torres estão sem energia. Talvez outra torre precise acordar antes." |
 | V10 | Torres na ordem certa | Fragmento 3, Folha de Registro ×2, Núcleo de Tempestade, +250 XP; o Atlas mostra "Capítulo 4 — ainda não disponível" |
 | V11 | Sair e voltar no meio do alinhamento (com API) | Os cristais voltam ao início; pistas e capítulos salvos |
+
+## 22. Mistérios: capítulo 4 (a Chave Incompleta)
+
+**Automáticos novos:** +1 caso (`Misterios.spec`; `Investigacao.spec` atualizado até o capítulo 4). Total: 226 em 33 specs.
+
+Na sala de teste, perto das torres: o nicho (bloco escuro), a anotação, três dentes pequenos e uma coluna de 14 studs com 7 degraus.
+
+| # | Passo | Esperado |
+|---|---|---|
+| K4-1 | Concluir o capítulo 3; B no nicho e na anotação | Duas pistas; objetivo "Reunir os três dentes da chave" |
+| K4-2 | B no dente do vento e no do raio | "Você guardou o dente do vento (1 de 3)", "(2 de 3)" |
+| K4-3 | B no mesmo dente de novo | "Você já guardou este." |
+| K4-4 | Subir **pelos degraus** (sem voar) e B no dente do alto | "Conseguiu! O Atlas anotou…"; Folha de Registro, +300 XP; no Atlas, "A Chave Incompleta · Fragmento desconhecido" |
+| K4-5 | Outro jogador: voar (Voo mágico de teste) até o topo e pegar o dente | Funciona também (voo opcional, nunca obrigatório) |
+| K4-6 | Tentar o prompt do dente do alto lá de baixo (exploit) | "Chegue mais perto." |
+| K4-7 | Atlas → Pesquisas | "Artefato desconhecido (???) — etapa 2 de 7": a etapa 1 com nome, as futuras como "???" |
+| K4-8 | Atlas → investigação | "Capítulo 5 — ainda não disponível" |

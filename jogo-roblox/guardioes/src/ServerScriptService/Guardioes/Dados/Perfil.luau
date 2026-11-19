@@ -42,6 +42,7 @@ export type Perfil = {
 		portais: { [string]: string },
 		fabricados: { [string]: number },
 		evolucoes: { [string]: boolean },
+		marcas: { [string]: boolean }, -- marcas interdimensionais (ex.: ChaveIncompleta) para enigmas em outras dimensões
 	}, -- os.time() em que a relíquia equipada fica pronta (salvo: sair não zera)
 	companhia: string?, -- id da companhia (guilda); a verdade fica na store das companhias
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
@@ -63,7 +64,7 @@ Perfil.ESTADOS_INVESTIGACAO = { Undiscovered = true, Discovered = true, Investig
 function Perfil.misteriosNovo(): any
 	return {
 		versao = Perfil.MISTERIOS_VERSAO, investigacoes = {}, enigmas = {}, recompensas = {}, registros = {},
-		conhecimentos = {}, receitas = {}, portais = {}, fabricados = {}, evolucoes = {},
+		conhecimentos = {}, receitas = {}, portais = {}, fabricados = {}, evolucoes = {}, marcas = {},
 	}
 end
 
@@ -263,7 +264,7 @@ function Perfil.validar(p: any): (boolean, string?)
 	if type(m) ~= "table" or type(m.versao) ~= "number" or m.versao > Perfil.MISTERIOS_VERSAO then
 		return false, "misterios"
 	end
-	for _, campo in { "investigacoes", "enigmas", "recompensas", "registros", "conhecimentos", "receitas", "portais", "fabricados", "evolucoes" } do
+	for _, campo in { "investigacoes", "enigmas", "recompensas", "registros", "conhecimentos", "receitas", "portais", "fabricados", "evolucoes", "marcas" } do
 		if type(m[campo]) ~= "table" then
 			return false, "misterios"
 		end

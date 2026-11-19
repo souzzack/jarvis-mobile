@@ -118,7 +118,8 @@ local function desenhar()
 		y += 6
 		texto("Registros", 16, Color3.fromRGB(230, 210, 255), true)
 		for _, r in dados.registros do
-			texto(r.titulo, 13, Color3.new(1, 1, 1), true, 6)
+			local rotulo = ({ RegistroAntigo = "Registro antigo", ConhecimentoProibido = "Conhecimento proibido", FragmentoDesconhecido = "Fragmento desconhecido" } :: any)[r.categoria]
+			texto(r.titulo .. (if rotulo then "  · " .. rotulo else ""), 13, if r.categoria == "FragmentoDesconhecido" then Color3.fromRGB(200, 170, 255) else Color3.new(1, 1, 1), true, 6)
 			texto(r.texto, 12, Color3.fromRGB(190, 190, 210), false, 12)
 		end
 	end
@@ -237,14 +238,14 @@ function Atlas.Start()
 		elseif tipo == EM.DESCOBERTA and typeof(a) == "string" then
 			hud.aviso("Anotado no Atlas: " .. a .. " (L)")
 		elseif tipo == EM.ENIGMA then
-			if typeof(d) == "string" and (b == "certo" or (b == "semEfeito" and c == "semRequisito")) then
+			if typeof(d) == "string" and (b == "certo" or b == "semEfeito") then
 				hud.aviso(d) -- texto curto do servidor ("o cristal agora aponta para…", "as torres estão sem energia…")
 			elseif b == "certo" then
 				hud.aviso("O marco responde com um zumbido baixo.")
 			elseif b == "errado" then
 				hud.aviso(if c == "gravacao" then Mensagens.texto("gravacao") or "" else "Os marcos se apagam.")
 			elseif b == "completo" then
-				hud.aviso("Os marcos acendem juntos. O sinal foi ouvido.")
+				hud.aviso("Conseguiu! O Atlas anotou o que aconteceu (L).")
 			elseif b == "semEfeito" and c == "nadaAcontece" then
 				hud.aviso("Nada acontece. Falta entender alguma coisa.")
 			end

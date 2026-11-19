@@ -95,7 +95,12 @@ function S.paraDiario(p: Player, perfil: any): { any }
 			for i, e in cfg.etapas do
 				table.insert(etapas, { nome = if i <= atual then e.nome else "???", feita = i < atual })
 			end
-			table.insert(l, { nome = cfg.nome, etapa = atual, total = #cfg.etapas, etapas = etapas })
+			-- artefato ???: o nome só aparece quando a etapa que o revela (a receita) é alcançada
+			local nome = cfg.nome
+			if cfg.nomeOculto and atual <= (cfg.revelaNomeNaEtapa or 1) then
+				nome = cfg.nomeOculto
+			end
+			table.insert(l, { nome = nome, etapa = atual, total = #cfg.etapas, etapas = etapas })
 		end
 	end
 	return l

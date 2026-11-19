@@ -1,6 +1,6 @@
 # Lore: os Arquivistas do Atlas
 
-**Versão do cânone: 2** (19/11/2026). Toda mudança sobe a versão e entra no histórico no fim. Registros já publicados **nunca** são contraditos: só podem ser completados ou reinterpretados por um registro novo.
+**Versão do cânone: 3** (19/11/2026). Toda mudança sobe a versão e entra no histórico no fim. Registros já publicados **nunca** são contraditos: só podem ser completados ou reinterpretados por um registro novo.
 
 ## O que é cânone (fixo)
 
@@ -12,6 +12,8 @@
 
 6. **O Vigia de Cristal** é uma criatura pacífica, ligada à energia dimensional, que **dormia** perto dos sinais. A. pediu que ele dormisse "até alguém voltar com perguntas melhores". É uma **testemunha**, não um guarda. **Não se revela o que ele viu.**
 7. **As três torres** (vento, raio, maré) eram "três vozes" que, juntas, abrem **uma fechadura que não está na Ilha** (ponte para o capítulo 4, a Chave Incompleta). Os outros Arquivistas **votaram por esconder** isso: é o primeiro sinal de que havia desacordo entre eles.
+
+8. **A Chave Incompleta** tem três dentes que A. **separou de propósito**. Ela gira no encaixe da Ilha e para no meio: **a outra metade da fechadura está em outra dimensão** (o Campo das Bolhas, capítulo 5). O metal não pertence a nenhuma categoria conhecida: é o **primeiro Fragmento Desconhecido** do jogo. Os Arquivistas chamavam esse tipo de coisa de "o que não está no índice" (regra da raridade ???).
 
 ## Categorias de registro (usadas no jogo)
 
@@ -46,8 +48,10 @@
 | `Arq01_OSinal` | 1 | RegistroAntigo | Recompensa do capítulo 1 | A. diz que os marcos ainda respondem e que vai anotar tudo "para o caso de não voltar" |
 | `Arq02_OVigia` | 2 | RegistroAntigo | Recompensa do capítulo 2 | O Vigia é uma testemunha; A. pediu que dormisse |
 | `Arq03_AsTorres` | 2 | ConhecimentoProibido | Recompensa do capítulo 3 | As torres abrem uma fechadura fora da ilha; os Arquivistas votaram por esconder; A. anotou mesmo assim |
+| `Frag01_ChaveIncompleta` | 3 | FragmentoDesconhecido | Recompensa do capítulo 4 | Chave de três dentes que para no meio; o resto da fechadura não está na ilha |
 
 ## Histórico
 
 - **v1 (19/11/2026):** fundação: organização, desaparecimento, A., marcos de sinal, as 3 categorias e as regras acima.
 - **v2 (19/11/2026):** capítulos 2 e 3: o Vigia de Cristal (testemunha), as três torres e o voto dos Arquivistas. Nada da v1 foi contradito.
+- **v3 (19/11/2026):** capítulo 4: a Chave Incompleta, primeiro Fragmento Desconhecido, ligada ao Campo das Bolhas. Nada da v1 ou v2 foi contradito.

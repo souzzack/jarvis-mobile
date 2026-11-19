@@ -153,7 +153,8 @@ local function interagir(p: Player, marcaId: string, parte: BasePart)
 			deps.aviso(p, "Ainda não é hora de entender isto.")
 		end
 	elseif m.tipo == "enigma" then
-		local ctx = { capacidades = {}, dentro = true }
+		local perfilAtual = deps.playerData.obter(p)
+		local ctx = { capacidades = {}, dentro = true, marcas = if perfilAtual then perfilAtual.misterios.marcas else {} }
 		local pz = deps.registro.puzzles[m.puzzle]
 		if pz.capacidade then
 			ctx.capacidades[pz.capacidade] = S.temCapacidade(p, pz.capacidade, parte.Position)
@@ -216,6 +217,27 @@ local function salaDeTeste(cfgTeste: any, centro: Vector3)
 	bloco("TorreVento", Vector3.new(16, 5, 14), Vector3.new(2, 10, 2), "#C8D8E8")
 	bloco("TorreRaio", Vector3.new(24, 5, 14), Vector3.new(2, 10, 2), "#E8D870")
 	bloco("TorreMare", Vector3.new(32, 5, 14), Vector3.new(2, 10, 2), "#4F8FBF")
+	-- capítulo 4: nicho, anotação e os três dentes; o do alto fica sobre uma coluna com DEGRAUS (sem voo também dá)
+	bloco("NichoDasTorres", Vector3.new(24, 1, 22), Vector3.new(3, 2, 1), "#3A3550")
+	bloco("AnotacaoDosDentes", Vector3.new(30, 1, 22), Vector3.new(1.5, 1.5, 1.5), "#6B4F2E")
+	bloco("DenteDoVento", Vector3.new(16, 0.5, 18), Vector3.new(0.8, 0.8, 0.8), "#E0E0E0")
+	bloco("DenteDoRaio", Vector3.new(24, 0.5, 18), Vector3.new(0.8, 0.8, 0.8), "#E0E0E0")
+	bloco("DenteDoAlto", Vector3.new(40, 15, 22), Vector3.new(0.8, 0.8, 0.8), "#E0E0E0")
+	local function degrau(desloc: Vector3, tamanho: Vector3)
+		local d = Instance.new("Part")
+		d.Name = "Misterio_Degrau"
+		d.Anchored = true
+		d.Size = tamanho
+		d.Color = Color3.fromHex("#5A5560")
+		d.Material = Enum.Material.Slate
+		d.CFrame = CFrame.new(centro + cfgTeste.origem + desloc)
+		d.Parent = pasta
+	end
+	degrau(Vector3.new(40, 7, 22), Vector3.new(4, 14, 4)) -- coluna (topo a 14 studs)
+	-- 7 degraus de 2 studs (pulo normal alcança), em linha até encostar na coluna; o último no topo dela
+	for i = 1, 7 do
+		degrau(Vector3.new(40, i * 2 - 0.5, 18.5 - (7 - i) * 3), Vector3.new(4, 1, 3))
+	end
 end
 
 function S.iniciarMapa(cfgTeste: any?, centro: Vector3?)

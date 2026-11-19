@@ -23,7 +23,17 @@ R.recompensas = Secrets.recompensas
 R.registros = Secrets.registros
 R.conhecimentos = Secrets.conhecimentos
 R.receitas = Secrets.receitas
-R.pesquisas = Secrets.pesquisas
+-- pesquisas = as de Secrets + as dos artefatos ??? (nome escondido até a etapa que revela)
+R.pesquisas = {} :: { [string]: any }
+for id, ps in Secrets.pesquisas do
+	R.pesquisas[id] = ps
+end
+for id, a in Artefatos do
+	R.pesquisas["Artefato_" .. id] = {
+		nome = a.artefato.nome, nomeOculto = "Artefato desconhecido (???)", revelaNomeNaEtapa = a.revelaNomeNaEtapa or 4,
+		etapas = a.pesquisa,
+	}
+end
 R.sal = Secrets.sal
 R.dimensoes = Ocultas.dimensoes
 R.portais = Ocultas.portais
@@ -60,7 +70,8 @@ for id, m in Secrets.marcas do
 		end
 	elseif m.tipo == "enigma" then
 		local pz = R.puzzles[m.puzzle]
-		ok = pz ~= nil and (table.find(pz.elementos or {}, m.elemento) ~= nil)
+		-- elemento de enigma: 'elementos' (sequência, alinhamento…), 'itens' (coleta) ou 'alvos' (exploração)
+		ok = pz ~= nil and (table.find(pz.elementos or pz.itens or pz.alvos or {}, m.elemento) ~= nil)
 	elseif m.tipo == "portal" then
 		ok = Ocultas.portais[m.portal] ~= nil
 	end

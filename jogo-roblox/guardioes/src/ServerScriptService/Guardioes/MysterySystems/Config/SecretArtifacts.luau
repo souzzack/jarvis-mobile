@@ -6,8 +6,10 @@
 -- Antigos nem o Arco das Asas Perdidas.
 -- Raridade "Oculta" (???, multiplicador 1,56 — Config/Raridades): o maior poder do jogo, com MECÂNICA EXCLUSIVA.
 -- Obtenção SÓ por investigação (pesquisa com 7 etapas); nunca por miniboss, Guardião, sorte ou compra.
--- ESTADO: definidos e validados (spec), mas NÃO registrados no MetamorphicArtifactSystem ainda: as pesquisas
--- dependem de capítulos não lançados, então ninguém consegue obtê-los nesta versão (de propósito).
+-- ESTADO: definidos e validados (spec), mas NÃO registrados no MetamorphicArtifactSystem ainda: a etapa de
+-- FABRICAÇÃO depende de capítulos não lançados, então ninguém consegue obtê-los nesta versão (de propósito).
+-- A PESQUISA aparece no diário assim que a etapa 1 é cumprida, com o nome escondido ("???") até a etapa
+-- 'revelaNomeNaEtapa' (o nome só aparece quando a receita é descoberta).
 
 return {
 	LaminaDoNaoExistente = {
@@ -28,6 +30,7 @@ return {
 				{ n = 3, descricao = "Corte que atravessa a guarda (mecânica exclusiva).", requisitos = { desafios = { "Lamina_TerceiraPesquisa" } }, bonus = { habilidade = "CorteEntreMundos" } },
 			},
 		},
+		revelaNomeNaEtapa = 4,
 		mecanicaExclusiva = "Corte Entre Mundos: o golpe pesado ignora parte da POSTURA do alvo (não o dano), uma vez a cada 12 s.",
 		perfil = { id = "PranchaAstral", nome = "Prancha astral", tipo = "Motorizado", velMax = 44, velImpulso = 66, aceleracao = 52, desaceleracao = 38, velVerticalMax = 20, acelVertical = 40, inclinacaoMax = 40, fatorInclinacao = 0.5, custoPorSeg = 6, custoPairarPorSeg = 5, custoImpulsoPorSeg = 15, decolagem = 0.35, pouso = 0.35, efeito = "RastroAstral" },
 		pesquisa = {
@@ -55,6 +58,7 @@ return {
 				{ n = 3, descricao = "Barreira do Arquivo (mecânica exclusiva).", requisitos = { desafios = { "Escudo_TerceiraPesquisa" } }, bonus = { habilidade = "BarreiraDoArquivo" } },
 			},
 		},
+		revelaNomeNaEtapa = 4,
 		mecanicaExclusiva = "Barreira do Arquivo: por 3 s, protege também os aliados próximos (40% menos dano); recarga longa.",
 		perfil = { id = "PlataformaDoArquivo", nome = "Plataforma do Arquivo", tipo = "Plataforma", velMax = 30, velImpulso = 0, aceleracao = 30, desaceleracao = 30, velVerticalMax = 14, acelVertical = 28, inclinacaoMax = 0, fatorInclinacao = 0, custoPorSeg = 4, custoPairarPorSeg = 2, custoImpulsoPorSeg = 0, decolagem = 0.4, pouso = 0.4, efeito = "PaginasSobOsPes" },
 		pesquisa = {
@@ -82,6 +86,7 @@ return {
 				{ n = 3, descricao = "Percepção da Fratura: o cajado conta como Visão Arcana (mecânica exclusiva).", requisitos = { desafios = { "Cajado_TerceiraPesquisa" } }, bonus = { habilidade = "PercepcaoDaFratura" } },
 			},
 		},
+		revelaNomeNaEtapa = 4,
 		mecanicaExclusiva = "Percepção da Fratura: equipado, conta como fonte de Visão Arcana e Ressonância Dimensional nas investigações.",
 		perfil = { id = "PassoDaFratura", nome = "Passo da Fratura", tipo = "Motorizado", velMax = 40, velImpulso = 70, aceleracao = 60, desaceleracao = 50, velVerticalMax = 22, acelVertical = 44, inclinacaoMax = 35, fatorInclinacao = 0.45, custoPorSeg = 7, custoPairarPorSeg = 6, custoImpulsoPorSeg = 18, decolagem = 0.3, pouso = 0.3, efeito = "FendaAberta" },
 		pesquisa = {

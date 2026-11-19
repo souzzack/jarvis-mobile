@@ -134,7 +134,8 @@ return function(T, M)
 		for _, cap in inv.capitulos do
 			for _, o in cap.objetivos do
 				if o.puzzle then
-					for _, el in M.Puzzles[o.puzzle].elementos do
+					local pz = M.Puzzles[o.puzzle]
+					for _, el in pz.elementos or pz.itens or pz.alvos do
 						local tem = false
 						for _, m in S.marcas do
 							if m.puzzle == o.puzzle and m.elemento == el then
@@ -146,6 +147,20 @@ return function(T, M)
 				end
 			end
 		end
+	end)
+
+	T.caso("capítulo 4: a Chave Incompleta é Fragmento Desconhecido e marca interdimensional", function()
+		local r = S.recompensas.RecCap4_Chave
+		T.igual(r.marcas[1], "ChaveIncompleta")
+		T.igual(S.registros[r.registros[1]].categoria, "FragmentoDesconhecido")
+		-- a pesquisa da Lâmina começa no capítulo 4 e esconde o nome até a receita (etapa 4)
+		local lamina = M.SecretArtifacts.LaminaDoNaoExistente
+		T.igual(lamina.pesquisa[1].condicao.capitulo, "OSegredoDoPrimeiroArquivista#4")
+		T.igual(lamina.revelaNomeNaEtapa, 4)
+		T.igual(lamina.pesquisa[4].condicao.receita ~= nil, true)
+		T.igual(M.Pesquisa.etapaAtual({ etapas = lamina.pesquisa }, { capitulos = { ["OSegredoDoPrimeiroArquivista#4"] = true } }), 2)
+		-- o dente do alto é alcançável sem voo (a coleta só pede estar perto; os degraus ficam na sala de teste)
+		T.igual(M.Puzzles.DentesDaChave.tipo, "Coleta")
 	end)
 
 	T.caso("perfil: campo misterios novo, validado e completado em perfis antigos", function()

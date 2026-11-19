@@ -132,6 +132,15 @@ function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (strin
 	if cfg.tipo == "Alinhamento" and st.pos and st.pos[elemento] and cfg.nomesPosicoes then
 		info = string.format("O %s agora aponta para o %s.", (cfg.nomes and cfg.nomes[elemento]) or elemento, cfg.nomesPosicoes[st.pos[elemento]])
 	end
+	if cfg.tipo == "Coleta" and r == "certo" then
+		local n, total = 0, #cfg.itens
+		for _ in st.tem do
+			n += 1
+		end
+		info = string.format("Você guardou o %s (%d de %d).", (cfg.nomes and cfg.nomes[elemento]) or "item", n, total)
+	elseif cfg.tipo == "Coleta" and r == "semEfeito" then
+		info = "Você já guardou este."
+	end
 	if r == "completo" then
 		if not resolverPara(p, puzzleId, cfg) then
 			st.resolvido = false -- não gravou: deixa tentar de novo (nada foi pago)

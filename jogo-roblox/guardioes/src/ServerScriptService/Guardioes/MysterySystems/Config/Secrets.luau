@@ -28,6 +28,12 @@ return {
 		TorreVento = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreVento", acao = "Acordar" },
 		TorreRaio = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreRaio", acao = "Acordar" },
 		TorreMare = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreMare", acao = "Acordar" },
+		-- capítulo 4
+		NichoDasTorres = { tipo = "pista", investigacao = INV, pista = "NichoDasTorres", acao = "Examinar" },
+		AnotacaoDosDentes = { tipo = "pista", investigacao = INV, pista = "AnotacaoDosDentes", acao = "Ler" },
+		DenteDoVento = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoVento", acao = "Pegar" },
+		DenteDoRaio = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoRaio", acao = "Pegar" },
+		DenteDoAlto = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoAlto", acao = "Pegar" },
 	},
 
 	-- HABILIDADES INVESTIGATIVAS (seção 9): interface única; cada uma tem VÁRIAS fontes, para nenhuma espécie,
@@ -77,6 +83,14 @@ return {
 			conhecimentos = { "VozDosCristais" },
 			xp = 200,
 		},
+		-- a Chave Incompleta: um FRAGMENTO DESCONHECIDO e uma MARCA interdimensional (usada no capítulo 5, no
+		-- Campo das Bolhas, por um enigma Interdimensional). Abre a pesquisa da Lâmina do Não-Existente.
+		RecCap4_Chave = {
+			materiais = { FolhaDeRegistro = 1 },
+			registros = { "Frag01_ChaveIncompleta" },
+			marcas = { "ChaveIncompleta" },
+			xp = 300,
+		},
 		RecCap3_Torres = {
 			materiais = { FolhaDeRegistro = 2, NucleoDeTempestade = 1 },
 			registros = { "Arq03_AsTorres" },
@@ -93,6 +107,10 @@ return {
 		Arq02_OVigia = {
 			titulo = "Registro do Arquivista A. (fragmento 2)", categoria = "RegistroAntigo",
 			texto = "\"O Vigia não é um guarda. É uma testemunha. Pedi que dormisse até alguém voltar com perguntas melhores que as minhas.\"",
+		},
+		Frag01_ChaveIncompleta = {
+			titulo = "A Chave Incompleta", categoria = "FragmentoDesconhecido",
+			texto = "Uma chave de três dentes que gira sozinha no encaixe e para no meio. Não está quebrada: falta o resto da fechadura, e ela não está nesta ilha. O metal não é de nenhum material que você conheça.",
 		},
 		Arq03_AsTorres = {
 			titulo = "Registro do Arquivista A. (fragmento 3)", categoria = "ConhecimentoProibido",
