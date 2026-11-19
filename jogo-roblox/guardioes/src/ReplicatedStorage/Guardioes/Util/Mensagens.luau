@@ -44,6 +44,7 @@ local TEXTOS: { [string]: string } = {
 	naoEhSua = "Esta base não é sua",
 	semEspecial = "Este equipamento não tem habilidade especial",
 	torreSemEnergia = "A Torre ainda não tem energia: restaure a Torre Meteorológica",
+	telescopioQuebrado = "O telescópio está quebrado: restaure o Observatório",
 	outraForma = "A especial é de outra forma do artefato",
 	racaFixa = "A raça só muda agora pelo Ritual de Origem",
 	ocupado = "Termine o golpe atual primeiro",

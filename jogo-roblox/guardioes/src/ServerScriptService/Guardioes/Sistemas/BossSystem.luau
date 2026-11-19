@@ -5,6 +5,10 @@
 --               só um APARO de um golpe dele quebra a corrida e o derruba (EnemySystem.aparado).
 --   "Tormenta"→ GUARDIÃO DA TORMENTA (Chefes/Tormenta): arena = topo da Torre restaurada; fase 2 com
 --               para-raios (ativar o carregado derruba o Guardião); fase 3 com chão eletrificado em padrões.
+--   "Nucleo"  → COLOSSO DAS RUÍNAS (Chefes/Colosso): couraça imune; 3 aparos abrem o núcleo por 8 s; pisoteio
+--               com onda telegrafada em volta dele.
+--   "Lentes"  → ESPECTRO DO OBSERVATÓRIO (Chefes/Espectro): só à noite; teleporta entre 4 lentes; imune,
+--               exceto ao reflexo do telescópio (exige o Observatório restaurado).
 -- Toda vitória: troféu no Expositor da base de cada participante (PersonalBaseSystem.darTrofeu).
 --  * A Rainha usa a IA comum do EnemySystem (perseguir, telegrafar, ferrão/pulso/investida).
 --  * Fases de carga (Chefes/CargaDaRainha): em 75%, 50% e 25% de vida ela fica IMUNE e 3 pilares de cristal
@@ -22,6 +26,9 @@ local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Carga = require(G.Chefes.CargaDaRainha)
 local Matilha = require(G.Chefes.MatilhaDoAlfa)
 local Tormenta = require(G.Chefes.Tormenta)
+local Colosso = require(G.Chefes.Colosso)
+local Espectro = require(G.Chefes.Espectro)
+local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local Saque = require(G.Loot.Saque)
 local Loot = require(G.Config.Loot)
@@ -44,7 +51,13 @@ type Chefe = {
 	tormenta: Tormenta.Estado?,
 	paraRaios: { BasePart }, -- Guardião: os para-raios da arena (fixos)
 	vulneravelAte: number, -- Guardião na fase 2: janela depois do raio
-	telegrafia: { Instance }, -- áreas do chão eletrificado sendo avisadas
+	telegrafia: { Instance }, -- áreas do chão eletrificado sendo avisadas (e a onda do Colosso)
+	colosso: Colosso.Estado?,
+	colossoExposto: boolean,
+	espectro: Espectro.Estado?,
+	espectroVulneravel: boolean,
+	lentes: { BasePart },
+	voltaEm: number?, -- chefes que só voltam numa condição (Espectro: à noite)
 	pilares: { [string]: boolean }, -- pilares (Carga) ou cães chamados (Matilha): somem no reset/derrota
 	vazioDesde: number?,
 }
@@ -129,6 +142,11 @@ end
 local function surgirChefe(c: Chefe)
 	c.carga = Carga.novo()
 	c.tormenta = if c.cfg.mecanica == "Tormenta" then Tormenta.novo(os.clock()) else nil
+	c.colosso = if c.cfg.mecanica == "Nucleo" then Colosso.novo(os.clock(), c.cfg.nucleo) else nil
+	c.colossoExposto = false
+	c.espectro = if c.cfg.mecanica == "Lentes" then Espectro.novo(os.clock(), c.cfg.lentes) else nil
+	c.espectroVulneravel = false
+	c.voltaEm = nil
 	c.vulneravelAte = 0
 	limparTelegrafia(c)
 	if c.cfg.mecanica == "Tormenta" then
@@ -141,6 +159,9 @@ local function surgirChefe(c: Chefe)
 	c.matilha = if c.cfg.mecanica == "Matilha" then Matilha.novo(os.clock(), c.cfg.corrida.intervalo) else nil
 	c.vazioDesde = nil
 	c.id = inimigos.surgirEm(c.cfg.id, CFrame.new(c.centro + Vector3.new(0, 4, 0)))
+	if c.id and (c.cfg.mecanica == "Nucleo" or c.cfg.mecanica == "Lentes") then
+		inimigos.definirInvulneravel(c.id, true) -- couraça / forma espectral
+	end
 end
 
 local function iniciarCarga(c: Chefe, agora: number)
@@ -312,6 +333,130 @@ local function passoTormenta(c: Chefe, info: any, agora: number)
 	end
 end
 
+-- mecânica "Nucleo" (Colosso)
+local function passoColosso(c: Chefe, info: any, agora: number)
+	local e = c.colosso :: Colosso.Estado
+	local r = Colosso.atualizar(e, agora, c.cfg.nucleo, c.colossoExposto)
+	if r == "Fechou" then
+		c.colossoExposto = false
+		inimigos.definirInvulneravel(c.id, true)
+		avisar(c, EC.NUCLEO, "Fechou")
+	elseif r == "TelegrafaOnda" then
+		limparTelegrafia(c)
+		local anel = Instance.new("Part")
+		anel.Anchored, anel.CanCollide, anel.CanQuery, anel.CanTouch, anel.CastShadow = true, false, false, false, false
+		anel.Shape = Enum.PartType.Cylinder
+		anel.Material = Enum.Material.Neon
+		anel.Color = Color3.fromHex("#FF9A3C")
+		anel.Transparency = 0.6
+		anel.Size = Vector3.new(0.3, c.cfg.onda.raio * 2, c.cfg.onda.raio * 2)
+		anel.CFrame = CFrame.new(info.posicao.X, c.centro.Y - 3.5, info.posicao.Z) * CFrame.Angles(0, 0, math.rad(90))
+		anel.Parent = Workspace
+		table.insert(c.telegrafia, anel)
+		avisar(c, EC.ONDA, c.cfg.nucleo.telegrafiaOnda)
+	elseif r == "Onda" then
+		for _, p in naArena(c) do
+			local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if hrp and (((hrp :: BasePart).Position - info.posicao) * Vector3.new(1, 0, 1)).Magnitude <= c.cfg.onda.raio then
+				combate.danoAoJogador(p, info.posicao, c.cfg.onda, c.id :: string)
+			end
+		end
+		for _, a in c.telegrafia do
+			(a :: BasePart).Transparency = 0.1
+		end
+		task.delay(0.25, function()
+			limparTelegrafia(c)
+		end)
+	end
+end
+
+-- mecânica "Lentes" (Espectro)
+local function criarLentes(c: Chefe)
+	if #c.lentes > 0 then
+		return
+	end
+	local L = c.cfg.lentes
+	for i = 1, L.lentes do
+		local ang = (i / L.lentes) * math.pi * 2
+		local lente = Instance.new("Part")
+		lente.Name = "Lente" .. i
+		lente.Anchored = true
+		lente.CanCollide = false
+		lente.Shape = Enum.PartType.Cylinder
+		lente.Size = Vector3.new(0.4, 6, 6)
+		lente.Material = Enum.Material.Glass
+		lente.Color = Color3.fromHex("#BFD8FF")
+		lente.Transparency = 0.4
+		lente.CFrame = CFrame.new(c.centro + Vector3.new(math.cos(ang) * L.raioLentes, 3, math.sin(ang) * L.raioLentes)) * CFrame.Angles(0, -ang, 0)
+		lente.Parent = Workspace
+		table.insert(c.lentes, lente)
+	end
+	-- telescópio no centro: o reflexo torna o Espectro ferível
+	local tel = Instance.new("Part")
+	tel.Name = "Telescopio"
+	tel.Anchored = true
+	tel.Size = Vector3.new(2, 3, 5)
+	tel.Color = Color3.fromHex("#B08D57")
+	tel.Material = Enum.Material.Metal
+	tel.CFrame = CFrame.new(c.centro + Vector3.new(0, -2.5, 0)) * CFrame.Angles(math.rad(-25), 0, 0)
+	tel.Parent = Workspace
+	local pp = Instance.new("ProximityPrompt")
+	pp.ActionText = "Usar telescópio"
+	pp.ObjectText = "Telescópio"
+	pp.KeyboardKeyCode = Enum.KeyCode.B
+	pp.GamepadKeyCode = Enum.KeyCode.DPadUp
+	pp.HoldDuration = 0.5
+	pp.MaxActivationDistance = 8
+	pp.Parent = tel
+	pp.Triggered:Connect(function(p: Player)
+		local e = c.espectro
+		if not e or not c.id then
+			return
+		end
+		local teste = ConfigServidor.concessoesDeTeste
+		local restaurado = (teste and teste.ativa and teste.ignorarTravasDeChefe) or restauracao.restaurada(p, c.cfg.exigeRestauracaoTelescopio)
+		local ok, motivo = Espectro.refletir(e, os.clock(), c.cfg.lentes, restaurado == true)
+		if ok then
+			c.espectroVulneravel = true
+			inimigos.definirInvulneravel(c.id, false)
+			inimigos.atordoarPor(c.id, c.cfg.lentes.atordoamento)
+			avisar(c, EC.REFLEXO, "ok")
+		else
+			evento:FireClient(p, EC.REFLEXO, motivo)
+		end
+	end)
+end
+
+local function noiteAgora(c: Chefe): boolean
+	local teste = ConfigServidor.concessoesDeTeste
+	if teste and teste.ativa and teste.ignorarNoite then
+		return true
+	end
+	return Espectro.noite(Lighting.ClockTime, c.cfg.noite.inicio, c.cfg.noite.fim)
+end
+
+local function passoEspectro(c: Chefe, info: any, agora: number)
+	local e = c.espectro :: Espectro.Estado
+	if c.espectroVulneravel and not Espectro.vulneravel(e, agora) then
+		c.espectroVulneravel = false
+		inimigos.definirInvulneravel(c.id, true)
+	end
+	local nova = Espectro.atualizar(e, agora, c.cfg.lentes, math.random)
+	if nova then
+		local lente = c.lentes[nova]
+		if lente then
+			inimigos.teleportar(c.id, CFrame.new(lente.Position + Vector3.new(0, 2, 0)))
+			avisar(c, EC.TELEPORTE, nova)
+		end
+	end
+	-- amanheceu e ninguém está lutando: some até a próxima noite
+	if not noiteAgora(c) and info.vida >= info.vidaMax then
+		inimigos.remover(c.id)
+		c.id = nil
+		c.voltaEm = agora
+	end
+end
+
 -- arena do Guardião: só entra quem restaurou a Torre (ou em teste, com a trava desligada)
 local function travaDaArena(c: Chefe)
 	local req = c.cfg.exigeRestauracao
@@ -333,6 +478,10 @@ end
 
 local function passo(c: Chefe, agora: number)
 	if not c.id then
+		-- chefes que voltam por condição (Espectro: depois do retorno E à noite)
+		if c.cfg.mecanica == "Lentes" and c.voltaEm and agora >= c.voltaEm and noiteAgora(c) then
+			surgirChefe(c)
+		end
 		return
 	end
 	local info = inimigos.info(c.id)
@@ -347,7 +496,12 @@ local function passo(c: Chefe, agora: number)
 			limparPilares(c)
 			limparTelegrafia(c)
 			inimigos.remover(c.id)
-			surgirChefe(c)
+			if c.cfg.mecanica == "Lentes" and not noiteAgora(c) then
+				c.id = nil
+				c.voltaEm = agora -- de dia o Espectro não volta: espera a noite
+			else
+				surgirChefe(c)
+			end
 		end
 		return
 	end
@@ -355,6 +509,12 @@ local function passo(c: Chefe, agora: number)
 	travaDaArena(c)
 	if c.cfg.mecanica == "Tormenta" then
 		passoTormenta(c, info, agora)
+		return
+	elseif c.cfg.mecanica == "Nucleo" then
+		passoColosso(c, info, agora)
+		return
+	elseif c.cfg.mecanica == "Lentes" then
+		passoEspectro(c, info, agora)
 		return
 	end
 	if c.cfg.mecanica == "Matilha" then
@@ -385,6 +545,17 @@ function BossSystem.Start()
 	-- aparo durante a corrida do Alfa: quebra a corrida e derruba
 	inimigos.aparado.conectar(function(inimigoId: string)
 		for _, c in chefes do
+			-- Colosso: cada aparo conta; 3 abrem o núcleo
+			if c.id == inimigoId and c.colosso then
+				local agora = os.clock()
+				if Colosso.aparado(c.colosso, agora, c.cfg.nucleo) then
+					c.colossoExposto = true
+					inimigos.definirInvulneravel(c.id, false)
+					avisar(c, EC.NUCLEO, "Aberto")
+				elseif not Colosso.exposto(c.colosso, agora) then
+					avisar(c, EC.NUCLEO, c.colosso.aparos, c.cfg.nucleo.aparosParaAbrir)
+				end
+			end
 			if c.id == inimigoId and c.matilha and Matilha.aparado(c.matilha, os.clock(), c.cfg.corrida.intervalo) then
 				inimigos.definirInvulneravel(c.id, false)
 				inimigos.atordoarPor(c.id, c.cfg.atordoamento)
@@ -399,9 +570,15 @@ function BossSystem.Start()
 		local c: Chefe = {
 			cfg = cfg, centro = ConfigServidor.arenaDeTeste.centro + cfg.deslocamento, id = nil, carga = Carga.novo(),
 			matilha = nil, tormenta = nil, paraRaios = {}, vulneravelAte = 0, telegrafia = {}, pilares = {}, vazioDesde = nil,
+			colosso = nil, colossoExposto = false, espectro = nil, espectroVulneravel = false, lentes = {}, voltaEm = nil,
 		}
 		table.insert(chefes, c)
-		surgirChefe(c)
+		if cfg.mecanica == "Lentes" then
+			criarLentes(c)
+			c.voltaEm = 0 -- aparece na primeira noite (o passo cuida)
+		else
+			surgirChefe(c)
+		end
 	end
 	inimigos.morreu.conectar(function(ini: any, contribuicao: { [Player]: number })
 		for _, c in chefes do
@@ -429,9 +606,13 @@ function BossSystem.Start()
 					end
 					base.darTrofeu(p, ini.cfg.id)
 				end
-				task.delay(c.cfg.retornoSeg, function()
-					surgirChefe(c)
-				end)
+				if c.cfg.mecanica == "Lentes" then
+					c.voltaEm = os.clock() + c.cfg.retornoSeg -- e só à noite
+				else
+					task.delay(c.cfg.retornoSeg, function()
+						surgirChefe(c)
+					end)
+				end
 			end
 		end
 	end)

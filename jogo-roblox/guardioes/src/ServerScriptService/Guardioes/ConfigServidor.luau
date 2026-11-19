@@ -40,6 +40,8 @@ local ConfigServidor = {
 		livrosNaArena = { "GrimorioDosCeus", "TomoDasCorrentesAstrais", "CodiceDaLeveza" },
 		-- SÓ TESTE: deixa entrar na arena do Guardião sem a Torre restaurada (desligue para testar a trava)
 		ignorarTravasDeChefe = true,
+		-- SÓ TESTE: o Espectro aparece a qualquer hora (desligue para testar a regra da noite)
+		ignorarNoite = true,
 	},
 	-- persistência (PlayerDataSystem). DataStore NOVA: o save do tycoon nunca é escrito.
 	-- Sem acesso a DataStore (Studio sem "Enable Studio Access to API Services"), roda só em memória e avisa.
@@ -76,6 +78,17 @@ local ConfigServidor = {
 			tormenta = { paraRaios = 4, raioParaRaios = 20, janelaCarga = 5, intervaloCarga = 6, telegrafia = 1.2, intervaloPadrao = 2.8 },
 			raioDoParaRaio = { danoNoGuardiao = 480, atordoamento = 3, falhou = { dano = 30, postura = 20, raio = 10 }, errado = { dano = 10, postura = 5 } },
 			chao = { dano = 35, postura = 25 },
+		},
+		{
+			id = "ColossoDasRuinas", mecanica = "Nucleo", deslocamento = Vector3.new(120, 0, 60), raioArena = 40, retornoSeg = 300,
+			nucleo = { aparosParaAbrir = 3, exposicao = 8, intervaloOnda = 11, telegrafiaOnda = 1.5 },
+			onda = { dano = 30, postura = 25, raio = 14 },
+		},
+		{
+			id = "EspectroDoObservatorio", mecanica = "Lentes", deslocamento = Vector3.new(-120, 0, 60), raioArena = 36, retornoSeg = 300,
+			lentes = { lentes = 4, raioLentes = 16, intervaloTeleporte = 9, janelaReflexo = 6, recargaTelescopio = 15, atordoamento = 2 },
+			noite = { inicio = 18, fim = 6 }, -- Lighting.ClockTime
+			exigeRestauracaoTelescopio = "Observatorio",
 		},
 		{ id = "CaoTrovaoAlfa", mecanica = "Matilha", deslocamento = Vector3.new(-90, 0, -60), raioArena = 45, retornoSeg = 300, matilhaPorChamada = 2, corrida = { intervalo = 14, duracao = 4 }, atordoamento = 4 },
 	},

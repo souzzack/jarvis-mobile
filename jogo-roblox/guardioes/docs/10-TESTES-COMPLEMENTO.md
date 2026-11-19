@@ -184,3 +184,20 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | G7 | Baixar a 30% | "Fase 3": áreas vermelhas no chão (centro, anel ou cruz) por 1,2 s e depois descarga de 35 em quem ficou nelas (esquivar no instante evita) |
 | G8 | Vencer | Coração da Tormenta e Penas do Relâmpago Antigo, 800 de XP, missão, troféu. Na primeira vez: "Códice Arcano aprendido!…" e o segredo de história *DiarioDoGuardiao* |
 | G9 | Oficina restaurada, com Coração, 2 Penas, 2 Glândulas e 2 Jubas | Fabricar a **Espada do Horizonte (Arcano)**: um artefato novo na Bolsa, que vira prancha a partir do estágio 2 (Exemplo 4 do complemento) |
+
+## 11. Colosso das Ruínas e Espectro do Observatório: casos e roteiro
+
+**Automáticos novos:** 5 casos em `ColossoEspectro.spec` (total: 145 em 22 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| R1 | Arena do Colosso (x +120, z +60 da arena) | Barra azul (couraça imune); golpes dão "Imune"; socos e varreduras lentos |
+| R2 | Aparar um golpe dele (defender no instante do impacto) | "Aparo 1/3", depois "2/3" |
+| R3 | Terceiro aparo | "O núcleo abriu! Ataque agora!": ferível por 8 s; depois "A couraça fechou de novo" e a contagem zera |
+| R4 | Esperar cerca de 11 s | Anel laranja em volta dele (1,5 s) e depois a onda: 30 de dano em quem está a até 14 studs (esquivar no instante evita) |
+| R5 | Vencer | Núcleo Enferrujado (3 a 5) e **Essência de Vento** (2 a 3; agora há fonte para o estágio 3 do Cajado), XP, missão e troféu |
+| E1 | Arena do Espectro (x −120, z +60), com `ignorarNoite = false` e de dia (Lighting.ClockTime = 12) | Ele não aparece; com ClockTime = 22, ele surge |
+| E2 | Lutar sem o telescópio | Imune; a cada 9 s pula para outra lente ("O Espectro foi para a lente N") |
+| E3 | Telescópio no centro, segurar B | Sem o Observatório restaurado (e com a trava de teste desligada): "O telescópio está quebrado…". Com ele restaurado: "O reflexo revelou o Espectro!": ferível por 6 s, atordoado por 2 s, sem teleporte nesse tempo; recarga de 15 s |
+| E4 | Vencer | Lente Espectral (2 a 3), XP, missão (que exige o Observatório restaurado) e troféu. Ele só volta depois de 300 s **e** de noite |
+| E5 | Amanhecer sem ninguém lutando | Ele some e volta na próxima noite |

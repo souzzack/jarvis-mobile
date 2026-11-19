@@ -310,6 +310,14 @@ function EnemySystem.info(id: string): { vida: number, vidaMax: number, posicao:
 	return { vida = ini.vida, vidaMax = ini.cfg.vida, posicao = ini.raiz.Position, estado = ini.estado }
 end
 
+-- teleporte decidido pelo servidor (Espectro entre as lentes); a IA continua de onde está
+function EnemySystem.teleportar(id: string, onde: CFrame)
+	local ini = ativos[id]
+	if ini and ini.estado ~= "Morto" then
+		ini.modelo:PivotTo(onde)
+	end
+end
+
 -- some sem morrer (sem saque, sem missão): pilares que sobraram, chefe resetado
 function EnemySystem.remover(id: string)
 	local ini = ativos[id]

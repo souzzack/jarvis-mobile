@@ -14,6 +14,17 @@ return {
 		},
 		BonecoDeTreino = { xp = 0, entradas = {} },
 		PilarDeCristal = { xp = 0, entradas = {} },
+		ColossoDasRuinas = {
+			xp = 300,
+			entradas = {
+				{ id = "NucleoEnferrujado", chance = 1, min = 3, max = 5 },
+				{ id = "EssenciaDeVento", chance = 1, min = 2, max = 3 }, -- fonte da Essência (estágio 3 do Cajado)
+			},
+		},
+		EspectroDoObservatorio = {
+			xp = 300,
+			entradas = { { id = "LenteEspectral", chance = 1, min = 2, max = 3 } },
+		},
 		GuardiaoDaTormenta = {
 			xp = 800,
 			entradas = {

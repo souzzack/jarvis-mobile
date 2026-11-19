@@ -98,6 +98,28 @@ function HudDeChefe.Start()
 		elseif tipo == EC.PADRAO then
 			cargaAte = os.clock() + (b or 0)
 			hud.aviso(if a == "Centro" then "Saia do centro!" elseif a == "Anel" then "Fuja do anel!" else "Saia das linhas da cruz!")
+		elseif tipo == EC.NUCLEO then
+			if a == "Aberto" then
+				cargaAte = os.clock() + 8
+				hud.aviso("O núcleo abriu! Ataque agora!")
+			elseif a == "Fechou" then
+				cargaAte = 0
+				hud.aviso("A couraça fechou de novo")
+			else
+				hud.aviso(string.format("Aparo %d/%d", a or 0, b or 3))
+			end
+		elseif tipo == EC.ONDA then
+			cargaAte = os.clock() + (a or 0)
+			hud.aviso("Pisoteio! Esquive ou se afaste")
+		elseif tipo == EC.TELEPORTE then
+			hud.aviso("O Espectro foi para a lente " .. tostring(a))
+		elseif tipo == EC.REFLEXO then
+			if a == "ok" then
+				cargaAte = os.clock() + 6
+				hud.aviso("O reflexo revelou o Espectro! Ataque!")
+			else
+				hud.aviso(Mensagens.texto(a))
+			end
 		elseif tipo == EC.BLOQUEADO then
 			hud.aviso(Mensagens.texto(a))
 		elseif tipo == EC.DERROTADO then

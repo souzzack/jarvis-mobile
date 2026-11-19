@@ -117,6 +117,10 @@ Remotos.EventoChefe = {
 	PARA_RAIO = 8, -- (idx, "Carregado" | "Acerto" | "Falhou" | "Errado")
 	PADRAO = 9, -- (nome, duracaoDaTelegrafia)
 	BLOQUEADO = 10, -- (motivo) não pode entrar na arena
+	NUCLEO = 11, -- (aparos, precisa | "Aberto" | "Fechou") Colosso
+	ONDA = 12, -- (duracaoDaTelegrafia) Colosso: pisoteio
+	TELEPORTE = 13, -- (lente) Espectro
+	REFLEXO = 14, -- ("ok" | motivo) Espectro
 }
 
 -- base pessoal (ações pelos prompts da parcela; só eventos de volta)

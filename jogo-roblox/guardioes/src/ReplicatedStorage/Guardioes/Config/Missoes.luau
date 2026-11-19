@@ -95,6 +95,22 @@ local lista = {
 		objetivos = { { id = "guardiao", tipo = "derrotar", alvo = "GuardiaoDaTormenta", qtd = 1, descricao = "Guardião derrotado" } },
 		recompensas = { xp = 500 },
 	},
+	{
+		id = "OColossoDasRuinas",
+		nome = "O Colosso das Ruínas",
+		descricao = "A couraça não cede a golpes. Apare três vezes e o núcleo aparece.",
+		requisitos = {},
+		objetivos = { { id = "colosso", tipo = "derrotar", alvo = "ColossoDasRuinas", qtd = 1, descricao = "Colosso derrotado" } },
+		recompensas = { xp = 200 },
+	},
+	{
+		id = "OEspectroDoObservatorio",
+		nome = "O Espectro do Observatório",
+		descricao = "À noite, algo anda entre as lentes. Só o telescópio restaurado o revela.",
+		requisitos = { restauracoes = { "Observatorio" } },
+		objetivos = { { id = "espectro", tipo = "derrotar", alvo = "EspectroDoObservatorio", qtd = 1, descricao = "Espectro derrotado" } },
+		recompensas = { xp = 200 },
+	},
 }
 
 local porId: { [string]: any } = {}

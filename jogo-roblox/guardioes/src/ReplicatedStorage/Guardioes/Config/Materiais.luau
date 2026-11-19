@@ -12,7 +12,9 @@ local lista = {
 	{ id = "JubaEstatica", nome = "Juba Estática", origem = "Cão-Trovão Alfa (material Druida)" },
 	{ id = "CoracaoDaTormenta", nome = "Coração da Tormenta", origem = "Guardião da Tormenta (material Arcano)" },
 	{ id = "PenaDoRelampagoAntigo", nome = "Pena do Relâmpago Antigo", origem = "Guardião da Tormenta (material Arcano)" },
-	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Torre Meteorológica (Etapa G)" },
+	{ id = "EssenciaDeVento", nome = "Essência de Vento", origem = "Colosso das Ruínas (turbinas antigas)" },
+	{ id = "NucleoEnferrujado", nome = "Núcleo Enferrujado", origem = "Colosso das Ruínas (material Druida)" },
+	{ id = "LenteEspectral", nome = "Lente Espectral", origem = "Espectro do Observatório (material Druida)" },
 }
 
 local porId: { [string]: any } = {}

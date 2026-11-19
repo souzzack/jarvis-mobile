@@ -30,6 +30,7 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 16 | [docs/16-CONFERENCIA-DO-COMPLEMENTO.md](docs/16-CONFERENCIA-DO-COMPLEMENTO.md) | Conferência do prompt complementar item por item, lacunas fechadas e o que falta |
 | — | [docs/previas/](docs/previas/LEIA-ME.md) | Prévias visuais reconstruídas a partir do código (não são capturas do Studio) |
 | 17 | [docs/17-RELATORIO-GUARDIAO.md](docs/17-RELATORIO-GUARDIAO.md) | Guardião da Tormenta e o Códice Arcano |
+| 18 | [docs/18-RELATORIO-COLOSSO-ESPECTRO.md](docs/18-RELATORIO-COLOSSO-ESPECTRO.md) | Colosso das Ruínas e Espectro do Observatório (os 4 minibosses completos) |
 
 ## Código
 
