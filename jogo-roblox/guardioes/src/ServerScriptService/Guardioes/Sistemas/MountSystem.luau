@@ -218,10 +218,15 @@ function MountSystem.Start()
 	task.spawn(function()
 		while true do
 			task.wait(0.5)
-			for p, m in montagens do
-				if movimento.montado(p) ~= m.guid then
-					soltar(p, true)
+			local ok, erro = pcall(function()
+				for p, m in montagens do
+					if movimento.montado(p) ~= m.guid then
+						soltar(p, true)
+					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] montaria: " .. tostring(erro))
 			end
 		end
 	end)

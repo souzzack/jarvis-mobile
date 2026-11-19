@@ -39,6 +39,7 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 24 | [docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md](docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md) | Objetivos semanais cooperativos das companhias |
 | 25 | [docs/25-RELATORIO-RELIQUIAS.md](docs/25-RELATORIO-RELIQUIAS.md) | Relíquias: encaixe ativo com recarga longa (Guardião e segredo) |
 | 26 | [docs/26-RELATORIO-PORTAIS.md](docs/26-RELATORIO-PORTAIS.md) | Portais entre dimensões (places): trava de sessão no teleporte, chegada e "em construção" |
+| 27 | [docs/27-REVISAO-DE-CODIGO.md](docs/27-REVISAO-DE-CODIGO.md) | Revisão de código: 4 falhas graves das companhias corrigidas, vazamentos e laços protegidos |
 
 ## Código
 

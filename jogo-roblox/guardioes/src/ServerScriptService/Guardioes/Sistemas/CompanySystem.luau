@@ -89,7 +89,8 @@ type Resultado = { ok: boolean, motivo: string, extra: any, prazo: string? }
 
 -- Aplica prazos + uma operação pura. Grava se a operação deu certo OU se um prazo venceu.
 -- A operação recebe (c, agora) e devolve (ok, motivo, extra).
-local function mudar(id: string, op: ((Companhia.Registro, number) -> (boolean, string, any))?): (Companhia.Registro?, Resultado)
+-- mesmoDissolvida: só para as operações internas de devolução (a dissolução precisa devolver tudo)
+local function mudar(id: string, op: ((Companhia.Registro, number) -> (boolean, string, any))?, mesmoDissolvida: boolean?): (Companhia.Registro?, Resultado)
 	local res: Resultado = { ok = false, motivo = "semCompanhia", extra = nil, prazo = nil }
 	local final: Companhia.Registro? = nil
 	local gravou = atualizarChave(chaveDe(id), function(atual)
@@ -110,7 +111,7 @@ local function mudar(id: string, op: ((Companhia.Registro, number) -> (boolean, 
 		end
 		res.prazo = prazo
 		if op then
-			if c.dissolvida then
+			if c.dissolvida and not mesmoDissolvida then
 				res.motivo = "dissolvida"
 			else
 				local ok, motivo, extra = op(c, agora)
@@ -140,71 +141,154 @@ local function chaveDev(uid: number): string
 	return "dev_" .. uid
 end
 
-local function somarDev(uid: number, itens: { [string]: number }): boolean
+-- Chave de devolução "dev_<userId>": { [material] = qtd, __tokens = { [token] = os.time() } }.
+-- __tokens torna a entrega IDEMPOTENTE: o mesmo lote (mesmo token) nunca soma duas vezes, mesmo que dois
+-- servidores ou uma nova tentativa depois de uma queda entreguem o mesmo lote.
+local TOKEN_VALIDADE = 14 * 86400
+
+local function somarDev(uid: number, itens: { [string]: number }, token: string?): boolean
 	return atualizarChave(chaveDev(uid), function(atual)
 		local t = if type(atual) == "table" then atual else {}
-		for m, q in itens do
-			t[m] = (t[m] or 0) + q
+		local tokens = if type(t.__tokens) == "table" then t.__tokens else {}
+		local agora = os.time()
+		for k, quando in tokens do
+			if type(quando) ~= "number" or agora - quando > TOKEN_VALIDADE then
+				tokens[k] = nil -- poda
+			end
 		end
+		if token then
+			if tokens[token] then
+				t.__tokens = tokens
+				return t -- este lote já foi somado
+			end
+			tokens[token] = agora
+		end
+		for mat, q in itens do
+			if type(mat) == "string" and mat ~= "__tokens" and type(q) == "number" and q > 0 then
+				t[mat] = (t[mat] or 0) + q
+			end
+		end
+		t.__tokens = tokens
 		return t
 	end)
 end
 
--- entrega ao jogador online o que estiver na chave de devolução (o que não couber continua guardado)
+-- entrega ao jogador online o que estiver na chave de devolução. RETIRA primeiro (atômico): duas chamadas ao
+-- mesmo tempo nunca entregam o mesmo item; o que não couber na bolsa volta para a chave.
+local reclamando: { [Player]: boolean } = {}
 local function reclamar(p: Player)
-	local pendente: any = nil
-	if store then
-		local ok, v = pcall(function()
-			return (store :: DataStore):GetAsync(chaveDev(p.UserId))
-		end)
-		if not ok then
-			return
-		end
-		pendente = v
-	else
-		pendente = memoria[chaveDev(p.UserId)]
-	end
-	if type(pendente) ~= "table" or next(pendente) == nil then
+	if reclamando[p] then
 		return
 	end
+	reclamando[p] = true
 	local pedido: { [string]: number } = {}
-	for m, q in pendente do
-		if type(m) == "string" and type(q) == "number" and q > 0 then
-			pedido[m] = q
+	local ok = atualizarChave(chaveDev(p.UserId), function(atual)
+		table.clear(pedido)
+		if type(atual) ~= "table" then
+			return nil
 		end
-	end
-	local entregue = inventario.darMateriais(p, pedido, "companhia")
-	if next(entregue) == nil then
-		return
-	end
-	atualizarChave(chaveDev(p.UserId), function(atual)
-		local t = if type(atual) == "table" then atual else {}
-		for m, q in entregue do
-			local resta = (t[m] or 0) - q
-			t[m] = if resta > 0 then resta else nil
+		local sobra = { __tokens = atual.__tokens }
+		local tem = false
+		for mat, q in atual do
+			if type(mat) == "string" and mat ~= "__tokens" and type(q) == "number" and q > 0 then
+				pedido[mat] = q
+				tem = true
+			end
 		end
-		return t
+		return if tem then sobra else nil
 	end)
+	if ok and next(pedido) ~= nil then
+		local entregue = inventario.darMateriais(p, pedido, "companhia")
+		local resto: { [string]: number } = {}
+		for mat, q in pedido do
+			local falta = q - (entregue[mat] or 0)
+			if falta > 0 then
+				resto[mat] = falta
+			end
+		end
+		if next(resto) then
+			somarDev(p.UserId, resto, nil) -- bolsa cheia: volta para a chave
+		end
+	end
+	reclamando[p] = nil
 end
 
--- move c.aDevolver para as chaves de cada pessoa; quem estiver online aqui já recebe
+-- Move c.aDevolver para as chaves de cada pessoa, sem duplicar nem perder, mesmo com vários servidores:
+--  1) numa gravação da companhia, o lote sai de aDevolver e vai para emTransito[token] (só um servidor ganha);
+--  2) o lote é somado na chave da pessoa com o token (idempotente);
+--  3) emTransito[token] é apagado. Se o servidor cair entre 2 e 3, outro servidor refaz 2 com o MESMO token
+--     depois do prazo (nada soma duas vezes) e termina o 3.
+local TRANSITO_SEG = 300
 local despachando: { [string]: boolean } = {}
+
+local function entregarLote(id: string, token: string, uidTxt: string, itens: { [string]: number })
+	local uid = tonumber(uidTxt)
+	if not uid or not somarDev(uid, itens, token) then
+		return -- fica em trânsito; outra tentativa depois do prazo
+	end
+	mudar(id, function(x)
+		local et = (x :: any).emTransito
+		if not et or not et[token] then
+			return false, "ok", nil
+		end
+		et[token] = nil
+		return true, "ok", nil
+	end, true)
+	local p = Players:GetPlayerByUserId(uid)
+	if p then
+		task.spawn(reclamar, p)
+	end
+end
+
 local function despachar(id: string)
-	local c = cache[id]
-	if not c or not c.aDevolver or despachando[id] then
-		return -- um despacho por companhia por vez (dois em paralelo devolveriam em dobro)
+	local c = cache[id] :: any
+	if not c or despachando[id] then
+		return
 	end
 	despachando[id] = true
-	for uidTxt, itens in c.aDevolver do
-		local uid = tonumber(uidTxt)
-		if uid and somarDev(uid, itens) then
-			mudar(id, function(x)
-				x.aDevolver[uidTxt] = nil
+	-- 1) novos lotes
+	local uids = {}
+	for uidTxt in c.aDevolver or {} do
+		table.insert(uids, uidTxt)
+	end
+	for _, uidTxt in uids do
+		local token = HttpService:GenerateGUID(false)
+		local lote: { [string]: number }? = nil
+		local _, res = mudar(id, function(x, agora)
+			lote = nil
+			local itens = x.aDevolver[uidTxt]
+			if not itens then
+				return false, "ok", nil -- outro servidor já pegou
+			end
+			local xx = x :: any
+			xx.emTransito = xx.emTransito or {}
+			xx.emTransito[token] = { uid = uidTxt, itens = itens, ate = agora + TRANSITO_SEG }
+			x.aDevolver[uidTxt] = nil
+			lote = itens
+			return true, "ok", nil
+		end, true)
+		if res.ok and lote then
+			entregarLote(id, token, uidTxt, lote :: { [string]: number })
+		end
+	end
+	-- 2) lotes presos (servidor caiu no meio): só um servidor reassume cada um, renovando o prazo
+	local c2 = cache[id] :: any
+	for token, t in (c2 and c2.emTransito) or {} do
+		if type(t) == "table" and type(t.ate) == "number" and t.ate < os.time() then
+			local lote = nil
+			local _, res = mudar(id, function(x, agora)
+				lote = nil
+				local et = (x :: any).emTransito
+				local e = et and et[token]
+				if not e or e.ate >= agora then
+					return false, "ok", nil
+				end
+				e.ate = agora + TRANSITO_SEG
+				lote = e
 				return true, "ok", nil
-			end)
-			local p = Players:GetPlayerByUserId(uid)
-			if p then
-				task.spawn(reclamar, p)
+			end, true)
+			if res.ok and lote then
+				entregarLote(id, token, (lote :: any).uid, (lote :: any).itens)
 			end
 		end
 	end
@@ -329,7 +413,8 @@ local function publicar(id: string, res: Resultado?)
 			evento:FireClient(p, EV.ESTADO, visao(c, p))
 		end
 	end
-	if c.aDevolver and next(c.aDevolver) then
+	local et = (c :: any).emTransito
+	if (c.aDevolver and next(c.aDevolver)) or (et and next(et)) then
 		task.spawn(despachar, id)
 	end
 end
@@ -715,6 +800,9 @@ function CompanySystem.Start()
 			if not c or c.dissolvida or not c.membros[tostring(p.UserId)] then
 				definirNoPerfil(p, nil)
 				evento:FireClient(p, EV.ESTADO, nil)
+				if c then
+					task.spawn(despachar, id) -- devoluções da dissolução que ficaram para trás
+				end
 				return
 			end
 			publicar(id, res)
@@ -794,26 +882,35 @@ function CompanySystem.Start()
 	task.spawn(function()
 		while true do
 			task.wait(CFG.cicloSeg)
-			local ids: { [string]: boolean } = {}
-			for _, p in Players:GetPlayers() do
-				local id = CompanySystem.idDe(p)
-				if id then
-					ids[id] = true
+			local ok, erro = pcall(function()
+				local ids: { [string]: boolean } = {}
+				for _, p in Players:GetPlayers() do
+					local id = CompanySystem.idDe(p)
+					if id then
+						ids[id] = true
+					end
 				end
-			end
-			for id in ids do
-				local ok, erro = pcall(function()
-					local _, res = mudar(id, nil)
-					publicar(id, res)
-				end)
-				if not ok then
-					warn("[Guardioes] companhia (ciclo): " .. tostring(erro))
+				for id in ids do
+					local ok, erro = pcall(function()
+						local _, res = mudar(id, nil)
+						publicar(id, res)
+					end)
+					if not ok then
+						warn("[Guardioes] companhia (ciclo): " .. tostring(erro))
+					end
 				end
-			end
-			for id in cache do
-				if not ids[id] then
-					cache[id] = nil -- ninguém daqui: não guarda em memória
+				for id, c in cache do
+					local et = (c :: any).emTransito
+					local pendente = (c.aDevolver and next(c.aDevolver)) or (et and next(et))
+					if pendente then
+						task.spawn(despachar, id) -- tenta de novo até não sobrar nada (inclusive dissolvidas)
+					elseif not ids[id] then
+						cache[id] = nil -- ninguém daqui e nada pendente: não guarda em memória
+					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] companhia (ciclo): " .. tostring(erro))
 			end
 		end
 	end)
@@ -821,6 +918,7 @@ function CompanySystem.Start()
 	Players.PlayerRemoving:Connect(function(p)
 		baldes[p] = nil
 		ocupado[p] = nil
+		reclamando[p] = nil
 	end)
 end
 

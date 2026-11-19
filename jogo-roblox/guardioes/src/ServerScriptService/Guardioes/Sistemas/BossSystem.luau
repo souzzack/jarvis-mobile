@@ -645,21 +645,26 @@ function BossSystem.Start()
 		local vistos: { [Player]: { [string]: boolean } } = {}
 		while true do
 			task.wait(1)
-			for _, c in chefes do
-				if c.id then
-					for _, p in naArena(c) do
-						vistos[p] = vistos[p] or {}
-						if not vistos[p][c.id :: string] then
-							vistos[p][c.id :: string] = true
-							evento:FireClient(p, EC.INICIO, c.id, c.cfg.id)
+			local ok, erro = pcall(function()
+				for _, c in chefes do
+					if c.id then
+						for _, p in naArena(c) do
+							vistos[p] = vistos[p] or {}
+							if not vistos[p][c.id :: string] then
+								vistos[p][c.id :: string] = true
+								evento:FireClient(p, EC.INICIO, c.id, c.cfg.id)
+							end
 						end
 					end
 				end
-			end
-			for p in vistos do
-				if not p.Parent then
-					vistos[p] = nil
+				for p in vistos do
+					if not p.Parent then
+						vistos[p] = nil
+					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] chefe (barra): " .. tostring(erro))
 			end
 		end
 	end)

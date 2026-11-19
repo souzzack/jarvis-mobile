@@ -25,6 +25,7 @@ export type Registro = {
 	-- depois os move para a chave de devolução de cada pessoa. Nunca somem entre uma gravação e outra.
 	aDevolver: { [string]: { [string]: number } },
 	semanal: any?, -- objetivos da semana (Companhias/Semanal)
+	emTransito: { [string]: { uid: string, itens: { [string]: number }, ate: number } }?, -- lotes a caminho da chave de devolução
 	versao: number,
 }
 export type Devolucao = { [number]: { [string]: number } } -- userId → material → qtd

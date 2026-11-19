@@ -358,24 +358,29 @@ function DimensionSystem.Start()
 	task.spawn(function()
 		while true do
 			task.wait(1)
-			local lista = pontos()
-			for _, p in Players:GetPlayers() do
-				local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
-				local perfil = hrp and playerData.obter(p)
-				if hrp and perfil then
-					for id, parte in lista do
-						if not perfil.pontosDescobertos[id] and Viagem.descobre(((hrp :: BasePart).Position - parte.Position).Magnitude, CFG.raioDescoberta) then
-							local ok = playerData.atualizar(p, function(pf)
-								pf.pontosDescobertos[id] = true
-								return true
-							end)
-							if ok then
-								evento:FireClient(p, EV.DESCOBERTO, tostring(parte:GetAttribute("Nome") or id))
-								enviar(p)
+			local ok, erro = pcall(function()
+				local lista = pontos()
+				for _, p in Players:GetPlayers() do
+					local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+					local perfil = hrp and playerData.obter(p)
+					if hrp and perfil then
+						for id, parte in lista do
+							if not perfil.pontosDescobertos[id] and Viagem.descobre(((hrp :: BasePart).Position - parte.Position).Magnitude, CFG.raioDescoberta) then
+								local ok = playerData.atualizar(p, function(pf)
+									pf.pontosDescobertos[id] = true
+									return true
+								end)
+								if ok then
+									evento:FireClient(p, EV.DESCOBERTO, tostring(parte:GetAttribute("Nome") or id))
+									enviar(p)
+								end
 							end
 						end
 					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] viagem (descoberta): " .. tostring(erro))
 			end
 		end
 	end)

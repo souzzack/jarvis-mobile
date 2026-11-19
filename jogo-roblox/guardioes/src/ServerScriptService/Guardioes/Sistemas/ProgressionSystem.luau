@@ -104,6 +104,9 @@ function ProgressionSystem.Start()
 		entrar(p)
 	end
 	Players.PlayerAdded:Connect(entrar)
+	Players.PlayerRemoving:Connect(function(p)
+		vidaExtra[p] = nil
+	end)
 	habilidades.mudou.conectar(function(p: Player)
 		aplicarVida(p, false) -- a raça pode ter chegado com o perfil
 	end)

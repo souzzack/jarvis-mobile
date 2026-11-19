@@ -652,38 +652,43 @@ function CompanionSystem.Start()
 	task.spawn(function()
 		while true do
 			task.wait(1)
-			for p, j in jogadores do
-				local a = j.ativa
-				if a and not a.montada then
-					local c = j.criaturas[a.guid]
-					local sabe = {}
-					for _, h in Vinculo.habilidadesEfetivas(c, Afinidades) do
-						sabe[h] = true
-					end
-					local novos = {}
-					revelados[p] = revelados[p] or {}
-					for _, nomePasta in { "GuardioesOcultos", "GuardioesCorrentes" } do
-						local pasta = Workspace:FindFirstChild(nomePasta)
-						if pasta then
-							for _, d in pasta:GetDescendants() do
-								local h = d:GetAttribute("RevelaCom")
-								if d:IsA("BasePart") and typeof(h) == "string" and sabe[h] and not revelados[p][d]
-									and (d.Position - a.raiz.Position).Magnitude <= RAIO_REVELAR + d.Size.Magnitude / 2 then
-									revelados[p][d] = true
-									table.insert(novos, d)
+			local ok, erro = pcall(function()
+				for p, j in jogadores do
+					local a = j.ativa
+					if a and not a.montada then
+						local c = j.criaturas[a.guid]
+						local sabe = {}
+						for _, h in Vinculo.habilidadesEfetivas(c, Afinidades) do
+							sabe[h] = true
+						end
+						local novos = {}
+						revelados[p] = revelados[p] or {}
+						for _, nomePasta in { "GuardioesOcultos", "GuardioesCorrentes" } do
+							local pasta = Workspace:FindFirstChild(nomePasta)
+							if pasta then
+								for _, d in pasta:GetDescendants() do
+									local h = d:GetAttribute("RevelaCom")
+									if d:IsA("BasePart") and typeof(h) == "string" and sabe[h] and not revelados[p][d]
+										and (d.Position - a.raiz.Position).Magnitude <= RAIO_REVELAR + d.Size.Magnitude / 2 then
+										revelados[p][d] = true
+										table.insert(novos, d)
+									end
 								end
 							end
 						end
-					end
-					if #novos > 0 then
-						evento:FireClient(p, EC.REVELAR, novos, c.nome)
+						if #novos > 0 then
+							evento:FireClient(p, EC.REVELAR, novos, c.nome)
+						end
 					end
 				end
-			end
-			for p in revelados do
-				if not p.Parent then
-					revelados[p] = nil
+				for p in revelados do
+					if not p.Parent then
+						revelados[p] = nil
+					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] companheiro (revelar): " .. tostring(erro))
 			end
 		end
 	end)
@@ -704,10 +709,15 @@ function CompanionSystem.Start()
 	task.spawn(function()
 		while true do
 			task.wait(1)
-			for p, j in jogadores do
-				if j.listaPendente then
-					enviarLista(p)
+			local ok, erro = pcall(function()
+				for p, j in jogadores do
+					if j.listaPendente then
+						enviarLista(p)
+					end
 				end
+			end)
+			if not ok then
+				warn("[Guardioes] companheiro (lista): " .. tostring(erro))
 			end
 		end
 	end)

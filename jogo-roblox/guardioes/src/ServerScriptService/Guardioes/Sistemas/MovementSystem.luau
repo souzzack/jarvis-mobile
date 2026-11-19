@@ -652,6 +652,7 @@ function MovementSystem.Start()
 	Players.PlayerAdded:Connect(entrar)
 	Players.PlayerRemoving:Connect(function(p)
 		estados[p] = nil -- nada de voo é salvo: ao voltar, o personagem começa no chão
+		energiaExtra[p] = nil
 	end)
 	evento.OnServerEvent:Connect(aoReceber)
 
