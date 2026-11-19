@@ -28,6 +28,7 @@ export type Perfil = {
 	equipado: { [string]: string }, -- encaixe → guid
 	transportes: { [string]: boolean }, -- transportes comuns possuídos (prancha de viagem…)
 	transportePreferido: string?,
+	reliquiaRecargaAte: number, -- os.time() em que a relíquia equipada fica pronta (salvo: sair não zera)
 	companhia: string?, -- id da companhia (guilda); a verdade fica na store das companhias
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
@@ -69,6 +70,7 @@ function Perfil.novo(agora: number): Perfil
 		equipado = {},
 		transportes = {},
 		transportePreferido = nil,
+		reliquiaRecargaAte = 0,
 		companhia = nil,
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
@@ -219,6 +221,9 @@ function Perfil.validar(p: any): (boolean, string?)
 		if type(id) ~= "string" or type(n) ~= "number" or n < 1 or n > 10 or n ~= math.floor(n) then
 			return false, "base"
 		end
+	end
+	if type(p.reliquiaRecargaAte) ~= "number" or p.reliquiaRecargaAte ~= p.reliquiaRecargaAte then
+		return false, "reliquia"
 	end
 	if p.companhia ~= nil and (type(p.companhia) ~= "string" or #p.companhia > 64) then
 		return false, "companhia"

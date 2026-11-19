@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local BaseLogica = require(G.Base.Base)
+local Eq = require(G.Equipamento.Equipamento)
 local CfgBase = require(G.Config.Base)
 local Sinal = require(G.Util.Sinal)
 local Remotos = require(G.Rede.Remotos)
@@ -42,10 +43,7 @@ local ESTACOES: { [string]: boolean } = { Forja = true, Bancada = true }
 local rotuloDeposito: { [Player]: TextLabel } = {}
 
 local function textoDeposito(perfil: any): string
-	local n = 0
-	for _ in perfil.equipamentos do
-		n += 1
-	end
+	local n = Eq.contarNoDeposito(perfil.equipamentos)
 	return string.format("Equipamentos %d/%d", n, BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito))
 end
 

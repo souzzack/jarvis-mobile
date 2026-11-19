@@ -37,6 +37,7 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 22 | [docs/22-RELATORIO-SEGREDOS.md](docs/22-RELATORIO-SEGREDOS.md) | Segredo ??? do Ato 1: lentes, margens, contemplação, pilares, altar e o ritual do Arco |
 | 23 | [docs/23-RELATORIO-BANCADA-DEPOSITO.md](docs/23-RELATORIO-BANCADA-DEPOSITO.md) | Bancada (consumíveis e acessório), Depósito (capacidade de equipamentos) e desmontar |
 | 24 | [docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md](docs/24-RELATORIO-OBJETIVOS-SEMANAIS.md) | Objetivos semanais cooperativos das companhias |
+| 25 | [docs/25-RELATORIO-RELIQUIAS.md](docs/25-RELATORIO-RELIQUIAS.md) | Relíquias: encaixe ativo com recarga longa (Guardião e segredo) |
 
 ## Código
 

@@ -16,6 +16,7 @@ local Bolsa = require(G.Inventario.Bolsa)
 local Materiais = require(G.Config.Materiais)
 local BaseLogica = require(G.Base.Base)
 local CfgBase = require(G.Config.Base)
+local Eq = require(G.Equipamento.Equipamento)
 local Sinal = require(G.Util.Sinal)
 local Remotos = require(G.Rede.Remotos)
 local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
@@ -171,10 +172,7 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 		end
 		if t.darEquipamento then
 			-- Depósito da base: quantos equipamentos cabem (nada é consumido se não couber)
-			local n = 0
-			for _ in perfil.equipamentos do
-				n += 1
-			end
+			local n = Eq.contarNoDeposito(perfil.equipamentos)
 			if n >= BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito) then
 				motivoFalha = "depositoCheio"
 				return false
@@ -216,6 +214,26 @@ function InventorySystem.retirarSalvo(p: Player, id: string, qtd: number): boole
 		avisar(p)
 	end
 	return ok
+end
+
+-- Relíquia: única por jogador (não duplica) e fora do limite do Depósito (recompensa única nunca se perde
+-- por falta de espaço). Devolve true só quando é nova.
+function InventorySystem.darReliquia(p: Player, id: string): boolean
+	local nova = false
+	local ok = playerData.atualizar(p, function(perfil)
+		for _, it in perfil.equipamentos do
+			if it.id == id then
+				return false
+			end
+		end
+		perfil.equipamentos[HttpService:GenerateGUID(false)] = { id = id, reliquia = true }
+		nova = true
+		return true
+	end)
+	if ok and nova then
+		avisar(p)
+	end
+	return ok and nova
 end
 
 function InventorySystem.definirEquipado(p: Player, guid: string)

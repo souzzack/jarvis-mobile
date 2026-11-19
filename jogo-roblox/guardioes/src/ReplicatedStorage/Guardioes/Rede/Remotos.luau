@@ -148,13 +148,15 @@ Remotos.EventoEspecial = {
 	EFEITO = 4, -- (userId, tipo) para todos: brilho no personagem
 }
 -- equipamentos (armaduras e acessórios)
-Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2, MELHORAR = 3, DESMONTAR = 4 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe); MELHORAR/DESMONTAR: (guid)
+Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2, MELHORAR = 3, DESMONTAR = 4, ATIVAR_RELIQUIA = 5 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe); MELHORAR/DESMONTAR: (guid)
 Remotos.EventoEquipamento = {
 	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, melhoria, proximaMelhoria, atributos, efeito, encaixe? }, totais, { tem, cabe })
 	REJEITADO = 2, -- (motivo)
 	MELHOROU = 3, -- (nome, nivel)
 	FALTA = 4, -- (guid, lista do que falta)
 	DESMONTOU = 5, -- (nome)
+	RELIQUIA = 6, -- (nome?, segundos que faltam, recarga total, duração do efeito?) relíquia equipada
+	RELIQUIA_NOVA = 7, -- (nome, efeito) ganhou uma relíquia
 }
 -- consumíveis da Bancada (barra: teclas 2, 3 e 4)
 Remotos.Consumivel = { USAR = 1 } -- (consumivelId)

@@ -78,6 +78,8 @@ local TEXTOS: { [string]: string } = {
 	-- base: Depósito e consumíveis
 	depositoCheio = "Depósito cheio: desmonte um equipamento ou melhore o Depósito da base",
 	retireAntes = "Retire o item antes de desmontar",
+	reliquiaUnica = "Relíquias não se desmontam",
+	semReliquia = "Nenhuma relíquia equipada",
 }
 
 local Mensagens = {}

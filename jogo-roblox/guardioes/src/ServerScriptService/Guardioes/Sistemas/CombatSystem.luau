@@ -50,6 +50,7 @@ CombatSystem.jogadorAtingido = Sinal.novo()
 local armas: { [Player]: any } = {}
 -- Bastião (especial do Escudo): até quando golpes de frente viram aparo
 local bastiaoAte: { [Player]: number } = {}
+local reducaoDe: { [Player]: { fator: number, ate: number } } = {} -- relíquia "Escudo de Estática"
 -- equipamento (EquipmentSystem): defesa e tolerância extra do aparo
 local defesaDe: { [Player]: number } = {}
 local aparoExtraDe: { [Player]: number } = {}
@@ -163,7 +164,8 @@ function CombatSystem.danoAoJogador(p: Player, origem: Vector3, a: AtaqueRecebid
 	local f = hrp.CFrame.LookVector
 	local frontal = Alcance.frontal(hrp.Position.X, hrp.Position.Z, f.X, f.Z, origem.X, origem.Z, Cfg.defesa.arcoGraus)
 	local r = Dano.resolver({
-		danoBase = a.dano, multiplicador = 1, defesaAlvo = defesaDe[p] or 0,
+		danoBase = a.dano, multiplicador = if reducaoDe[p] and agora < reducaoDe[p].ate then 1 - reducaoDe[p].fator else 1,
+		defesaAlvo = defesaDe[p] or 0,
 		postura = a.postura,
 		alvoInvulneravel = MaquinaDeCombo.invulneravel(st.maquina, Cfg, agora),
 		alvoAparando = MaquinaDeCombo.aparando(st.maquina, Cfg, agora) or agora < (bastiaoAte[p] or 0)
@@ -229,6 +231,11 @@ end
 function CombatSystem.definirEquipamento(p: Player, defesa: number, aparoExtra: number)
 	defesaDe[p] = defesa
 	aparoExtraDe[p] = aparoExtra
+end
+
+-- golpes recebidos causam (1 − fator) do dano por 'duracao' s (relíquia). Fator limitado a 0,6.
+function CombatSystem.reduzirDano(p: Player, fator: number, duracao: number)
+	reducaoDe[p] = { fator = math.clamp(fator, 0, 0.6), ate = os.clock() + duracao }
 end
 
 function CombatSystem.ativarBastiao(p: Player, duracao: number)
@@ -370,6 +377,7 @@ function CombatSystem.Start()
 		estados[p] = nil
 		armas[p] = nil
 		bastiaoAte[p] = nil
+		reducaoDe[p] = nil
 		defesaDe[p], aparoExtraDe[p] = nil, nil
 	end)
 	evento.OnServerEvent:Connect(aoReceber)

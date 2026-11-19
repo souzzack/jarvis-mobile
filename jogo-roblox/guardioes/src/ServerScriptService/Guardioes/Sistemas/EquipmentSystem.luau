@@ -5,7 +5,10 @@
 --    fique em dois encaixes; grava numa transação (a validação do perfil recusa estados impossíveis).
 --  * Efeitos (Equipamento/Equipamento.totais, com orçamento de raridade e tetos): defesa e aparo no
 --    CombatSystem, vida no ProgressionSystem, energia de voo no MovementSystem.
---  * A ARMA continua sendo o artefato equipado (MetamorphicArtifactSystem); a relíquia vem depois.
+--  * A ARMA continua sendo o artefato equipado (MetamorphicArtifactSystem).
+--  * RELÍQUIA (encaixe "Reliquia"): ativa com recarga longa (Z). Recarga ÚNICA por jogador (trocar de relíquia não
+--    zera) e salva no perfil. Relíquias ??? vêm de ConfigSecreta/ReliquiasSecretas, juntadas ao catálogo SÓ aqui
+--    no servidor; o cliente vê nome e efeito só de quem já tem o item.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,6 +22,15 @@ local BaseLogica = require(G.Base.Base)
 local CfgBase = require(G.Config.Base)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
 local Remotos = require(G.Rede.Remotos)
+local Reliquia = require(G.Equipamento.Reliquia)
+local Secretas = require(script.Parent.Parent.ConfigSecreta.ReliquiasSecretas)
+
+-- catálogo do servidor = público + secreto (a tabela pública do cliente não muda: cada lado tem a sua cópia)
+for _, r in Secretas do
+	if not Catalogo.porId[r.id] then
+		Catalogo.porId[r.id] = r
+	end
+end
 
 local EQ = Remotos.Equipamento
 local EE = Remotos.EventoEquipamento
@@ -51,7 +63,7 @@ local function aplicar(p: Player)
 		if cfg then
 			table.insert(itens, {
 				guid = guid, id = item.id, nome = cfg.nome, tipo = cfg.tipo, raridade = cfg.raridade, melhoria = item.melhoria or 0,
-				proximaMelhoria = if (item.melhoria or 0) < Melhoria.MAX then {
+				proximaMelhoria = if cfg.tipo ~= "Reliquia" and (item.melhoria or 0) < Melhoria.MAX then {
 					custo = Melhoria.custo((item.melhoria or 0) + 1, cfg.materialDeOrigem), onde = Melhoria.onde((item.melhoria or 0) + 1),
 				} else nil,
 				atributos = cfg.atributos, efeito = cfg.efeito, encaixe = Eq.ondeEsta(perfil.equipado, guid),
@@ -61,7 +73,11 @@ local function aplicar(p: Player)
 	table.sort(itens, function(a, b)
 		return a.nome < b.nome
 	end)
-	evento:FireClient(p, EE.LISTA, itens, t, { tem = #itens, cabe = BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito) })
+	evento:FireClient(p, EE.LISTA, itens, t, { tem = Eq.contarNoDeposito(perfil.equipamentos), cabe = BaseLogica.capacidadeDoDeposito(perfil.base, CfgBase.espacos.Deposito) })
+	-- relíquia equipada (para a tecla Z): nome e quanto falta da recarga
+	local gRel = perfil.equipado.Reliquia
+	local rel = gRel and perfil.equipamentos[gRel] and Catalogo.porId[perfil.equipamentos[gRel].id]
+	evento:FireClient(p, EE.RELIQUIA, if rel then rel.nome else nil, Reliquia.falta(perfil.reliquiaRecargaAte, os.time()), if rel then rel.ativa.recarga else 0)
 end
 
 -- desmontar: só item NÃO equipado; devolve parte do material (Eq.desmontar) na MESMA gravação que o remove
@@ -71,6 +87,10 @@ local function desmontar(p: Player, guid: string)
 	local cfg = item and Catalogo.porId[item.id]
 	if not perfil or not item or not cfg then
 		evento:FireClient(p, EE.REJEITADO, "naoPossui")
+		return
+	end
+	if cfg.tipo == "Reliquia" then
+		evento:FireClient(p, EE.REJEITADO, "reliquiaUnica")
 		return
 	end
 	if Eq.ondeEsta(perfil.equipado, guid) then
@@ -167,6 +187,60 @@ local function melhorar(p: Player, guid: string)
 	aplicar(p)
 end
 
+-- ativar a relíquia equipada. A recarga é gravada ANTES do efeito (o mesmo pedido duas vezes só vale uma).
+local function ativarReliquia(p: Player)
+	local perfil = playerData.obter(p)
+	if not perfil then
+		return
+	end
+	local guid = perfil.equipado.Reliquia
+	local item = guid and perfil.equipamentos[guid]
+	local cfg = item and Catalogo.porId[item.id]
+	local ch = p.Character
+	local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+	local agora = os.time()
+	local pode, motivo = Reliquia.podeAtivar(cfg, {
+		agora = agora, recargaAte = perfil.reliquiaRecargaAte, vivo = hum ~= nil and hum.Health > 0, atordoado = combate.atordoado(p),
+	})
+	if not pode then
+		evento:FireClient(p, EE.REJEITADO, motivo)
+		return
+	end
+	local antes = perfil.reliquiaRecargaAte
+	local gravou = playerData.atualizar(p, function(pf)
+		if pf.reliquiaRecargaAte ~= antes then
+			return false
+		end
+		pf.reliquiaRecargaAte = Reliquia.proximaRecarga(cfg, agora)
+		return true
+	end)
+	if not gravou then
+		return
+	end
+	local ef = cfg.ativa
+	if ef.efeito == "EscudoDeEstatica" then
+		combate.reduzirDano(p, ef.reducao, ef.duracao)
+	elseif ef.efeito == "FolegoEstelar" then
+		movimento.recuperarEnergia(p, math.huge)
+		combate.recuperarEstamina(p, math.huge)
+	end
+	evento:FireClient(p, EE.RELIQUIA, cfg.nome, ef.recarga, ef.recarga, ef.duracao or 0)
+end
+
+-- recompensa de chefe ou segredo: entra direto (única, fora do Depósito) e avisa
+function EquipmentSystem.darReliquia(p: Player, id: string): boolean
+	local cfg = Catalogo.porId[id]
+	if not cfg or cfg.tipo ~= "Reliquia" then
+		return false
+	end
+	if inventario.darReliquia(p, id) then
+		evento:FireClient(p, EE.RELIQUIA_NOVA, cfg.nome, cfg.efeito)
+		aplicar(p)
+		return true
+	end
+	return false
+end
+
 local function retirar(p: Player, encaixe: string)
 	local gravou = playerData.atualizar(p, function(pf)
 		if pf.equipado[encaixe] == nil then
@@ -226,6 +300,8 @@ function EquipmentSystem.Start()
 			melhorar(p, a)
 		elseif tipo == EQ.DESMONTAR and typeof(a) == "string" and #a <= 64 then
 			desmontar(p, a)
+		elseif tipo == EQ.ATIVAR_RELIQUIA then
+			ativarReliquia(p)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(p)

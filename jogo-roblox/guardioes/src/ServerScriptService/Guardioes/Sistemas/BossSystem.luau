@@ -73,6 +73,9 @@ local inimigos: any
 local combate: any
 local fabricacao: any
 local base: any
+local equipamento: any
+-- relíquias de Guardião (GDD 7.4: "vem de Guardiões e segredos")
+local RELIQUIA_DO_CHEFE: { [string]: string } = { GuardiaoDaTormenta = "OlhoDaTormenta" }
 local restauracao: any
 local playerData: any
 local ctxSistemas: any = nil
@@ -543,6 +546,7 @@ function BossSystem.Start()
 	combate = ctxSistemas.obter("CombatSystem")
 	fabricacao = ctxSistemas.obter("CraftingSystem")
 	base = ctxSistemas.obter("PersonalBaseSystem")
+	equipamento = ctxSistemas.obter("EquipmentSystem")
 	restauracao = ctxSistemas.obter("RestorationSystem")
 	playerData = ctxSistemas.obter("PlayerDataSystem")
 	-- aparo durante a corrida do Alfa: quebra a corrida e derruba
@@ -608,6 +612,10 @@ function BossSystem.Start()
 						end
 					end
 					base.darTrofeu(p, ini.cfg.id)
+					local rel = RELIQUIA_DO_CHEFE[ini.cfg.id]
+					if rel then
+						equipamento.darReliquia(p, rel) -- única: só a primeira vitória entrega
+					end
 				end
 				if c.cfg.mecanica == "Lentes" then
 					c.voltaEm = os.clock() + c.cfg.retornoSeg -- e só à noite

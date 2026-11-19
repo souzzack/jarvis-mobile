@@ -36,6 +36,7 @@ local inventario: any
 local companheiros: any
 local restauracao: any
 local dimensoes: any
+local equipamento: any
 local pasta: Folder
 local baldes: { [Player]: LimiteDeTaxa.Balde } = {}
 local seqLentes: { [Player]: Descoberta.Sequencia } = {}
@@ -270,7 +271,9 @@ local function altar(p: Player)
 	end
 	if not feito(perfil, "ArtefatoDesconhecido1") then
 		aviso(p, "A câmara sob o altar se abre.")
-		concluir(p, "ArtefatoDesconhecido1")
+		if concluir(p, "ArtefatoDesconhecido1") then
+			equipamento.darReliquia(p, "LascaDaSetimaEstrela") -- junto do artefato, uma lasca de luz
+		end
 		return
 	end
 	if feito(perfil, "ArcoForjado") then
@@ -451,6 +454,7 @@ function SecretDiscoverySystem.Start()
 	companheiros = ctxSistemas.obter("CompanionSystem")
 	restauracao = ctxSistemas.obter("RestorationSystem")
 	dimensoes = ctxSistemas.obter("DimensionSystem")
+	equipamento = ctxSistemas.obter("EquipmentSystem")
 	local magia = ctxSistemas.obter("MagicBookSystem")
 	local existente = Workspace:FindFirstChild("GuardioesSegredos") :: Folder?
 	if existente then

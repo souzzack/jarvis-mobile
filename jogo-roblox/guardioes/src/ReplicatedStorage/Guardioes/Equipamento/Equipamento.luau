@@ -1,6 +1,8 @@
 --!strict
 -- NÃO EXECUTADO. Equipamentos (armaduras e acessórios) — LÓGICA PURA.
--- Encaixes (GDD 7.4): Cabeca, Corpo, Pernas, Acessorio1, Acessorio2. (Arma = artefato equipado; Relíquia: futuro.)
+-- Encaixes (GDD 7.4): Cabeca, Corpo, Pernas, Acessorio1, Acessorio2 e Reliquia. (Arma = artefato equipado.)
+-- Relíquias: sem atributos passivos; têm uma ATIVA com recarga longa (Equipamento/Reliquia). Não ocupam o
+-- Depósito, não se desmontam e não se melhoram: são únicas (uma de cada por jogador).
 -- Atributos efetivos = base do item × multiplicador da raridade (orçamento de poder, Config/Raridades).
 -- Tetos globais impedem que uma combinação quebre o jogo.
 
@@ -8,13 +10,14 @@ export type Totais = { defesa: number, vidaBonus: number, janelaAparar: number, 
 
 local Eq = {}
 
-Eq.ENCAIXES = { "Cabeca", "Corpo", "Pernas", "Acessorio1", "Acessorio2" }
+Eq.ENCAIXES = { "Cabeca", "Corpo", "Pernas", "Acessorio1", "Acessorio2", "Reliquia" }
 -- tipo do item → encaixes aceitos
 Eq.ACEITA = {
 	Cabeca = { Cabeca = true },
 	Corpo = { Corpo = true },
 	Pernas = { Pernas = true },
 	Acessorio = { Acessorio1 = true, Acessorio2 = true },
+	Reliquia = { Reliquia = true },
 }
 Eq.TETOS = { defesa = 120, vidaBonus = 200, janelaAparar = 0.08, energiaVoo = 40 }
 
@@ -74,6 +77,17 @@ function Eq.desmontar(cfgItem: any): { [string]: number }
 		t[cfgItem.materialDeOrigem] = 1
 	end
 	return t
+end
+
+-- quantos itens ocupam o Depósito (relíquias, marcadas com 'reliquia', ficam de fora)
+function Eq.contarNoDeposito(equipamentos: { [string]: any }): number
+	local n = 0
+	for _, it in equipamentos do
+		if not it.reliquia then
+			n += 1
+		end
+	end
+	return n
 end
 
 return Eq

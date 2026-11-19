@@ -325,3 +325,20 @@ Dois jogadores na mesma companhia (seção 14).
 | W7 | Continuar fazendo a mesma coisa depois de concluído | Nada mais soma; o prêmio não se repete |
 | W8 | Virar a semana (mudar o relógio numa cópia de teste, ou esperar segunda 00:00 UTC) | 3 objetivos novos, zerados |
 | W9 | Sair da companhia com progresso pendente (antes dos 30 s) | O progresso pendente dessa pessoa não conta |
+
+## 18. Relíquias: casos e roteiro
+
+**Automáticos novos:** 6 casos em `Reliquia.spec` (total: 198 em 29 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| E1 | Vencer o Guardião da Tormenta pela primeira vez | "Relíquia nova: Olho da Tormenta — equipe na Bolsa (I)"; o item aparece na Bolsa sem botão Melhorar nem Desmontar |
+| E2 | Vencer o Guardião de novo | Nenhuma relíquia repetida |
+| E3 | Bolsa → Equipar o Olho da Tormenta | Botão "[Z] Olho da Tormenta · pronta" no canto inferior direito |
+| E4 | Z (ou R3, ou tocar) e receber um golpe | "Olho da Tormenta ativada (6 s)"; o golpe causa 40% menos dano; o botão conta 120 s |
+| E5 | Z durante a recarga | Nada é enviado (o botão está esperando); pelo console: "Aguarde a recarga" |
+| E6 | Sair e entrar logo depois de ativar (com API) | A recarga continua de onde parou (fica salva no perfil) |
+| E7 | Com o Depósito cheio, vencer o Guardião pela primeira vez | A relíquia entra mesmo assim (não ocupa o Depósito); "Equipamentos N/limite" não muda |
+| E8 | Abrir a câmara sob o altar (seção 15, S12) | Também "Relíquia nova: Lasca da Sétima Estrela"; ativar enche energia de voo e estamina; recarga 180 s |
+| E9 | Pedir pelo console DESMONTAR do GUID de uma relíquia | "Relíquias não se desmontam" |
+| E10 | Atordoado e apertar Z | "Atordoado" e a recarga não começa |

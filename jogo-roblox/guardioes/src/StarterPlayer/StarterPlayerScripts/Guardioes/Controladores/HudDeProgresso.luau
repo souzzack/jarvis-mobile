@@ -175,7 +175,7 @@ local function desenharJanela()
 			end)
 		end
 		texto(c, table.concat(partes, " · ") .. (if it.efeito then " — " .. it.efeito else ""), UDim2.fromOffset(8, 20), UDim2.new(1, -110, 0, 30), 11, Color3.fromRGB(190, 200, 230))
-		if not it.encaixe then
+		if not it.encaixe and it.tipo ~= "Reliquia" then
 			-- desmontar abre espaço no Depósito; pede um segundo clique (devolve só parte do material)
 			local d = Instance.new("TextButton")
 			d.Position, d.Size = UDim2.new(1, -190, 0, 46), UDim2.fromOffset(88, 14)
