@@ -93,6 +93,8 @@ local function fabricar(p: Player, receitaId: string)
 	local t: any = { consumir = consumir }
 	if r.resultado.tipo == "material" then
 		t.darMateriais = { [r.resultado.id] = r.resultado.qtd }
+	elseif r.resultado.tipo == "transporte" then
+		t.darTransporte = r.resultado.id
 	elseif r.resultado.tipo == "equipamento" then
 		t.darEquipamento = r.resultado.id
 	elseif r.resultado.tipo == "artefato" then
@@ -106,6 +108,11 @@ local function fabricar(p: Player, receitaId: string)
 	evento:FireClient(p, EF.FEITO, r.nome)
 	CraftingSystem.fabricou.disparar(p, receitaId)
 	enviarLista(p, r.estacao)
+end
+
+-- estações por perto (id → maior nível), já filtrando as de outro dono (usado pelas melhorias)
+function CraftingSystem.estacoesPerto(p: Player): { [string]: number }
+	return estacoesPerto(p)
 end
 
 function CraftingSystem.aprenderReceita(p: Player, receitaId: string): boolean

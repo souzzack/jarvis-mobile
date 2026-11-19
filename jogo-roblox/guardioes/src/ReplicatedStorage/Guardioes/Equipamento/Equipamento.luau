@@ -40,13 +40,19 @@ function Eq.ondeEsta(equipado: { [string]: string }, guid: string): string?
 end
 
 -- soma os atributos dos itens equipados. itens: guid → { id }; catalogo: id → cfg; raridades: id → { multiplicador }
-function Eq.totais(equipado: { [string]: string }, itens: { [string]: any }, catalogo: { [string]: any }, raridades: { [string]: any }): Totais
+-- tetoFn(raridade) → multiplicador no +10 (Raridades.tetoMelhoria); sem ele, melhorias são ignoradas
+function Eq.totais(equipado: { [string]: string }, itens: { [string]: any }, catalogo: { [string]: any }, raridades: { [string]: any }, tetoFn: ((string) -> number)?): Totais
 	local t: Totais = { defesa = 0, vidaBonus = 0, janelaAparar = 0, energiaVoo = 0 }
 	for _, guid in equipado do
 		local item = itens[guid]
 		local cfg = item and catalogo[item.id]
 		if cfg then
 			local m = (raridades[cfg.raridade] and raridades[cfg.raridade].multiplicador) or 1
+			local mel = item.melhoria or 0
+			if tetoFn and mel > 0 then
+				local teto = tetoFn(cfg.raridade)
+				m = m + (teto - m) * math.clamp(mel, 0, 10) / 10
+			end
 			local a = cfg.atributos
 			t.defesa += (a.defesa or 0) * m
 			t.vidaBonus += (a.vidaBonus or 0) * m

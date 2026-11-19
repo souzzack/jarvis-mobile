@@ -337,6 +337,18 @@ function MetamorphicArtifactSystem.avaliarEvolucao(p: Player, guid: string, prog
 	return Progressao.avaliar(cfgDe(inst), inst.estagio, progresso)
 end
 
+-- todos os artefatos do jogador (id, estágio) — para a tela de transportes
+function MetamorphicArtifactSystem.listaDe(p: Player): { { id: string, estagio: number } }
+	local j = jogadores[p]
+	local l = {}
+	if j then
+		for _, inst in j.artefatos do
+			table.insert(l, { id = inst.id, estagio = inst.estagio })
+		end
+	end
+	return l
+end
+
 -- artefato equipado: (id, estágio, forma ativa ou nil, tipo ativo ou nil)
 function MetamorphicArtifactSystem.equipado(p: Player): (string?, number, string?, string?)
 	local inst, cfg = equipada(p)

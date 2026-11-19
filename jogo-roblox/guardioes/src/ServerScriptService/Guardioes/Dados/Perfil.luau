@@ -26,6 +26,8 @@ export type Perfil = {
 	pontosDescobertos: { [string]: boolean }, -- viagem rápida
 	equipamentos: { [string]: { id: string } }, -- guid → armadura/acessório (EquipmentSystem)
 	equipado: { [string]: string }, -- encaixe → guid
+	transportes: { [string]: boolean }, -- transportes comuns possuídos (prancha de viagem…)
+	transportePreferido: string?,
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
@@ -37,7 +39,7 @@ local Perfil = {}
 Perfil.VERSAO = 2
 Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
-local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos" }
+local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos", "transportes" }
 
 function Perfil.novo(agora: number): Perfil
 	return {
@@ -64,6 +66,8 @@ function Perfil.novo(agora: number): Perfil
 		pontosDescobertos = {},
 		equipamentos = {},
 		equipado = {},
+		transportes = {},
+		transportePreferido = nil,
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
 		criadoEm = agora,
@@ -191,6 +195,12 @@ function Perfil.validar(p: any): (boolean, string?)
 	end
 	if type(p.equipamentos) ~= "table" or type(p.equipado) ~= "table" then
 		return false, "estrutura"
+	end
+	for _, item in p.equipamentos do
+		local m = item.melhoria
+		if m ~= nil and (type(m) ~= "number" or m < 0 or m > 10 or m ~= math.floor(m)) then
+			return false, "melhoria"
+		end
 	end
 	local usados: { [string]: boolean } = {}
 	for encaixe, guid in p.equipado do

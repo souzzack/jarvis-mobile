@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Eq = require(G.Equipamento.Equipamento)
+local Melhoria = require(G.Equipamento.Melhoria)
 local Catalogo = require(G.Config.Equipamentos)
 local Raridades = require(G.Config.Raridades)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
@@ -27,6 +28,9 @@ local playerData: any
 local combate: any
 local progressao: any
 local movimento: any
+local inventario: any
+local fabricacao: any
+local restauracao: any
 local ctxSistemas: any = nil
 local baldes: { [Player]: LimiteDeTaxa.Balde } = {}
 
@@ -35,7 +39,7 @@ local function aplicar(p: Player)
 	if not perfil then
 		return
 	end
-	local t = Eq.totais(perfil.equipado, perfil.equipamentos, Catalogo.porId, Raridades.porId)
+	local t = Eq.totais(perfil.equipado, perfil.equipamentos, Catalogo.porId, Raridades.porId, Raridades.tetoMelhoria)
 	combate.definirEquipamento(p, t.defesa, t.janelaAparar)
 	progressao.definirVidaExtra(p, t.vidaBonus)
 	movimento.definirEnergiaExtra(p, t.energiaVoo)
@@ -44,7 +48,10 @@ local function aplicar(p: Player)
 		local cfg = Catalogo.porId[item.id]
 		if cfg then
 			table.insert(itens, {
-				guid = guid, id = item.id, nome = cfg.nome, tipo = cfg.tipo, raridade = cfg.raridade,
+				guid = guid, id = item.id, nome = cfg.nome, tipo = cfg.tipo, raridade = cfg.raridade, melhoria = item.melhoria or 0,
+				proximaMelhoria = if (item.melhoria or 0) < Melhoria.MAX then {
+					custo = Melhoria.custo((item.melhoria or 0) + 1, cfg.materialDeOrigem), onde = Melhoria.onde((item.melhoria or 0) + 1),
+				} else nil,
 				atributos = cfg.atributos, efeito = cfg.efeito, encaixe = Eq.ondeEsta(perfil.equipado, guid),
 			})
 		end
@@ -84,6 +91,49 @@ local function equipar(p: Player, guid: string, encaixe: string)
 	end
 end
 
+-- melhorar +1: estação certa por perto, restauração (até +5) e materiais — consumo e nível juntos (transação)
+local function melhorar(p: Player, guid: string)
+	local perfil = playerData.obter(p)
+	local item = perfil and perfil.equipamentos[guid]
+	local cfg = item and Catalogo.porId[item.id]
+	if not perfil or not item or not cfg then
+		evento:FireClient(p, EE.REJEITADO, "naoPossui")
+		return
+	end
+	local atual = item.melhoria or 0
+	if atual >= Melhoria.MAX then
+		evento:FireClient(p, EE.REJEITADO, "melhoriaMaxima")
+		return
+	end
+	local alvo = atual + 1
+	local onde = Melhoria.onde(alvo)
+	if (fabricacao.estacoesPerto(p)[onde.estacao] or 0) < onde.nivelEstacao then
+		evento:FireClient(p, EE.REJEITADO, if onde.estacao == "Forja" then "precisaForja4" else "precisaOficina")
+		return
+	end
+	if onde.restauracao and not restauracao.restaurada(p, onde.restauracao) then
+		evento:FireClient(p, EE.REJEITADO, "precisaOficina")
+		return
+	end
+	local ok, faltando = inventario.transacao(p, {
+		consumir = Melhoria.custo(alvo, cfg.materialDeOrigem),
+		alterarPerfil = function(pf)
+			local it = pf.equipamentos[guid]
+			if not it or (it.melhoria or 0) ~= atual then
+				return false -- mudou no meio: não paga duas vezes
+			end
+			it.melhoria = alvo
+			return true
+		end,
+	})
+	if not ok then
+		evento:FireClient(p, EE.FALTA, guid, faltando)
+		return
+	end
+	evento:FireClient(p, EE.MELHOROU, cfg.nome, alvo)
+	aplicar(p)
+end
+
 local function retirar(p: Player, encaixe: string)
 	local gravou = playerData.atualizar(p, function(pf)
 		if pf.equipado[encaixe] == nil then
@@ -107,7 +157,9 @@ function EquipmentSystem.Start()
 	combate = ctxSistemas.obter("CombatSystem")
 	progressao = ctxSistemas.obter("ProgressionSystem")
 	movimento = ctxSistemas.obter("MovementSystem")
-	local inventario = ctxSistemas.obter("InventorySystem")
+	inventario = ctxSistemas.obter("InventorySystem")
+	fabricacao = ctxSistemas.obter("CraftingSystem")
+	restauracao = ctxSistemas.obter("RestorationSystem")
 	playerData.carregado.conectar(function(p: Player)
 		aplicar(p)
 	end)
@@ -137,6 +189,8 @@ function EquipmentSystem.Start()
 			equipar(p, a, b)
 		elseif tipo == EQ.RETIRAR and typeof(a) == "string" then
 			retirar(p, a)
+		elseif tipo == EQ.MELHORAR and typeof(a) == "string" and #a <= 64 then
+			melhorar(p, a)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(p)

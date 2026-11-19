@@ -142,7 +142,12 @@ local function desligarFisica()
 	end
 end
 
+local preferido: string? = nil -- escolhido na tela de transportes (Asas, Voo mágico ou Prancha de viagem)
+
 local function perfilVoo(): string?
+	if preferido then
+		return preferido
+	end
 	if habilidades["AsasNaturais"] then
 		return "AsasNaturais"
 	elseif habilidades["VooMagico"] then
@@ -424,6 +429,12 @@ end
 function ControleDeLocomocao.perfil(): any
 	return perfil
 end
+-- a tela de transportes informa o preferido (só se estiver disponível)
+function ControleDeLocomocao.definirPreferido(id: string?)
+	preferido = id
+	atualizarToque()
+end
+
 function ControleDeLocomocao.definirMontariaVoadora(v: boolean)
 	montariaVoadora = v
 	atualizarToque()

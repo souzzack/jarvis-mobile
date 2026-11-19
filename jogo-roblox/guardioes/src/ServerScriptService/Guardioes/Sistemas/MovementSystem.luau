@@ -42,6 +42,8 @@ perfis[Secreto.perfil.id] = Secreto.perfil
 
 -- perfis que o jogador ativa direto por intenção (os outros só via artefato/montaria, chamados pelo servidor)
 local ACESSO_DIRETO: { [string]: string } = { VooMagico = "VooMagico", AsasNaturais = "AsasNaturais", Planador = "Planador" }
+-- acesso por POSSE (transportes comuns): perfilId → fn(p) → boolean (registrado pelo TransportSystem)
+local acessoPorPosse: { [string]: (Player) -> boolean } = {}
 
 -- a pé o servidor não confere deslocamento por padrão: o tycoon e outros sistemas antigos teleportam jogadores
 -- e mudam WalkSpeed. Ligar quando a auditoria do tycoon (docs/04, seção 6) confirmar que é seguro.
@@ -270,11 +272,16 @@ local function aoReceber(p: Player, tipo: any, a: any)
 			rejeitar(p, tipo, motivo)
 		end
 	elseif tipo == L.DECOLAR then
-		if typeof(a) ~= "string" or ACESSO_DIRETO[a] == nil or a == "Planador" then
+		if typeof(a) ~= "string" or (ACESSO_DIRETO[a] == nil and acessoPorPosse[a] == nil) or a == "Planador" then
 			rejeitar(p, tipo, "perfilInvalido")
 			return
 		end
-		if not habilidades.tem(p, ACESSO_DIRETO[a]) then
+		if acessoPorPosse[a] then
+			if not acessoPorPosse[a](p) then
+				rejeitar(p, tipo, "naoPossui")
+				return
+			end
+		elseif not habilidades.tem(p, ACESSO_DIRETO[a]) then
 			rejeitar(p, tipo, "naoAprendido")
 			return
 		end
@@ -415,6 +422,10 @@ local function passoJogador(p: Player, st: Estado, agora: number)
 end
 
 -- ------------------------------------------------------------------ API para outros sistemas (servidor)
+function MovementSystem.registrarAcessoPorPosse(perfilId: string, fn: (Player) -> boolean)
+	acessoPorPosse[perfilId] = fn
+end
+
 function MovementSystem.registrarPerfil(perfil: any)
 	perfis[perfil.id] = perfil
 end

@@ -216,3 +216,20 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | Q6 | Com o Elmo, aparar um pouco "atrasado" (até 0,21 s depois de começar a defender) | Ainda conta como aparo (0,18 + 0,03) |
 | Q7 | Pedir pelo console para equipar um GUID falso ou o Elmo no Corpo | "Item não encontrado" / "Esse item não vai nesse lugar" |
 | Q8 | Sair e entrar (com API) | Itens e encaixes salvos e reaplicados |
+
+## 13. Melhorias e transportes: casos e roteiro
+
+**Automáticos novos:** 6 casos em `MelhoriaTransporte.spec` (total: 156 em 24 specs).
+
+| # | Passo | Esperado |
+|---|---|---|
+| U1 | Bolsa (I) → Equipamentos → "Melhorar +1" longe das estações | "Melhorias até +5: na Oficina dos Inventores restaurada" |
+| U2 | Perto da bancada da Oficina (restaurada) com Fragmentos | Item "+1"; Fragmentos consumidos; atributos sobem um pouco |
+| U3 | Sem material suficiente | "Para melhorar falta: Fragmento de Faísca 3/8 · …" |
+| U4 | Tentar o +6 na Oficina | "Melhorias +6 a +10: na Forja da sua base, nível 4" |
+| U5 | Elmo Druida no +10 | Defesa do Elmo 15 (10 × 1,46): melhor que o +0, mas abaixo de um item Arcano equivalente |
+| T1 | J ("Transportes") | Lista com todos os meios; os indisponíveis mostram "Falta: …" (o Arco ??? não aparece) |
+| T2 | Fabricar a Prancha de viagem na Forja nível 2 (12 Fragmentos + 2 Penas de Raia) | Ela fica disponível; fabricar de novo não consome nada (já tem) |
+| T3 | "Preferir" a Prancha de viagem e apertar Espaço no ar | Decola na prancha: baixa (até 6 studs do chão), velocidade 24, gasto de 4/s, sem impulso |
+| T4 | Pedir pelo console `DECOLAR "PranchaComum"` sem possuí-la | "Item não encontrado" |
+| T5 | Sair e entrar (com API) | Prancha e preferido salvos |

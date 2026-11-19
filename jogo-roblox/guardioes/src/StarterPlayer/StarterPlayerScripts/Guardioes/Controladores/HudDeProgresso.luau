@@ -158,7 +158,20 @@ local function desenharJanela()
 		for k, v in it.atributos do
 			table.insert(partes, string.format("%s %s", k, tostring(v)))
 		end
-		texto(c, string.format("%s · %s · %s%s", it.nome, it.raridade, it.tipo, if it.encaixe then " (equipado)" else ""), UDim2.fromOffset(8, 4), UDim2.new(1, -16, 0, 16), 13)
+		texto(c, string.format("%s +%d · %s · %s%s", it.nome, it.melhoria or 0, it.raridade, it.tipo, if it.encaixe then " (equipado)" else ""), UDim2.fromOffset(8, 4), UDim2.new(1, -16, 0, 16), 13)
+		if it.proximaMelhoria then
+			local m = Instance.new("TextButton")
+			m.Position, m.Size = UDim2.new(1, -96, 0, 46), UDim2.fromOffset(88, 14)
+			m.BackgroundColor3 = Color3.fromRGB(70, 60, 40)
+			m.TextColor3 = Color3.new(1, 1, 1)
+			m.Font = Enum.Font.GothamBold
+			m.TextSize = 11
+			m.Text = string.format("Melhorar +%d", (it.melhoria or 0) + 1)
+			m.Parent = c
+			m.Activated:Connect(function()
+				evEquip:FireServer(Remotos.Equipamento.MELHORAR, it.guid)
+			end)
+		end
 		texto(c, table.concat(partes, " · ") .. (if it.efeito then " — " .. it.efeito else ""), UDim2.fromOffset(8, 20), UDim2.new(1, -110, 0, 30), 11, Color3.fromRGB(190, 200, 230))
 		local b = Instance.new("TextButton")
 		b.Position, b.Size = UDim2.new(1, -96, 0, 18), UDim2.fromOffset(88, 26)
@@ -282,6 +295,14 @@ function HudDeProgresso.Start()
 			end
 		elseif tipo == Remotos.EventoEquipamento.REJEITADO then
 			hud.aviso(require(G.Util.Mensagens).texto(a))
+		elseif tipo == Remotos.EventoEquipamento.MELHOROU then
+			hud.aviso(string.format("%s agora +%d", tostring(a), b or 0))
+		elseif tipo == Remotos.EventoEquipamento.FALTA and typeof(b) == "table" then
+			local partes = {}
+			for _, f in b do
+				table.insert(partes, string.format("%s %d/%d", nomeMaterial(f.id), f.tem or 0, f.precisa or 0))
+			end
+			hud.aviso("Para melhorar falta: " .. table.concat(partes, " · "))
 		end
 	end)
 	evArtefato.OnClientEvent:Connect(function(tipo: number, a: any, b: any)

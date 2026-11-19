@@ -148,9 +148,17 @@ Remotos.EventoEspecial = {
 	EFEITO = 4, -- (userId, tipo) para todos: brilho no personagem
 }
 -- equipamentos (armaduras e acessórios)
-Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe)
+Remotos.Equipamento = { EQUIPAR = 1, RETIRAR = 2, MELHORAR = 3 } -- EQUIPAR: (guid, encaixe); RETIRAR: (encaixe); MELHORAR: (guid)
 Remotos.EventoEquipamento = {
-	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, atributos, efeito, encaixe? }, totais)
+	LISTA = 1, -- (itens { guid, id, nome, tipo, raridade, melhoria, proximaMelhoria, atributos, efeito, encaixe? }, totais)
+	REJEITADO = 2, -- (motivo)
+	MELHOROU = 3, -- (nome, nivel)
+	FALTA = 4, -- (guid, lista do que falta)
+}
+-- transportes (tela de gerenciamento)
+Remotos.Transporte = { LISTAR = 1, PREFERIR = 2 } -- PREFERIR: (transporteId)
+Remotos.EventoTransporte = {
+	LISTA = 1, -- (lista { id, nome, tipo, disponivel, requisito, preferivel, velMax, custo, impulso }, preferido?)
 	REJEITADO = 2, -- (motivo)
 }
 -- raça
@@ -161,7 +169,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte" }
 
 local pasta: Folder? = nil
 

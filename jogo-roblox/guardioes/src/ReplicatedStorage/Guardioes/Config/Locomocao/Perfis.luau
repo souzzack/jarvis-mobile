@@ -64,6 +64,14 @@ local lista: { Perfil } = {
 		decolagem = 0.35, pouso = 0.3, efeito = "Vento",
 	},
 	{
+		-- prancha COMUM de transporte (não é artefato): flutua baixo, lenta, barata; sem impulso
+		id = "PranchaComum", nome = "Prancha de viagem", tipo = "Plataforma",
+		velMax = 24, velImpulso = 0, aceleracao = 22, desaceleracao = 26, velVerticalMax = 6, acelVertical = 14,
+		alturaMaxSobreSolo = 6,
+		inclinacaoMax = 18, fatorInclinacao = 0.3, custoPorSeg = 4, custoPairarPorSeg = 2, custoImpulsoPorSeg = 0,
+		decolagem = 0.3, pouso = 0.25, efeito = "Vento",
+	},
+	{
 		id = "Planador", nome = "Planador", tipo = "Planador",
 		velMax = 30, velImpulso = 0, velMin = 14, aceleracao = 10, desaceleracao = 8, velVerticalMax = 24, acelVertical = 14,
 		afundamento = 6, taxaGiro = 90,

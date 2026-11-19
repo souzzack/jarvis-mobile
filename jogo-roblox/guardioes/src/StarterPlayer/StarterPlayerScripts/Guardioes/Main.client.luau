@@ -21,6 +21,7 @@ local ORDEM = {
 	"JanelaDeViagem", -- viagem rápida (M) e avisos da base pessoal
 	"ControleDeEspecial", -- habilidade especial da arma/escudo (1 / R1 / toque)
 	"JanelaDoPersonagem", -- raça, habilidades aprendidas e livros (P)
+	"JanelaDeTransportes", -- transportes disponíveis, requisitos e preferido (J)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

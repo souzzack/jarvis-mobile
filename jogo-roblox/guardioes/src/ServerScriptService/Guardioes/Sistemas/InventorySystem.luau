@@ -29,6 +29,10 @@ local evento: RemoteEvent
 local playerData: any
 local ctxSistemas: any = nil
 
+local function temTransporte(perfil: any, id: string): boolean
+	return perfil.transportes ~= nil and perfil.transportes[id] == true
+end
+
 local function bolsaSalva(p: Player): Bolsa.Bolsa
 	local perfil = playerData.obter(p)
 	if not perfil then
@@ -128,7 +132,7 @@ end
 
 -- Transação atômica: consome materiais, (opcional) muda o estágio de um artefato e (opcional) ENTREGA
 -- materiais / um artefato novo — tudo na mesma gravação. (ok, faltando)
-function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number }?, artefato: string?, estagio: number?, darMateriais: { [string]: number }?, darArtefato: { id: string, estagio: number }?, darEquipamento: string?, alterarPerfil: ((any) -> boolean?)? }): (boolean, { any })
+function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number }?, artefato: string?, estagio: number?, darMateriais: { [string]: number }?, darArtefato: { id: string, estagio: number }?, darEquipamento: string?, darTransporte: string?, alterarPerfil: ((any) -> boolean?)? }): (boolean, { any })
 	local bs = bolsas(p)
 	local okPlano, plano, faltando = Bolsa.planejarConsumo(bs, t.consumir or {})
 	if not okPlano then
@@ -155,6 +159,12 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 		end
 		if t.darArtefato then
 			perfil.artefatos[HttpService:GenerateGUID(false)] = { id = t.darArtefato.id, estagio = t.darArtefato.estagio }
+		end
+		if t.darTransporte then
+			if temTransporte(perfil, t.darTransporte) then
+				return false -- já tem: não consome materiais à toa
+			end
+			perfil.transportes[t.darTransporte] = true
 		end
 		if t.darEquipamento then
 			perfil.equipamentos[HttpService:GenerateGUID(false)] = { id = t.darEquipamento }

@@ -69,6 +69,7 @@ return function()
 		Espectro = require(G.Chefes.Espectro),
 		Equipamento = require(G.Equipamento.Equipamento),
 		Equipamentos = require(G.Config.Equipamentos),
+		Melhoria = require(G.Equipamento.Melhoria),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

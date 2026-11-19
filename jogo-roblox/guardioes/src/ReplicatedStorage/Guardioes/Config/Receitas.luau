@@ -34,6 +34,11 @@ local lista = {
 		materiais = { CoracaoDaTormenta = 1, PenaDoRelampagoAntigo = 2, GlandulaDeBobinaViva = 2, JubaEstatica = 2 },
 		resultado = { tipo = "artefato", id = "EspadaDoHorizonte", estagio = 1 },
 	},
+	-- transporte comum (Forja nível 2)
+	{
+		id = "PranchaDeViagem", nome = "Prancha de viagem", estacao = "Forja", estacaoNivel = 2, conhecidaDesdeInicio = true, requisitos = {},
+		materiais = { FragmentoDeFaisca = 12, PenaDeRaia = 2 }, resultado = { tipo = "transporte", id = "PranchaComum" },
+	},
 	-- equipamentos comuns (Forja nível 1)
 	{
 		id = "CapuzDeViajante", nome = "Capuz de Viajante", estacao = "Forja", estacaoNivel = 1, conhecidaDesdeInicio = true, requisitos = {},
