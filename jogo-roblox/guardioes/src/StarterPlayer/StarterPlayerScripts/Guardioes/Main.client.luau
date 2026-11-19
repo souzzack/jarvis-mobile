@@ -22,6 +22,7 @@ local ORDEM = {
 	"ControleDeEspecial", -- habilidade especial da arma/escudo (1 / R1 / toque)
 	"JanelaDoPersonagem", -- raça, habilidades aprendidas e livros (P)
 	"JanelaDeTransportes", -- transportes disponíveis, requisitos e preferido (J)
+	"JanelaDaCompanhia", -- companhia (guilda): membros, cofre, registro (U)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

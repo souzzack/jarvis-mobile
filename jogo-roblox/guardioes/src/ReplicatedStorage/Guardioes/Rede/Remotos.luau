@@ -161,6 +161,30 @@ Remotos.EventoTransporte = {
 	LISTA = 1, -- (lista { id, nome, tipo, disponivel, requisito, preferivel, velMax, custo, impulso }, preferido?)
 	REJEITADO = 2, -- (motivo)
 }
+-- companhias (guildas de jogadores; ≠ companheiros). Toda ação é validada no servidor contra o cargo.
+Remotos.Companhia = {
+	VER = 1,
+	CRIAR = 2, -- (nome, { forma, cor, simbolo })
+	CONVIDAR = 3, -- (userId) só jogadores neste servidor
+	ACEITAR = 4, -- (companhiaId)
+	SAIR = 5,
+	EXPULSAR = 6, -- (userId)
+	CARGO = 7, -- (userId, cargo)
+	DEPOSITAR = 8, -- (material, qtd)
+	RETIRAR = 9, -- (material, qtd)
+	MARCAR = 10, -- (material, "livre" | "travado" | "normal")
+	TRANSFERIR = 11, -- (userId)
+	CANCELAR_TRANSFERENCIA = 12,
+	DISSOLVER = 13, -- pedir (1ª) e confirmar (2ª)
+	CANCELAR_DISSOLUCAO = 14,
+	RECUSAR = 15, -- (companhiaId)
+}
+Remotos.EventoCompanhia = {
+	ESTADO = 1, -- (visao | nil) visão pública da companhia para o membro
+	CONVITE = 2, -- (companhiaId, nome, emblema, quemConvidou)
+	REJEITADO = 3, -- (motivo)
+	AVISO = 4, -- (texto) "Dissolução agendada", "Você virou líder"…
+}
 -- raça
 Remotos.Raca = { ESCOLHER = 1 } -- (racaId)
 Remotos.EventoRaca = {
@@ -169,7 +193,7 @@ Remotos.EventoRaca = {
 	REJEITADO = 3, -- (motivo)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao", "Fabricacao", "Restauracao", "Chefe", "Base", "Viagem", "Especial", "Raca", "Equipamento", "Transporte", "Companhia" }
 
 local pasta: Folder? = nil
 

@@ -70,6 +70,7 @@ return function()
 		Equipamento = require(G.Equipamento.Equipamento),
 		Equipamentos = require(G.Config.Equipamentos),
 		Melhoria = require(G.Equipamento.Melhoria),
+		Companhia = require(G.Companhias.Companhia),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

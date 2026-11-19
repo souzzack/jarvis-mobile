@@ -56,6 +56,26 @@ local TEXTOS: { [string]: string } = {
 	precisaRitual = "Trocar a afinidade exige o Ritual de Realinhamento",
 	indisponivel = "Esta afinidade ainda não está disponível",
 	especieIncompativel = "Esta espécie não desenvolve essa afinidade",
+	-- companhias
+	semPermissao = "Seu cargo não permite isso",
+	jaMembro = "Já faz parte de uma companhia",
+	companhiaCheia = "A companhia está cheia",
+	semConvite = "Convite inexistente ou expirado",
+	dissolvida = "Esta companhia foi dissolvida",
+	naoMembro = "Não é membro da companhia",
+	liderNaoSai = "Transfira a liderança ou dissolva a companhia antes de sair",
+	cargoInvalido = "Cargo inválido",
+	quantidade = "Quantidade inválida",
+	semItem = "Nada disponível desse material para o seu cargo",
+	limiteDiario = "Limite diário de retirada atingido",
+	nomeInvalido = "Nome inválido (3 a 20 letras, sem símbolos especiais)",
+	nomeFiltrado = "Esse nome não é permitido",
+	nomeEmUso = "Já existe uma companhia com esse nome",
+	emblemaInvalido = "Emblema inválido",
+	semCompanhia = "Você não está em uma companhia",
+	jaAgendada = "A dissolução já está agendada",
+	gravacao = "Não foi possível salvar agora; tente de novo",
+	ocupado = "Aguarde a ação anterior terminar",
 }
 
 local Mensagens = {}

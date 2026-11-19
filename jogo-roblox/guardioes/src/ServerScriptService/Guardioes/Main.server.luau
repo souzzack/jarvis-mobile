@@ -31,6 +31,7 @@ local ORDEM = {
 	"DimensionSystem", -- viagem rápida (pontos descobertos e a própria base)
 	"LootSystem", -- saque pessoal com proteção contra azar
 	"QuestSystem", -- missões por eventos (usa quase todos os anteriores)
+	"CompanySystem", -- companhias (guildas de jogadores): cofre, cargos, convites
 }
 
 local carregados: { [string]: Sistema } = {}

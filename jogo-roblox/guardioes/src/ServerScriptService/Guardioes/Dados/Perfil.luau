@@ -28,6 +28,7 @@ export type Perfil = {
 	equipado: { [string]: string }, -- encaixe → guid
 	transportes: { [string]: boolean }, -- transportes comuns possuídos (prancha de viagem…)
 	transportePreferido: string?,
+	companhia: string?, -- id da companhia (guilda); a verdade fica na store das companhias
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
@@ -68,6 +69,7 @@ function Perfil.novo(agora: number): Perfil
 		equipado = {},
 		transportes = {},
 		transportePreferido = nil,
+		companhia = nil,
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
 		criadoEm = agora,
@@ -217,6 +219,9 @@ function Perfil.validar(p: any): (boolean, string?)
 		if type(id) ~= "string" or type(n) ~= "number" or n < 1 or n > 10 or n ~= math.floor(n) then
 			return false, "base"
 		end
+	end
+	if p.companhia ~= nil and (type(p.companhia) ~= "string" or #p.companhia > 64) then
+		return false, "companhia"
 	end
 	if type(p.nivel) ~= "number" or p.nivel < 1 or p.nivel > Perfil.LIMITES.nivelMax or type(p.xp) ~= "number" or p.xp < 0 then
 		return false, "nivel"

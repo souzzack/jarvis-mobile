@@ -189,6 +189,23 @@ function InventorySystem.transacao(p: Player, t: { consumir: { [string]: number 
 	return true, {}
 end
 
+-- Tira materiais SÓ da parte salva (nunca da bolsa de teste): usado por quem leva itens para fora do perfil
+-- (cofre da companhia), para concessões de teste nunca virarem itens persistidos em outro lugar.
+function InventorySystem.retirarSalvo(p: Player, id: string, qtd: number): boolean
+	local ok = playerData.atualizar(p, function(perfil)
+		local tem = perfil.materiais[id] or 0
+		if qtd <= 0 or tem < qtd then
+			return false
+		end
+		perfil.materiais[id] = if tem == qtd then nil else tem - qtd
+		return true
+	end)
+	if ok then
+		avisar(p)
+	end
+	return ok
+end
+
 function InventorySystem.definirEquipado(p: Player, guid: string)
 	if bolsaSalva(p).artefatos[guid] then
 		playerData.atualizar(p, function(perfil)

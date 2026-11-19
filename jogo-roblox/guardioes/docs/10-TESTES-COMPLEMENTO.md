@@ -233,3 +233,32 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | T3 | "Preferir" a Prancha de viagem e apertar Espaço no ar | Decola na prancha: baixa (até 6 studs do chão), velocidade 24, gasto de 4/s, sem impulso |
 | T4 | Pedir pelo console `DECOLAR "PranchaComum"` sem possuí-la | "Item não encontrado" |
 | T5 | Sair e entrar (com API) | Prancha e preferido salvos |
+
+## 14. Companhias (guildas de jogadores): casos e roteiro
+
+**Automáticos novos:** 12 casos em `Companhia.spec` (total: 168 em 25 specs).
+
+Os roteiros abaixo pedem **dois jogadores** (Test → Clients and Servers → 2 Players). Os passos com "com API" precisam do acesso a DataStore ligado no place de teste.
+
+| # | Passo | Esperado |
+|---|---|---|
+| K1 | Jogador 1: U → nome "Vigias", escolher emblema → Criar | Painel mostra "Vigias", nível 1, cargo Lider; registro "criou" |
+| K2 | Criar outra com o mesmo nome (outro jogador) | "Já existe uma companhia com esse nome" |
+| K3 | Nome "ab" ou com `<` | "Nome inválido…"; um nome bloqueado pelo filtro do Roblox → "Esse nome não é permitido" |
+| K4 | Pelo console, convidar o jogador 2 (`CONVIDAR, userId`) | Jogador 2 recebe o aviso "Convite para a companhia Vigias (U)"; no painel, Aceitar/Recusar |
+| K5 | Jogador 2 aceita | Entra como **Recruta**; os dois painéis mostram 2 membros |
+| K6 | Jogador 2 (Recruta) deposita 10 Fragmentos | Saem da bolsa dele; o cofre mostra ×10. "Retirar" não aparece para ele |
+| K7 | Com concessões de teste ligadas, depositar um material que só existe na bolsa de teste | "Item não encontrado no inventário" (teste nunca entra no cofre) |
+| K8 | Líder promove o 2 a Membro; o Membro tenta retirar | "Nada disponível desse material para o seu cargo" |
+| K9 | Líder marca o material como livre (→ livre); o Membro retira 10, depois mais 10, depois mais 1 | 20 no total; a terceira dá "Limite diário de retirada atingido" |
+| K10 | Líder marca como travado; promove o 2 a Oficial; o Oficial tenta retirar | Recusado; o líder retira normalmente |
+| K11 | Líder expulsa o jogador 2 depois de ele depositar 5 | 2 recebe "Você saiu da companhia. Seus depósitos voltaram para você." e os 5 na bolsa |
+| K12 | Expulsar alguém que está offline (com API) | Ao entrar, o campo de companhia some e os depósitos chegam na bolsa |
+| K13 | Líder → "Líder" em um membro | Painel: "Liderança passa para … em 48 h"; "Cancelar T." desfaz |
+| K14 | Mudar `TRANSFERENCIA_SEG` para 30 numa cópia de teste e esperar o ciclo (60 s) | O membro vira Lider; o antigo vira Oficial; aviso para os dois |
+| K15 | Líder → Dissolver | "Confirme a dissolução: aperte de novo." → "Confirmar" → "Dissolução agendada para daqui a 72 h" |
+| K16 | Com `DISSOLUCAO_SEG` curto (cópia de teste) | Todos recebem "A companhia … foi dissolvida…"; cada um recebe de volta só o que depositou; o nome fica livre |
+| K17 | Derrotar um miniboss com os dois membros contribuindo | XP da companhia +240 (120 por membro elegível) |
+| K18 | Apertar várias ações seguidas muito rápido | Algumas recusadas com "Aguarde a ação anterior terminar" (uma ação por vez por jogador) |
+| K19 | Bolsa cheia (9999) e retirar | "Bolsa cheia: N ficaram guardados para você."; entregues ao abrir espaço e entrar de novo |
+| K20 | Dois servidores (com API, publicado em teste privado) | Mudanças feitas num servidor aparecem no outro em até 60 s |

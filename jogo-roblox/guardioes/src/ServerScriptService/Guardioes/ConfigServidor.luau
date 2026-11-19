@@ -52,6 +52,12 @@ local ConfigServidor = {
 		travaSeg = 300, -- trava de sessão: outro servidor só assume depois disso (ou quando esta for liberada)
 		tentativasCarregar = 5,
 	},
+	-- companhias (guildas): store própria; o perfil guarda só o id
+	companhias = {
+		nomeStore = "Guardioes_Companhias_v1",
+		xpPorChefe = 120, -- por membro que contribuiu (≥ mínimo de contribuição do saque)
+		cicloSeg = 60, -- relê as companhias com membros online (prazos e mudanças de outros servidores)
+	},
 	-- marcadores de TESTE perto da arena (os mapas reais não são tocados; no mapa real, Parts com os mesmos
 	-- atributos nas pastas GuardioesEstacoes / GuardioesEstruturas / GuardioesChefes)
 	marcadoresDeTeste = {
