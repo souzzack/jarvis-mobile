@@ -68,14 +68,13 @@ local TEXTOS: { [string]: string } = {
 	quantidade = "Quantidade inválida",
 	semItem = "Nada disponível desse material para o seu cargo",
 	limiteDiario = "Limite diário de retirada atingido",
-	nomeInvalido = "Nome inválido (3 a 20 letras, sem símbolos especiais)",
-	nomeFiltrado = "Esse nome não é permitido",
+	nomeCompanhiaInvalido = "Nome inválido (3 a 20 letras, sem símbolos especiais)",
 	nomeEmUso = "Já existe uma companhia com esse nome",
 	emblemaInvalido = "Emblema inválido",
 	semCompanhia = "Você não está em uma companhia",
 	jaAgendada = "A dissolução já está agendada",
 	gravacao = "Não foi possível salvar agora; tente de novo",
-	ocupado = "Aguarde a ação anterior terminar",
+	companhiaOcupada = "Aguarde a ação anterior terminar",
 }
 
 local Mensagens = {}

@@ -317,7 +317,7 @@ end
 -- ------------------------------------------------------------------ pedidos do cliente
 local function nomeAprovado(p: Player, nome: string): (boolean, string)
 	if not Companhia.nomeValido(nome) then
-		return false, "nomeInvalido"
+		return false, "nomeCompanhiaInvalido"
 	end
 	local ok, filtrado = pcall(function()
 		local r = TextService:FilterStringAsync(nome, p.UserId, Enum.TextFilterContext.PublicChat)
@@ -341,7 +341,7 @@ local function criar(p: Player, nome: any, emblema: any): string
 		return "jaMembro"
 	end
 	if typeof(nome) ~= "string" then
-		return "nomeInvalido"
+		return "nomeCompanhiaInvalido"
 	end
 	if not Companhia.emblemaValido(emblema) then
 		return "emblemaInvalido"
@@ -634,7 +634,7 @@ function CompanySystem.Start()
 			return
 		end
 		if ocupado[p] then
-			evento:FireClient(p, EV.REJEITADO, "ocupado")
+			evento:FireClient(p, EV.REJEITADO, "companhiaOcupada")
 			return
 		end
 		ocupado[p] = true -- uma ação por vez por jogador (depósitos/retiradas nunca se cruzam)
