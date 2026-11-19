@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Investigacao = require(G.MysterySystems.Investigacao)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
+local Requisitos = require(G.Util.Requisitos)
 local Remotos = require(G.Rede.Remotos)
 local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
 
@@ -73,9 +74,21 @@ function MysterySystem.Start()
 			evento:FireClient(p, EM.DESCOBERTA, nome)
 			enviarDiario(p)
 		end,
-		enigma = function(p: Player, marcaId: string, resultado: string, motivo: string?)
-			-- só o resultado (certo/errado/completo); nunca a ordem
-			evento:FireClient(p, EM.ENIGMA, marcaId, resultado, motivo)
+		-- progresso para Requisitos (restaurações, missões…), com o progresso FINGIDO só da arena de teste
+		progressoRequisitos = function(p: Player, perfil: any): any
+			local base = {
+				missoes = perfil.missoes, restauracoes = perfil.restauracoes, segredos = perfil.segredos,
+				dimensoes = perfil.dimensoes, enigmas = perfil.enigmas, livros = perfil.livrosLidos, habilidades = perfil.habilidades,
+			}
+			local teste = ConfigServidor.concessoesDeTeste
+			if teste and teste.ativa and teste.progressoLivros then
+				return Requisitos.unir(base, teste.progressoLivros)
+			end
+			return Requisitos.unir(base)
+		end,
+		enigma = function(p: Player, marcaId: string, resultado: string, motivo: string?, info: string?)
+			-- só o resultado (certo/errado/completo) e o texto curto; nunca a ordem
+			evento:FireClient(p, EM.ENIGMA, marcaId, resultado, motivo, info)
 			if resultado == "completo" then
 				enviarDiario(p)
 			end

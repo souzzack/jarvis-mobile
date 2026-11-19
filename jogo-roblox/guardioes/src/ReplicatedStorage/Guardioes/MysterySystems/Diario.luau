@@ -21,10 +21,11 @@ function D.montar(prog: any, cfgs: any, textoDaPista: (string, string, any) -> s
 		if p and p.estado ~= "Undiscovered" then
 			local cap = cfg.capitulos[p.capitulo]
 			local pistas = {}
-			for _, c in cfg.capitulos do
+			for nCap, c in cfg.capitulos do
 				for pistaId, pc in c.pistas or {} do
 					if p.pistas[pistaId] then
-						table.insert(pistas, { nome = pc.nome, texto = textoDaPista(invId, pistaId, pc), ordem = pc.ordem or 0 })
+						-- em ordem de capítulo e depois de pista; o texto vem preenchido pelo servidor
+						table.insert(pistas, { nome = pc.nome, texto = textoDaPista(invId, pistaId, pc), ordem = nCap * 100 + (pc.ordem or 0), capitulo = nCap })
 					end
 				end
 			end

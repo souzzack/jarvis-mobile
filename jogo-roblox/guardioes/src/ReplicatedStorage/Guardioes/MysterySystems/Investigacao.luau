@@ -99,7 +99,7 @@ function I.recalcular(p: Progresso, cfg: any): string
 	end
 	if not faltamPistas and faltamFinais then
 		p.estado = "ReadyToSolve"
-	elseif algumaPista then
+	elseif algumaPista or next(p.capitulosConcluidos) ~= nil then -- já avançou na história: segue investigando
 		p.estado = "Investigating"
 	else
 		p.estado = "Discovered"

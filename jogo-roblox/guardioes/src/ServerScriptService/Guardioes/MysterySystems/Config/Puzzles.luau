@@ -13,6 +13,24 @@ return {
 		ordem = "semente",
 		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "OSinal" },
 	},
+	-- capítulo 2: três cristais giram entre 4 direções; o alvo de cada um sai da semente e está nos símbolos
+	OlhosDoVigia = {
+		tipo = "Alinhamento", escopo = "individual", raio = 10, posicoes = 4,
+		elementos = { "OlhoEsquerdo", "OlhoCentro", "OlhoDireito" },
+		nomes = { OlhoEsquerdo = "cristal da esquerda", OlhoCentro = "cristal do centro", OlhoDireito = "cristal da direita" },
+		nomesPosicoes = { "norte", "leste", "sul", "oeste" },
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "OlhosDoVigia" },
+	},
+	-- capítulo 3: sequência; as torres só respondem com a Torre Meteorológica restaurada
+	TresTorres = {
+		tipo = "Sequencia", escopo = "individual", raio = 10,
+		elementos = { "TorreVento", "TorreRaio", "TorreMare" },
+		nomes = { TorreVento = "vento", TorreRaio = "raio", TorreMare = "maré" },
+		ordem = "semente",
+		requisitos = { restauracoes = { "TorreMeteorologica" } },
+		semRequisito = "As torres estão sem energia. Talvez outra torre precise acordar antes.",
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "TresTorres" },
+	},
 	-- EXEMPLOS de cada tipo (configs válidas, testadas no spec; ainda sem lugar no mapa)
 	ExemploAlinhamento = { tipo = "Alinhamento", escopo = "individual", raio = 10, elementos = { "EspelhoA", "EspelhoB", "EspelhoC" }, posicoes = 4 },
 	ExemploColeta = { tipo = "Coleta", escopo = "individual", raio = 10, itens = { "Pagina1", "Pagina2", "Pagina3" } },

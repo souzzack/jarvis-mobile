@@ -68,6 +68,27 @@ return function(T, M)
 		T.igual(ultimo, "completo")
 	end)
 
+	T.caso("capítulos 2 e 3: cristais do Vigia e torres com requisito de restauração", function()
+		local olhos = P.OlhosDoVigia
+		T.igual(#olhos.nomesPosicoes, olhos.posicoes, "um nome por direção")
+		for _, el in olhos.elementos do
+			T.verdade(olhos.nomes[el] ~= nil, el)
+		end
+		local st = E.novo(olhos, 99)
+		for _, el in olhos.elementos do
+			while st.pos[el] ~= st.alvo[el] do
+				E.agir(st, olhos, { elemento = el })
+			end
+		end
+		T.verdade(st.resolvido)
+		local torres = P.TresTorres
+		T.verdade(torres.requisitos.restauracoes[1] == "TorreMeteorologica", "integração com a Restauração")
+		T.verdade(type(torres.semRequisito) == "string")
+		for _, el in torres.elementos do
+			T.verdade(torres.nomes[el] ~= nil, el)
+		end
+	end)
+
 	T.caso("Coleta, Exploracao e Interdimensional", function()
 		local c = P.ExemploColeta
 		local st = E.novo(c, 0)

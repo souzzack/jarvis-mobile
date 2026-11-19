@@ -212,7 +212,7 @@ Remotos.EventoMisterio = {
 	DIARIO = 1, -- (visão do diário: só o que o jogador descobriu)
 	AVISO = 2, -- (texto)
 	DESCOBERTA = 3, -- (nome) pista, portal…
-	ENIGMA = 4, -- (marcaId, "certo" | "errado" | "completo" | "semEfeito" | "invalida", motivo?)
+	ENIGMA = 4, -- (marcaId, "certo" | "errado" | "completo" | "semEfeito" | "invalida", motivo?, textoCurto?)
 	REACAO = 5, -- (posição, animação) a criatura ativa reagiu a algo escondido
 	REJEITADO = 6, -- (motivo, faltando?)
 }

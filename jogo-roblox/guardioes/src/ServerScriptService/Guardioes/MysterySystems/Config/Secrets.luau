@@ -17,6 +17,17 @@ return {
 		MarcoCobre = { tipo = "enigma", puzzle = "OSinal", elemento = "Cobre", acao = "Tocar" },
 		MarcoCristal = { tipo = "enigma", puzzle = "OSinal", elemento = "Cristal", acao = "Tocar" },
 		PortaSemMoldura = { tipo = "portal", portal = "PortaDaBiblioteca", acao = "Examinar" },
+		-- capítulos 2 e 3. Uma marca pode ter uma pista POR CAPÍTULO (o Vigia acorda no 2 e canta no 3)
+		MarcaVigia = { tipo = "pista", investigacao = INV, pistas = { "VigiaDesperto", "CantigaDoVigia" }, acao = "Aproximar" },
+		MarcaSimboloVigiaA = { tipo = "pista", investigacao = INV, pista = "SimboloDoVigiaA", acao = "Examinar" },
+		MarcaSimboloVigiaB = { tipo = "pista", investigacao = INV, pista = "SimboloDoVigiaB", acao = "Examinar" },
+		OlhoEsquerdo = { tipo = "enigma", puzzle = "OlhosDoVigia", elemento = "OlhoEsquerdo", acao = "Girar" },
+		OlhoCentro = { tipo = "enigma", puzzle = "OlhosDoVigia", elemento = "OlhoCentro", acao = "Girar" },
+		OlhoDireito = { tipo = "enigma", puzzle = "OlhosDoVigia", elemento = "OlhoDireito", acao = "Girar" },
+		PlacaDasTorres = { tipo = "pista", investigacao = INV, pista = "PlacaDasTorres", acao = "Ler" },
+		TorreVento = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreVento", acao = "Acordar" },
+		TorreRaio = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreRaio", acao = "Acordar" },
+		TorreMare = { tipo = "enigma", puzzle = "TresTorres", elemento = "TorreMare", acao = "Acordar" },
 	},
 
 	-- HABILIDADES INVESTIGATIVAS (seção 9): interface única; cada uma tem VÁRIAS fontes, para nenhuma espécie,
@@ -39,6 +50,12 @@ return {
 			nome = "Ressonância dimensional", alcance = 12, recarga = 0, animacao = "Vibrar", efeito = "OndaDimensional",
 			fontes = { companheiro = { "ContemplacaoCeleste" }, equipamentos = { "LascaDaSetimaEstrela" }, livros = { "CodiceDaLeveza" } },
 		},
+		-- capítulo 2: o Vigia de Cristal acordado mostra os símbolos (fonte "pistas"); alternativas: habilidade de
+		-- criatura (Faro de Cristal, Trilha Escondida) ou o Grimório dos Céus
+		OlharDoVigia = {
+			nome = "Olhar do Vigia", alcance = 16, recarga = 0, animacao = "OlharFixo", efeito = "BrilhoCristal",
+			fontes = { pistas = { "VigiaDesperto" }, companheiro = { "FaroDeCristal", "TrilhaEscondida" }, livros = { "GrimorioDosCeus" } },
+		},
 		LigacaoNatural = {
 			nome = "Ligação natural", alcance = 16, recarga = 0, animacao = "Escutar", efeito = "FolhasGirando",
 			fontes = { companheiro = { "SentirCorrente", "Sopro" }, livros = { "CodiceDaLeveza" } },
@@ -54,6 +71,17 @@ return {
 			receitas = { "TintaDoArquivista" },
 			xp = 150,
 		},
+		RecCap2_Vigia = {
+			materiais = { FolhaDeRegistro = 1 },
+			registros = { "Arq02_OVigia" },
+			conhecimentos = { "VozDosCristais" },
+			xp = 200,
+		},
+		RecCap3_Torres = {
+			materiais = { FolhaDeRegistro = 2, NucleoDeTempestade = 1 },
+			registros = { "Arq03_AsTorres" },
+			xp = 250,
+		},
 	},
 
 	-- REGISTROS (lore). categoria: RegistroAntigo | ConhecimentoProibido | FragmentoDesconhecido (docs/lore)
@@ -62,8 +90,17 @@ return {
 			titulo = "Registro do Arquivista A. (fragmento 1)", categoria = "RegistroAntigo",
 			texto = "\"Os marcos ainda respondem. A ilha guarda a voz do Atlas como uma concha guarda o mar. Os outros acham que é superstição. Vou anotar tudo, para o caso de eu não voltar.\"",
 		},
+		Arq02_OVigia = {
+			titulo = "Registro do Arquivista A. (fragmento 2)", categoria = "RegistroAntigo",
+			texto = "\"O Vigia não é um guarda. É uma testemunha. Pedi que dormisse até alguém voltar com perguntas melhores que as minhas.\"",
+		},
+		Arq03_AsTorres = {
+			titulo = "Registro do Arquivista A. (fragmento 3)", categoria = "ConhecimentoProibido",
+			texto = "\"Três torres, três vozes. Juntas, abrem uma fechadura que não está nesta ilha. Os outros Arquivistas votaram por esconder isto. Eu anotei mesmo assim.\"",
+		},
 	},
 	conhecimentos = {
+		VozDosCristais = { nome = "A voz dos cristais", texto = "Alguns cristais da ilha guardam direções, como uma bússola que se lembra." },
 		LeituraDeSinais = { nome = "Leitura de sinais", texto = "Você aprendeu a reconhecer os sinais que os Arquivistas deixavam em pedra." },
 	},
 

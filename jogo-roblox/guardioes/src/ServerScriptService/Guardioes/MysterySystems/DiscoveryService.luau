@@ -50,6 +50,14 @@ function S.temCapacidade(p: Player, capId: string, posicao: Vector3?): (boolean,
 			return true, "livro"
 		end
 	end
+	-- pista já encontrada (ex.: o Vigia de Cristal acordado passa a mostrar os símbolos)
+	for _, pistaId in f.pistas or {} do
+		for _, prog in perfil.misterios.investigacoes do
+			if prog.pistas[pistaId] then
+				return true, "pista"
+			end
+		end
+	end
 	for _, guid in perfil.equipado do
 		local it = perfil.equipamentos[guid]
 		if it and table.find(f.equipamentos or {}, it.id) then
@@ -113,13 +121,20 @@ local function interagir(p: Player, marcaId: string, parte: BasePart)
 		return
 	end
 	if m.tipo == "pista" then
-		local inv = deps.registro.investigacao(m.investigacao)
-		local pc
-		for _, cap in inv.capitulos do
-			if cap.pistas[m.pista] then
-				pc = cap.pistas[m.pista]
+		-- marca com uma pista por capítulo: vale a do capítulo em que o jogador está (senão, a primeira)
+		local pistaId = m.pista
+		if m.pistas then
+			local perfil = deps.playerData.obter(p)
+			local prog = perfil and perfil.misterios.investigacoes[m.investigacao]
+			pistaId = m.pistas[1]
+			for _, id in m.pistas do
+				local _, n = deps.registro.pista(m.investigacao, id)
+				if prog and n == prog.capitulo and not prog.pistas[id] then
+					pistaId = id
+				end
 			end
 		end
+		local pc = deps.registro.pista(m.investigacao, pistaId)
 		if pc.capacidade then
 			local tem = S.temCapacidade(p, pc.capacidade, parte.Position)
 			if not tem then
@@ -127,7 +142,7 @@ local function interagir(p: Player, marcaId: string, parte: BasePart)
 				return
 			end
 		end
-		local ok, motivo = deps.investigacoes.registrarPista(p, m.investigacao, m.pista)
+		local ok, motivo = deps.investigacoes.registrarPista(p, m.investigacao, pistaId)
 		if ok then
 			deps.descobriu(p, pc.nome)
 		elseif motivo == "jaRegistrada" then
@@ -143,8 +158,8 @@ local function interagir(p: Player, marcaId: string, parte: BasePart)
 		if pz.capacidade then
 			ctx.capacidades[pz.capacidade] = S.temCapacidade(p, pz.capacidade, parte.Position)
 		end
-		local resultado, motivo = deps.puzzles.agir(p, m.puzzle, m.elemento, ctx)
-		deps.enigma(p, marcaId, resultado, motivo)
+		local resultado, motivo, info = deps.puzzles.agir(p, m.puzzle, m.elemento, ctx)
+		deps.enigma(p, marcaId, resultado, motivo, info)
 	elseif m.tipo == "portal" then
 		deps.portais.examinar(p, m.portal)
 	end
@@ -189,6 +204,18 @@ local function salaDeTeste(cfgTeste: any, centro: Vector3)
 	bloco("MarcoCobre", Vector3.new(0, 2, 14), Vector3.new(2, 4, 2), "#B87333")
 	bloco("MarcoCristal", Vector3.new(8, 2, 14), Vector3.new(2, 4, 2), "#9FE8FF")
 	bloco("PortaSemMoldura", Vector3.new(0, 4, 26), Vector3.new(6, 8, 0.4), "#2A2440")
+	-- capítulo 2: o Vigia de Cristal (bloco neutro no lugar de um modelo), dois símbolos e três cristais
+	bloco("MarcaVigia", Vector3.new(-24, 1.5, 0), Vector3.new(3, 3, 3), "#7FD8E8")
+	bloco("MarcaSimboloVigiaA", Vector3.new(-30, 2, 6), Vector3.new(3, 3, 0.4), "#6E6A63")
+	bloco("MarcaSimboloVigiaB", Vector3.new(-18, 2, 6), Vector3.new(3, 3, 0.4), "#6E6A63")
+	bloco("OlhoEsquerdo", Vector3.new(-30, 1.5, 14), Vector3.new(1.6, 3, 1.6), "#A8F0FF")
+	bloco("OlhoCentro", Vector3.new(-24, 1.5, 14), Vector3.new(1.6, 3, 1.6), "#A8F0FF")
+	bloco("OlhoDireito", Vector3.new(-18, 1.5, 14), Vector3.new(1.6, 3, 1.6), "#A8F0FF")
+	-- capítulo 3: placa e três torres (colunas altas e neutras)
+	bloco("PlacaDasTorres", Vector3.new(24, 1.5, 0), Vector3.new(3, 3, 0.4), "#7A6A4F")
+	bloco("TorreVento", Vector3.new(16, 5, 14), Vector3.new(2, 10, 2), "#C8D8E8")
+	bloco("TorreRaio", Vector3.new(24, 5, 14), Vector3.new(2, 10, 2), "#E8D870")
+	bloco("TorreMare", Vector3.new(32, 5, 14), Vector3.new(2, 10, 2), "#4F8FBF")
 end
 
 function S.iniciarMapa(cfgTeste: any?, centro: Vector3?)
@@ -221,11 +248,11 @@ function S.passoDeReacao()
 	for id, parte in marcasNoMapa() do
 		local m = deps.registro.marcas[id]
 		if m and m.tipo == "pista" then
-			local inv = deps.registro.investigacao(m.investigacao)
-			for _, cap in inv.capitulos do
-				local pc = cap.pistas[m.pista]
+			for _, pistaId in m.pistas or { m.pista } do
+				local pc = deps.registro.pista(m.investigacao, pistaId)
 				if pc and pc.capacidade then
 					table.insert(marcas, { id = id, parte = parte, capacidade = pc.capacidade })
+					break
 				end
 			end
 		end

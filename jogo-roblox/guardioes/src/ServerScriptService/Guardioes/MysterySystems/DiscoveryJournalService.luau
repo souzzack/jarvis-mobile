@@ -18,12 +18,15 @@ local function textoDaPista(p: Player): (string, string, any) -> string
 	return function(invId: string, _pistaId: string, pc: any): string
 		local texto = pc.texto
 		if string.find(texto, "{%d}") then
-			-- o enigma do capítulo desta investigação que usa a ordem
+			-- as dicas vêm do enigma do MESMO capítulo desta pista (cada capítulo tem o seu)
 			local nomes = {}
-			for puzzleId, cfg in deps.registro.puzzles do
-				if cfg.objetivo and cfg.objetivo.investigacao == invId and cfg.nomes then
-					for i, el in deps.puzzles.ordemDe(p, puzzleId) do
-						nomes[tostring(i)] = cfg.nomes[el] or "?"
+			local inv = deps.registro.investigacao(invId)
+			local _, nCap = deps.registro.pista(invId, _pistaId)
+			local cap = inv and nCap and inv.capitulos[nCap]
+			for _, o in (cap and cap.objetivos) or {} do
+				if o.puzzle and deps.registro.puzzles[o.puzzle] then
+					for i, d in deps.puzzles.dicasDe(p, o.puzzle) do
+						nomes[tostring(i)] = d
 					end
 				end
 			end

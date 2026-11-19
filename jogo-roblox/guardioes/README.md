@@ -42,7 +42,8 @@ Esta é a área isolada da reformulação do jogo, que passa de tycoon ("Magnata
 | 27 | [docs/27-REVISAO-DE-CODIGO.md](docs/27-REVISAO-DE-CODIGO.md) | Revisão de código: 4 falhas graves das companhias corrigidas, vazamentos e laços protegidos |
 | 28 | [docs/28-AUDITORIA-MISTERIOS.md](docs/28-AUDITORIA-MISTERIOS.md) | Complemento 03: inventário de dependências e o que foi reaproveitado |
 | 29 | [docs/29-SISTEMA-DE-MISTERIOS.md](docs/29-SISTEMA-DE-MISTERIOS.md) | Complemento 03: arquitetura, dados, protótipo, diário, artefatos ???, integração, testes e limites |
-| — | [docs/lore/ARQUIVISTAS.md](docs/lore/ARQUIVISTAS.md) | Cânone versionado dos Arquivistas do Atlas |
+| 30 | [docs/30-RELATORIO-MISTERIOS-CAP2-3.md](docs/30-RELATORIO-MISTERIOS-CAP2-3.md) | Mistérios: capítulos 2 (o Vigia de Cristal) e 3 (as três torres) |
+| — | [docs/lore/ARQUIVISTAS.md](docs/lore/ARQUIVISTAS.md) | Cânone versionado dos Arquivistas do Atlas (v2) |
 
 ## Código
 

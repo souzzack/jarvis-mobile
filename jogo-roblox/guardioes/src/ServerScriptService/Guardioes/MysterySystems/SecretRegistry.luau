@@ -45,11 +45,18 @@ end
 for id, m in Secrets.marcas do
 	local ok = false
 	if m.tipo == "pista" then
+		-- 'pista' (uma) ou 'pistas' (uma por capítulo: a mesma marca diz coisas diferentes ao longo da história)
 		local inv = Investigacoes[m.investigacao]
-		for _, cap in (inv and inv.capitulos) or {} do
-			if cap.pistas[m.pista] then
-				ok = true
+		local lista = m.pistas or { m.pista }
+		ok = #lista > 0
+		for _, pistaId in lista do
+			local achou = false
+			for _, cap in (inv and inv.capitulos) or {} do
+				if cap.pistas[pistaId] then
+					achou = true
+				end
 			end
+			ok = ok and achou
 		end
 	elseif m.tipo == "enigma" then
 		local pz = R.puzzles[m.puzzle]
@@ -62,6 +69,17 @@ for id, m in Secrets.marcas do
 	else
 		aviso("marca " .. id .. " desligada (aponta para algo que não existe)")
 	end
+end
+
+-- configuração de uma pista (em qualquer capítulo) e o número do capítulo
+function R.pista(invId: string, pistaId: string): (any?, number?)
+	local inv = Investigacoes[invId]
+	for n, cap in (inv and inv.capitulos) or {} do
+		if cap.pistas[pistaId] then
+			return cap.pistas[pistaId], n
+		end
+	end
+	return nil, nil
 end
 
 -- onde está cada enigma na investigação (para marcar o objetivo certo)

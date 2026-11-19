@@ -112,9 +112,38 @@ return function(T, M)
 				T.verdade(S.receitas[rc] ~= nil, rc)
 			end
 		end
+		local inv = M.InvestigationChapters.OSegredoDoPrimeiroArquivista
+		local function pistaExiste(id)
+			for _, cap in inv.capitulos do
+				if cap.pistas[id] then
+					return true
+				end
+			end
+			return false
+		end
 		for id, m in S.marcas do
 			if m.tipo == "enigma" then
 				T.verdade(table.find(M.Puzzles[m.puzzle].elementos, m.elemento) ~= nil, id)
+			elseif m.tipo == "pista" then
+				for _, pid in m.pistas or { m.pista } do
+					T.verdade(pistaExiste(pid), id .. " → " .. pid)
+				end
+			end
+		end
+		-- todo enigma de objetivo de capítulo tem marcas para TODOS os seus elementos
+		for _, cap in inv.capitulos do
+			for _, o in cap.objetivos do
+				if o.puzzle then
+					for _, el in M.Puzzles[o.puzzle].elementos do
+						local tem = false
+						for _, m in S.marcas do
+							if m.puzzle == o.puzzle and m.elemento == el then
+								tem = true
+							end
+						end
+						T.verdade(tem, o.puzzle .. ": marca de " .. el)
+					end
+				end
 			end
 		end
 	end)

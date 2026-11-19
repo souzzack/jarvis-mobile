@@ -38,8 +38,49 @@ return {
 				},
 				recompensa = "RecCap1_OSinal",
 			},
-			{ n = 2, nome = "O Guardião Adormecido", lancado = false, pistas = {}, objetivos = {} },
-			{ n = 3, nome = "As Três Torres Esquecidas", lancado = false, pistas = {}, objetivos = {} },
+			{
+				-- uma criatura pacífica (o Vigia de Cristal) ajuda a ver símbolos; alternativa: habilidade ou livro
+				n = 2, nome = "O Guardião Adormecido", lancado = true,
+				pistas = {
+					VigiaDesperto = {
+						ordem = 1, nome = "O Vigia de Cristal", categoria = "C",
+						texto = "Uma criatura de cristal dormia encostada na parede. Acordou sem medo e passou a olhar fixo para três pontos.",
+					},
+					SimboloDoVigiaA = {
+						ordem = 2, nome = "Primeiro símbolo que o Vigia olhou", categoria = "C", capacidade = "OlharDoVigia",
+						texto = "Riscado na pedra: o {1}.",
+					},
+					SimboloDoVigiaB = {
+						ordem = 3, nome = "Segundo símbolo que o Vigia olhou", categoria = "C", capacidade = "OlharDoVigia",
+						texto = "Quase apagado: o {2}; e, embaixo, o {3}.",
+					},
+				},
+				objetivos = {
+					{ id = "SimbolosDoVigia", nome = "Encontrar o que o Vigia está olhando", tipo = "pistas", pistas = { "VigiaDesperto", "SimboloDoVigiaA", "SimboloDoVigiaB" } },
+					{ id = "OlhosDoVigia", nome = "Virar os três cristais como nos símbolos", tipo = "enigma", puzzle = "OlhosDoVigia", visivelApos = "SimbolosDoVigia" },
+				},
+				recompensa = "RecCap2_Vigia",
+			},
+			{
+				-- a ordem das torres está numa placa e na cantiga do Vigia; as torres pedem a Torre Meteorológica
+				-- restaurada (integração com a Restauração)
+				n = 3, nome = "As Três Torres Esquecidas", lancado = true,
+				pistas = {
+					PlacaDasTorres = {
+						ordem = 1, nome = "Placa das três torres", categoria = "A",
+						texto = "Na placa gasta: \"A primeira a acordar é a torre do {1}.\"",
+					},
+					CantigaDoVigia = {
+						ordem = 2, nome = "A cantiga do Vigia", categoria = "C",
+						texto = "O Vigia cantarola baixinho, sempre igual: depois vem a do {2}, e por fim a do {3}.",
+					},
+				},
+				objetivos = {
+					{ id = "OrdemDasTorres", nome = "Descobrir a ordem das torres", tipo = "pistas", pistas = { "PlacaDasTorres", "CantigaDoVigia" } },
+					{ id = "TresTorres", nome = "Acordar as três torres na ordem", tipo = "enigma", puzzle = "TresTorres", visivelApos = "OrdemDasTorres" },
+				},
+				recompensa = "RecCap3_Torres",
+			},
 			{ n = 4, nome = "A Chave Incompleta", lancado = false, pistas = {}, objetivos = {} },
 			{ n = 5, nome = "A Mensagem Entre Dimensões", lancado = false, pistas = {}, objetivos = {}, dimensao = "CampoDasBolhas" },
 			{ n = 6, nome = "A Biblioteca do Vazio", lancado = false, pistas = {}, objetivos = {}, dimensao = "BibliotecaDoVazio" },

@@ -1,6 +1,6 @@
 # Lore: os Arquivistas do Atlas
 
-**Versão do cânone: 1** (19/11/2026). Toda mudança sobe a versão e entra no histórico no fim. Registros já publicados **nunca** são contraditos: só podem ser completados ou reinterpretados por um registro novo.
+**Versão do cânone: 2** (19/11/2026). Toda mudança sobe a versão e entra no histórico no fim. Registros já publicados **nunca** são contraditos: só podem ser completados ou reinterpretados por um registro novo.
 
 ## O que é cânone (fixo)
 
@@ -9,6 +9,9 @@
 3. **Os registros** dos Arquivistas ficaram espalhados pelas dimensões.
 4. **O Arquivista "A."** é o primeiro nome que o jogador encontra, nos sinais da Ilha das Tempestades. É o "Primeiro Arquivista" da primeira investigação. **O nome completo não é revelado no capítulo 1.**
 5. **Os marcos de sinal** da Ilha (pedra, cobre, cristal) eram uma forma de "ouvir o Atlas". A ordem de ativação variava; o Arquivista anotava cada uma.
+
+6. **O Vigia de Cristal** é uma criatura pacífica, ligada à energia dimensional, que **dormia** perto dos sinais. A. pediu que ele dormisse "até alguém voltar com perguntas melhores". É uma **testemunha**, não um guarda. **Não se revela o que ele viu.**
+7. **As três torres** (vento, raio, maré) eram "três vozes" que, juntas, abrem **uma fechadura que não está na Ilha** (ponte para o capítulo 4, a Chave Incompleta). Os outros Arquivistas **votaram por esconder** isso: é o primeiro sinal de que havia desacordo entre eles.
 
 ## Categorias de registro (usadas no jogo)
 
@@ -22,7 +25,7 @@
 
 | Pergunta | Onde a resposta começa | Estado |
 |---|---|---|
-| Quem eram os Arquivistas? | Capítulos 1 a 3 (registros na Ilha) | Capítulo 1 lançado: só um fragmento |
+| Quem eram os Arquivistas? | Capítulos 1 a 3 (registros na Ilha) | Capítulos 1 a 3 lançados: três fragmentos de A.; havia votações e desacordo |
 | Como funcionavam as bibliotecas? | Capítulo 6 (Biblioteca do Vazio) | **Não lançado** |
 | Por que desapareceram? | Capítulos 4 a 6 | **Não lançado** |
 | O que sabiam sobre a Fratura? | Capítulo 5 (Campo das Bolhas) em diante | **Não lançado** |
@@ -41,7 +44,10 @@
 | Id | Versão | Categoria | Onde | Texto (resumo) |
 |---|---|---|---|---|
 | `Arq01_OSinal` | 1 | RegistroAntigo | Recompensa do capítulo 1 | A. diz que os marcos ainda respondem e que vai anotar tudo "para o caso de não voltar" |
+| `Arq02_OVigia` | 2 | RegistroAntigo | Recompensa do capítulo 2 | O Vigia é uma testemunha; A. pediu que dormisse |
+| `Arq03_AsTorres` | 2 | ConhecimentoProibido | Recompensa do capítulo 3 | As torres abrem uma fechadura fora da ilha; os Arquivistas votaram por esconder; A. anotou mesmo assim |
 
 ## Histórico
 
 - **v1 (19/11/2026):** fundação: organização, desaparecimento, A., marcos de sinal, as 3 categorias e as regras acima.
+- **v2 (19/11/2026):** capítulos 2 e 3: o Vigia de Cristal (testemunha), as três torres e o voto dos Arquivistas. Nada da v1 foi contradito.

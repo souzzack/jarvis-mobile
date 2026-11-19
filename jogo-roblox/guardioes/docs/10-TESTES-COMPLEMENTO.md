@@ -394,3 +394,23 @@ Sala de teste: blocos neutros a (70, −3, 70) do centro da arena. Tecla **L** a
 | M16 | Segurança | Disparar o ProximityPrompt de longe por exploit (teleporte local) | "Chegue mais perto." (distância do servidor) |
 | M17 | Frequência | Spam de B nos marcos | Parte dos pedidos é ignorada (limite por jogador) |
 | M18 | Multiplayer | Dois jogadores na sala ao mesmo tempo | Estados independentes; um não avança o enigma do outro |
+
+## 21. Mistérios: capítulos 2 e 3
+
+**Automáticos novos:** +2 casos (`Investigacao.spec` e `Enigma.spec`, com casos atualizados). Total: 225 em 33 specs.
+
+Na sala de teste: o Vigia (bloco azul-claro), dois símbolos e três cristais à esquerda; a placa e três torres à direita.
+
+| # | Passo | Esperado |
+|---|---|---|
+| V1 | B no Vigia **antes** de concluir o capítulo 1 | "Ainda não é hora de entender isto." |
+| V2 | Concluir o capítulo 1 e B no Vigia | "Anotado no Atlas: O Vigia de Cristal"; o Atlas mostra o capítulo 2 |
+| V3 | B nos dois símbolos (com o Vigia acordado) | Cada um anota um texto com "o cristal da … voltado para o …" (diferente para cada jogador) |
+| V4 | Alternativa: outro jogador, sem acordar o Vigia, com o Nebu ativo ou o Grimório lido | Os símbolos também são anotados (o Vigia não é obrigatório) |
+| V5 | B num cristal antes de reunir as três pistas | "Nada acontece. Falta entender alguma coisa." |
+| V6 | Girar os cristais | "O cristal da … agora aponta para o …" a cada toque |
+| V7 | Deixar os três como nos símbolos | "Os marcos acendem juntos…"; Folha de Registro, registro "fragmento 2", conhecimento "A voz dos cristais", +200 XP |
+| V8 | B na placa e depois no Vigia (capítulo 3) | Duas pistas com a ordem das torres |
+| V9 | Tocar uma torre com `progressoLivros` sem a Torre Meteorológica (cópia de teste) | "As torres estão sem energia. Talvez outra torre precise acordar antes." |
+| V10 | Torres na ordem certa | Fragmento 3, Folha de Registro ×2, Núcleo de Tempestade, +250 XP; o Atlas mostra "Capítulo 4 — ainda não disponível" |
+| V11 | Sair e voltar no meio do alinhamento (com API) | Os cristais voltam ao início; pistas e capítulos salvos |

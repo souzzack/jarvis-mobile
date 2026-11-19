@@ -226,7 +226,7 @@ end
 
 function Atlas.Start()
 	hud = ctxSalvo.obter("HudDeCombate")
-	ev.OnClientEvent:Connect(function(tipo: number, a: any, b: any, c: any)
+	ev.OnClientEvent:Connect(function(tipo: number, a: any, b: any, c: any, d: any)
 		if tipo == EM.DIARIO and typeof(a) == "table" then
 			dados = a
 			if janela.Visible then
@@ -237,7 +237,9 @@ function Atlas.Start()
 		elseif tipo == EM.DESCOBERTA and typeof(a) == "string" then
 			hud.aviso("Anotado no Atlas: " .. a .. " (L)")
 		elseif tipo == EM.ENIGMA then
-			if b == "certo" then
+			if typeof(d) == "string" and (b == "certo" or (b == "semEfeito" and c == "semRequisito")) then
+				hud.aviso(d) -- texto curto do servidor ("o cristal agora aponta para…", "as torres estão sem energia…")
+			elseif b == "certo" then
 				hud.aviso("O marco responde com um zumbido baixo.")
 			elseif b == "errado" then
 				hud.aviso(if c == "gravacao" then Mensagens.texto("gravacao") or "" else "Os marcos se apagam.")

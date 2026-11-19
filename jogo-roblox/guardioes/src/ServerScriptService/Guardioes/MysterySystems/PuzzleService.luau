@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Enigma = require(G.MysterySystems.Enigma)
 local Descoberta = require(G.Segredos.Descoberta)
+local Requisitos = require(G.Util.Requisitos)
 
 local S = {}
 local deps: any = nil
@@ -26,11 +27,23 @@ function S.semente(p: Player, puzzleId: string): number
 	return Descoberta.semente(p.UserId, deps.registro.sal .. puzzleId)
 end
 
--- ordem que ESTE jogador precisa (para preencher o texto das pistas; nunca é enviada como lista)
-function S.ordemDe(p: Player, puzzleId: string): { string }
+-- DICAS deste jogador para preencher {1} {2} {3} no texto das pistas (nunca enviadas como lista):
+--  Sequencia: o nome de cada elemento na ordem; Alinhamento: "<elemento> voltado para o <direção>"
+function S.dicasDe(p: Player, puzzleId: string): { string }
 	local cfg = deps.registro.puzzles[puzzleId]
 	local st = Enigma.novo(cfg, S.semente(p, puzzleId))
-	return st.ordem or {}
+	local l = {}
+	if cfg.tipo == "Sequencia" then
+		for i, el in st.ordem do
+			l[i] = (cfg.nomes and cfg.nomes[el]) or "?"
+		end
+	elseif cfg.tipo == "Alinhamento" then
+		for i, el in cfg.elementos do
+			local direcao = cfg.nomesPosicoes and cfg.nomesPosicoes[st.alvo[el]] or tostring(st.alvo[el])
+			l[i] = string.format("%s voltado para o %s", (cfg.nomes and cfg.nomes[el]) or el, direcao)
+		end
+	end
+	return l
 end
 
 local function estadoIndividual(p: Player, puzzleId: string, cfg: any): any
@@ -59,22 +72,23 @@ local function resolverPara(p: Player, puzzleId: string, cfg: any): boolean
 	end)
 end
 
--- (resultado, motivo). ctx: { capacidades?, dentro?, marcas? } calculado pelo servidor
-function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (string, string?)
+-- (resultado, motivo, info?). ctx: { capacidades?, dentro?, marcas? } calculado pelo servidor.
+-- info: texto curto para o jogador (no Alinhamento, para onde o cristal ficou apontando)
+function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (string, string?, string?)
 	local cfg = deps.registro.puzzles[puzzleId]
 	local perfil = deps.playerData.obter(p)
 	if not cfg or not perfil then
-		return "invalida", "erro"
+		return "invalida", "erro", nil
 	end
 	if perfil.misterios.enigmas[puzzleId] then
-		return "semEfeito", "jaResolvido"
+		return "semEfeito", "jaResolvido", nil
 	end
 	-- pré-requisito: o objetivo do enigma precisa estar VISÍVEL na investigação (pistas reunidas)
 	if cfg.objetivo then
 		local inv = deps.registro.investigacao(cfg.objetivo.investigacao)
 		local prog = perfil.misterios.investigacoes[cfg.objetivo.investigacao]
 		if not prog then
-			return "semEfeito", "nadaAcontece"
+			return "semEfeito", "nadaAcontece", nil
 		end
 		local visivel = false
 		for _, o in deps.Investigacao.objetivosVisiveis(prog, inv) do
@@ -83,7 +97,14 @@ function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (strin
 			end
 		end
 		if not visivel then
-			return "semEfeito", "nadaAcontece" -- sem as pistas, o mecanismo não reage
+			return "semEfeito", "nadaAcontece", nil -- sem as pistas, o mecanismo não reage
+		end
+	end
+	-- requisitos de outros sistemas (ex.: Torre Meteorológica restaurada) — a mesma regra dos livros
+	if cfg.requisitos then
+		local okReq = Requisitos.avaliar(cfg.requisitos, deps.progressoRequisitos(p, perfil))
+		if not okReq then
+			return "semEfeito", "semRequisito", cfg.semRequisito
 		end
 	end
 	if cfg.escopo == "cooperativo" then
@@ -102,19 +123,23 @@ function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (strin
 			end
 			cooperativos[puzzleId] = nil -- próxima equipe começa do zero
 		end
-		return r, nil
+		return r, nil, nil
 	end
 	local st = estadoIndividual(p, puzzleId, cfg)
 	local acao = if cfg.tipo == "Coleta" then { item = elemento } elseif cfg.tipo == "Exploracao" then { alvo = elemento } else { elemento = elemento }
 	local r = Enigma.agir(st, cfg, acao, ctx)
+	local info = nil
+	if cfg.tipo == "Alinhamento" and st.pos and st.pos[elemento] and cfg.nomesPosicoes then
+		info = string.format("O %s agora aponta para o %s.", (cfg.nomes and cfg.nomes[elemento]) or elemento, cfg.nomesPosicoes[st.pos[elemento]])
+	end
 	if r == "completo" then
 		if not resolverPara(p, puzzleId, cfg) then
 			st.resolvido = false -- não gravou: deixa tentar de novo (nada foi pago)
-			return "errado", "gravacao"
+			return "errado", "gravacao", nil
 		end
 		individuais[p][puzzleId] = nil
 	end
-	return r, nil
+	return r, nil, info
 end
 
 function S.sair(p: Player)
