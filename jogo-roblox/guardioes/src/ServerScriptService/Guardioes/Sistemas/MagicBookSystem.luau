@@ -25,7 +25,10 @@ local EL = Remotos.EventoLivro
 local DISTANCIA_MAX = 12
 local RECARGA = 1.0
 
+local Sinal = require(G.Util.Sinal)
+
 local MagicBookSystem = { Nome = "MagicBookSystem" }
+MagicBookSystem.lido = Sinal.novo() -- (p, livroId): missões escutam
 
 local evento: RemoteEvent
 local playerData: any
@@ -92,6 +95,7 @@ local function ler(p: Player, livroId: string, parte: BasePart)
 		table.insert(nomes, if cfg then cfg.nome else h)
 	end
 	evento:FireClient(p, EL.LIDO, livroId, if publico.oculto then "???" else publico.nome, nomes)
+	MagicBookSystem.lido.disparar(p, livroId)
 end
 
 local function prepararLivro(parte: BasePart)

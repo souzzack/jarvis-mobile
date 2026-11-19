@@ -103,3 +103,23 @@ Nada disso altera os modelos aprovados: são **marcadores** (Parts invisíveis) 
 | C13 | Códice da Leveza | Recusado com o texto público: "Disponível quando o Campo das Bolhas for liberado" |
 | C14 | Com acesso à API: ler o Grimório, sair, entrar de novo | O livro continua lido e a habilidade continua sabida (origem `livro:`) |
 | C15 | Dois servidores (Team Test) e o mesmo jogador | O segundo só carrega depois que o primeiro libera a trava; nada é duplicado |
+
+## 7. Inventário, saque, missões e progressão: casos e roteiro
+
+**Automáticos novos:** 12 casos (total: 116 em 17 specs).
+- `Inventario.spec` (11): consumo entre bolsas, falta, pilha, consumo negativo impossível, proteção contra azar, faixa de quantidade, saque pessoal, missão genérica e missão real, curva de nível, vida.
+- `PerfilSalvo.spec` (+1): validação de inventário e de nível.
+
+| # | Passo | Esperado |
+|---|---|---|
+| P1 | Play | O canto superior esquerdo mostra "Nv 1"; à direita aparecem as missões *O Horizonte Partido* (0/5), *Primeira caçada*, *Olhar as estrelas*, *Vento nas asas* e *Travessia da tormenta* |
+| P2 | Derrotar Faíscas | "+1 ou +2 Fragmento de Faísca"; +15 de XP cada; a missão conta 1/5, 2/5… Em até 15 derrotas, cai pelo menos um Núcleo de Tempestade |
+| P3 | 5ª Faísca | "Missão concluída: O Horizonte Partido", +120 de XP, +1 Núcleo. O nível sobe e a vida enche |
+| P4 | Com o Cão ativo, derrotar uma Faísca | "Primeira caçada" concluída; o cartão do Cão mostra o marco cumprido |
+| P5 | I (Bolsa) | Lista os materiais de teste e os 3 artefatos de teste |
+| P6 | Bolsa → Espada do Horizonte → Evoluir | Estágio 3 (os materiais de teste bastam); os números da bolsa diminuem. Na prancha, a velocidade máxima passa de 42 para 46 |
+| P7 | Evoluir de novo | Mostra "Falta: Anel Dos Relampagos · Guardiao Da Tormenta Sem Cair" (desafios de estágio 4) |
+| P8 | Bolsa → Cajado → Equipar | Golpes de vento (alcance 12, arco largo). E transforma em vassoura (velocidade 38, mais ágil) |
+| P9 | Afagar a Raia adulta algumas vezes (a cada 10 s) | Às vezes: "+1 Pena de Raia" |
+| P10 | Golpes da Espada do Horizonte em ritmo rápido | Sem recusas "cedo" frequentes (a correção da arma no cliente) |
+| P11 | Com acesso à API: subir de nível, sair e voltar | Nível, XP, materiais salvos e missões concluídas continuam. Os artefatos e materiais de **teste** não são salvos |

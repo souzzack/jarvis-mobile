@@ -16,7 +16,12 @@ export type Perfil = {
 	enigmas: { [string]: boolean },
 	companheiros: { [string]: any }, -- guid → registro de Companheiros/DadosDaCriatura
 	criaturaAtiva: string?,
-	artefatos: { [string]: { id: string, estagio: number } }, -- guid → (formato final vem com o InventorySystem)
+	artefatos: { [string]: { id: string, estagio: number } }, -- guid → artefato (InventorySystem)
+	materiais: { [string]: number }, -- id → quantidade (InventorySystem)
+	artefatoEquipado: string?,
+	nivel: number,
+	xp: number,
+	missoesProgresso: { [string]: { [string]: number } }, -- missão → objetivo → contagem
 	legadoMagnata: any?,
 	criadoEm: number,
 	atualizadoEm: number,
@@ -24,7 +29,7 @@ export type Perfil = {
 
 local Perfil = {}
 Perfil.VERSAO = 2
-Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200 }
+Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
 local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas" }
 
@@ -43,6 +48,11 @@ function Perfil.novo(agora: number): Perfil
 		companheiros = {},
 		criaturaAtiva = nil,
 		artefatos = {},
+		materiais = {},
+		artefatoEquipado = nil,
+		nivel = 1,
+		xp = 0,
+		missoesProgresso = {},
 		legadoMagnata = nil,
 		criadoEm = agora,
 		atualizadoEm = agora,
@@ -132,6 +142,35 @@ function Perfil.validar(p: any): (boolean, string?)
 	end
 	if h > Perfil.LIMITES.habilidades then
 		return false, "limiteHabilidades"
+	end
+	if type(p.materiais) ~= "table" or type(p.missoesProgresso) ~= "table" then
+		return false, "estrutura"
+	end
+	local tipos = 0
+	for id, q in p.materiais do
+		tipos += 1
+		if type(id) ~= "string" or type(q) ~= "number" or q < 0 or q ~= math.floor(q) or q > Perfil.LIMITES.pilha then
+			return false, "material"
+		end
+	end
+	if tipos > Perfil.LIMITES.tiposDeMaterial then
+		return false, "limiteMateriais"
+	end
+	local a = 0
+	for guid, art in p.artefatos do
+		a += 1
+		if type(guid) ~= "string" or type(art) ~= "table" or type(art.id) ~= "string" or type(art.estagio) ~= "number" then
+			return false, "artefato"
+		end
+	end
+	if a > Perfil.LIMITES.artefatos then
+		return false, "limiteArtefatos"
+	end
+	if p.artefatoEquipado ~= nil and p.artefatos[p.artefatoEquipado] == nil then
+		return false, "artefatoEquipado"
+	end
+	if type(p.nivel) ~= "number" or p.nivel < 1 or p.nivel > Perfil.LIMITES.nivelMax or type(p.xp) ~= "number" or p.xp < 0 then
+		return false, "nivel"
 	end
 	return true, nil
 end

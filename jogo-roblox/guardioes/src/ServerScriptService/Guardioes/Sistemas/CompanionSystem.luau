@@ -86,6 +86,7 @@ local jogadores: { [Player]: Jogador } = {}
 local evento: RemoteEvent
 local playerData: any
 local inimigos: any
+local inventario: any
 local ctxSistemas: any = nil
 local pasta: Folder
 
@@ -398,6 +399,10 @@ local function aoReceber(p: Player, tipo: any, guid: any, arg: any)
 		j.ultimoAfago = agora
 		Dados.ganharVinculo(c, "Carinho", VINCULO_AFAGO, hoje())
 		gravar(p, j, guid)
+		-- a Raia adulta solta penas ao ser afagada (material da Espada do Horizonte, estágio 3)
+		if c.especie == "RaiaDasNuvens" and c.estagio == "Adulto" and math.random() < 0.35 then
+			inventario.darMateriais(p, { PenaDeRaia = 1 }, "afago")
+		end
 	elseif tipo == C.RENOMEAR then
 		if not Dados.nomeValido(arg) then
 			rejeitar(p, tipo, "nomeInvalido")
@@ -516,6 +521,7 @@ end
 function CompanionSystem.Start()
 	playerData = ctxSistemas.obter("PlayerDataSystem")
 	inimigos = ctxSistemas.obter("EnemySystem")
+	inventario = ctxSistemas.obter("InventorySystem")
 	pasta = Instance.new("Folder")
 	pasta.Name = "GuardioesCompanheiros"
 	pasta.Parent = Workspace

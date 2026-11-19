@@ -41,6 +41,12 @@ local M = {
 	LivrosSecretos = require("../src/ServerScriptService/Guardioes/ConfigSecreta/Livros"),
 	Perfil = require("../src/ServerScriptService/Guardioes/Dados/Perfil"),
 	TravaDeSessao = require("../src/ServerScriptService/Guardioes/Dados/TravaDeSessao"),
+	-- inventário, saque, missões, nível
+	Bolsa = require("../src/ReplicatedStorage/Guardioes/Inventario/Bolsa"),
+	Saque = require("../src/ReplicatedStorage/Guardioes/Loot/Saque"),
+	Missao = require("../src/ReplicatedStorage/Guardioes/Missoes/Missao"),
+	Missoes = require("../src/ReplicatedStorage/Guardioes/Config/Missoes"),
+	Nivel = require("../src/ReplicatedStorage/Guardioes/Progressao/Nivel"),
 }
 
 local specs = {
@@ -60,6 +66,7 @@ local specs = {
 	{ nome = "IADoCompanheiro.spec", fn = require("./Specs/IADoCompanheiro.spec") },
 	{ nome = "PerfilSalvo.spec", fn = require("./Specs/PerfilSalvo.spec") },
 	{ nome = "Requisitos.spec", fn = require("./Specs/Requisitos.spec") },
+	{ nome = "Inventario.spec", fn = require("./Specs/Inventario.spec") },
 }
 
 local _, falhou = Rodar(M, specs)

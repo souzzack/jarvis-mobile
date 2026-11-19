@@ -25,6 +25,7 @@ Remotos.EventoCombate = {
 	RECEBEU_GOLPE = 5, -- (tipo, dano, origemId) para o jogador atingido
 	TELEGRAFIA = 6, -- (inimigoId, ataque, duracao) para todos: aviso do ataque do inimigo
 	INIMIGO_MORREU = 7, -- (inimigoId)
+	ARMA = 8, -- (arma: tabela de Config/Armas) a arma ativa do dono, para a previsão local usar os MESMOS tempos
 }
 
 -- locomoção (cliente → servidor): só INTENÇÕES; posição/velocidade nunca são aceitas do cliente
@@ -49,12 +50,21 @@ Remotos.EventoLocomocao = {
 -- artefatos metamórficos
 Remotos.Artefato = {
 	TRANSFORMAR = 1, -- (guid: string, forma: string)
+	EVOLUIR = 2, -- (guid) o servidor confere missões/desafios/materiais e faz a transação atômica
+	EQUIPAR = 3, -- (guid) só a pé
 }
 Remotos.EventoArtefato = {
 	INVENTARIO = 1, -- (lista { guid, id, estagio, forma }) só o dono
 	REJEITADO = 2, -- (guid, motivo)
 	FORMA = 3, -- (guid, forma, transformando: boolean) só o dono (os outros leem atributos do personagem)
+	EVOLUIU = 4, -- (guid, estagio)
+	FALTA = 5, -- (guid, lista do que falta para o próximo estágio)
 }
+
+-- inventário, missões e progressão (servidor → cliente; os pedidos de mudança passam pelos sistemas donos)
+Remotos.EventoInventario = { MATERIAIS = 1, SAQUE = 2 } -- MATERIAIS: (lista {id, nome, qtd}); SAQUE: ({id → qtd})
+Remotos.EventoMissao = { LISTA = 1, CONCLUIDA = 2 } -- LISTA: (missões ativas com linhas de progresso); CONCLUIDA: (nome)
+Remotos.EventoProgressao = { NIVEL = 1 } -- (nivel, xp, xpParaProximo, subiu: boolean)
 
 -- companheiros (criaturas individuais; não confundir com Companhias = guildas)
 Remotos.Companheiro = {
@@ -81,7 +91,7 @@ Remotos.EventoLivro = {
 	RECUSADO = 2, -- (livroId, textoPublico)
 }
 
-local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro" }
+local NOMES = { "Combate", "Locomocao", "Artefato", "Companheiro", "Montaria", "Livro", "Inventario", "Missoes", "Progressao" }
 
 local pasta: Folder? = nil
 

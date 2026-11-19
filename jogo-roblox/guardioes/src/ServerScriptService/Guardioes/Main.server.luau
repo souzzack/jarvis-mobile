@@ -14,10 +14,14 @@ local ORDEM = {
 	"CombatSystem",
 	"MovementAbilitySystem", -- habilidades e raça (antes do movimento, que lê os dois)
 	"MovementSystem", -- locomoção: voo, planador, prancha (núcleo único)
-	"MetamorphicArtifactSystem", -- formas dos artefatos (usa movimento e combate)
+	"InventorySystem", -- materiais e artefatos com GUID (salvos + teste em memória)
+	"MetamorphicArtifactSystem", -- formas dos artefatos (usa movimento, combate e inventário)
 	"CompanionSystem", -- criaturas companheiras, IA, crescimento
 	"MountSystem", -- montarias (usa companheiros e movimento)
+	"ProgressionSystem", -- nível, XP e vida por raça
 	"MagicBookSystem", -- livros mágicos (usa dados e habilidades)
+	"LootSystem", -- saque pessoal com proteção contra azar
+	"QuestSystem", -- missões por eventos (usa quase todos os anteriores)
 }
 
 local carregados: { [string]: Sistema } = {}

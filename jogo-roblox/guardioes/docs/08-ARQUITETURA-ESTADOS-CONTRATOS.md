@@ -179,3 +179,25 @@ A tabela da seção 1 continua como registro histórico. A situação atual é e
 6. **Montaria:** o jogador "sobe" na sela aumentando `HipHeight`, com a criatura soldada embaixo, sem colisão e sem massa. É preciso conferir a aparência e se o personagem não flutua ou afunda.
 7. **Movimento das criaturas:** usa `AlignPosition` sem desvio de obstáculos, então a criatura pode atravessar paredes. O PathfindingService entra quando houver mapa real para testar.
 8. **DataStore no Studio:** precisa de *Enable Studio Access to API Services*. Sem isso, o sistema roda só em memória e avisa no Output.
+
+## 8. Atualização: inventário, saque, missões, progressão e armas (sem o Studio)
+
+| Sistema | Arquivo | Situação |
+|---|---|---|
+| **InventorySystem** | `Sistemas/InventorySystem.luau` + `Inventario/Bolsa.luau` | **Escrito.** Bolsa salva (perfil) + bolsa de teste (memória); `transacao` atômica (consumo + estágio) |
+| **LootSystem** | `Sistemas/LootSystem.luau` + `Loot/Saque.luau` + `Config/Loot.luau` | **Escrito.** Saque pessoal (≥ 10% do dano) e proteção contra azar |
+| **QuestSystem** | `Sistemas/QuestSystem.luau` + `Missoes/Missao.luau` + `Config/Missoes.luau` | **Escrito.** 5 missões; eventos de derrotar, derrotar com criatura, ler, voar e planar |
+| **ProgressionSystem** | `Sistemas/ProgressionSystem.luau` + `Progressao/Nivel.luau` | **Escrito.** Nível 1 a 60, XP salva, vida por nível e raça (Alado −8%) |
+| Artefatos: **equipar e evoluir** | `MetamorphicArtifactSystem` (EQUIPAR, EVOLUIR) | **Escrito.** Os artefatos agora vêm do inventário (salvos quando não são de teste) |
+| Armas do Cajado e do Arco | `Config/Armas/CajadoDosVentos.luau`; arma do Arco em `ConfigSecreta/ArcoDasAsasPerdidas.luau` | **Escritas** (o Arco é tiro instantâneo de longo alcance, sem projétil físico no protótipo) |
+| Correção | `CombatSystem.definirArma` envia `EventoCombate.ARMA` ao dono | A previsão do cliente passou a usar os tempos da arma **real**. Antes, usava sempre os da Espada comum, e o servidor recusava golpes da Espada do Horizonte como "cedo" |
+
+**Ordem de carga:** PlayerData → Enemy → Combat → MovementAbility → Movement → Inventory → MetamorphicArtifact → Companion → Mount → Progression → MagicBook → Loot → Quest.
+
+**Recompensa de missão sem pagamento duplo:**
+1. A missão é marcada como concluída numa transação do PlayerData, que recusa se ela já estiver concluída.
+2. Só depois são entregues XP, materiais, marco e objetivo dimensional.
+
+Cada uma dessas entregas é uma transação separada no seu sistema.
+
+**Esquema do perfil v2 completado** (perfis já salvos ganham os campos sozinhos na migração): `materiais`, `artefatoEquipado`, `nivel`, `xp`, `missoesProgresso`.

@@ -50,6 +50,26 @@ return function(T, M)
 		T.igual(select(2, P.validar(s)), "moedas")
 	end)
 
+	T.caso("validação do inventário e do nível", function()
+		local p = P.novo(1)
+		p.materiais.FragmentoDeFaisca = -1
+		T.igual(select(2, P.validar(p)), "material")
+		local q = P.novo(1)
+		q.materiais.FragmentoDeFaisca = 1.5
+		T.igual(select(2, P.validar(q)), "material")
+		local r = P.novo(1)
+		r.artefatoEquipado = "inexistente"
+		T.igual(select(2, P.validar(r)), "artefatoEquipado")
+		local s = P.novo(1)
+		s.nivel = 0
+		T.igual(select(2, P.validar(s)), "nivel")
+		local ok = P.novo(1)
+		ok.artefatos["g"] = { id = "EspadaDoHorizonte", estagio = 2 }
+		ok.artefatoEquipado = "g"
+		ok.materiais.PenaDeRaia = 6
+		T.verdade((P.validar(ok)))
+	end)
+
 	T.caso("cópia profunda é independente", function()
 		local p = P.novo(1)
 		p.livrosLidos.GrimorioDosCeus = true

@@ -14,6 +14,7 @@ export type Raca = {
 	desbloqueaveis: { string },
 	mods: { { campo: string, perfis: { string }?, somar: number?, multiplicar: number? } },
 	restricoes: { string },
+	modsVida: number?,
 }
 
 local lista: { Raca } = {
@@ -36,6 +37,8 @@ local lista: { Raca } = {
 		desbloqueaveis = { "Mergulho: queda controlada que vira golpe de investida" },
 		mods = {},
 		restricoes = { "SemPlanador" },
+		-- (lido pelo ProgressionSystem) vida máxima −8%
+		modsVida = 0.92,
 	},
 	{
 		id = "Elemental", nome = "Elemental",

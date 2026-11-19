@@ -205,6 +205,8 @@ end
 -- troca a arma do jogador (só entre golpes: volta a máquina a Ocioso para não misturar tempos de armas)
 function CombatSystem.definirArma(p: Player, arma: any)
 	armas[p] = arma
+	-- o cliente prevê o combo com os tempos desta arma (sem isso, a previsão usava sempre a Espada comum)
+	evento:FireClient(p, E.ARMA, arma)
 	local st = estados[p]
 	if st and st.arma ~= arma then
 		st.arma = arma

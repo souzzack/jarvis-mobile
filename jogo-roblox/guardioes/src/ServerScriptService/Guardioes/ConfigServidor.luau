@@ -19,7 +19,9 @@ local ConfigServidor = {
 		ativa = true,
 		raca = "Humano",
 		habilidades = { "VooMagico", "CorrentesAstrais", "Planador" },
-		artefatos = { { id = "EspadaDoHorizonte", estagio = 2 }, { id = "EscudoDoFirmamento", estagio = 2 } },
+		artefatos = { { id = "EspadaDoHorizonte", estagio = 2 }, { id = "EscudoDoFirmamento", estagio = 2 }, { id = "CajadoDosVentosAntigos", estagio = 2 } },
+		-- materiais de teste (em memória): o bastante para levar a Espada do Horizonte ao estágio 3
+		materiais = { NucleoDeTempestade = 2, PenaDeRaia = 6, LigaArcana = 2, SementeFlutuante = 5, CascaAntiga = 4 },
 		-- criaturas de teste (marcadas 'teste': nunca vão para o perfil salvo)
 		criaturas = {
 			{ especie = "CaoTrovao", estagio = "Adulto", nome = "Trovisco" },

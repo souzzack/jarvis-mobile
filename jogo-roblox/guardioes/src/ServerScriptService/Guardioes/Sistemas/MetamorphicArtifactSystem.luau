@@ -11,13 +11,13 @@
 --   * forma de prancha/asas nunca causa dano de arma (guarda no CombatSystem);
 --   * golpe forte durante a troca cancela e volta à forma anterior.
 --
--- Inventário: ainda não existe InventorySystem. Contrato (docs/08): possui(p, guid), artefatos(p).
--- Até lá, com ConfigServidor.concessoesDeTeste.ativa, cada jogador recebe artefatos de TESTE (não salvos).
+-- Inventário: os artefatos vêm do InventorySystem (salvos no perfil + os de TESTE em memória). Este sistema
+-- guarda só o ESTADO de forma de cada um (MaquinaDeArtefato). Evoluir estágio = transação atômica do inventário
+-- (consome materiais e muda o estágio juntos).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local MaqArt = require(G.Artefatos.MaquinaDeArtefato)
@@ -25,7 +25,6 @@ local Progressao = require(G.Artefatos.ProgressaoDeArtefato)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
 local Remotos = require(G.Rede.Remotos)
 local Espada = require(G.Config.Armas.Espada)
-local ConfigServidor = require(script.Parent.Parent.ConfigServidor)
 local Secreto = require(script.Parent.Parent.ConfigSecreta.ArcoDasAsasPerdidas)
 
 local A = Remotos.Artefato
@@ -48,9 +47,11 @@ for _, m in G.Config.Armas:GetChildren() do
 		armas[a.id] = a
 	end
 end
+armas[Secreto.arma.id] = Secreto.arma -- arma ??? (só servidor; o dono recebe quando equipa)
 
 type Jogador = {
-	artefatos: { [string]: MaqArt.Instancia }, -- guid → instância (o "inventário" de teste)
+	artefatos: { [string]: MaqArt.Instancia }, -- guid → estado de forma (a posse vem do InventorySystem)
+	teste: { [string]: boolean },
 	equipado: string?,
 	anterior: string?, -- forma antes da troca em andamento (para desfazer se o movimento recusar)
 	balde: LimiteDeTaxa.Balde,
@@ -62,6 +63,8 @@ local jogadores: { [Player]: Jogador } = {}
 local evento: RemoteEvent
 local movimento: any
 local combate: any
+local inventario: any
+local playerData: any
 local ctxSistemas: any = nil
 
 local function cfgDe(inst: MaqArt.Instancia): any
@@ -99,7 +102,12 @@ local function enviarInventario(p: Player)
 		for nome, f in cfg.formas do
 			table.insert(formas, { nome = nome, tipo = f.tipo, liberada = inst.estagio >= f.estagioMin })
 		end
-		table.insert(lista, { guid = guid, id = inst.id, nome = cfg.nome, raridade = cfg.raridade, estagio = inst.estagio, forma = inst.forma, formas = formas, equipado = j.equipado == guid })
+		local prox = Progressao.proximo(cfg, inst.estagio)
+		table.insert(lista, {
+			guid = guid, id = inst.id, nome = cfg.nome, raridade = cfg.raridade, estagio = inst.estagio, forma = inst.forma,
+			formas = formas, equipado = j.equipado == guid, teste = j.teste[guid] == true,
+			proximoEstagio = if prox then prox.descricao else nil,
+		})
 	end
 	evento:FireClient(p, EA.INVENTARIO, lista)
 end
@@ -114,14 +122,125 @@ local function aplicarForma(p: Player, inst: MaqArt.Instancia, cfg: any)
 	end
 end
 
+-- sincroniza os estados de forma com o que o inventário diz que o jogador possui
+local function sincronizar(p: Player)
+	local j = jogadores[p]
+	if not j then
+		return
+	end
+	local vistos: { [string]: boolean } = {}
+	for _, a in inventario.artefatos(p) do
+		local cfg = configs[a.id]
+		if cfg then
+			vistos[a.guid] = true
+			local inst = j.artefatos[a.guid]
+			if inst then
+				inst.estagio = a.estagio
+			else
+				j.artefatos[a.guid] = MaqArt.nova(a.guid, cfg, a.estagio)
+			end
+			j.teste[a.guid] = a.teste
+		end
+	end
+	for guid in j.artefatos do
+		if not vistos[guid] then
+			j.artefatos[guid] = nil
+			j.teste[guid] = nil
+			if j.equipado == guid then
+				j.equipado = nil
+			end
+		end
+	end
+	if not j.equipado then
+		local salvo = inventario.equipadoSalvo(p)
+		if salvo and j.artefatos[salvo] then
+			j.equipado = salvo
+		else
+			j.equipado = next(j.artefatos)
+		end
+		local inst, cfg = equipada(p)
+		if inst and cfg then
+			aplicarForma(p, inst, cfg)
+			publicar(p, inst)
+		end
+	end
+	enviarInventario(p)
+end
+
+-- Evoluir estágio: avalia (missões/desafios do perfil + materiais) e faz a transação atômica no inventário
+local function evoluir(p: Player, j: Jogador, guid: string)
+	local inst = j.artefatos[guid]
+	if not inst then
+		evento:FireClient(p, EA.REJEITADO, guid, "naoPossui")
+		return
+	end
+	local cfg = cfgDe(inst)
+	local perfil = playerData.obter(p) or { missoes = {} }
+	local proximo = Progressao.proximo(cfg, inst.estagio)
+	local materiais: { [string]: number } = {}
+	if proximo and proximo.requisitos and proximo.requisitos.materiais then
+		for id in proximo.requisitos.materiais do
+			materiais[id] = inventario.contar(p, id)
+		end
+	end
+	-- desafios são missões do tipo desafio (QuestSystem): os dois ficam em perfil.missoes
+	local ok, faltando, consumir = Progressao.avaliar(cfg, inst.estagio, { missoes = perfil.missoes, desafios = perfil.missoes, materiais = materiais })
+	if not ok then
+		evento:FireClient(p, EA.FALTA, guid, faltando)
+		return
+	end
+	local feito = inventario.transacao(p, { consumir = consumir, artefato = guid, estagio = inst.estagio + 1 })
+	if not feito then
+		evento:FireClient(p, EA.REJEITADO, guid, "faltaRequisito")
+		return
+	end
+	inst.estagio += 1
+	evento:FireClient(p, EA.EVOLUIU, guid, inst.estagio)
+	enviarInventario(p)
+end
+
+-- Equipar outro artefato: só a pé, sem troca de forma em andamento; volta à forma inicial dele
+local function equipar(p: Player, j: Jogador, guid: string)
+	local inst = j.artefatos[guid]
+	if not inst then
+		evento:FireClient(p, EA.REJEITADO, guid, "naoPossui")
+		return
+	end
+	local estado = movimento.estado(p)
+	local atual = equipada(p)
+	if estado ~= "Solo" or (atual and atual.alvo) then
+		evento:FireClient(p, EA.REJEITADO, guid, if estado ~= "Solo" then "locomocao" else "transformando")
+		return
+	end
+	local cfg = cfgDe(inst)
+	inst.forma, inst.alvo = cfg.formaInicial, nil
+	j.equipado = guid
+	if not j.teste[guid] then
+		inventario.definirEquipado(p, guid)
+	end
+	aplicarForma(p, inst, cfg)
+	publicar(p, inst)
+	enviarInventario(p)
+end
+
 -- ------------------------------------------------------------------ intenções
 local function aoReceber(p: Player, tipo: any, guid: any, forma: any)
 	local j = jogadores[p]
-	if not j or tipo ~= A.TRANSFORMAR or typeof(guid) ~= "string" or typeof(forma) ~= "string" or #forma > 24 then
+	if not j or typeof(guid) ~= "string" or #guid > 64 then
 		return
 	end
 	local agora = os.clock()
 	if not LimiteDeTaxa.consumir(j.balde, agora) then
+		return
+	end
+	if tipo == A.EVOLUIR then
+		evoluir(p, j, guid)
+		return
+	elseif tipo == A.EQUIPAR then
+		equipar(p, j, guid)
+		return
+	end
+	if tipo ~= A.TRANSFORMAR or typeof(forma) ~= "string" or #forma > 24 then
 		return
 	end
 	local inst = j.artefatos[guid]
@@ -235,6 +354,9 @@ end
 function MetamorphicArtifactSystem.Start()
 	movimento = ctxSistemas.obter("MovementSystem")
 	combate = ctxSistemas.obter("CombatSystem")
+	inventario = ctxSistemas.obter("InventorySystem")
+	playerData = ctxSistemas.obter("PlayerDataSystem")
+	inventario.mudou.conectar(sincronizar)
 
 	-- sem ataque durante a troca nem em forma de locomoção (a prancha não corta)
 	combate.registrarGuarda(function(p: Player)
@@ -274,20 +396,10 @@ function MetamorphicArtifactSystem.Start()
 	-- energia/estado: se o voo do artefato acabar por conta própria (pousou, energia), a forma continua de
 	-- locomoção no chão; o jogador volta à arma com a tecla de forma (sem troca automática surpresa).
 
-	local teste = ConfigServidor.concessoesDeTeste
 	local function entrar(p: Player)
-		local j: Jogador = { artefatos = {}, equipado = nil, anterior = nil, balde = LimiteDeTaxa.novo(6, 3, os.clock()) }
-		if teste and teste.ativa then
-			for _, a in teste.artefatos do
-				local cfg = configs[a.id]
-				if cfg then
-					local guid = HttpService:GenerateGUID(false)
-					j.artefatos[guid] = MaqArt.nova(guid, cfg, a.estagio)
-					j.equipado = j.equipado or guid
-				end
-			end
-		end
+		local j: Jogador = { artefatos = {}, teste = {}, equipado = nil, anterior = nil, balde = LimiteDeTaxa.novo(6, 3, os.clock()) }
 		jogadores[p] = j
+		sincronizar(p)
 		local function aoPersonagem()
 			-- renascer: o artefato volta à forma inicial (nunca se renasce em cima da prancha)
 			local inst, cfg = equipada(p)

@@ -44,6 +44,12 @@ return function()
 		LivrosSecretos = require(game:GetService("ServerScriptService").Guardioes.ConfigSecreta.Livros),
 		Perfil = require(game:GetService("ServerScriptService").Guardioes.Dados.Perfil),
 		TravaDeSessao = require(game:GetService("ServerScriptService").Guardioes.Dados.TravaDeSessao),
+		-- inventário, saque, missões, nível
+		Bolsa = require(G.Inventario.Bolsa),
+		Saque = require(G.Loot.Saque),
+		Missao = require(G.Missoes.Missao),
+		Missoes = require(G.Config.Missoes),
+		Nivel = require(G.Progressao.Nivel),
 	}
 	local specs = {}
 	for _, m in script.Parent.Specs:GetChildren() do

@@ -15,6 +15,7 @@ local ORDEM = {
 	"HudDeLocomocao",
 	"TransformacaoDeArtefato", -- ArtifactTransformationController
 	"PainelDeCompanheiros", -- companheiros, montaria (MountController) e avisos de livros
+	"HudDeProgresso", -- nível, missões, saque e bolsa (artefatos: equipar/evoluir)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}

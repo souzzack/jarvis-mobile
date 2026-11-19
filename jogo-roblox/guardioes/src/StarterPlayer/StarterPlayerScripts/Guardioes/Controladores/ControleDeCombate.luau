@@ -244,6 +244,11 @@ function ControleDeCombate.Start()
 			hud.numeroDeDano(a, b, c)
 		elseif tipo == E.RECEBEU_GOLPE then
 			hud.recebeu(a, b)
+		elseif tipo == E.ARMA then
+			if typeof(a) == "table" and typeof(a.combo) == "table" and a.pesado then
+				arma = a
+				maquina = MaquinaDeCombo.nova(os.clock())
+			end
 		elseif tipo == E.TELEGRAFIA then
 			hud.telegrafia(a, b, c)
 		end
