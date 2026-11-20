@@ -82,3 +82,31 @@ As capturas de perto da ponte e da caverna **expiraram** (o Studio fica pesado c
 2. Retestar o piso da praça e fazer as capturas que faltaram.
 3. Medir o **desempenho** com a ilha inteira, com o Studio em foco.
 4. Depois disso: **chefes e marcadores** nos lugares do GDD (Guardião no topo da Torre, Rainha na câmara, Colosso nas Ruínas, Espectro no Observatório, Cão na Floresta), usando o patch `SoloDaArena` guardado. Isso já é jogabilidade e precisa da sua aprovação.
+
+## 9. Atualização: escadaria do observatório, piso da praça e capturas (aprovado: "Escadaria no terreno")
+
+### Escadaria do observatório (IMPLEMENTADO e TESTADO)
+
+| Item | Detalhe |
+|---|---|
+| Onde | `Workspace.Dimensions.StormIsland.EscadariaObservatorio`, com `Id = STORM.ARCH.OBSERVATORY.STAIRS` e o atributo `Motivo` |
+| Traçado | Na **diagonal ao longo do paredão**, do fim da trilha P4 (148, −106; chão em 51,0) até o platô (126, −114; 64,4). O paredão vai de leste a oeste, e uma escada reta encosta acima não caberia nos cerca de 8 studs |
+| Degraus | **16 degraus** de 0,83 de altura e 1,46 de piso (cerca de 30°), com 8 de largura. Pedra clara da paleta (`#6d7590`, Slate) e muretas laterais em pedra escura (`#4a5168`). Base maciça até o chão e patamar no platô. O terreno acima dos degraus foi escavado |
+| **Erro meu, corrigido** | Na primeira construção somei a altura do centro da ilha (150) duas vezes, e a escada saiu cerca de 200 studs acima, no céu. O teste pelo topo dos degraus mostrou o erro. Apaguei e reconstruí. Raio de conferência: degraus 1, 8 e 16 com topo em 51,87, 57,70 e 64,36, iguais ao projetado |
+| **Observação** | Naquele primeiro teste, o personagem **subiu ao platô pelo próprio terreno, andando na diagonal**. A encosta tem cerca de 38° e é escalável no Roblox. Só o caminho reto até a porta era bloqueado. A escada dá o caminho claro que a trilha P4 deveria dar |
+
+**Teste no Play, degrau por degrau:** o personagem pisou nos **16 degraus** (Slate em cada um, com o pé acompanhando o topo: 51,2 → 63,9). Depois passou ao patamar (64,4, Slate) e andou pelo platô até a **porta do observatório (66,0)**. ✓
+
+### Piso da Praça do Coletor (retestado, TESTADO)
+
+O personagem andou sobre o calçamento a **16,7** (o projeto mede 16,7), sobre o colisor e sem afundar, e subiu os degraus da base do Coletor (16,9 e 17,3). ✓
+
+### Capturas que faltavam
+
+- `03-escadaria-do-observatorio.jpg`: a escadaria subindo na diagonal até o observatório. O bloco azul na imagem é o **Trovisco**, a criatura companheira que segue o jogador (modelo provisório de blocos do sistema de companheiros), e não uma peça solta.
+- `04-ponte-da-fenda.jpg`: a Ponte Suspensa, com pilares de pedra, cabos, tirantes e tabuado, sobre a fenda aberta.
+- `05-boca-da-caverna.jpg`: a fachada de cantaria com o emblema do raio, as lanternas, os trilhos e o túnel aberto pela escavação.
+
+A cópia de teste está salva na **versão 15**. O Output não mostrou erro novo.
+
+As pendências da seção 6 continuam: spawn e portal de volta, chefes e marcadores, FPS real, bordas e paredão, runas, colisor 16 na fonte e o `203785492`.
