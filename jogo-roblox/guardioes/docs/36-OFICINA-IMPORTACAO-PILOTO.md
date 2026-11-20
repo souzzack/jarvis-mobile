@@ -140,3 +140,5 @@ O personagem andou com `Humanoid:MoveTo`, como um jogador. As posições estão 
 **Observação para decisão:** com os valores do projeto, a luz deixa o interior **laranja saturado** no Roblox, mais forte que no render do visualizador (as duas iluminações são diferentes). Sugiro calibrar: brilho perto de 0,8 e alcance perto de 24. Não alterei sem a sua aprovação.
 
 **Pendências que restam:** o brilho das runas (sem equivalente direto), a calibragem da luz, a correção do colisor 16 na fonte e o procedimento padrão de importação para a próxima estrutura.
+
+**Calibragem da luz (aprovada: "Pode calibrar"):** brilho 1,6 → **0,8** e alcance 34 → **24**. Os valores do projeto ficaram no atributo `ValoresDoProjeto` da PointLight. A captura `06-interior-luz-calibrada.jpg` foi feita no Edit e mostra o interior legível, com tom quente nos cobres e sem a saturação. A cópia de teste está salva na **versão 10**. **IMPLEMENTADO.** A conferência foi só visual, no Edit; não houve novo Play.
