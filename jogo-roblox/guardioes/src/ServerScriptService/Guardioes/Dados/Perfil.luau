@@ -48,6 +48,7 @@ export type Perfil = {
 	base: { espacos: { [string]: number }, jardimColhidoEm: number, trofeus: { [string]: boolean } },
 	restauracoesProgresso: { [string]: { etapa: number, entregue: { [string]: number } } }, -- por estrutura
 	legadoMagnata: any?,
+	titulos: { [string]: boolean }, -- ex.: VeteranoDoMagnata (quem jogou o tycoon)
 	criadoEm: number,
 	atualizadoEm: number,
 }
@@ -56,7 +57,7 @@ local Perfil = {}
 Perfil.VERSAO = 2
 Perfil.LIMITES = { companheiros = 60, artefatos = 300, habilidades = 200, pilha = 9999, tiposDeMaterial = 500, nivelMax = 60 }
 
-local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos", "transportes" }
+local CONJUNTOS = { "livrosLidos", "segredos", "missoes", "restauracoes", "dimensoes", "enigmas", "receitas", "pontosDescobertos", "transportes", "titulos" }
 
 Perfil.MISTERIOS_VERSAO = 1
 Perfil.ESTADOS_INVESTIGACAO = { Undiscovered = true, Discovered = true, Investigating = true, ReadyToSolve = true, Completed = true }
@@ -100,6 +101,7 @@ function Perfil.novo(agora: number): Perfil
 		companhia = nil,
 		base = { espacos = {}, jardimColhidoEm = agora, trofeus = {} },
 		legadoMagnata = nil,
+		titulos = {},
 		criadoEm = agora,
 		atualizadoEm = agora,
 	}
@@ -117,10 +119,69 @@ function Perfil.copiar(v: any): any
 	return c
 end
 
--- (perfil, situacao): "novo" | "ok" | "completado" | "migradoDoLegado" | "versaoFutura"
+-- Perfil v1 do tycoon (MagnataDados_v1, campo 'dados'): tem equipamentos e galpão do Magnata.
+function Perfil.ehMagnataV1(v: any): boolean
+	return type(v) == "table" and type(v.moedas) == "number" and type(v.equip) == "table" and type(v.galpao) == "table"
+end
+
+local function numero(v: any, max: number): number
+	if type(v) ~= "number" or v ~= v or v < 0 then
+		return 0
+	end
+	return math.floor(math.min(v, max))
+end
+
+-- Migração do tycoon (docs/04, seção 2): nada se perde.
+--  * o perfil v1 inteiro fica em legadoMagnata (reversível à mão);
+--  * moedas passam 1:1;
+--  * o que foi investido em renda (galpão, equipamentos, renascimentos) vira o título VeteranoDoMagnata
+--    e materiais iniciais proporcionais, com teto (não desequilibra o RPG).
+function Perfil.migrarV1paraV2(v1: any, agora: number): Perfil
+	local p = Perfil.novo(agora)
+	p.legadoMagnata = Perfil.copiar(v1)
+	if type(v1) ~= "table" then
+		return p
+	end
+	p.moedas = numero(v1.moedas, 1e12 - 1)
+	local itensGalpao = 0
+	if type(v1.galpao) == "table" then
+		for _, comprado in v1.galpao do
+			if comprado == true then
+				itensGalpao += 1
+			end
+		end
+	end
+	local niveisEquip = 0
+	if type(v1.equip) == "table" then
+		for _, nv in v1.equip do
+			niveisEquip += math.max(0, numero(nv, 10) - 1)
+		end
+	end
+	local renasc = numero(v1.renascimentos, 1000)
+	local secretos = numero(v1.secretos, 1e6)
+	local jogou = itensGalpao > 0 or niveisEquip > 0 or renasc > 0 or numero(v1.totalGanho, 1e15) > 0
+	if jogou then
+		p.titulos.VeteranoDoMagnata = true
+		local faiscas = math.min(5 + niveisEquip * 2 + itensGalpao * 3, 60)
+		local nucleos = math.min(renasc * 2 + (if secretos > 0 then 1 else 0), 10)
+		p.materiais.FragmentoDeFaisca = faiscas
+		if nucleos > 0 then
+			p.materiais.NucleoDeTempestade = nucleos
+		end
+	end
+	if renasc >= 3 then
+		p.titulos.LendaDoMagnata = true
+	end
+	return p
+end
+
+-- (perfil, situacao): "novo" | "ok" | "completado" | "migradoDoMagnata" | "migradoDoLegado" | "versaoFutura"
 function Perfil.migrar(bruto: any, agora: number): (Perfil, string)
 	if bruto == nil then
 		return Perfil.novo(agora), "novo"
+	end
+	if Perfil.ehMagnataV1(bruto) and (type(bruto.versao) ~= "number" or bruto.versao < 2) then
+		return Perfil.migrarV1paraV2(bruto, agora), "migradoDoMagnata"
 	end
 	if type(bruto) ~= "table" or type(bruto.versao) ~= "number" or bruto.versao < 2 then
 		-- formato desconhecido/antigo: guarda INTEIRO e começa um perfil novo; moedas numéricas passam 1:1

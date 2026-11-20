@@ -96,6 +96,74 @@ return function(T, M)
 		T.verdade(ok3)
 	end)
 
+	-- três perfis no formato real do tycoon (Dados.padrao() do place): recém-chegado, meio de jogo, veterano
+	local function magnata(extra)
+		local v1 = {
+			versao = 1, moedas = 0, totalGanho = 0, nivel = 1, xp = 0, pontos = 0,
+			equip = { Coletor = 1, Mochila = 1, Botas = 1, Escudo = 1, Radar = 1, Capturador = 1 },
+			inventario = {}, habilidades = {}, mundos = { Tempestades = true }, renascimentos = 0, fragmentos = 0,
+			galpao = {}, pets = {}, petsEquipados = {}, proxPet = 1, colecao = {}, secretos = 0, especiesVistas = {},
+			passes = {}, boostAte = 0, config = { sons = true }, recibos = {}, ultimaVez = 0, criadoEm = 1,
+		}
+		for k, v in extra do
+			v1[k] = v
+		end
+		return v1
+	end
+
+	T.caso("Magnata recém-chegado: perfil v2 válido, sem título nem materiais", function()
+		local p, s = P.migrar(magnata({}), 100)
+		T.igual(s, "migradoDoMagnata")
+		T.igual(p.moedas, 0)
+		T.igual(p.titulos.VeteranoDoMagnata, nil)
+		T.igual(p.materiais.FragmentoDeFaisca, nil)
+		T.verdade((P.validar(p)))
+		T.igual(p.legadoMagnata.versao, 1, "save antigo guardado inteiro")
+	end)
+
+	T.caso("Magnata meio de jogo: moedas 1:1, título de veterano e materiais proporcionais", function()
+		local v1 = magnata({
+			moedas = 4321.7, totalGanho = 90000,
+			equip = { Coletor = 3, Mochila = 2, Botas = 1, Escudo = 1, Radar = 2, Capturador = 1 },
+			galpao = { Placa = true, Refinadora = true, Esteira = true },
+			secretos = 1,
+		})
+		local p, s = P.migrar(v1, 100)
+		T.igual(s, "migradoDoMagnata")
+		T.igual(p.moedas, 4321)
+		T.verdade(p.titulos.VeteranoDoMagnata)
+		T.igual(p.materiais.FragmentoDeFaisca, 5 + 4 * 2 + 3 * 3) -- 4 níveis acima do 1º, 3 itens do galpão
+		T.igual(p.materiais.NucleoDeTempestade, 1) -- achou um secreto
+		T.verdade((P.validar(p)))
+		T.igual(p.legadoMagnata.galpao.Refinadora, true)
+		v1.galpao.Refinadora = false
+		T.igual(p.legadoMagnata.galpao.Refinadora, true, "legado é cópia, não referência")
+	end)
+
+	T.caso("Magnata veterano: tetos respeitados e título de lenda com 3 renascimentos", function()
+		local cheio = {}
+		for _, id in { "Placa", "Refinadora", "Esteira", "Processadora", "Func1", "Baterias", "Vitrine", "Func2", "Joias", "Expansao", "Func3", "Reator" } do
+			cheio[id] = true
+		end
+		local p, s = P.migrar(magnata({
+			moedas = 2.5e9, renascimentos = 7, secretos = 40, galpao = cheio,
+			equip = { Coletor = 5, Mochila = 5, Botas = 5, Escudo = 5, Radar = 5, Capturador = 5 },
+		}), 100)
+		T.igual(s, "migradoDoMagnata")
+		T.igual(p.moedas, 2500000000)
+		T.igual(p.materiais.FragmentoDeFaisca, 60, "teto")
+		T.igual(p.materiais.NucleoDeTempestade, 10, "teto")
+		T.verdade(p.titulos.LendaDoMagnata)
+		T.verdade((P.validar(p)))
+	end)
+
+	T.caso("Magnata com dados estranhos não quebra nem cria moedas", function()
+		local p, s = P.migrar(magnata({ moedas = -50, renascimentos = 0 / 0, equip = { Coletor = "x" } }), 100)
+		T.igual(s, "migradoDoMagnata")
+		T.igual(p.moedas, 0)
+		T.verdade((P.validar(p)))
+	end)
+
 	T.caso("salvar: só o dono da trava escreve; liberar solta a trava", function()
 		local r = Tr.adquirir(nil, "A", 100, 300)
 		local s1, ok1, m1 = Tr.salvar(r, { versao = 2 }, "A", 150, 300, false)

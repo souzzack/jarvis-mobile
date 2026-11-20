@@ -58,6 +58,8 @@ local ConfigServidor = {
 		autosaveSeg = 120,
 		travaSeg = 300, -- trava de sessão: outro servidor só assume depois disso (ou quando esta for liberada)
 		tentativasCarregar = 5,
+		-- save do tycoon: só LIDO (GetAsync), uma vez, quando o jogador ainda não tem perfil v2
+		legado = { nomeStore = "MagnataDados_v1", prefixoChave = "j_" },
 	},
 	-- companhias (guildas): store própria; o perfil guarda só o id
 	companhias = {

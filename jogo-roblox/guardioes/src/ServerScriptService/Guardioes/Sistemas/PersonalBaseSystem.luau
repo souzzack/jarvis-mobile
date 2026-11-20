@@ -186,9 +186,11 @@ construir = function(p: Player)
 	local m = Instance.new("Model")
 	m.Name = "Base_" .. p.UserId
 	local centro = parcela.CFrame * CFrame.new(0, parcela.Size.Y / 2, 0)
+	-- parcela ligada a um terreno do tycoon: usa o pátio da frente (o galpão continua do tycoon)
+	local layout = if parcela:GetAttribute("LayoutDaBase") == "Frente" then CfgBase.layoutFrente else CfgBase.layout
 	for id, cfg in CfgBase.espacos do
 		local n = BaseLogica.nivel(perfil.base, id, cfg)
-		local pos = CfgBase.layout[id] or { 0, 0, 0 }
+		local pos = layout[id] or { 0, 0, 0 }
 		local onde = centro * CFrame.new(pos[1], pos[2], pos[3])
 		local bloco = Instance.new("Part")
 		bloco.Name = id
@@ -332,10 +334,35 @@ function PersonalBaseSystem.Start()
 			par.Parent = pastaParcelas
 		end
 	end
-	local function livre(): BasePart?
+	-- Parcelas ligadas ao tycoon têm o atributo TerrenoTycoon (= nome do terreno). O jogador recebe a parcela do
+	-- MESMO terreno que o tycoon deu a ele (atributo "Terreno" do jogador), para os dois nunca ficarem em terrenos
+	-- diferentes. Sem tycoon (ou sem resposta dele em alguns segundos), vale a menor parcela livre.
+	local function livre(p: Player): BasePart?
 		local ocupadas: { [BasePart]: boolean } = {}
 		for _, b in parcelaDe do
 			ocupadas[b] = true
+		end
+		local ligadas = false
+		for _, d in pastaParcelas:GetDescendants() do
+			if d:IsA("BasePart") and d:GetAttribute("TerrenoTycoon") then
+				ligadas = true
+				break
+			end
+		end
+		if ligadas then
+			local terreno = p:GetAttribute("Terreno")
+			local t0 = os.clock()
+			while terreno == nil and p.Parent and os.clock() - t0 < 8 do
+				task.wait(0.25)
+				terreno = p:GetAttribute("Terreno")
+			end
+			if terreno ~= nil then
+				for _, d in pastaParcelas:GetDescendants() do
+					if d:IsA("BasePart") and not ocupadas[d] and d:GetAttribute("TerrenoTycoon") == terreno then
+						return d
+					end
+				end
+			end
 		end
 		local melhor: BasePart? = nil
 		local menor = math.huge
@@ -350,7 +377,20 @@ function PersonalBaseSystem.Start()
 		return melhor
 	end
 	playerData.carregado.conectar(function(p: Player)
-		local par = livre()
+		-- em tarefa própria: livre() pode esperar alguns segundos pelo terreno do tycoon, e os ouvintes do
+		-- 'carregado' rodam em sequência (os outros sistemas não podem ficar esperando)
+		task.spawn(function()
+		local par = livre(p)
+		if not p.Parent then
+			return
+		end
+		-- enquanto esperava, outro jogador pode ter ficado com esta parcela: escolhe de novo (já sem espera)
+		for _, outra in parcelaDe do
+			if outra == par then
+				par = livre(p)
+				break
+			end
+		end
 		if par then
 			parcelaDe[p] = par
 			construir(p)
@@ -358,6 +398,7 @@ function PersonalBaseSystem.Start()
 			evento:FireClient(p, EB.REJEITADO, "semBase", {})
 		end
 		enviar(p)
+		end)
 	end)
 	-- o contador do Depósito acompanha a bolsa (fabricou, desmontou)
 	inventario.mudou.conectar(function(p: Player)

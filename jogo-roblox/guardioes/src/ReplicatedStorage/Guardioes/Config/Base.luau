@@ -67,4 +67,14 @@ return {
 		Bancada = { -10, 0, 10 },
 		Deposito = { 10, 0, 10 },
 	},
+	-- parcelas ligadas aos terrenos do tycoon (atributo LayoutDaBase = "Frente"): enquanto o tycoon ocupa o galpão,
+	-- os espaços ficam no pátio da frente (-Z, lado da praça), fora do terreno de 40×40 e longe da placa (z = -24).
+	-- Afastados 15 studs: cabe o maior bloco (nível 10 = 14 studs) sem encostar no vizinho.
+	layoutFrente = {
+		Forja = { -14, 0, -33 },
+		Jardim = { 14, 0, -33 },
+		Expositor = { 0, 0, -41 },
+		Bancada = { -14, 0, -49 },
+		Deposito = { 14, 0, -49 },
+	},
 }

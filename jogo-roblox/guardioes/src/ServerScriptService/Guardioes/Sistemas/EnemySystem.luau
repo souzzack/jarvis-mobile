@@ -264,8 +264,9 @@ function EnemySystem.receberGolpe(id: string, g: GolpeRecebido): any?
 	if ini.estado ~= "Atordoado" and Postura.receber(ini.postura, CfgCombate.postura, r.posturaNoAlvo, agora) then
 		atordoar(ini, agora)
 	end
-	-- golpe provoca: a criatura passa a perseguir quem bateu
-	if ini.estado == "Ocioso" or ini.estado == "Retornar" then
+	-- golpe provoca: a criatura passa a perseguir quem bateu (alvos parados, como o Boneco, ficam como estão)
+	local age = ini.cfg.ia.velocidade > 0 or #ini.cfg.ataques > 0
+	if age and (ini.estado == "Ocioso" or ini.estado == "Retornar") then
 		ini.alvo = g.atacante
 		mudar(ini, "Perseguir", agora)
 	end
@@ -370,15 +371,20 @@ end
 
 local function pensar(ini: Inimigo, agora: number)
 	local cfg = ini.cfg
-	if ini.estado == "Morto" or cfg.ia.velocidade <= 0 and #cfg.ataques == 0 then
+	if ini.estado == "Morto" then
 		return
 	end
+	-- alvos parados (Boneco): só recuperam postura e saem do atordoamento; não percebem nem perseguem
+	local parado = cfg.ia.velocidade <= 0 and #cfg.ataques == 0
 	Postura.atualizar(ini.postura, CfgCombate.postura, agora)
 	local pos = ini.raiz.Position
 	if ini.estado == "Atordoado" then
 		if agora >= ini.atordoadoAte then
-			mudar(ini, "Perseguir", agora)
+			mudar(ini, if parado then "Ocioso" else "Perseguir", agora)
 		end
+		return
+	end
+	if parado then
 		return
 	end
 	if ini.estado == "Ocioso" then

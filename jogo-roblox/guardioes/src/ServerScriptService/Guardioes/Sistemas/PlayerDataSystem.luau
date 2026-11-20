@@ -26,6 +26,22 @@ local PlayerDataSystem = { Nome = "PlayerDataSystem" }
 PlayerDataSystem.carregado = Sinal.novo() -- (p, perfil)
 
 local sessoes: { [Player]: Sessao } = {}
+
+-- Todos os sistemas se conectam ao 'carregado' no Start, que roda em paralelo. Quem conectar DEPOIS de um
+-- jogador já ter carregado (Studio sem DataStore carrega na hora; um Start pode esperar por WaitForChild)
+-- recebe o aviso desse jogador na conexão — senão ele ficaria sem bolsa, missões, base etc.
+do
+	local conectarOriginal = PlayerDataSystem.carregado.conectar
+	PlayerDataSystem.carregado.conectar = function(fn)
+		local conexao = conectarOriginal(fn)
+		for p, s in sessoes do
+			if p.Parent then
+				task.spawn(fn, p, s.perfil)
+			end
+		end
+		return conexao
+	end
+end
 local store: DataStore? = nil
 local somenteMemoria = false
 local servidor = if game.JobId ~= "" then game.JobId else "studio-" .. tostring(math.random(1, 1e9))
@@ -44,6 +60,32 @@ local function tentar<T>(fn: () -> T, tentativas: number): (boolean, T?)
 		task.wait(math.min(2 ^ i, 8))
 	end
 	return false, nil
+end
+
+-- Save do tycoon (MagnataDados_v1, chave j_<UserId>, formato { dados, trava, salvoEm }).
+-- Só GetAsync: o Guardiões nunca escreve nessa store. Falha na leitura = começa do zero, sem travar a entrada.
+local legadoStore: DataStore? = nil
+local function lerLegado(p: Player): any
+	local cfg = CFG.legado
+	if not cfg then
+		return nil
+	end
+	if not legadoStore then
+		local ok, s = pcall(function()
+			return DataStoreService:GetDataStore(cfg.nomeStore)
+		end)
+		if not ok then
+			return nil
+		end
+		legadoStore = s
+	end
+	local ok, registro = tentar(function()
+		return (legadoStore :: DataStore):GetAsync(cfg.prefixoChave .. p.UserId)
+	end, 2)
+	if ok and type(registro) == "table" and type(registro.dados) == "table" then
+		return registro.dados
+	end
+	return nil
 end
 
 local function carregar(p: Player)
@@ -87,7 +129,13 @@ local function carregar(p: Player)
 		p:Kick("Não foi possível carregar seu progresso com segurança. Tente entrar de novo em alguns instantes.")
 		return
 	end
+	if bruto == nil then
+		bruto = lerLegado(p) -- primeira vez nos Guardiões: traz o save do tycoon (só leitura)
+	end
 	local perfil, situacao = Perfil.migrar(bruto, agora)
+	if situacao == "migradoDoMagnata" then
+		print(("[Guardioes] perfil do Magnata migrado para %s: %d moedas%s"):format(p.Name, perfil.moedas, if perfil.titulos.VeteranoDoMagnata then ", título de veterano" else ""))
+	end
 	sessoes[p] = { perfil = perfil, somenteLeitura = situacao == "versaoFutura", sujo = situacao ~= "ok", salvando = false }
 	if situacao == "versaoFutura" then
 		warn("[Guardioes] perfil de versão mais nova que este servidor: somente leitura para " .. p.Name)
