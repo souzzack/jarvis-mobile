@@ -75,14 +75,24 @@ O tycoon só sai do núcleo quando todas as condições abaixo forem atendidas:
 
 Mesmo depois disso, os scripts antigos ficam em `ServerStorage.Magnata_Arquivo`.
 
-## 6. Auditoria a fazer no Studio (pendente)
+## 6. Auditoria no Studio (feita em 2026-11-19, na cópia "11202026_2", placeId 115368067307260)
 
-- [ ] Listar todos os scripts que usam `Magnata` e onde estão: ServerScriptService, StarterPlayerScripts, ReplicatedStorage.
-- [ ] Anotar o nome das DataStores usadas e o formato do perfil v1 (`print` de um perfil de teste).
-- [ ] Listar os RemoteEvents e RemoteFunctions do tycoon e o que cada um aceita. Procurar validações faltando.
-- [ ] Confirmar se algum script do tycoon usa `workspace.GuardioesInimigos`, `ReplicatedStorage.Remotos` ou nomes iguais aos do RPG. Esperado: nenhum.
-- [ ] Ver se algum script do tycoon mexe no `Humanoid.Health` ou na velocidade do personagem, o que interferiria no combate.
-- [ ] Guardar o `.rbxl` de backup e anotar o caminho no `06-RELATORIO.md`.
+- [x] **Scripts do tycoon** (47 no total, todos dentro do namespace `Magnata`):
+  - `ServerScriptService.Magnata`: `Main` (Script) + 17 módulos em `Servicos` (Log, Rede, Dados, Progresso, Economia, Mineracao, Equipamentos, Habilidades, Ajudantes, Galpao, Portais, Bolhas, Eventos, Renascimento, Ranking, Monetizacao, Teste).
+  - `StarterPlayerScripts.Magnata`: LocalScript + 9 módulos (Cientistas, Animacoes, Som, Estado, Coletor, Ajudantes, Mundo, Efeitos, UI).
+  - `ReplicatedStorage.Magnata`: Config (12 módulos), Voxel, Stats, Modelos, Ativos, Assets, Remotes.
+- [x] **DataStores do tycoon:** `MagnataDados_v1` (perfil, com trava de sessão em `UpdateAsync`, chave `j_<UserId>`) e `Ranking_<categoria>` (OrderedDataStore: dinheiro, renascimentos, secretos, colecao, progresso).
+  - Formato v1 (ver `Dados.padrao()` no place): `{ versao=1, moedas, totalGanho, nivel, xp, pontos, equip={Coletor,Mochila,Botas,Escudo,Radar,Capturador}, inventario, habilidades, mundos, renascimentos, fragmentos, galpao, pets, petsEquipados, proxPet, colecao, secretos, especiesVistas, passes, boostAte, config, recibos, ultimaVez, criadoEm }`, gravado como `{ dados = <v1>, trava = { job, tempo }, salvoEm }`.
+- [x] **Remotos do tycoon:** `Magnata.Remotes.Pedido` (RemoteFunction única, ações registradas com limite de frequência por ação e `pcall`; o cliente só manda a intenção, nunca valores) + 8 RemoteEvents só servidor → cliente (Estado, Extraido, Notificar, Anuncio, Golpe, Efeito, Chocou, Resumo). Nenhum `OnServerEvent`. A ação `Teste` só é registrada com `RunService:IsStudio()`.
+- [x] **Nomes iguais aos do RPG:** nenhum (`Remotos`, `GuardioesInimigos`, `GuardioesParcelas` não existem no tycoon).
+- [x] **Health:** nenhum script do tycoon mexe em `Humanoid.Health`.
+- [x] **Velocidade — CONFLITO, corrigido:** `Progresso.aplicarPersonagem` reaplicava `WalkSpeed`/`JumpPower` das botas a cada alteração de dados (a renda passiva gera uma por segundo), o que derrubava a velocidade da montaria. Agora o `MountSystem` marca o personagem com o atributo `GuardioesMontado` e o tycoon não mexe na velocidade enquanto ele existir (testado: 40 se manteve com a renda rodando).
+- [x] **Teleporte:** o tycoon teleporta pelos portais (`Portais.teleportar`) e na queda nas Bolhas. Por isso `VALIDAR_A_PE` no `MovementSystem` continua `false`.
+- [x] **HUD:** criada a chave `HudAtivo` (atributo em `ReplicatedStorage.Guardioes`: `"Ambos"` padrão, `"Magnata"` ou `"Guardioes"`). Em `"Ambos"`, o `MagnataHUD` desce o painel de dinheiro para baixo da barra de botões e põe o menu em linha embaixo; medido no Play: 0 sobreposições.
+- [x] **Lixo encontrado:** uma cópia do plugin do Rojo estava solta em `workspace.Rojo` (160 objetos replicados a todos). Movida, sem apagar, para `ServerStorage.Arquivo_NaoUsado`.
+- [ ] Backup `.rbxl` (File → Save to File): a ferramenta do Studio usada nesta auditoria não salva em arquivo; fazer à mão.
+
+> As mudanças nos scripts do tycoon (Progresso e UI) existem **só no place** (o tycoon não está neste repositório). Iluminação por zona (`Mundo.ambiente`) e câmera nas descobertas (`Animacoes`) continuam do tycoon; não conflitam hoje, mas entram na revisão quando o RPG tiver iluminação própria.
 
 ## 7. Atualização (base pessoal escrita, sem o Studio)
 

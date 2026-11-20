@@ -62,6 +62,9 @@ local function soltar(p: Player, restaurarHumanoid: boolean)
 		m.solda:Destroy()
 	end
 	local _, hum = corpo(p)
+	if p.Character then
+		p.Character:SetAttribute("GuardioesMontado", nil)
+	end
 	if restaurarHumanoid and hum then
 		hum.WalkSpeed, hum.HipHeight, hum.UseJumpPower, hum.JumpPower = m.walk, m.hip, m.usaPulo, m.pulo
 	end
@@ -137,6 +140,10 @@ local function montar(p: Player)
 		usaPulo = hum.UseJumpPower, pulo = hum.JumpPower, altura = altura, voadora = voadora,
 	}
 	hum.HipHeight += altura
+	-- aviso para sistemas antigos (tycoon) não sobrescreverem WalkSpeed/JumpPower enquanto montado
+	if p.Character then
+		p.Character:SetAttribute("GuardioesMontado", true)
+	end
 	hum.WalkSpeed = esp.montaria.velMax
 	hum.UseJumpPower = true
 	hum.JumpPower = esp.montaria.salto or 0
