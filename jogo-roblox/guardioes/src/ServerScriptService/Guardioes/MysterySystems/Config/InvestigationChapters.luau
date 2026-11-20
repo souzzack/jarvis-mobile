@@ -122,7 +122,28 @@ return {
 				},
 				recompensa = "RecCap5_Mensagem",
 			},
-			{ n = 6, nome = "A Biblioteca do Vazio", lancado = false, pistas = {}, objetivos = {}, dimensao = "BibliotecaDoVazio" },
+			{
+				-- dentro da Biblioteca do Vazio (a porta sem moldura abre depois do capítulo 5). O índice explica as
+				-- estantes; a mesa das sete estrelas dá a ordem de leitura (semente). Lidos na ordem, os livros
+				-- movem a estante e abrem o caminho para as três páginas de A., uma em cada sala.
+				n = 6, nome = "A Biblioteca do Vazio", lancado = true, dimensao = "BibliotecaDoVazio",
+				pistas = {
+					IndiceDoVazio = {
+						ordem = 1, nome = "O índice que flutua", categoria = "D",
+						texto = "Um índice de pedra gira devagar no átrio. Só uma linha ainda brilha: \"As estantes desta casa não se abrem à força. Abrem-se à leitura, na ordem em que se pergunta.\"",
+					},
+					MesaDasSeteEstrelas = {
+						ordem = 2, nome = "A mesa das sete estrelas", categoria = "A",
+						texto = "Sete pontos de luz no tampo da mesa, no mesmo desenho que você já viu no céu da Ilha. Entre eles, a letra de A.: \"Primeiro o livro {1}, depois o {2}, e só então o {3}.\"",
+					},
+				},
+				objetivos = {
+					{ id = "PistasDaBiblioteca", nome = "Entender como a Biblioteca se abre", tipo = "pistas", pistas = { "IndiceDoVazio", "MesaDasSeteEstrelas" } },
+					{ id = "LeituraDasEstantes", nome = "Ler os três livros na ordem da mesa", tipo = "enigma", puzzle = "LeituraDasEstantes", visivelApos = "PistasDaBiblioteca" },
+					{ id = "PaginasDeA", nome = "Recolher as três páginas de A.", tipo = "enigma", puzzle = "PaginasDeA", visivelApos = "LeituraDasEstantes" },
+				},
+				recompensa = "RecCap6_Biblioteca",
+			},
 			{ n = 7, nome = "A Primeira Receita ???", lancado = false, pistas = {}, objetivos = {} },
 		},
 	},

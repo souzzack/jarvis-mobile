@@ -1,8 +1,8 @@
 --!strict
 -- NÃO EXECUTADO. PASSAGENS SECRETAS (SecretDimensionService, seção 8) — LÓGICA PURA.
 -- Estados por jogador: "oculto" (não descoberto) → "selado" (descoberto, condições ainda não cumpridas) →
--- "aberto" (pode atravessar). Atravessar ainda exige que o DESTINO exista (placeId > 0): sem place, o estado
--- de viagem é "emConstrucao" e o servidor nunca teleporta para um lugar inexistente.
+-- "aberto" (pode atravessar). Atravessar ainda exige que o DESTINO exista: um place (placeId > 0) ou uma área
+-- deste place (noPlace = true). Sem nenhum dos dois, o estado é "emConstrucao" e ninguém viaja para o nada.
 
 local PS = {}
 
@@ -22,7 +22,8 @@ function PS.podeAtravessar(estado: string, destino: any?, tamanhoDoGrupo: number
 	if estado == "selado" then
 		return false, "portalSelado"
 	end
-	if not destino or type(destino.placeId) ~= "number" or destino.placeId <= 0 then
+	local temPlace = destino ~= nil and type(destino.placeId) == "number" and destino.placeId > 0
+	if not destino or not (temPlace or destino.noPlace == true) then
 		return false, "emConstrucao"
 	end
 	local g = portal.grupo or { min = 1, max = 1 }

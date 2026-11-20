@@ -1,13 +1,13 @@
 --!strict
 -- NÃO EXECUTADO. DIMENSÕES OCULTAS E PASSAGENS SECRETAS (SÓ SERVIDOR). Seções 7 e 8.
--- As 4 dimensões são CONCEITOS para atualizações futuras: nenhum mapa existe; placeId = 0 em todas. O portal
--- pode ser descoberto e até "aberto", mas a viagem responde "em construção" (nunca teleporta para o nada).
--- A primeira a ser construída de verdade, depois da sua aprovação: Biblioteca do Vazio.
+-- placeId = 0 em todas (nenhuma tem place próprio). A Biblioteca do Vazio já existe como ÁREA deste place
+-- (noPlace = true; chegada = Part com GuardioesChegadaDimensao = "BibliotecaDoVazio" em workspace.GuardioesViagem).
+-- As outras 3 são CONCEITOS: o portal pode ser descoberto, mas a viagem responde "em construção".
 
 return {
 	dimensoes = {
 		BibliotecaDoVazio = {
-			id = "BibliotecaDoVazio", nome = "Biblioteca do Vazio", hub = false, placeId = 0, ordemDeConstrucao = 1,
+			id = "BibliotecaDoVazio", nome = "Biblioteca do Vazio", hub = false, placeId = 0, noPlace = true, ordemDeConstrucao = 1,
 			identidade = "Arquitetura monumental, livros flutuantes, portais instáveis; enigmas de conhecimento. Registros dos Arquivistas e uma das primeiras receitas ???.",
 			mecanica = "Estantes que se reorganizam pela leitura; sequências e traduções; coleta de páginas entre salas.",
 		},

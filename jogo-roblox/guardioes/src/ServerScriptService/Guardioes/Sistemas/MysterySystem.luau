@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local Investigacao = require(G.MysterySystems.Investigacao)
+local ObjetivosFeitos = require(G.MysterySystems.ObjetivosFeitos)
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
 local Requisitos = require(G.Util.Requisitos)
 local Remotos = require(G.Rede.Remotos)
@@ -36,11 +37,22 @@ local evento: RemoteEvent
 local ctxSistemas: any = nil
 local baldes: { [Player]: LimiteDeTaxa.Balde } = {}
 
+-- objetivos já cumpridos (de qualquer capítulo) num atributo do jogador: o cliente usa para mudar o mapa SÓ
+-- para ele (ex.: a estante da Biblioteca que se abre depois da leitura). Só ids do próprio progresso.
+local function publicarObjetivos(p: Player)
+	local perfil = ctxSistemas.obter("PlayerDataSystem").obter(p)
+	if not perfil then
+		return
+	end
+	p:SetAttribute("GuardioesObjetivosFeitos", ObjetivosFeitos.codificar(perfil.misterios.investigacoes))
+end
+
 local function enviarDiario(p: Player)
 	local v = Diario.montar(p)
 	if v then
 		evento:FireClient(p, EM.DIARIO, v)
 	end
+	publicarObjetivos(p)
 end
 
 function MysterySystem.Init(ctx: any)

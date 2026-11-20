@@ -13,6 +13,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local G = ReplicatedStorage:WaitForChild("Guardioes")
 local LimiteDeTaxa = require(G.Util.LimiteDeTaxa)
+local Marcas = require(G.MysterySystems.Marcas)
 
 local S = {}
 local deps: any = nil
@@ -168,7 +169,7 @@ end
 
 local function preparar(parte: BasePart)
 	local id = parte:GetAttribute("GuardioesMisterio")
-	if typeof(id) ~= "string" or not deps.registro.marcas[id] or parte:FindFirstChild("GuardioesMisterioPrompt") then
+	if typeof(id) ~= "string" or not deps.registro.marcas[id] or parte:FindFirstChild("GuardioesMisterioPrompt", true) then
 		return
 	end
 	local pr = Instance.new("ProximityPrompt")
@@ -179,7 +180,17 @@ local function preparar(parte: BasePart)
 	pr.GamepadKeyCode = Enum.KeyCode.DPadUp
 	pr.HoldDuration = 0.3
 	pr.MaxActivationDistance = 9
-	pr.Parent = parte
+	-- peça alta: o prompt fica perto da base (quem está no chão alcança; a distância do servidor não muda)
+	local dy = Marcas.alturaDoPrompt(parte.Size.Y)
+	if dy ~= 0 then
+		local a = Instance.new("Attachment")
+		a.Name = "GuardioesMisterioPonto"
+		a.Position = Vector3.new(0, dy, 0)
+		a.Parent = parte
+		pr.Parent = a
+	else
+		pr.Parent = parte
+	end
 	pr.Triggered:Connect(function(p: Player)
 		interagir(p, id, parte)
 	end)

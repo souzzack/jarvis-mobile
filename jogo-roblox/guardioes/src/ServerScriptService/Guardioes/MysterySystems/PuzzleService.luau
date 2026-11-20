@@ -137,9 +137,10 @@ function S.agir(p: Player, puzzleId: string, elemento: string, ctx: any): (strin
 		for _ in st.tem do
 			n += 1
 		end
-		info = string.format("Você guardou o %s (%d de %d).", (cfg.nomes and cfg.nomes[elemento]) or "item", n, total)
+		-- artigo do item (cfg.artigo: "o" ou "a"; padrão "o"): "o dente", "a página"
+		info = string.format("Você guardou %s %s (%d de %d).", cfg.artigo or "o", (cfg.nomes and cfg.nomes[elemento]) or "item", n, total)
 	elseif cfg.tipo == "Coleta" and r == "semEfeito" then
-		info = "Você já guardou este."
+		info = if cfg.artigo == "a" then "Você já guardou esta." else "Você já guardou este."
 	end
 	if r == "completo" then
 		if not resolverPara(p, puzzleId, cfg) then

@@ -41,6 +41,15 @@ return {
 		EcoOrvalho = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaOrvalho", acao = "Tocar" },
 		EcoPrisma = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaPrisma", acao = "Tocar" },
 		EcoMel = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaMel", acao = "Tocar" },
+		-- capítulo 6 (Biblioteca do Vazio)
+		MarcaIndiceDoVazio = { tipo = "pista", investigacao = INV, pista = "IndiceDoVazio", acao = "Ler" },
+		MarcaMesaDasSeteEstrelas = { tipo = "pista", investigacao = INV, pista = "MesaDasSeteEstrelas", acao = "Examinar" },
+		LivroDasMares = { tipo = "enigma", puzzle = "LeituraDasEstantes", elemento = "LivroDasMares", acao = "Ler" },
+		LivroDosVentos = { tipo = "enigma", puzzle = "LeituraDasEstantes", elemento = "LivroDosVentos", acao = "Ler" },
+		LivroDasEstrelas = { tipo = "enigma", puzzle = "LeituraDasEstantes", elemento = "LivroDasEstrelas", acao = "Ler" },
+		PaginaDoNicho = { tipo = "enigma", puzzle = "PaginasDeA", elemento = "PaginaDoNicho", acao = "Pegar" },
+		PaginaDoAlto = { tipo = "enigma", puzzle = "PaginasDeA", elemento = "PaginaDoAlto", acao = "Pegar" },
+		PaginaDoEco = { tipo = "enigma", puzzle = "PaginasDeA", elemento = "PaginaDoEco", acao = "Pegar" },
 	},
 
 	-- HABILIDADES INVESTIGATIVAS (seção 9): interface única; cada uma tem VÁRIAS fontes, para nenhuma espécie,
@@ -105,6 +114,12 @@ return {
 			marcas = { "MensagemEntreDimensoes" },
 			xp = 400,
 		},
+		RecCap6_Biblioteca = {
+			materiais = { FolhaDeRegistro = 3 },
+			registros = { "Arq05_ABiblioteca" },
+			marcas = { "PaginasDeA" },
+			xp = 500,
+		},
 		RecCap3_Torres = {
 			materiais = { FolhaDeRegistro = 2, NucleoDeTempestade = 1 },
 			registros = { "Arq03_AsTorres" },
@@ -129,6 +144,10 @@ return {
 		Arq04_AMensagem = {
 			titulo = "Registro do Arquivista A. (fragmento 4)", categoria = "RegistroAntigo",
 			texto = "\"Escrevo do outro lado da fechadura. O Atlas vibra errado há semanas, como um sino rachado por dentro. Os outros dizem que é normal. Vou guardar as páginas na Biblioteca, atrás da porta que não tem moldura. Se você leu até aqui, ela vai te reconhecer.\"",
+		},
+		Arq05_ABiblioteca = {
+			titulo = "Registro do Arquivista A. (fragmento 5)", categoria = "RegistroAntigo",
+			texto = "\"Uma biblioteca não guarda livros. Guarda o que o Atlas lembra, e só devolve a quem pergunta na ordem certa. Os outros querem fechar todas as portas por dentro até o sino parar de rachar. Eu não acho que ele vai parar sozinho. Deixei a última anotação, a do que não está no índice, onde as sete estrelas apontam.\"",
 		},
 		Arq03_AsTorres = {
 			titulo = "Registro do Arquivista A. (fragmento 3)", categoria = "ConhecimentoProibido",

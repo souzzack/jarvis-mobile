@@ -87,6 +87,8 @@ return function()
 		Enigma = require(G.MysterySystems.Enigma),
 		Pesquisa = require(G.MysterySystems.Pesquisa),
 		PortalSecreto = require(G.MysterySystems.PortalSecreto),
+		ObjetivosFeitos = require(G.MysterySystems.ObjetivosFeitos),
+		Marcas = require(G.MysterySystems.Marcas),
 		DiarioMisterios = require(G.MysterySystems.Diario),
 		InvestigationChapters = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.InvestigationChapters),
 		Puzzles = require(game:GetService("ServerScriptService").Guardioes.MysterySystems.Config.Puzzles),

@@ -54,6 +54,21 @@ return {
 		ordem = "semente",
 		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "EcoDasBolhas" },
 	},
+	-- capítulo 6 (Biblioteca do Vazio): três livros lidos na ordem da semente (a mesa das sete estrelas) movem a
+	-- estante; depois, as três páginas de A. em salas diferentes (a do alto exige ESTAR lá: degraus de livros ou voo)
+	LeituraDasEstantes = {
+		tipo = "Sequencia", escopo = "individual", raio = 10,
+		elementos = { "LivroDasMares", "LivroDosVentos", "LivroDasEstrelas" },
+		nomes = { LivroDasMares = "das marés", LivroDosVentos = "dos ventos", LivroDasEstrelas = "das estrelas" },
+		ordem = "semente",
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "LeituraDasEstantes" },
+	},
+	PaginasDeA = {
+		tipo = "Coleta", escopo = "individual", raio = 8, artigo = "a",
+		itens = { "PaginaDoNicho", "PaginaDoAlto", "PaginaDoEco" },
+		nomes = { PaginaDoNicho = "página do nicho", PaginaDoAlto = "página do alto", PaginaDoEco = "página da sala do eco" },
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "PaginasDeA" },
+	},
 	-- EXEMPLOS de cada tipo (configs válidas, testadas no spec; ainda sem lugar no mapa)
 	ExemploAlinhamento = { tipo = "Alinhamento", escopo = "individual", raio = 10, elementos = { "EspelhoA", "EspelhoB", "EspelhoC" }, posicoes = 4 },
 	ExemploColeta = { tipo = "Coleta", escopo = "individual", raio = 10, itens = { "Pagina1", "Pagina2", "Pagina3" } },

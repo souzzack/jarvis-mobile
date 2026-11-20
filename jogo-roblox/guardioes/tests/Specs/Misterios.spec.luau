@@ -32,27 +32,63 @@ return function(T, M)
 		T.igual(#cfg.etapas, 7, "as 7 etapas do complemento")
 	end)
 
-	T.caso("passagem secreta: oculto → selado → aberto; sem place, nunca viaja", function()
+	T.caso("passagem secreta: oculto → selado → aberto; sem place nem área, nunca viaja", function()
 		T.igual(PS.estado(false, true), "oculto")
 		T.igual(PS.estado(true, false), "selado")
 		T.igual(PS.estado(true, true), "aberto")
 		local portal = M.HiddenDimensions.portais.PortaDaBiblioteca
 		local dest = M.HiddenDimensions.dimensoes.BibliotecaDoVazio
-		T.igual(select(2, PS.podeAtravessar("aberto", dest, 1, portal)), "emConstrucao")
+		T.verdade(PS.podeAtravessar("aberto", dest, 1, portal), "a Biblioteca é uma área deste place")
+		local conceito = M.HiddenDimensions.dimensoes.ReinoDosReflexos
+		T.igual(select(2, PS.podeAtravessar("aberto", conceito, 1, portal)), "emConstrucao")
+		T.igual(select(2, PS.podeAtravessar("aberto", nil, 1, portal)), "emConstrucao")
 		local comPlace = { placeId = 123 }
 		T.verdade(PS.podeAtravessar("aberto", comPlace, 2, portal))
 		T.igual(select(2, PS.podeAtravessar("aberto", comPlace, 9, portal)), "grupoGrande")
 		T.igual(select(2, PS.podeAtravessar("selado", comPlace, 1, portal)), "portalSelado")
 	end)
 
-	T.caso("as 4 dimensões ocultas são só conceito (placeId 0); a Biblioteca é a primeira", function()
+	T.caso("dimensões ocultas: nenhuma tem place; só a Biblioteca existe (área do place)", function()
 		local n = 0
 		for _, d in M.HiddenDimensions.dimensoes do
 			n += 1
 			T.igual(d.placeId, 0, d.id)
+			T.igual(d.noPlace == true, d.id == "BibliotecaDoVazio", d.id)
 		end
 		T.igual(n, 4)
 		T.igual(M.HiddenDimensions.dimensoes.BibliotecaDoVazio.ordemDeConstrucao, 1)
+	end)
+
+	T.caso("coleta: artigo do item combina com o nome (páginas são femininas)", function()
+		T.igual(M.Puzzles.PaginasDeA.artigo, "a")
+		T.igual(M.Puzzles.DentesDaChave.artigo, nil, "dentes usam o padrão 'o'")
+		for id, pz in M.Puzzles do
+			T.verdade(pz.artigo == nil or pz.artigo == "o" or pz.artigo == "a", id)
+		end
+	end)
+
+	T.caso("prompt de marca alta fica perto da base; marca baixa usa o centro", function()
+		local Mc = M.Marcas
+		T.igual(Mc.alturaDoPrompt(2), 0)
+		T.igual(Mc.alturaDoPrompt(5), 0)
+		T.igual(Mc.alturaDoPrompt(8), -1.5, "porta sem moldura: 2,5 acima da base")
+		T.igual(Mc.alturaDoPrompt(10), -2.5, "torre")
+	end)
+
+	T.caso("objetivos cumpridos viram texto curto para o mapa local (e voltam iguais)", function()
+		local O = M.ObjetivosFeitos
+		local inv = {
+			A = { objetivos = { LeituraDasEstantes = true, PistasDaBiblioteca = true, Falso = false } },
+			B = { objetivos = { OSinal = true, LeituraDasEstantes = true } },
+		}
+		local txt = O.codificar(inv)
+		T.igual(txt, "LeituraDasEstantes,OSinal,PistasDaBiblioteca", "ordenado, sem repetidos nem os não cumpridos")
+		local lido = O.ler(txt)
+		T.verdade(lido.LeituraDasEstantes and lido.OSinal and lido.PistasDaBiblioteca)
+		T.igual(lido.Falso, nil)
+		T.igual(O.codificar(nil), "")
+		T.igual(next(O.ler(nil)), nil)
+		T.igual(O.codificar({ X = { objetivos = { ["a,b"] = true } } }), "", "id com vírgula não entra")
 	end)
 
 	T.caso("artefatos ???: arquitetura metamórfica, raridade Oculta, sem trocar os anteriores", function()

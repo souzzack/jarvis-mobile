@@ -27,6 +27,7 @@ local ORDEM = {
 	"BarraDeConsumiveis", -- consumíveis da Bancada (2, 3, 4 / L1 / toque)
 	"ControleDeReliquia", -- relíquia equipada (Z / R3 / toque)
 	"AtlasDosArquivistas", -- diário de investigação dos mistérios (L / toque)
+	"EstantesDaBiblioteca", -- mapa que muda com o progresso (só para o próprio jogador)
 }
 local carregados: { [string]: Controlador } = {}
 local ctx = {}
