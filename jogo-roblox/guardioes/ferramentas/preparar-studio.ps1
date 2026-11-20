@@ -1,10 +1,12 @@
-# Guardiões do Multiverso — prepara o teste no Roblox Studio (Windows, PowerShell).
+﻿# Guardioes do Multiverso - prepara o teste no Roblox Studio (Windows, PowerShell).
 # O que faz, nesta ordem:
-#   1. baixa (ou atualiza) o código do branch de desenvolvimento numa pasta sua;
-#   2. baixa o Rojo 7.4.4 (sincronizador oficial) para dentro dessa pasta — não instala nada no sistema;
+#   1. baixa (ou atualiza) o codigo do branch de desenvolvimento numa pasta sua;
+#   2. baixa o Rojo 7.4.4 (sincronizador oficial) para dentro dessa pasta - nao instala nada no sistema;
 #   3. instala o plugin do Rojo no Studio (comando oficial "rojo plugin install");
 #   4. inicia o "rojo serve" (deixe esta janela aberta enquanto testa).
-# Não mexe em nenhum place: quem conecta é você, numa CÓPIA do jogo, pelo botão Connect do plugin.
+# Nao mexe em nenhum place: quem conecta e voce, numa COPIA do jogo, pelo botao Connect do plugin.
+# Arquivo so com caracteres ASCII (sem acentos) e com BOM: o PowerShell 5.1 do Windows le
+# UTF-8 sem BOM como ANSI e transforma letras acentuadas em aspas, quebrando o script.
 # Uso:  powershell -ExecutionPolicy Bypass -File preparar-studio.ps1
 $ErrorActionPreference = "Stop"
 $Repo   = "https://github.com/souzzack/jarvis-mobile.git"
@@ -17,12 +19,12 @@ if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
     exit 1
 }
 if (Test-Path (Join-Path $Base ".git")) {
-    Write-Host "Atualizando o código em $Base ..."
+    Write-Host "Atualizando o codigo em $Base ..."
     git -C $Base fetch origin $Branch
     git -C $Base checkout $Branch
     git -C $Base pull --ff-only origin $Branch
 } else {
-    Write-Host "Baixando o código para $Base ..."
+    Write-Host "Baixando o codigo para $Base ..."
     git clone --branch $Branch --single-branch $Repo $Base
 }
 $Projeto = Join-Path $Base "jogo-roblox\guardioes"
@@ -37,11 +39,11 @@ if (-not (Test-Path $Rojo)) {
     Expand-Archive -Path $Zip -DestinationPath $Ferr -Force
     Remove-Item $Zip
 }
-Write-Host "Instalando o plugin do Rojo no Studio (feche e abra o Studio depois, se ele já estiver aberto)..."
+Write-Host "Instalando o plugin do Rojo no Studio (feche e abra o Studio depois, se ele ja estiver aberto)..."
 & $Rojo plugin install
 Write-Host ""
 Write-Host "PRONTO. Agora, no Studio:" -ForegroundColor Green
-Write-Host "  1. Abra uma CÓPIA do seu place (Arquivo > Salvar no arquivo como...)."
+Write-Host "  1. Abra uma COPIA do seu place (Arquivo > Salvar no arquivo como...)."
 Write-Host "  2. Aba Plugins > Rojo > Connect."
 Write-Host "  3. Barra de comandos:  require(game.ServerStorage.GuardioesTestes.Studio)()"
 Write-Host "  4. Play (F5) e copie as linhas vermelhas do Output."
