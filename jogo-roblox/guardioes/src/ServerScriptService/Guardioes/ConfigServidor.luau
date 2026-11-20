@@ -15,6 +15,8 @@ local ConfigServidor = {
 	},
 	-- SÓ TESTE (não persiste; some ao sair): o que cada jogador recebe ao entrar enquanto não existem
 	-- PlayerDataSystem/InventorySystem. Desligar junto com a arena no place de produção.
+	-- SÓ TESTE: roda os testes de lógica ao dar Play no Studio (RodarTestes.server). Nunca roda publicado.
+	rodarTestesAoIniciar = true,
 	concessoesDeTeste = {
 		ativa = true,
 		raca = "Humano",
