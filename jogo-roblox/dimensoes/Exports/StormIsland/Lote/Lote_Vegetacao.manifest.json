@@ -1,0 +1,1778 @@
+{
+ "dimensao": "StormIsland",
+ "nome": "Ilha das Tempestades",
+ "unidade": "1 = 1 stud",
+ "eixos": "Y para cima, +Z = sul (chegada)",
+ "gerado": "2026-11-20",
+ "modelos": [
+  {
+   "id": "STORM.VEG.TREE.01",
+   "nome": "Árvore retorcida 1 (forma 1)",
+   "pasta": "Vegetation",
+   "triangulos": 2976,
+   "tamanho": [
+    19.93,
+    36.84,
+    16.8
+   ],
+   "pivo": [
+    -172.31,
+    18.29,
+    -75.56
+   ],
+   "rotY": 2.0921,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 1 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.02",
+   "nome": "Árvore retorcida 2 (forma 2)",
+   "pasta": "Vegetation",
+   "triangulos": 3436,
+   "tamanho": [
+    15.07,
+    26.32,
+    14.86
+   ],
+   "pivo": [
+    -161.14,
+    5.51,
+    79.52
+   ],
+   "rotY": 5.2393,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 2 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.03",
+   "nome": "Árvore retorcida 3 (forma 3)",
+   "pasta": "Vegetation",
+   "triangulos": 2964,
+   "tamanho": [
+    14.77,
+    29.85,
+    12.38
+   ],
+   "pivo": [
+    -240.75,
+    5.83,
+    58.84
+   ],
+   "rotY": 2.9151,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 3 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.04",
+   "nome": "Árvore retorcida 4 (forma 4)",
+   "pasta": "Vegetation",
+   "triangulos": 3176,
+   "tamanho": [
+    20.8,
+    29.99,
+    21.27
+   ],
+   "pivo": [
+    -223.05,
+    7.53,
+    -5.24
+   ],
+   "rotY": 4.0373,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 4 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.05",
+   "nome": "Árvore retorcida 5 (forma 5)",
+   "pasta": "Vegetation",
+   "triangulos": 2896,
+   "tamanho": [
+    12.69,
+    25.75,
+    13.89
+   ],
+   "pivo": [
+    -140.29,
+    5.34,
+    94.3
+   ],
+   "rotY": 4.1484,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 5 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.06",
+   "nome": "Árvore retorcida 6 (forma 6)",
+   "pasta": "Vegetation",
+   "triangulos": 3116,
+   "tamanho": [
+    8.95,
+    23.62,
+    8.67
+   ],
+   "pivo": [
+    -134.22,
+    7.76,
+    22.67
+   ],
+   "rotY": 2.8095,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 6 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.07",
+   "nome": "Árvore retorcida 7 (forma 7)",
+   "pasta": "Vegetation",
+   "triangulos": 3196,
+   "tamanho": [
+    8.91,
+    22.16,
+    15.14
+   ],
+   "pivo": [
+    -124.35,
+    7.59,
+    15.72
+   ],
+   "rotY": 3.1336,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 7 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.08",
+   "nome": "Árvore retorcida 8 (forma 8)",
+   "pasta": "Vegetation",
+   "triangulos": 2804,
+   "tamanho": [
+    10.91,
+    20.41,
+    10.29
+   ],
+   "pivo": [
+    -224.38,
+    7.38,
+    -50.92
+   ],
+   "rotY": 1.4399,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 8 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.09",
+   "nome": "Árvore retorcida 9 (forma 9)",
+   "pasta": "Vegetation",
+   "triangulos": 2664,
+   "tamanho": [
+    10.23,
+    27.85,
+    15.59
+   ],
+   "pivo": [
+    -177.15,
+    5.96,
+    21.68
+   ],
+   "rotY": 1.4346,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 9 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.10",
+   "nome": "Árvore retorcida 10 (forma 10)",
+   "pasta": "Vegetation",
+   "triangulos": 3216,
+   "tamanho": [
+    19.63,
+    35.61,
+    20.86
+   ],
+   "pivo": [
+    -195.12,
+    7.61,
+    -14.79
+   ],
+   "rotY": 0.2297,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 10 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.11",
+   "nome": "Árvore retorcida 11 (forma 11)",
+   "pasta": "Vegetation",
+   "triangulos": 3976,
+   "tamanho": [
+    10.84,
+    19.88,
+    10.98
+   ],
+   "pivo": [
+    -121.71,
+    6.87,
+    -36.47
+   ],
+   "rotY": 3.853,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 11 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.12",
+   "nome": "Árvore retorcida 12 (forma 12)",
+   "pasta": "Vegetation",
+   "triangulos": 2936,
+   "tamanho": [
+    18.37,
+    31.27,
+    14.31
+   ],
+   "pivo": [
+    -139.11,
+    5.05,
+    76.57
+   ],
+   "rotY": 3.4485,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 12 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.13",
+   "nome": "Árvore retorcida 13 (forma 1)",
+   "pasta": "Vegetation",
+   "triangulos": 2976,
+   "tamanho": [
+    11.74,
+    23.89,
+    9.86
+   ],
+   "pivo": [
+    -143.07,
+    6,
+    57.96
+   ],
+   "rotY": 1.3292,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 1 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.14",
+   "nome": "Árvore retorcida 14 (forma 2)",
+   "pasta": "Vegetation",
+   "triangulos": 3436,
+   "tamanho": [
+    17.98,
+    30.96,
+    17.94
+   ],
+   "pivo": [
+    -104.14,
+    5.4,
+    -23.52
+   ],
+   "rotY": 0.9236,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 2 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.15",
+   "nome": "Árvore retorcida 15 (forma 3)",
+   "pasta": "Vegetation",
+   "triangulos": 2964,
+   "tamanho": [
+    12.95,
+    25.29,
+    13.48
+   ],
+   "pivo": [
+    -91.79,
+    5.14,
+    -9.07
+   ],
+   "rotY": 3.9236,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 3 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.16",
+   "nome": "Árvore retorcida 16 (forma 4)",
+   "pasta": "Vegetation",
+   "triangulos": 3176,
+   "tamanho": [
+    15.72,
+    21.71,
+    14.91
+   ],
+   "pivo": [
+    -175.12,
+    5.9,
+    89.31
+   ],
+   "rotY": 2.3788,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 4 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.17",
+   "nome": "Árvore retorcida 17 (forma 5)",
+   "pasta": "Vegetation",
+   "triangulos": 2896,
+   "tamanho": [
+    14.1,
+    27.41,
+    14.11
+   ],
+   "pivo": [
+    -120.65,
+    5.71,
+    -23.71
+   ],
+   "rotY": 2.1741,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 5 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.18",
+   "nome": "Árvore retorcida 18 (forma 6)",
+   "pasta": "Vegetation",
+   "triangulos": 3116,
+   "tamanho": [
+    15.5,
+    37.52,
+    14.29
+   ],
+   "pivo": [
+    -256.63,
+    7.16,
+    16.02
+   ],
+   "rotY": 0.5501,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 6 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.19",
+   "nome": "Árvore retorcida 19 (forma 7)",
+   "pasta": "Vegetation",
+   "triangulos": 3196,
+   "tamanho": [
+    15.34,
+    22.48,
+    9
+   ],
+   "pivo": [
+    -150.16,
+    5.35,
+    64.63
+   ],
+   "rotY": 4.7179,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 7 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.20",
+   "nome": "Árvore retorcida 20 (forma 8)",
+   "pasta": "Vegetation",
+   "triangulos": 2804,
+   "tamanho": [
+    9.82,
+    19.46,
+    8.94
+   ],
+   "pivo": [
+    -121.36,
+    5.77,
+    82.96
+   ],
+   "rotY": 4.6805,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 8 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.21",
+   "nome": "Árvore retorcida 21 (forma 9)",
+   "pasta": "Vegetation",
+   "triangulos": 2664,
+   "tamanho": [
+    11.59,
+    25.49,
+    15.13
+   ],
+   "pivo": [
+    -196.1,
+    5.45,
+    46.04
+   ],
+   "rotY": 4.3764,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 9 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.22",
+   "nome": "Árvore retorcida 22 (forma 10)",
+   "pasta": "Vegetation",
+   "triangulos": 3216,
+   "tamanho": [
+    24.8,
+    41.33,
+    22.34
+   ],
+   "pivo": [
+    -103.49,
+    5.87,
+    29.69
+   ],
+   "rotY": 4.4983,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 10 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.23",
+   "nome": "Árvore retorcida 23 (forma 11)",
+   "pasta": "Vegetation",
+   "triangulos": 3976,
+   "tamanho": [
+    11.56,
+    23.85,
+    12.82
+   ],
+   "pivo": [
+    -152.73,
+    7.84,
+    -30.17
+   ],
+   "rotY": 1.1923,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 11 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.24",
+   "nome": "Árvore retorcida 24 (forma 12)",
+   "pasta": "Vegetation",
+   "triangulos": 2936,
+   "tamanho": [
+    10.54,
+    18.16,
+    8
+   ],
+   "pivo": [
+    -172.42,
+    5.74,
+    35.36
+   ],
+   "rotY": 0.2542,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 12 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.25",
+   "nome": "Árvore retorcida 25 (forma 1)",
+   "pasta": "Vegetation",
+   "triangulos": 2976,
+   "tamanho": [
+    18.99,
+    39.45,
+    21.42
+   ],
+   "pivo": [
+    -211.03,
+    6.05,
+    91.3
+   ],
+   "rotY": 0.6724,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 1 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.26",
+   "nome": "Árvore retorcida 26 (forma 2)",
+   "pasta": "Vegetation",
+   "triangulos": 3436,
+   "tamanho": [
+    15.34,
+    31.01,
+    16.16
+   ],
+   "pivo": [
+    -151.88,
+    7.38,
+    -10.09
+   ],
+   "rotY": 3.3717,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 2 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.27",
+   "nome": "Árvore retorcida 27 (forma 3)",
+   "pasta": "Vegetation",
+   "triangulos": 2964,
+   "tamanho": [
+    16.22,
+    31.36,
+    16.52
+   ],
+   "pivo": [
+    -212.88,
+    6.54,
+    -14.64
+   ],
+   "rotY": 3.8603,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 3 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.28",
+   "nome": "Árvore retorcida 28 (forma 4)",
+   "pasta": "Vegetation",
+   "triangulos": 3176,
+   "tamanho": [
+    10.37,
+    19.88,
+    12.72
+   ],
+   "pivo": [
+    -157.29,
+    6.09,
+    54.41
+   ],
+   "rotY": 6.1192,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 4 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.29",
+   "nome": "Árvore retorcida 29 (forma 5)",
+   "pasta": "Vegetation",
+   "triangulos": 2896,
+   "tamanho": [
+    10.83,
+    20.71,
+    10.71
+   ],
+   "pivo": [
+    -162.18,
+    5.99,
+    105.03
+   ],
+   "rotY": 2.2273,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 5 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.30",
+   "nome": "Árvore retorcida 30 (forma 6)",
+   "pasta": "Vegetation",
+   "triangulos": 3116,
+   "tamanho": [
+    9.32,
+    23.21,
+    9.45
+   ],
+   "pivo": [
+    -153.34,
+    6.36,
+    46.07
+   ],
+   "rotY": 2.5507,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 6 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.31",
+   "nome": "Árvore retorcida 31 (forma 7)",
+   "pasta": "Vegetation",
+   "triangulos": 3196,
+   "tamanho": [
+    20,
+    26.5,
+    19.82
+   ],
+   "pivo": [
+    -148.91,
+    17.48,
+    -60.78
+   ],
+   "rotY": 3.943,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 7 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.32",
+   "nome": "Árvore retorcida 32 (forma 8)",
+   "pasta": "Vegetation",
+   "triangulos": 2804,
+   "tamanho": [
+    14.06,
+    23.71,
+    13.88
+   ],
+   "pivo": [
+    -217.65,
+    6.93,
+    38.88
+   ],
+   "rotY": 2.7689,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 8 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.33",
+   "nome": "Árvore retorcida 33 (forma 9)",
+   "pasta": "Vegetation",
+   "triangulos": 2664,
+   "tamanho": [
+    11.47,
+    19.96,
+    11.73
+   ],
+   "pivo": [
+    -201.59,
+    8.01,
+    -25.57
+   ],
+   "rotY": 2.3154,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 9 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.34",
+   "nome": "Árvore retorcida 34 (forma 10)",
+   "pasta": "Vegetation",
+   "triangulos": 3216,
+   "tamanho": [
+    24.04,
+    37.57,
+    25.33
+   ],
+   "pivo": [
+    -87.64,
+    4.87,
+    1.39
+   ],
+   "rotY": 2.5874,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 10 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.35",
+   "nome": "Árvore retorcida 35 (forma 11)",
+   "pasta": "Vegetation",
+   "triangulos": 3976,
+   "tamanho": [
+    9.43,
+    16.81,
+    8.99
+   ],
+   "pivo": [
+    -182.85,
+    16.12,
+    -59.68
+   ],
+   "rotY": 2.414,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 11 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.36",
+   "nome": "Árvore retorcida 36 (forma 12)",
+   "pasta": "Vegetation",
+   "triangulos": 2936,
+   "tamanho": [
+    11.6,
+    25.14,
+    14.81
+   ],
+   "pivo": [
+    -95.18,
+    5.23,
+    -21.42
+   ],
+   "rotY": 5.0317,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 12 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.37",
+   "nome": "Árvore retorcida 37 (forma 1)",
+   "pasta": "Vegetation",
+   "triangulos": 2976,
+   "tamanho": [
+    19.24,
+    38.51,
+    16.72
+   ],
+   "pivo": [
+    -203.17,
+    6.63,
+    15.76
+   ],
+   "rotY": 1.2664,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 1 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.38",
+   "nome": "Árvore retorcida 38 (forma 2)",
+   "pasta": "Vegetation",
+   "triangulos": 3436,
+   "tamanho": [
+    16.22,
+    30.32,
+    15.52
+   ],
+   "pivo": [
+    -119.57,
+    6.64,
+    -7.49
+   ],
+   "rotY": 5.0001,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 2 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.39",
+   "nome": "Árvore retorcida 39 (forma 3)",
+   "pasta": "Vegetation",
+   "triangulos": 2964,
+   "tamanho": [
+    12.85,
+    27.29,
+    14.05
+   ],
+   "pivo": [
+    -239.87,
+    7.53,
+    -7.99
+   ],
+   "rotY": 5.1388,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 3 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.40",
+   "nome": "Árvore retorcida 40 (forma 4)",
+   "pasta": "Vegetation",
+   "triangulos": 3176,
+   "tamanho": [
+    18.1,
+    26.88,
+    19.72
+   ],
+   "pivo": [
+    -224.67,
+    5.99,
+    82.03
+   ],
+   "rotY": 0.7141,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 4 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.41",
+   "nome": "Árvore retorcida 41 (forma 5)",
+   "pasta": "Vegetation",
+   "triangulos": 2896,
+   "tamanho": [
+    12.49,
+    24.51,
+    12.26
+   ],
+   "pivo": [
+    -110.7,
+    8,
+    -42.55
+   ],
+   "rotY": 0.527,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 5 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.42",
+   "nome": "Árvore retorcida 42 (forma 6)",
+   "pasta": "Vegetation",
+   "triangulos": 3116,
+   "tamanho": [
+    15.24,
+    38.02,
+    15.39
+   ],
+   "pivo": [
+    -62.44,
+    8.17,
+    25.85
+   ],
+   "rotY": 2.572,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 6 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.43",
+   "nome": "Árvore retorcida 43 (forma 7)",
+   "pasta": "Vegetation",
+   "triangulos": 3196,
+   "tamanho": [
+    7.9,
+    18.19,
+    12.77
+   ],
+   "pivo": [
+    -231.89,
+    7.98,
+    -41.4
+   ],
+   "rotY": 6.2223,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 7 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.44",
+   "nome": "Árvore retorcida 44 (forma 8)",
+   "pasta": "Vegetation",
+   "triangulos": 2804,
+   "tamanho": [
+    15.17,
+    27.6,
+    15.52
+   ],
+   "pivo": [
+    -186.23,
+    7.48,
+    -21.04
+   ],
+   "rotY": 6.0395,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 8 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.45",
+   "nome": "Árvore retorcida 45 (forma 9)",
+   "pasta": "Vegetation",
+   "triangulos": 2664,
+   "tamanho": [
+    12.87,
+    21.32,
+    11.03
+   ],
+   "pivo": [
+    -93.34,
+    7.69,
+    -41.39
+   ],
+   "rotY": 0.5132,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 9 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.46",
+   "nome": "Árvore retorcida 46 (forma 10)",
+   "pasta": "Vegetation",
+   "triangulos": 3216,
+   "tamanho": [
+    21.49,
+    33.8,
+    19.77
+   ],
+   "pivo": [
+    -206.21,
+    6.17,
+    59.9
+   ],
+   "rotY": 1.2312,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 10 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.47",
+   "nome": "Árvore retorcida 47 (forma 11)",
+   "pasta": "Vegetation",
+   "triangulos": 3976,
+   "tamanho": [
+    8.22,
+    16.74,
+    8.87
+   ],
+   "pivo": [
+    -147.09,
+    6.06,
+    101.48
+   ],
+   "rotY": 1.9595,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 11 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.48",
+   "nome": "Árvore retorcida 48 (forma 12)",
+   "pasta": "Vegetation",
+   "triangulos": 2936,
+   "tamanho": [
+    7.83,
+    18.96,
+    10.73
+   ],
+   "pivo": [
+    -112.19,
+    5.39,
+    -31.02
+   ],
+   "rotY": 1.746,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 12 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.49",
+   "nome": "Árvore retorcida 49 (forma 1)",
+   "pasta": "Vegetation",
+   "triangulos": 2976,
+   "tamanho": [
+    11.7,
+    34.08,
+    15.9
+   ],
+   "pivo": [
+    -158.58,
+    5.99,
+    57.94
+   ],
+   "rotY": 3.2225,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 1 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.50",
+   "nome": "Árvore retorcida 50 (forma 2)",
+   "pasta": "Vegetation",
+   "triangulos": 3436,
+   "tamanho": [
+    9.75,
+    20.93,
+    10.41
+   ],
+   "pivo": [
+    -70.72,
+    4.99,
+    -7.59
+   ],
+   "rotY": 3.2851,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 2 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.51",
+   "nome": "Árvore retorcida 51 (forma 3)",
+   "pasta": "Vegetation",
+   "triangulos": 2964,
+   "tamanho": [
+    10.49,
+    21.19,
+    9.02
+   ],
+   "pivo": [
+    -85.62,
+    5.42,
+    -30.68
+   ],
+   "rotY": 0.2663,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 3 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.TREE.52",
+   "nome": "Árvore retorcida 52 (forma 4)",
+   "pasta": "Vegetation",
+   "triangulos": 3176,
+   "tamanho": [
+    22.34,
+    32.61,
+    17.07
+   ],
+   "pivo": [
+    -173.9,
+    7.2,
+    103.23
+   ],
+   "rotY": 1.8161,
+   "colisores": [
+    {
+     "c": [
+      0,
+      5,
+      0
+     ],
+     "s": [
+      2.2,
+      10,
+      2.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Forma 4 de 12. Colisão só no tronco."
+  },
+  {
+   "id": "STORM.VEG.ANCESTRAL",
+   "nome": "Árvore-Para-raios Ancestral",
+   "pasta": "Vegetation",
+   "triangulos": 8012,
+   "tamanho": [
+    19.09,
+    43.37,
+    16.33
+   ],
+   "pivo": [
+    -153,
+    6.95,
+    9.34
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      10,
+      0
+     ],
+     "s": [
+      6,
+      20,
+      6
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Ponto de interesse da floresta: cristais presos nos galhos e veios mais fortes."
+  },
+  {
+   "id": "STORM.VEG.UNDERGROWTH",
+   "nome": "Troncos caídos e flores-faísca",
+   "pasta": "Vegetation",
+   "triangulos": 162644,
+   "tamanho": [
+    245.41,
+    30.83,
+    129.71
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Flores-faísca = pontos de coleta STORM.COLLECT.01."
+  }
+ ],
+ "aviso": "Exportado do visualizador web. Não importado nem testado no Roblox Studio."
+}

@@ -1,0 +1,218 @@
+{
+ "dimensao": "StormIsland",
+ "nome": "Ilha das Tempestades",
+ "unidade": "1 = 1 stud",
+ "eixos": "Y para cima, +Z = sul (chegada)",
+ "gerado": "2026-11-20",
+ "modelos": [
+  {
+   "id": "STORM.RES.MINE.01",
+   "nome": "Mina: Afloramento da floresta",
+   "pasta": "Resources",
+   "triangulos": 416,
+   "tamanho": [
+    11.88,
+    8.32,
+    9.64
+   ],
+   "pivo": [
+    -114,
+    5.97,
+    45.1
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      2.5,
+      0
+     ],
+     "s": [
+      9,
+      5,
+      7
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Local de mineração STORM.MINE.01. A extração ainda não está implementada; aqui é só a forma e a posição."
+  },
+  {
+   "id": "STORM.RES.MINE.02",
+   "nome": "Mina: Câmara de cristais (dentro da caverna)",
+   "pasta": "Resources",
+   "triangulos": 416,
+   "tamanho": [
+    13.8,
+    9.05,
+    10.66
+   ],
+   "pivo": [
+    -150,
+    26.4,
+    -150
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      2.5,
+      0
+     ],
+     "s": [
+      9,
+      5,
+      7
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Local de mineração STORM.MINE.02. A extração ainda não está implementada; aqui é só a forma e a posição."
+  },
+  {
+   "id": "STORM.RES.MINE.03",
+   "nome": "Mina: Veio da encosta da torre",
+   "pasta": "Resources",
+   "triangulos": 458,
+   "tamanho": [
+    12.7,
+    10.12,
+    11.39
+   ],
+   "pivo": [
+    96,
+    19.71,
+    -66
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      2.5,
+      0
+     ],
+     "s": [
+      9,
+      5,
+      7
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Local de mineração STORM.MINE.03. A extração ainda não está implementada; aqui é só a forma e a posição."
+  },
+  {
+   "id": "STORM.RES.MINE.04",
+   "nome": "Mina: Borda do penhasco",
+   "pasta": "Resources",
+   "triangulos": 500,
+   "tamanho": [
+    12.75,
+    9.43,
+    9.93
+   ],
+   "pivo": [
+    196,
+    26.24,
+    84
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      2.5,
+      0
+     ],
+     "s": [
+      9,
+      5,
+      7
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Local de mineração STORM.MINE.04. A extração ainda não está implementada; aqui é só a forma e a posição."
+  },
+  {
+   "id": "STORM.RES.ATMOS",
+   "nome": "Depósitos: cristal atmosférico",
+   "pasta": "Resources",
+   "triangulos": 3264,
+   "tamanho": [
+    296.77,
+    92.02,
+    48.63
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Aglomerados nas bordas de estrato das montanhas. Futuro: coleta com ferramenta de mineração. No Roblox: MeshPart Glass + núcleo Neon pequeno."
+  },
+  {
+   "id": "STORM.RES.CONDUTORA",
+   "nome": "Depósitos: rocha condutora",
+   "pasta": "Resources",
+   "triangulos": 6120,
+   "tamanho": [
+    78.44,
+    28.1,
+    148.44
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Rochas com veios de cobre nativo na zona de raios (torre e linha de transmissão). No Roblox: MeshPart de rocha + MeshPart dos veios (CorrodedMetal)."
+  },
+  {
+   "id": "STORM.RES.GEODO",
+   "nome": "Depósitos: mineral eletrificado (geodos)",
+   "pasta": "Resources",
+   "triangulos": 5530,
+   "tamanho": [
+    502.64,
+    27.37,
+    166.62
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Geodos rachados com cristais violeta e arco elétrico interno, na beira da fenda e dos penhascos. No Roblox: casca MeshPart + cristais Glass + Beam animado."
+  },
+  {
+   "id": "STORM.RES.FRAGMENTO",
+   "nome": "Depósitos: fragmentos de energia",
+   "pasta": "Resources",
+   "triangulos": 1660,
+   "tamanho": [
+    344.14,
+    64.79,
+    240.87
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Estilhaço angular flutuando 2 studs acima de um disco rúnico de pedra. No Roblox: MeshPart Neon pequeno + Glass por fora, BodyPosition/TweenService para flutuar."
+  }
+ ],
+ "aviso": "Exportado do visualizador web. Não importado nem testado no Roblox Studio."
+}

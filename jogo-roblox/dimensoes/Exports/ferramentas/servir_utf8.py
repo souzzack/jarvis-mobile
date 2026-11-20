@@ -9,7 +9,7 @@ class H(http.server.SimpleHTTPRequestHandler):
         ".json": "application/json; charset=utf-8", ".md": "text/plain; charset=utf-8",
         ".glb": "model/gltf-binary"}
     def do_PUT(self):
-        m = re.fullmatch(r"/Exports/StormIsland/(Workshop|Terrain|Arrival)/([A-Za-z0-9._-]{1,80}\.(glb|json|png))", self.path)
+        m = re.fullmatch(r"/Exports/StormIsland/(Workshop|Terrain|Arrival|Tower|Lote)/([A-Za-z0-9._-]{1,80}\.(glb|json|png))", self.path)
         if not m:
             self.send_error(403, "escrita só em /Exports/StormIsland/Workshop|Terrain/"); return
         DESTINO = os.path.join(EXPORTS, m.group(1)); alvo = os.path.join(DESTINO, m.group(2))

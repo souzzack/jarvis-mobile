@@ -1,0 +1,468 @@
+{
+ "dimensao": "StormIsland",
+ "nome": "Ilha das Tempestades",
+ "unidade": "1 = 1 stud",
+ "eixos": "Y para cima, +Z = sul (chegada)",
+ "gerado": "2026-11-20",
+ "modelos": [
+  {
+   "id": "STORM.PROP.STALL.01",
+   "nome": "Barraca do mercado 1",
+   "pasta": "Props",
+   "triangulos": 1542,
+   "tamanho": [
+    11.57,
+    9.47,
+    10.19
+   ],
+   "pivo": [
+    3.24,
+    15.45,
+    111.98
+   ],
+   "rotY": 0.4,
+   "colisores": [
+    {
+     "c": [
+      0,
+      -0.642505757431949,
+      0
+     ],
+     "s": [
+      8.6,
+      1.285011514863898,
+      6
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      0,
+      2,
+      0
+     ],
+     "s": [
+      6,
+      3,
+      3
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Barraca de tábuas com toldo listrado, balcão e mercadorias (cristais, peças de cobre, frascos). Frente = +Z local."
+  },
+  {
+   "id": "STORM.PROP.STALL.02",
+   "nome": "Barraca do mercado 2",
+   "pasta": "Props",
+   "triangulos": 1486,
+   "tamanho": [
+    9.61,
+    8.18,
+    8.57
+   ],
+   "pivo": [
+    -53.32,
+    15.63,
+    128.23
+   ],
+   "rotY": -0.5,
+   "colisores": [
+    {
+     "c": [
+      0,
+      2,
+      0
+     ],
+     "s": [
+      6,
+      3,
+      3
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Barraca de tábuas com toldo listrado, balcão e mercadorias (cristais, peças de cobre, frascos). Frente = +Z local."
+  },
+  {
+   "id": "STORM.PROP.VILLAGE.CABLES",
+   "nome": "Cabos dos para-raios",
+   "pasta": "Props",
+   "triangulos": 960,
+   "tamanho": [
+    63.75,
+    17.58,
+    95.65
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "No Roblox: Beam ou RopeConstraint visual entre Attachments."
+  },
+  {
+   "id": "STORM.PROP.LANTERNS",
+   "nome": "Lanternas dos caminhos",
+   "pasta": "Props",
+   "triangulos": 2304,
+   "tamanho": [
+    375.29,
+    42.06,
+    269.36
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Luz quente e fraca; no Roblox: PointLight sem sombra só nas mais próximas."
+  },
+  {
+   "id": "STORM.EQUIP.01.MODEL",
+   "nome": "Bobina antiga (equipamento secreto)",
+   "pasta": "Props",
+   "triangulos": 5036,
+   "tamanho": [
+    6.59,
+    9.02,
+    9.18
+   ],
+   "pivo": [
+    -156,
+    26,
+    -163
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      3.5,
+      0
+     ],
+     "s": [
+      5.6,
+      7,
+      5.6
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Marcador STORM.EQUIP.01. Mecânica ainda não implementada. Bobina de Tesla de cobre sobre pedestal de pedra, com coluna isolante, toroide, armação de ferro e cabo até a parede."
+  },
+  {
+   "id": "STORM.PROP.ROCKS",
+   "nome": "Rochas da ilha",
+   "pasta": "Props",
+   "triangulos": 7740,
+   "tamanho": [
+    505.35,
+    141.03,
+    387.13
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Cada rocha tem forma própria (semente diferente). No Roblox: 3–4 malhas base reaproveitadas com escala e rotação."
+  },
+  {
+   "id": "STORM.PROP.SECRET.ROCKS",
+   "nome": "Rochas da passagem oculta",
+   "pasta": "Props",
+   "triangulos": 720,
+   "tamanho": [
+    59.61,
+    27.32,
+    46.86
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      -193,
+      9.456879660288493,
+      60
+     ],
+     "s": [
+      16.799999999999997,
+      31.200000000000003,
+      16.799999999999997
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -166,
+      8.423857037226357,
+      68
+     ],
+     "s": [
+      14,
+      26,
+      14
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -206,
+      10.973666375478107,
+      76
+     ],
+     "s": [
+      19.599999999999998,
+      36.4,
+      19.599999999999998
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -173.5,
+      7.890089298884071,
+      50
+     ],
+     "s": [
+      12.6,
+      23.400000000000002,
+      12.6
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "A fresta entre elas é a entrada da trilha secreta. Colisão nas rochas; vão livre de 8 studs."
+  },
+  {
+   "id": "STORM.PROP.PYLON.01",
+   "nome": "Torre de transmissão 1",
+   "pasta": "Props",
+   "triangulos": 1648,
+   "tamanho": [
+    9.2,
+    28.17,
+    6.7
+   ],
+   "pivo": [
+    72,
+    17.76,
+    30
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      10,
+      0
+     ],
+     "s": [
+      5.4,
+      20,
+      5.4
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios."
+  },
+  {
+   "id": "STORM.PROP.PYLON.02",
+   "nome": "Torre de transmissão 2",
+   "pasta": "Props",
+   "triangulos": 1648,
+   "tamanho": [
+    9.2,
+    30.19,
+    6.7
+   ],
+   "pivo": [
+    20,
+    14.92,
+    52
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      11.5,
+      0
+     ],
+     "s": [
+      5.4,
+      23,
+      5.4
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios."
+  },
+  {
+   "id": "STORM.PROP.PYLON.03",
+   "nome": "Torre de transmissão 3",
+   "pasta": "Props",
+   "triangulos": 1648,
+   "tamanho": [
+    9.2,
+    26.97,
+    6.7
+   ],
+   "pivo": [
+    22,
+    16.1,
+    74
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      10,
+      0
+     ],
+     "s": [
+      5.4,
+      20,
+      5.4
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios."
+  },
+  {
+   "id": "STORM.PROP.PYLON.04",
+   "nome": "Torre de transmissão 4",
+   "pasta": "Props",
+   "triangulos": 1648,
+   "tamanho": [
+    9.2,
+    31.49,
+    6.7
+   ],
+   "pivo": [
+    24,
+    13.86,
+    112
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      11.5,
+      0
+     ],
+     "s": [
+      5.4,
+      23,
+      5.4
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios."
+  },
+  {
+   "id": "STORM.PROP.PYLON.05",
+   "nome": "Torre de transmissão 5",
+   "pasta": "Props",
+   "triangulos": 1648,
+   "tamanho": [
+    9.2,
+    26.99,
+    6.7
+   ],
+   "pivo": [
+    67.85,
+    7.94,
+    108.77
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      0,
+      10,
+      0
+     ],
+     "s": [
+      5.4,
+      20,
+      5.4
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Torre de treliça da linha de transmissão, com diagonais em X, mísula, cadeias de isoladores e para-raios."
+  },
+  {
+   "id": "STORM.PROP.POWERLINE",
+   "nome": "Linha de transmissão",
+   "pasta": "Props",
+   "triangulos": 1152,
+   "tamanho": [
+    60.09,
+    10.63,
+    82.18
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [],
+   "notas": "Cabos visuais. No Roblox: Beam entre Attachments."
+  },
+  {
+   "id": "STORM.PROP.RUINS",
+   "nome": "Ruínas tecnológicas",
+   "pasta": "Props",
+   "triangulos": 2784,
+   "tamanho": [
+    218.17,
+    26.8,
+    44.38
+   ],
+   "pivo": [
+    0,
+    0,
+    0
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      -79.98950846054393,
+      6.466566748429129,
+      -19.025254480814723
+     ],
+     "s": [
+      3.2,
+      6.4,
+      3.2
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Coletor ancestral desabado (base de pedra, coluna partida com cristais, aro de cobre partido em três, tambores de coluna caídos), torre de treliça tombada com o pé ainda chumbado, e placas de metal rebitadas semienterradas."
+  }
+ ],
+ "aviso": "Exportado do visualizador web. Não importado nem testado no Roblox Studio."
+}
