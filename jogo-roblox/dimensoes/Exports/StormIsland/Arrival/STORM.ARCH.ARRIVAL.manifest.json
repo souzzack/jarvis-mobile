@@ -1,0 +1,199 @@
+{
+ "dimensao": "StormIsland",
+ "nome": "Ilha das Tempestades",
+ "unidade": "1 = 1 stud",
+ "eixos": "Y para cima, +Z = sul (chegada)",
+ "gerado": "2026-11-20",
+ "modelos": [
+  {
+   "id": "STORM.ARCH.ARRIVAL",
+   "nome": "Doca de chegada e arco do portal",
+   "pasta": "Architecture",
+   "triangulos": 14248,
+   "tamanho": [
+    31,
+    31.13,
+    26.75
+   ],
+   "pivo": [
+    0,
+    9,
+    186
+   ],
+   "rotY": 0,
+   "colisores": [
+    {
+     "c": [
+      -13.05,
+      1.6,
+      18.6
+     ],
+     "s": [
+      3.0999999999999996,
+      3.2,
+      1
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      13.05,
+      1.6,
+      18.6
+     ],
+     "s": [
+      3.0999999999999996,
+      3.2,
+      1
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -14.6,
+      1.6,
+      12.55
+     ],
+     "s": [
+      12.100000000000001,
+      3.2,
+      1
+     ],
+     "ry": -1.5707963267948966
+    },
+    {
+     "c": [
+      14.6,
+      1.6,
+      12.55
+     ],
+     "s": [
+      12.100000000000001,
+      3.2,
+      1
+     ],
+     "ry": -1.5707963267948966
+    },
+    {
+     "c": [
+      0,
+      0.55,
+      15.2
+     ],
+     "s": [
+      23,
+      1.1,
+      7.4
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -9.6,
+      9.5,
+      14
+     ],
+     "s": [
+      4.8,
+      19,
+      4.8
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      9.6,
+      9.5,
+      14
+     ],
+     "s": [
+      4.8,
+      19,
+      4.8
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -13,
+      3.4,
+      -5
+     ],
+     "s": [
+      0.7,
+      6.8,
+      0.7
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      13,
+      3.4,
+      -5
+     ],
+     "s": [
+      0.7,
+      6.8,
+      0.7
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -13,
+      3.4,
+      9
+     ],
+     "s": [
+      0.7,
+      6.8,
+      0.7
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      13,
+      3.4,
+      9
+     ],
+     "s": [
+      0.7,
+      6.8,
+      0.7
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -12,
+      3.1,
+      -4.6
+     ],
+     "s": [
+      0.6,
+      6.2,
+      0.6
+     ],
+     "ry": 0
+    },
+    {
+     "c": [
+      -11.3,
+      1,
+      3
+     ],
+     "s": [
+      4,
+      2,
+      4.6
+     ],
+     "ry": 0
+    }
+   ],
+   "notas": "Área inicial (STORM.SPAWN.01) e portal de volta (STORM.PORTAL.01). Praça 30 × 26 studs com balaustrada no lado do penhasco. Portal: anel de pedra de 18,8 studs sobre estrado, vão de energia de 12 studs."
+  }
+ ],
+ "aviso": "Exportado do visualizador web. Não importado nem testado no Roblox Studio."
+}
