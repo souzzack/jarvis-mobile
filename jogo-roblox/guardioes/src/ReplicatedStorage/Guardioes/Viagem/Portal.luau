@@ -35,13 +35,26 @@ function P.estado(dim: any, atual: string, liberada: boolean): string
 	if dim.id == atual then
 		return "aqui"
 	end
-	if type(dim.placeId) ~= "number" or dim.placeId <= 0 then
+	-- noPlace: a dimensão é uma área DESTE place (viagem local até a Part de chegada); não precisa de placeId
+	if not dim.noPlace and (type(dim.placeId) ~= "number" or dim.placeId <= 0) then
 		return "emConstrucao"
 	end
 	if not dim.hub and not liberada then
 		return "bloqueada" -- voltar ao hub é sempre permitido
 	end
 	return "ok"
+end
+
+-- Dimensões no mesmo place: em qual o jogador está, pela posição (chegadas = { id, x, z, raio }).
+-- Fora de todas as áreas = 'padrao' (a dimensão do place, normalmente o hub).
+function P.dimensaoPorPosicao(x: number, z: number, chegadas: { any }, padrao: string): string
+	for _, c in chegadas do
+		local dx, dz = x - c.x, z - c.z
+		if dx * dx + dz * dz <= c.raio * c.raio then
+			return c.id
+		end
+	end
+	return padrao
 end
 
 function P.dadosDeChegada(origem: string): { [string]: any }

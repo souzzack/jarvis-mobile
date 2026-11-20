@@ -249,7 +249,9 @@ function S.iniciarMapa(cfgTeste: any?, centro: Vector3?)
 		pasta.Name = "GuardioesMisterios"
 		pasta.Parent = Workspace
 	end
-	if cfgTeste and centro and next(marcasNoMapa()) == nil then
+	-- a sala de teste cobre os capítulos da Ilha (1 a 4): só some quando a Ilha tiver as marcas de verdade.
+	-- Marcas de outras áreas (ex.: Campo das Bolhas, capítulo 5) não podem esconder a sala.
+	if cfgTeste and centro and marcasNoMapa().MarcaInscricao == nil then
 		salaDeTeste(cfgTeste, centro)
 	end
 	for _, d in pasta:GetDescendants() do

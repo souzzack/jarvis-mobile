@@ -59,6 +59,35 @@ local function pontos(): { [string]: BasePart }
 	return l
 end
 
+-- dimensões no MESMO place: Parts de chegada (GuardioesChegadaDimensao = id; RaioDimensao = tamanho da área)
+local function chegadasLocais(): { [string]: BasePart }
+	local l: { [string]: BasePart } = {}
+	for _, d in pasta:GetDescendants() do
+		local id = d:GetAttribute("GuardioesChegadaDimensao")
+		if d:IsA("BasePart") and typeof(id) == "string" then
+			l[id] = d
+		end
+	end
+	return l
+end
+
+-- em qual dimensão o jogador está: pela área (dimensões locais) ou, fora delas, a do place
+local function dimensaoDe(p: Player): string
+	local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not hrp then
+		return ATUAL
+	end
+	local areas = {}
+	for id, parte in chegadasLocais() do
+		local raio = parte:GetAttribute("RaioDimensao")
+		if typeof(raio) == "number" and raio > 0 then
+			table.insert(areas, { id = id, x = parte.Position.X, z = parte.Position.Z, raio = raio })
+		end
+	end
+	return Portal.dimensaoPorPosicao((hrp :: BasePart).Position.X, (hrp :: BasePart).Position.Z, areas, ATUAL)
+end
+DimensionSystem.dimensaoDe = dimensaoDe
+
 local function enviar(p: Player)
 	local perfil = playerData.obter(p)
 	if not perfil then
@@ -162,14 +191,51 @@ local function listaDoPortal(p: Player)
 		return
 	end
 	local lista = {}
+	local aqui = dimensaoDe(p)
 	for _, d in Dimensoes.lista do
-		local estado = Portal.estado(d, ATUAL, podeIr(p, perfil, d))
+		local estado = Portal.estado(d, aqui, podeIr(p, perfil, d))
 		table.insert(lista, { id = d.id, nome = d.nome, estado = estado, requisito = if estado == "bloqueada" then d.requisitoPublico else nil })
 	end
 	evento:FireClient(p, EV.PORTAL, lista)
 end
 
 local teleportar: (Player, any) -> (boolean, string)
+
+-- dimensão no mesmo place: as mesmas regras da viagem (a pé, fora de combate), sem gravar/liberar o perfil
+-- (o jogador não sai do servidor). Marca a dimensão como visitada.
+local function viajarLocal(p: Player, d: any): (boolean, string)
+	local chegada = chegadasLocais()[d.id]
+	local ch = p.Character
+	if not chegada or not ch then
+		return false, "emConstrucao"
+	end
+	local okRegra, motivo = Viagem.pode({
+		descoberto = true, estado = movimento.estado(p) or "Solo", montado = montarias.montado(p), agora = os.clock(),
+		ultimoDano = ultimoDano[p] or -math.huge, ultimaViagem = -math.huge, semCombateSeg = CFG.semCombateSeg, recargaSeg = 0,
+	})
+	if not okRegra then
+		evento:FireClient(p, EV.REJEITADO, motivo)
+		return false, motivo
+	end
+	atravessando[p] = true
+	evento:FireClient(p, EV.ATRAVESSANDO, d.nome)
+	ch:PivotTo(chegada.CFrame * CFrame.new(0, 4, 0))
+	movimento.reancorar(p)
+	if not d.hub then
+		playerData.atualizar(p, function(pf)
+			if pf.dimensoes[d.id] then
+				return false
+			end
+			pf.dimensoes[d.id] = true
+			return true
+		end)
+	end
+	evento:FireClient(p, EV.CHEGOU, d.id)
+	task.delay(1.5, function()
+		atravessando[p] = nil
+	end)
+	return true, "ok"
+end
 
 local function atravessar(p: Player, id: string)
 	local perfil = playerData.obter(p)
@@ -181,7 +247,7 @@ local function atravessar(p: Player, id: string)
 		evento:FireClient(p, EV.REJEITADO, "longe")
 		return
 	end
-	local estado = Portal.estado(d, ATUAL, podeIr(p, perfil, d))
+	local estado = Portal.estado(d, dimensaoDe(p), podeIr(p, perfil, d))
 	if estado ~= "ok" then
 		evento:FireClient(p, EV.REJEITADO, if estado == "aqui" then "jaEstaAqui" elseif estado == "emConstrucao" then "emConstrucao" else "dimensaoBloqueada")
 		return
@@ -194,6 +260,9 @@ end
 teleportar = function(p: Player, d: any): (boolean, string)
 	if atravessando[p] then
 		return false, "ocupado"
+	end
+	if d.noPlace then
+		return viajarLocal(p, d)
 	end
 	if type(d.placeId) ~= "number" or d.placeId <= 0 then
 		return false, "emConstrucao" -- nunca teleporta para um lugar que não existe

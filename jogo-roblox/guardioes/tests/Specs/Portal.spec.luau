@@ -23,6 +23,17 @@ return function(T, M)
 		T.igual(P.estado(D[1], "Bolhas", false), "ok", "o hub não pede requisito")
 	end)
 
+	T.caso("dimensão no mesmo place: viaja sem placeId; a área decide onde o jogador está", function()
+		local local1 = { id = "Area", nome = "Área", hub = false, placeId = 0, noPlace = true }
+		T.igual(P.estado(local1, "Hub", true), "ok", "noPlace não fica em construção")
+		T.igual(P.estado(local1, "Hub", false), "bloqueada", "mas ainda pede os requisitos")
+		T.igual(P.estado(local1, "Area", true), "aqui")
+		local chegadas = { { id = "Area", x = 100, z = 0, raio = 50 } }
+		T.igual(P.dimensaoPorPosicao(120, 10, chegadas, "Hub"), "Area")
+		T.igual(P.dimensaoPorPosicao(0, 0, chegadas, "Hub"), "Hub")
+		T.igual(P.dimensaoPorPosicao(151, 0, chegadas, "Hub"), "Hub", "fora do raio")
+	end)
+
 	T.caso("TeleportData: só o formato exato e origem conhecida", function()
 		local dados = P.dadosDeChegada("Hub")
 		T.igual(P.lerChegada(dados, D), "Hub")

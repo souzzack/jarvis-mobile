@@ -32,8 +32,9 @@ return {
 			id = "PortaDaBiblioteca", nome = "Porta sem moldura",
 			origem = "IlhaDasTempestades", destino = "BibliotecaDoVazio",
 			descoberta = "PortaSemMoldura", -- marca que, examinada, registra a descoberta
-			-- condições para ABRIR: capítulos da investigação (o 6 ainda não foi lançado → fica selado)
-			condicoes = { capitulos = { "OSegredoDoPrimeiroArquivista#6" } },
+			-- condições para ABRIR: a mensagem de A. (capítulo 5) diz que a porta "vai te reconhecer". O capítulo 6
+			-- acontece DENTRO da Biblioteca, então não pode ser requisito para entrar nela.
+			condicoes = { capitulos = { "OSegredoDoPrimeiroArquivista#5" } },
 			grupo = { min = 1, max = 4 }, -- a companhia pode ir junto (cada um precisa do portal aberto)
 			retorno = "origem", -- volta sempre para onde entrou
 		},

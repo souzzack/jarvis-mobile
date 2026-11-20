@@ -34,6 +34,13 @@ return {
 		DenteDoVento = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoVento", acao = "Pegar" },
 		DenteDoRaio = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoRaio", acao = "Pegar" },
 		DenteDoAlto = { tipo = "enigma", puzzle = "DentesDaChave", elemento = "DenteDoAlto", acao = "Pegar" },
+		-- capítulo 5 (Campo das Bolhas)
+		MarcaMetadeFechadura = { tipo = "pista", investigacao = INV, pista = "MetadeDaFechadura", acao = "Examinar" },
+		MarcaVozNaBolha = { tipo = "pista", investigacao = INV, pista = "VozNaBolha", acao = "Escutar" },
+		FechaduraDasBolhas = { tipo = "enigma", puzzle = "FechaduraDasBolhas", elemento = "Fechadura", acao = "Usar a chave" },
+		EcoOrvalho = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaOrvalho", acao = "Tocar" },
+		EcoPrisma = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaPrisma", acao = "Tocar" },
+		EcoMel = { tipo = "enigma", puzzle = "EcoDasBolhas", elemento = "BolhaMel", acao = "Tocar" },
 	},
 
 	-- HABILIDADES INVESTIGATIVAS (seção 9): interface única; cada uma tem VÁRIAS fontes, para nenhuma espécie,
@@ -91,6 +98,13 @@ return {
 			marcas = { "ChaveIncompleta" },
 			xp = 300,
 		},
+		-- a mensagem de A.: primeira pista sobre a Fratura; a marca abre a Porta sem Moldura (capítulo 6)
+		RecCap5_Mensagem = {
+			materiais = { FolhaDeRegistro = 2 },
+			registros = { "Arq04_AMensagem" },
+			marcas = { "MensagemEntreDimensoes" },
+			xp = 400,
+		},
 		RecCap3_Torres = {
 			materiais = { FolhaDeRegistro = 2, NucleoDeTempestade = 1 },
 			registros = { "Arq03_AsTorres" },
@@ -111,6 +125,10 @@ return {
 		Frag01_ChaveIncompleta = {
 			titulo = "A Chave Incompleta", categoria = "FragmentoDesconhecido",
 			texto = "Uma chave de três dentes que gira sozinha no encaixe e para no meio. Não está quebrada: falta o resto da fechadura, e ela não está nesta ilha. O metal não é de nenhum material que você conheça.",
+		},
+		Arq04_AMensagem = {
+			titulo = "Registro do Arquivista A. (fragmento 4)", categoria = "RegistroAntigo",
+			texto = "\"Escrevo do outro lado da fechadura. O Atlas vibra errado há semanas, como um sino rachado por dentro. Os outros dizem que é normal. Vou guardar as páginas na Biblioteca, atrás da porta que não tem moldura. Se você leu até aqui, ela vai te reconhecer.\"",
 		},
 		Arq03_AsTorres = {
 			titulo = "Registro do Arquivista A. (fragmento 3)", categoria = "ConhecimentoProibido",

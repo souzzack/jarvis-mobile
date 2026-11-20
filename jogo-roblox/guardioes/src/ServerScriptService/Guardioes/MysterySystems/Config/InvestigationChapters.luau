@@ -101,7 +101,27 @@ return {
 				},
 				recompensa = "RecCap4_Chave",
 			},
-			{ n = 5, nome = "A Mensagem Entre Dimensões", lancado = false, pistas = {}, objetivos = {}, dimensao = "CampoDasBolhas" },
+			{
+				-- no Campo das Bolhas: a outra metade da fechadura. A Chave Incompleta (marca do capítulo 4) abre; depois,
+				-- três bolhas tocadas na ordem da semente soltam a mensagem de A. (sobre a Fratura, sem culpados)
+				n = 5, nome = "A Mensagem Entre Dimensões", lancado = true, dimensao = "CampoDasBolhas",
+				pistas = {
+					MetadeDaFechadura = {
+						ordem = 1, nome = "A outra metade da fechadura", categoria = "D",
+						texto = "Presa numa bolha de pedra que não estoura: a metade de uma fechadura. Os encaixes têm o formato exato dos dentes da sua chave.",
+					},
+					VozNaBolha = {
+						ordem = 2, nome = "Uma voz guardada numa bolha", categoria = "A",
+						texto = "A bolha repete uma voz, a de A.: \"Se a chave chegou até aqui, a Ilha confiou em você. Toque as bolhas na ordem em que a tempestade chega: a de {1}, depois a de {2}, por último a de {3}.\"",
+					},
+				},
+				objetivos = {
+					{ id = "PistasDaMensagem", nome = "Entender o que a fechadura pede", tipo = "pistas", pistas = { "MetadeDaFechadura", "VozNaBolha" } },
+					{ id = "FechaduraDasBolhas", nome = "Girar a Chave Incompleta na outra metade", tipo = "enigma", puzzle = "FechaduraDasBolhas", visivelApos = "PistasDaMensagem" },
+					{ id = "EcoDasBolhas", nome = "Tocar as três bolhas na ordem da tempestade", tipo = "enigma", puzzle = "EcoDasBolhas", visivelApos = "FechaduraDasBolhas" },
+				},
+				recompensa = "RecCap5_Mensagem",
+			},
 			{ n = 6, nome = "A Biblioteca do Vazio", lancado = false, pistas = {}, objetivos = {}, dimensao = "BibliotecaDoVazio" },
 			{ n = 7, nome = "A Primeira Receita ???", lancado = false, pistas = {}, objetivos = {} },
 		},

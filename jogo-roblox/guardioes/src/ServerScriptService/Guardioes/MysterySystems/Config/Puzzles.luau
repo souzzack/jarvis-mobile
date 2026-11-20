@@ -39,6 +39,21 @@ return {
 		nomes = { DenteDoVento = "dente do vento", DenteDoRaio = "dente do raio", DenteDoAlto = "dente do alto" },
 		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "DentesDaChave" },
 	},
+	-- capítulo 5 (Campo das Bolhas): a metade da fechadura só responde a quem trouxe a Chave Incompleta da Ilha
+	-- (marca interdimensional do capítulo 4); depois, as três bolhas na ordem da semente
+	FechaduraDasBolhas = {
+		tipo = "Interdimensional", escopo = "individual", raio = 10,
+		marcas = { "ChaveIncompleta" },
+		elementos = { "Fechadura" },
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "FechaduraDasBolhas" },
+	},
+	EcoDasBolhas = {
+		tipo = "Sequencia", escopo = "individual", raio = 10,
+		elementos = { "BolhaOrvalho", "BolhaPrisma", "BolhaMel" },
+		nomes = { BolhaOrvalho = "orvalho", BolhaPrisma = "prisma", BolhaMel = "mel" },
+		ordem = "semente",
+		objetivo = { investigacao = "OSegredoDoPrimeiroArquivista", id = "EcoDasBolhas" },
+	},
 	-- EXEMPLOS de cada tipo (configs válidas, testadas no spec; ainda sem lugar no mapa)
 	ExemploAlinhamento = { tipo = "Alinhamento", escopo = "individual", raio = 10, elementos = { "EspelhoA", "EspelhoB", "EspelhoC" }, posicoes = 4 },
 	ExemploColeta = { tipo = "Coleta", escopo = "individual", raio = 10, itens = { "Pagina1", "Pagina2", "Pagina3" } },
