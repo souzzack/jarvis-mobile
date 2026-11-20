@@ -120,3 +120,23 @@ O personagem andou com `Humanoid:MoveTo`, como um jogador. As posições estão 
 | Materiais | **IMPLEMENTADO** (16 peças corrigidas). O brilho das runas e a luz interna estão **PENDENTES** |
 | Demais estruturas | **Não importadas** (aguardam revisão) |
 | Terreno definitivo | **Não gerado** |
+
+## 7. Revisão 03: luz interna e colisor do telhado (aprovado: "Pode aplicar")
+
+| Item | O que foi feito | Status |
+|---|---|---|
+| **Luz interna** | Peça âncora invisível `…Oficina dos Inventores.LuzInterna`, sem colisão, com uma PointLight. Valores do projeto (`OficinaConfig.lua`): local (0; 10,1; 1), cor (255, 180, 104), brilho 1,6, alcance 34, sem sombra. É só visual: o "apagar de longe" do script cliente **não** foi aplicado | **IMPLEMENTADO e TESTADO** (captura `05-interior-com-luz.jpg`) |
+| **Telhado** | 2 caixas, `Colisor25_TelhadoFrente` e `Colisor26_TelhadoFundo`, com a geometria de `oficina.js`: inclinação 0,55, cumeeira em 18,45, água de 28,8 × 13,24. Marcadas com o atributo `ForaDoManifest` | **IMPLEMENTADO e TESTADO** |
+| **Defeito no colisor 16 do manifest** (verga da porta) | No manifest a caixa ficava entre 13,0 e 16,4, **toda acima do topo da parede (12,6)**. Isso fazia um calombo invisível de cerca de 2,5 studs sobre o telhado, no beiral, e deixava o vão de colisão da porta aberto até 13,0, mais alto que o arco visual (cerca de 9,25, medido por raios). Corrigi **só no Studio**: caixa de 6,4 × 3,3 × 0,9 entre 9,3 e 12,6. O valor original ficou no atributo `ManifestOriginal` | **IMPLEMENTADO e TESTADO** (raio). **PENDENTE:** corrigir também a fonte (`oficina.js` / manifest), que não alterei para preservar os arquivos-fonte |
+
+**Testes no Play:**
+- **Telhado:** o personagem foi solto 30 studs acima de cada água e ficou **em cima do telhado** (raiz em y = 19,3, pés na chapa em torno de 16). Antes, cairia até o piso interno (4,7).
+- **Raios:** o colisor do telhado fica 0,19 stud abaixo da chapa visual nas duas águas. No beiral, 13,44 contra 13,63.
+- **Entrada:** escada, patamar, porta e interior continuam passando.
+- **Pulo à frente da porta:** a raiz subiu 3,8 studs, o pulo configurado pelo `MovementSystem`. Ele não testou a verga por baixo; a verga foi conferida pela geometria.
+- **Output:** nenhum erro novo. Testes: 234 passaram, 0 falharam.
+- **Colisores:** agora são 26 (24 do manifest e 2 do telhado). A cópia de teste está salva na **versão 9**.
+
+**Observação para decisão:** com os valores do projeto, a luz deixa o interior **laranja saturado** no Roblox, mais forte que no render do visualizador (as duas iluminações são diferentes). Sugiro calibrar: brilho perto de 0,8 e alcance perto de 24. Não alterei sem a sua aprovação.
+
+**Pendências que restam:** o brilho das runas (sem equivalente direto), a calibragem da luz, a correção do colisor 16 na fonte e o procedimento padrão de importação para a próxima estrutura.
