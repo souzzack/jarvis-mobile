@@ -21,7 +21,10 @@ return function(T, M)
 		T.falso(saindo)
 		T.igual(select(2, E.pode(esp.EspadaDoHorizonte, ctx({ recargaAte = 12 }))), "recarga")
 		T.igual(select(2, E.pode(esp.EspadaDoHorizonte, ctx({ estamina = 10 }))), "estamina")
-		T.igual(select(2, E.pode(esp.EspadaDoHorizonte, ctx({ formaAtiva = nil }))), "transformando")
+		-- { formaAtiva = nil } não cria a chave em Luau; o nil precisa ser atribuído depois
+		local trocando = ctx()
+		trocando.formaAtiva = nil
+		T.igual(select(2, E.pode(esp.EspadaDoHorizonte, trocando)), "transformando")
 	end)
 
 	T.caso("Corte em Voo: da prancha só no estágio 4", function()

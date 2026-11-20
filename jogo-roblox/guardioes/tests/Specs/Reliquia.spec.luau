@@ -57,8 +57,12 @@ return function(T, M)
 	end)
 
 	T.caso("relíquia ??? fica fora do catálogo público", function()
+		-- confere a LISTA pública (o arquivo que vai para o cliente): no Play, o EquipmentSystem junta as
+		-- secretas em porId só na cópia do servidor, de propósito, então porId não serve para esta checagem
 		for _, r in M.ReliquiasSecretas do
-			T.igual(M.Equipamentos.porId[r.id], nil, "não pode estar em Config/Equipamentos: " .. r.id)
+			for _, e in M.Equipamentos.lista do
+				T.verdade(e.id ~= r.id, "não pode estar em Config/Equipamentos: " .. r.id)
+			end
 			T.igual(r.tipo, "Reliquia")
 			T.igual(r.raridade, "Oculta")
 		end

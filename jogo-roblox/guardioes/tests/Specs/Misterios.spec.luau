@@ -123,7 +123,11 @@ return function(T, M)
 		end
 		for id, m in S.marcas do
 			if m.tipo == "enigma" then
-				T.verdade(table.find(M.Puzzles[m.puzzle].elementos, m.elemento) ~= nil, id)
+				-- enigmas de coleta usam "itens" e de exploração usam "alvos"
+				local pz = M.Puzzles[m.puzzle]
+				T.verdade(pz ~= nil, id .. ": enigma " .. tostring(m.puzzle))
+				local lista = pz and (pz.elementos or pz.itens or pz.alvos) or {}
+				T.verdade(table.find(lista, m.elemento) ~= nil, id)
 			elseif m.tipo == "pista" then
 				for _, pid in m.pistas or { m.pista } do
 					T.verdade(pistaExiste(pid), id .. " → " .. pid)
