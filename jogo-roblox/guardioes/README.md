@@ -58,6 +58,7 @@ default.project.json                  mapa do Rojo
 
 ## Testar
 
+0. **Jeito rápido:** rode `ferramentas/preparar-studio.ps1` (Windows) ou `ferramentas/preparar-studio.sh` (Mac). Ele baixa o código, baixa o Rojo para dentro da pasta, instala o plugin e inicia a sincronização. Depois é só fazer os passos 2 e 3 abaixo numa **cópia** do place.
 1. **Sincronizar com o Rojo.** Numa **cópia** do place, rode `rojo serve` nesta pasta e conecte o plugin do Studio.
 2. **Rodar os testes de lógica.** Na barra de comandos: `require(game.ServerStorage.GuardioesTestes.Studio)()`
 3. **Jogar.** Dê Play e siga o [plano de testes](docs/05-PLANO-DE-TESTES-STUDIO.md).
